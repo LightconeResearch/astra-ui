@@ -107,6 +107,7 @@ export function InventoryRecordList({
 
 export interface InventoryDetailSurfaceProps {
   className?: string | undefined;
+  kind?: InventoryKind | 'paper' | 'file' | undefined;
   eyebrow: string;
   title: string;
   identifier?: string | undefined;
@@ -127,6 +128,7 @@ export interface InventoryDetailSurfaceProps {
  */
 export function InventoryDetailSurface({
   className,
+  kind,
   eyebrow,
   title,
   identifier,
@@ -143,6 +145,7 @@ export function InventoryDetailSurface({
   return (
     <section
       className={className}
+      data-kind={kind}
       role={modal ? 'dialog' : 'region'}
       aria-modal={modal || undefined}
       aria-labelledby={titleId}

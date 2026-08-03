@@ -3,66 +3,97 @@
 /*
  * Host-aware semantic mapping for portable ASTRA surfaces.
  *
- * JupyterLab and VS Code variables win when present. Brand values are the
- * offline fallback and can be selected explicitly with data-astra-theme.
+ * Neutral surfaces follow JupyterLab or VS Code. ASTRA record kinds keep a
+ * stable colour grammar so an output or decision reads the same in every host.
+ * Brand-light and brand-dark can be selected explicitly with data-astra-theme.
  */
 .astra-viewer {
-  --astra-paper: var(--jp-layout-color1, var(--vscode-editor-background, #ffffff));
-  --astra-surface: var(--jp-layout-color0, var(--vscode-sideBar-background, #f1efe9));
-  --astra-surface-2: var(--jp-layout-color2, var(--vscode-editorWidget-background, #e9e6dd));
+  --astra-canvas: var(--jp-layout-color0, var(--vscode-sideBar-background, #e9e7e2));
+  --astra-panel: var(--jp-layout-color1, var(--vscode-editor-background, #fffdfa));
+  --astra-raised: var(--jp-layout-color1, var(--vscode-editorWidget-background, #ffffff));
+  --astra-hover: var(--jp-layout-color2, var(--vscode-list-hoverBackground, #faf8f4));
+  --astra-artifact-paper: #fffdfa;
+  --astra-artifact-ink: #1e1c19;
 
-  --astra-ink: var(--jp-ui-font-color1, var(--vscode-editor-foreground, #221f20));
-  --astra-ink-soft: var(--jp-ui-font-color2, var(--vscode-descriptionForeground, #4e5a70));
-  --astra-muted: var(--jp-ui-font-color3, var(--vscode-disabledForeground, #8b7d70));
-  --astra-faint: var(--jp-ui-font-color3, var(--vscode-disabledForeground, #bcb2a6));
+  /* Backwards-compatible surface names. */
+  --astra-paper: var(--astra-panel);
+  --astra-surface: var(--astra-raised);
+  --astra-surface-2: var(--astra-hover);
 
-  --astra-rule: var(--jp-border-color2, var(--vscode-widget-border, #e4e1d7));
-  --astra-rule-strong: var(--jp-border-color1, var(--vscode-contrastBorder, #d2ccbf));
+  --astra-ink: var(--jp-ui-font-color1, var(--vscode-editor-foreground, #1e1c19));
+  --astra-ink-soft: var(--jp-ui-font-color2, var(--vscode-descriptionForeground, #5c584f));
+  --astra-muted: var(--jp-ui-font-color3, var(--vscode-disabledForeground, #8a857a));
+  --astra-faint: var(--jp-ui-font-color3, var(--vscode-disabledForeground, #aaa59b));
 
-  --astra-accent: var(--jp-brand-color1, var(--vscode-textLink-foreground, #a67c3c));
-  --astra-link: var(--jp-content-link-color, var(--vscode-textLink-foreground, var(--astra-accent)));
-  --astra-accent-soft: var(--jp-brand-color3, var(--vscode-list-hoverBackground, rgb(166 124 60 / 0.12)));
-  --astra-kicker: var(--jp-info-color1, var(--vscode-textLink-activeForeground, #3f7280));
+  --astra-rule-subtle: var(--jp-border-color3, var(--vscode-widget-shadow, #f0ede6));
+  --astra-rule: var(--jp-border-color2, var(--vscode-widget-border, #eae7e0));
+  --astra-rule-strong: var(--jp-border-color1, var(--vscode-contrastBorder, #d5d2cb));
 
-  --astra-c-decision: var(--astra-accent);
-  --astra-c-finding: var(--jp-success-color1, var(--vscode-testing-iconPassed, #3b7a73));
-  --astra-c-insight: var(--jp-warn-color1, var(--vscode-editorWarning-foreground, #a45a43));
-  --astra-c-analysis: var(--astra-kicker);
-  --astra-c-output: var(--astra-ink-soft);
-  --astra-c-input: var(--astra-ink-soft);
-  --astra-c-value: var(--astra-kicker);
+  --astra-action: var(--jp-brand-color1, var(--vscode-textLink-foreground, #3563a8));
+  --astra-focus: var(--jp-brand-color1, var(--vscode-focusBorder, #3563a8));
+  --astra-accent: var(--astra-action);
+  --astra-link: var(--jp-content-link-color, var(--vscode-textLink-foreground, var(--astra-action)));
+  --astra-accent-soft: var(--jp-brand-color3, color-mix(in srgb, var(--astra-action) 10%, transparent));
+  --astra-kicker: #3b7f8c;
 
-  --astra-heading: var(--jp-content-font-family, var(--vscode-font-family, "Quattrocento", Georgia, "Times New Roman", serif));
-  --astra-serif: var(--jp-content-font-family, var(--vscode-font-family, "Newsreader", Georgia, "Times New Roman", serif));
-  --astra-label: var(--jp-ui-font-family, var(--vscode-font-family, "Alegreya", Georgia, serif));
-  --astra-mono: var(--jp-code-font-family, var(--vscode-editor-font-family, "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace));
+  /* Host themes do not redefine the meaning of ASTRA record kinds. */
+  --astra-c-input: #3563a8;
+  --astra-c-analysis: #3b7f8c;
+  --astra-c-output: #2e7d5b;
+  --astra-c-decision: #b07818;
+  --astra-c-decision-ink: #7a5410;
+  --astra-c-finding: #7a4fae;
+  --astra-c-insight: #8c72a8;
+  --astra-c-insight-ink: #6f4a91;
+  --astra-c-value: #3b7f8c;
+  --astra-c-result: #26241f;
+  --astra-c-danger: #a34e4e;
+
+  --astra-c-input-soft: color-mix(in srgb, var(--astra-c-input) 10%, var(--astra-panel));
+  --astra-c-analysis-soft: color-mix(in srgb, var(--astra-c-analysis) 10%, var(--astra-panel));
+  --astra-c-output-soft: color-mix(in srgb, var(--astra-c-output) 10%, var(--astra-panel));
+  --astra-c-decision-soft: color-mix(in srgb, var(--astra-c-decision) 10%, var(--astra-panel));
+  --astra-c-finding-soft: color-mix(in srgb, var(--astra-c-finding) 10%, var(--astra-panel));
+  --astra-c-insight-soft: color-mix(in srgb, var(--astra-c-insight) 11%, var(--astra-panel));
+  --astra-c-value-soft: color-mix(in srgb, var(--astra-c-value) 10%, var(--astra-panel));
+  --astra-c-danger-soft: color-mix(in srgb, var(--astra-c-danger) 9%, var(--astra-panel));
+
+  --astra-heading: var(--jp-ui-font-family, var(--vscode-font-family, "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif));
+  --astra-serif: var(--jp-ui-font-family, var(--vscode-font-family, "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif));
+  --astra-label: var(--jp-ui-font-family, var(--vscode-font-family, "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif));
+  --astra-mono: var(--jp-code-font-family, var(--vscode-editor-font-family, "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace));
 
   --astra-measure: 40rem;
   --astra-card-w: 27.5rem;
-  --astra-radius: 3px;
-  --astra-shadow: var(--jp-elevation-z4, 0 6px 18px rgb(38 28 15 / 0.1));
-  --astra-kind: var(--astra-accent);
+  --astra-radius: 5px;
+  --astra-shadow: var(--jp-elevation-z4, 0 4px 14px rgb(40 36 28 / 0.1));
+  --astra-kind: var(--astra-action);
 
   /* Explicit aliases for consumers that prefer role-oriented names. */
-  --astra-color-surface: var(--astra-paper);
-  --astra-color-surface-raised: var(--astra-surface);
-  --astra-color-surface-muted: var(--astra-surface-2);
+  --astra-color-surface: var(--astra-panel);
+  --astra-color-surface-raised: var(--astra-raised);
+  --astra-color-surface-muted: var(--astra-hover);
+  --astra-color-canvas: var(--astra-canvas);
   --astra-color-text: var(--astra-ink);
   --astra-color-text-muted: var(--astra-ink-soft);
   --astra-color-border: var(--astra-rule);
-  --astra-color-accent: var(--astra-accent);
+  --astra-color-border-strong: var(--astra-rule-strong);
+  --astra-color-accent: var(--astra-action);
   --astra-color-accent-contrast: var(--jp-ui-inverse-font-color1, var(--vscode-button-foreground, #ffffff));
-  --astra-color-danger: var(--jp-error-color1, var(--vscode-errorForeground, var(--astra-c-insight)));
-  --astra-color-warning: var(--jp-warn-color1, var(--vscode-editorWarning-foreground, var(--astra-accent)));
-  --astra-color-success: var(--jp-success-color1, var(--vscode-testing-iconPassed, var(--astra-c-finding)));
+  --astra-color-danger: var(--astra-c-danger);
+  --astra-color-warning: var(--astra-c-decision);
+  --astra-color-success: var(--astra-c-output);
   --astra-font-ui: var(--astra-label);
   --astra-font-body: var(--astra-serif);
   --astra-font-heading: var(--astra-heading);
   --astra-font-mono: var(--astra-mono);
   --astra-font-size: var(--jp-ui-font-size1, 0.875rem);
   --astra-radius-sm: var(--astra-radius);
-  --astra-radius-md: 0.65rem;
+  --astra-radius-md: 10px;
+  --astra-radius-control: var(--astra-radius);
+  --astra-radius-panel: 10px;
   --astra-shadow-raised: var(--astra-shadow);
+  --astra-shadow-panel: var(--astra-shadow);
   --astra-space-1: 0.25rem;
   --astra-space-2: 0.5rem;
   --astra-space-3: 0.75rem;
@@ -70,10 +101,38 @@
 
   box-sizing: border-box;
   color: var(--astra-ink);
-  background: var(--astra-paper);
-  font-family: var(--astra-label);
+  background: var(--astra-panel);
+  font-family: var(--astra-font-ui);
   font-size: var(--astra-font-size);
   line-height: 1.5;
+}
+
+/* JupyterLab and VS Code expose host darkness on an ancestor. Keep ASTRA's
+ * semantic families stable while lifting them to accessible dark-mode hues.
+ * Explicit brand-light/brand-dark selections remain authoritative. */
+:where([data-jp-theme-light="false"], .vscode-dark, .vscode-high-contrast)
+  .astra-viewer:not([data-astra-theme]) {
+  --astra-kicker: #82bdc8;
+  --astra-c-input: #8eb4ed;
+  --astra-c-analysis: #82bdc8;
+  --astra-c-output: #78c39e;
+  --astra-c-decision: #e2b45f;
+  --astra-c-decision-ink: #e2b45f;
+  --astra-c-finding: #b99adf;
+  --astra-c-insight: #c3a8dc;
+  --astra-c-insight-ink: #c3a8dc;
+  --astra-c-value: #82bdc8;
+  --astra-c-result: #f2eee7;
+  --astra-c-danger: #e49393;
+
+  --astra-c-input-soft: color-mix(in srgb, var(--astra-c-input) 15%, var(--astra-panel));
+  --astra-c-analysis-soft: color-mix(in srgb, var(--astra-c-analysis) 15%, var(--astra-panel));
+  --astra-c-output-soft: color-mix(in srgb, var(--astra-c-output) 14%, var(--astra-panel));
+  --astra-c-decision-soft: color-mix(in srgb, var(--astra-c-decision) 14%, var(--astra-panel));
+  --astra-c-finding-soft: color-mix(in srgb, var(--astra-c-finding) 15%, var(--astra-panel));
+  --astra-c-insight-soft: color-mix(in srgb, var(--astra-c-insight) 15%, var(--astra-panel));
+  --astra-c-value-soft: color-mix(in srgb, var(--astra-c-value) 15%, var(--astra-panel));
+  --astra-c-danger-soft: color-mix(in srgb, var(--astra-c-danger) 13%, var(--astra-panel));
 }
 
 .astra-viewer *,
@@ -83,6 +142,6 @@
 }
 
 .astra-viewer :where(button, a, input, select, textarea):focus-visible {
-  outline: 2px solid var(--astra-accent);
+  outline: 2px solid var(--astra-focus);
   outline-offset: 2px;
 }

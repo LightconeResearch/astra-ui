@@ -1,5 +1,5 @@
 /*
- * Lightcone's canonical ASTRA publication palette.
+ * ASTRA's portable visual foundation.
  *
  * The selectors are deliberately scoped: publication hosts opt in with
  * `.astra-brand`; portable viewer hosts opt in with data-astra-theme.
@@ -8,79 +8,140 @@
 .astra-brand,
 .astra-brand .astra-viewer,
 .astra-viewer[data-astra-theme="brand-light"] {
-  /* surfaces */
-  --astra-paper: #ffffff;
-  --astra-surface: #f1efe9;
-  --astra-surface-2: #e9e6dd;
+  /* Reference canvas -> panel -> raised surface hierarchy. */
+  --astra-canvas: #e9e7e2;
+  --astra-panel: #fffdfa;
+  --astra-raised: #ffffff;
+  --astra-hover: #faf8f4;
+  --astra-artifact-paper: #ffffff;
+  --astra-artifact-ink: #1e1c19;
 
-  /* ink */
-  --astra-ink: #221f20;
-  --astra-ink-soft: #4e5a70;
-  --astra-muted: #8b7d70;
-  --astra-faint: #bcb2a6;
+  /* Backwards-compatible surface names. */
+  --astra-paper: var(--astra-panel);
+  --astra-surface: var(--astra-raised);
+  --astra-surface-2: var(--astra-hover);
 
-  /* rules */
-  --astra-rule: #e4e1d7;
-  --astra-rule-strong: #d2ccbf;
+  /* Ink. */
+  --astra-ink: #1e1c19;
+  --astra-ink-soft: #5c584f;
+  --astra-muted: #8a857a;
+  --astra-faint: #aaa59b;
 
-  /* Antique Gold accent and Slate Blue kicker */
-  --astra-accent: #a67c3c;
-  --astra-link: #a67c3c;
-  --astra-accent-soft: rgb(166 124 60 / 0.12);
-  --astra-kicker: #3f7280;
+  /* Warm rules. */
+  --astra-rule-subtle: #f0ede6;
+  --astra-rule: #eae7e0;
+  --astra-rule-strong: #d5d2cb;
 
-  /* record-kind accents */
-  --astra-c-decision: #a67c3c;
-  --astra-c-finding: #3b7a73;
-  --astra-c-insight: #a45a43;
-  --astra-c-analysis: #3f7280;
-  --astra-c-output: #4e5a70;
-  --astra-c-input: #4e5a70;
-  --astra-c-value: #3f7280;
+  /* Generic interaction is intentionally separate from decision amber. */
+  --astra-action: #3563a8;
+  --astra-focus: #3563a8;
+  --astra-accent: var(--astra-action);
+  --astra-link: var(--astra-action);
+  --astra-accent-soft: rgb(53 99 168 / 0.1);
+  --astra-kicker: #3b7f8c;
 
-  /* canonical typography with offline-safe fallbacks */
-  --astra-heading: "Quattrocento", Georgia, "Times New Roman", serif;
-  --astra-serif: "Newsreader", Georgia, "Times New Roman", serif;
-  --astra-label: "Alegreya", Georgia, serif;
-  --astra-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  /* Stable scientific-record kind colours. */
+  --astra-c-input: #3563a8;
+  --astra-c-analysis: #3b7f8c;
+  --astra-c-output: #2e7d5b;
+  --astra-c-decision: #b07818;
+  --astra-c-decision-ink: #7a5410;
+  --astra-c-finding: #7a4fae;
+  --astra-c-insight: #8c72a8;
+  --astra-c-insight-ink: #6f4a91;
+  --astra-c-value: #3b7f8c;
+  --astra-c-result: #26241f;
+  --astra-c-danger: #a34e4e;
 
-  /* shared geometry */
+  /* Low-chroma fills retain kind identity without reducing text contrast. */
+  --astra-c-input-soft: rgb(53 99 168 / 0.1);
+  --astra-c-analysis-soft: rgb(59 127 140 / 0.1);
+  --astra-c-output-soft: rgb(46 125 91 / 0.1);
+  --astra-c-decision-soft: #fbf6eb;
+  --astra-c-finding-soft: rgb(122 79 174 / 0.1);
+  --astra-c-insight-soft: rgb(140 114 168 / 0.11);
+  --astra-c-value-soft: rgb(59 127 140 / 0.1);
+  --astra-c-danger-soft: #fff7f5;
+
+  /* Offline-safe technical typography; no font download is required. */
+  --astra-heading: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --astra-serif: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --astra-label: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --astra-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  /* Shared geometry. */
   --astra-measure: 40rem;
   --astra-card-w: 27.5rem;
-  --astra-radius: 3px;
-  --astra-shadow: 0 6px 18px rgb(38 28 15 / 0.1);
-  --astra-kind: var(--astra-accent);
+  --astra-radius: 5px;
+  --astra-shadow: 0 4px 14px rgb(40 36 28 / 0.1);
+  --astra-kind: var(--astra-action);
+
+  /* Role aliases used by host chrome. */
+  --astra-color-canvas: var(--astra-canvas);
+  --astra-color-border-strong: var(--astra-rule-strong);
+  --astra-radius-control: var(--astra-radius);
+  --astra-radius-panel: 10px;
+  --astra-shadow-panel: var(--astra-shadow);
 }
 
 .astra-brand[data-astra-color-scheme="dark"],
 .astra-brand[data-astra-color-scheme="dark"] .astra-viewer,
 .astra-viewer[data-astra-theme="brand-dark"] {
-  --astra-paper: #221f20;
-  --astra-surface: #2a2728;
-  --astra-surface-2: #312d2e;
+  --astra-canvas: #171614;
+  --astra-panel: #1e1d1a;
+  --astra-raised: #272520;
+  --astra-hover: #302d27;
+  /* Scientific figures and tables keep a paper-coloured inspection canvas. */
+  --astra-artifact-paper: #fffdfa;
+  --astra-artifact-ink: #1e1c19;
 
-  --astra-ink: #f1efe9;
-  --astra-ink-soft: #b4bdcd;
-  --astra-muted: #9c9085;
-  --astra-faint: #6e6660;
+  --astra-paper: var(--astra-panel);
+  --astra-surface: var(--astra-raised);
+  --astra-surface-2: var(--astra-hover);
 
-  --astra-rule: #3b3738;
-  --astra-rule-strong: #4c4747;
+  --astra-ink: #f2eee7;
+  --astra-ink-soft: #c4bdb2;
+  --astra-muted: #a39b90;
+  --astra-faint: #777168;
 
-  --astra-accent: #c2924a;
-  --astra-link: #c2924a;
-  --astra-accent-soft: rgb(194 146 74 / 0.16);
-  --astra-kicker: #7fa8b5;
+  --astra-rule-subtle: #302d28;
+  --astra-rule: #3b3731;
+  --astra-rule-strong: #514b42;
 
-  --astra-c-decision: #c2924a;
-  --astra-c-finding: #5fa199;
-  --astra-c-insight: #c97f66;
-  --astra-c-analysis: #6fa0ae;
-  --astra-c-output: #93a1bc;
-  --astra-c-input: #93a1bc;
-  --astra-c-value: #6fa0ae;
+  --astra-action: #8eb4ed;
+  --astra-focus: #9fc2f4;
+  --astra-accent: var(--astra-action);
+  --astra-link: var(--astra-action);
+  --astra-accent-soft: rgb(142 180 237 / 0.16);
+  --astra-kicker: #82bdc8;
 
-  --astra-shadow: 0 6px 18px rgb(0 0 0 / 0.45);
-  --astra-kind: var(--astra-accent);
+  --astra-c-input: #8eb4ed;
+  --astra-c-analysis: #82bdc8;
+  --astra-c-output: #78c39e;
+  --astra-c-decision: #e2b45f;
+  --astra-c-decision-ink: #e2b45f;
+  --astra-c-finding: #b99adf;
+  --astra-c-insight: #c3a8dc;
+  --astra-c-insight-ink: #c3a8dc;
+  --astra-c-value: #82bdc8;
+  --astra-c-result: #f2eee7;
+  --astra-c-danger: #e49393;
+
+  --astra-c-input-soft: rgb(142 180 237 / 0.15);
+  --astra-c-analysis-soft: rgb(130 189 200 / 0.15);
+  --astra-c-output-soft: rgb(120 195 158 / 0.14);
+  --astra-c-decision-soft: rgb(226 180 95 / 0.14);
+  --astra-c-finding-soft: rgb(185 154 223 / 0.15);
+  --astra-c-insight-soft: rgb(195 168 220 / 0.15);
+  --astra-c-value-soft: rgb(130 189 200 / 0.15);
+  --astra-c-danger-soft: rgb(228 147 147 / 0.13);
+
+  --astra-shadow: 0 5px 18px rgb(0 0 0 / 0.38);
+  --astra-kind: var(--astra-action);
+
+  --astra-color-canvas: var(--astra-canvas);
+  --astra-color-border-strong: var(--astra-rule-strong);
+  --astra-radius-control: var(--astra-radius);
+  --astra-radius-panel: 10px;
+  --astra-shadow-panel: var(--astra-shadow);
 }
-

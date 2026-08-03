@@ -39,6 +39,7 @@ export function InputDialog({
 }) {
   return (
     <InventoryDetailDialog
+      kind="input"
       eyebrow={`Input · ${record.type ?? 'data'} · ${scope.name}`}
       title={inventoryRecordTitle(record)}
       identifier={record.label ? record.id : undefined}

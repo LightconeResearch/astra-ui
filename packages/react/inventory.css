@@ -248,8 +248,8 @@
 .inventory-output-table {
   width: 100%;
   overflow: auto;
-  background: #FFFFFF;
-  color: #221F20;
+  background: var(--astra-artifact-paper);
+  color: var(--astra-artifact-ink);
 }
 
 .inventory-output-table table {
@@ -263,7 +263,7 @@
 .inventory-output-table td {
   max-width: 12rem;
   overflow: hidden;
-  border-bottom: 1px solid #E4E1D7;
+  border-bottom: 1px solid color-mix(in srgb, var(--astra-artifact-ink) 13%, var(--astra-artifact-paper));
   padding: 0.38rem 0.55rem;
   text-align: left;
   text-overflow: ellipsis;
@@ -271,8 +271,8 @@
 }
 
 .inventory-output-table th {
-  background: #F1EFE9;
-  color: #4E5A70;
+  background: color-mix(in srgb, var(--astra-artifact-ink) 7%, var(--astra-artifact-paper));
+  color: color-mix(in srgb, var(--astra-artifact-ink) 76%, var(--astra-artifact-paper));
   font-family: var(--astra-label);
   font-size: 0.65rem;
   letter-spacing: 0.03em;
@@ -283,8 +283,8 @@
   font-size: 0.65rem;
 }
 
-.inventory-output-table td { color: #221F20; }
-.inventory-output-table tbody tr:hover td { background: #FFFFFF; }
+.inventory-output-table td { color: var(--astra-artifact-ink); }
+.inventory-output-table tbody tr:hover td { background: var(--astra-artifact-paper); }
 
 .inventory-output-table > p {
   margin: 0.65rem 0 0;
@@ -721,7 +721,7 @@
 .inventory-paper-pdf__page {
   position: relative;
   margin: 0 auto;
-  background: #FFFFFF;
+  background: var(--astra-artifact-paper);
   box-shadow: 0 0.8rem 2rem rgba(0, 0, 0, 0.3);
 }
 
@@ -1351,7 +1351,7 @@
 .inventory-output-dialog__preview.is-table {
   display: block;
   min-height: 0;
-  background: #FFFFFF;
+  background: var(--astra-artifact-paper);
 }
 .inventory-output-dialog__preview > img {
   display: block;
@@ -1668,7 +1668,327 @@
 /* Keep transparent artifact thumbnails legible in the scoped brand dark mode. */
 .astra-brand[data-astra-color-scheme="dark"] .astra-evidence__thumb img,
 .astra-viewer[data-astra-theme="brand-dark"] .astra-evidence__thumb img {
-  background: #fbf9f4;
+  background: var(--astra-artifact-paper);
   border-radius: 3px;
 }
 
+/* --------------------------------------------------------------------------
+   Compact ASTRA workbench foundation
+
+   These rules carry the standalone provenance prototype's visual grammar into
+   the existing inventory and detail surfaces without changing their behavior.
+   -------------------------------------------------------------------------- */
+
+.inventory-outline {
+  color: var(--astra-ink);
+  font-family: var(--astra-label);
+}
+
+.inventory-outline__sections { gap: 2.75rem; }
+
+.inventory-outline__section > h2 {
+  margin-bottom: 0.65rem;
+  color: var(--astra-ink);
+  font-family: var(--astra-heading);
+  font-size: 1.15rem;
+  font-weight: 650;
+  line-height: 1.3;
+}
+
+:is(.inventory-record-list__glyph, .inventory-detail-dialog > section)[data-kind="input"] {
+  --astra-kind: var(--astra-c-input);
+  --astra-kind-ink: var(--astra-c-input);
+  --astra-kind-soft: var(--astra-c-input-soft);
+}
+
+:is(.inventory-record-list__glyph, .inventory-detail-dialog > section)[data-kind="analysis"] {
+  --astra-kind: var(--astra-c-analysis);
+  --astra-kind-ink: var(--astra-c-analysis);
+  --astra-kind-soft: var(--astra-c-analysis-soft);
+}
+
+:is(.inventory-record-list__glyph, .inventory-detail-dialog > section)[data-kind="output"],
+.inventory-output-card {
+  --astra-kind: var(--astra-c-output);
+  --astra-kind-ink: var(--astra-c-output);
+  --astra-kind-soft: var(--astra-c-output-soft);
+}
+
+:is(.inventory-record-list__glyph, .inventory-detail-dialog > section)[data-kind="decision"] {
+  --astra-kind: var(--astra-c-decision);
+  --astra-kind-ink: var(--astra-c-decision-ink);
+  --astra-kind-soft: var(--astra-c-decision-soft);
+}
+
+:is(.inventory-record-list__glyph, .inventory-detail-dialog > section)[data-kind="finding"] {
+  --astra-kind: var(--astra-c-finding);
+  --astra-kind-ink: var(--astra-c-finding);
+  --astra-kind-soft: var(--astra-c-finding-soft);
+}
+
+:is(.inventory-record-list__glyph, .inventory-detail-dialog > section)[data-kind="prior_insight"],
+:is(.inventory-record-list__glyph, .inventory-detail-dialog > section)[data-kind="paper"] {
+  --astra-kind: var(--astra-c-insight);
+  --astra-kind-ink: var(--astra-c-insight-ink);
+  --astra-kind-soft: var(--astra-c-insight-soft);
+}
+
+:is(.inventory-record-list__glyph, .inventory-detail-dialog > section)[data-kind="file"] {
+  --astra-kind: var(--astra-c-output);
+  --astra-kind-ink: var(--astra-c-output);
+  --astra-kind-soft: var(--astra-c-output-soft);
+}
+
+.inventory-record-list__glyph[data-kind] { color: var(--astra-kind); }
+
+.inventory-output-card {
+  border-color: var(--astra-rule-strong);
+  border-radius: 8px;
+  background: var(--astra-raised);
+  box-shadow: none;
+}
+
+.inventory-output-card:hover {
+  transform: none;
+  border-color: color-mix(in srgb, var(--astra-kind) 58%, var(--astra-rule-strong));
+  box-shadow: 0 3px 10px rgb(40 36 28 / 0.08);
+}
+
+.inventory-output-card:focus-visible { outline-color: var(--astra-focus); }
+
+.inventory-output-card__preview {
+  border-color: var(--astra-rule);
+  background: var(--astra-panel);
+}
+
+.inventory-output-card__preview > img,
+.inventory-output-dialog__preview.is-figure {
+  background: var(--astra-artifact-paper);
+}
+
+.inventory-output-card__kind,
+.inventory-output-file-hero > span { color: var(--astra-c-output); }
+
+.inventory-output-card__open {
+  border: 1px solid var(--astra-rule);
+  border-radius: var(--astra-radius);
+  background: color-mix(in srgb, var(--astra-raised) 92%, transparent);
+}
+
+.inventory-record-list__head {
+  border-color: var(--astra-rule);
+  background: var(--astra-panel);
+  color: var(--astra-muted);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+}
+
+.inventory-record-list__body > button {
+  border-color: var(--astra-rule-subtle);
+  color: var(--astra-ink);
+  font-family: var(--astra-label);
+}
+
+.inventory-record-list__body > button:hover { background: var(--astra-hover); }
+.inventory-record-list__body > button:focus-visible { outline-color: var(--astra-focus); }
+
+.inventory-record-list__tag {
+  border-color: var(--astra-rule-strong);
+  border-radius: 4px;
+  background: var(--astra-raised);
+}
+
+.inventory-record-list__selected {
+  width: max-content;
+  max-width: 100%;
+  border: 1px solid color-mix(in srgb, var(--astra-c-decision) 28%, var(--astra-rule));
+  border-radius: 4px;
+  background: var(--astra-c-decision-soft);
+  color: var(--astra-c-decision-ink);
+  padding: 0.16rem 0.42rem;
+  font-size: 0.67rem;
+}
+
+.inventory-record-filter select {
+  border-color: var(--astra-rule-strong);
+  border-radius: var(--astra-radius);
+  background: var(--astra-raised);
+  font-family: var(--astra-label);
+}
+
+.inventory-record-filter select:focus-visible { outline-color: var(--astra-focus); }
+
+.inventory-detail-dialog > section {
+  border-color: var(--astra-rule-strong);
+  border-radius: 8px;
+  background: var(--astra-raised);
+  box-shadow: var(--astra-shadow-raised, var(--astra-shadow));
+  color: var(--astra-ink);
+  font-family: var(--astra-label);
+}
+
+.inventory-detail-dialog__header {
+  min-height: 4.5rem;
+  border-color: var(--astra-rule);
+  background: var(--astra-panel);
+  padding: 0.85rem 1rem;
+}
+
+.inventory-detail-dialog__header > div:first-child > span {
+  color: var(--astra-kind-ink, var(--astra-kicker));
+  font-size: 0.62rem;
+  letter-spacing: 0.09em;
+}
+
+.inventory-detail-dialog__header h3 {
+  font-family: var(--astra-heading);
+  font-size: clamp(1.05rem, 2vw, 1.4rem);
+  font-weight: 650;
+  line-height: 1.2;
+}
+
+.inventory-detail-dialog__header code,
+.inventory-record-list__body code { font-family: var(--astra-mono); }
+
+.inventory-detail-dialog__actions > button {
+  width: 1.9rem;
+  height: 1.9rem;
+  border-color: var(--astra-rule-strong);
+  border-radius: var(--astra-radius);
+  background: var(--astra-raised);
+  color: var(--astra-ink-soft);
+  font-family: var(--astra-label);
+}
+
+.inventory-detail-dialog__actions > button:hover {
+  border-color: var(--astra-kind, var(--astra-action));
+  background: var(--astra-hover);
+  color: var(--astra-ink);
+}
+
+.inventory-detail-dialog__actions > button:focus-visible { outline-color: var(--astra-focus); }
+
+.inventory-record-detail__main,
+.inventory-output-dialog__result { background: var(--astra-raised); }
+
+.inventory-record-detail__aside,
+.inventory-output-provenance,
+.inventory-paper-dialog__rail {
+  border-color: var(--astra-rule);
+  background: var(--astra-panel);
+}
+
+.inventory-record-detail__prose > span,
+.inventory-output-provenance__header > span {
+  color: var(--astra-kind-ink, var(--astra-kicker));
+}
+
+.inventory-record-detail__prose > div,
+.inventory-output-description__text,
+.inventory-finding-detail__notes > div {
+  color: var(--astra-ink-soft);
+  font-family: var(--astra-label);
+}
+
+.inventory-decision-options li,
+.inventory-record-detail__relations li,
+.inventory-output-provenance__group li {
+  border-color: var(--astra-rule);
+  border-radius: var(--astra-radius);
+  background: var(--astra-raised);
+}
+
+.inventory-decision-options li.is-selected {
+  border-color: color-mix(in srgb, var(--astra-c-decision) 38%, var(--astra-rule));
+  background: var(--astra-c-decision-soft);
+}
+
+.inventory-decision-options li.is-selected .inventory-decision-options__marker,
+.inventory-decision-options li.is-selected small {
+  color: var(--astra-c-decision-ink);
+}
+
+.inventory-dependency-toggle input { accent-color: var(--astra-action); }
+.inventory-dependency-toggle input:focus-visible { outline-color: var(--astra-focus); }
+
+.inventory-relation-trigger:hover { background: var(--astra-hover); }
+.inventory-relation-trigger:focus-visible { outline-color: var(--astra-focus); }
+
+.inventory-output-dialog__preview {
+  border-color: var(--astra-rule-strong);
+  border-radius: 8px;
+  background: var(--astra-panel);
+}
+
+.inventory-output-dialog__preview.is-table { background: var(--astra-artifact-paper); }
+
+.inventory-output-provenance__header {
+  border-color: var(--astra-rule);
+}
+
+.inventory-output-provenance__header > span { color: var(--astra-c-output); }
+
+.inventory-output-provenance__header > strong {
+  border-color: color-mix(in srgb, var(--astra-c-output) 30%, var(--astra-rule));
+  background: var(--astra-c-output-soft);
+  color: var(--astra-c-output);
+}
+
+.inventory-output-recipe pre,
+.inventory-input-source code {
+  border-color: var(--astra-rule);
+  background: var(--astra-raised);
+}
+
+.inventory-finding-list__claim .inventory-record-list__glyph,
+.inventory-finding-list__claim small { color: var(--astra-c-finding); }
+
+.inventory-finding-evidence-preview {
+  border-color: color-mix(in srgb, var(--astra-c-finding) 24%, var(--astra-rule));
+  background: var(--astra-raised);
+}
+
+.inventory-insight-detail__source-quote blockquote,
+.inventory-paper-insight__quote {
+  border-color: var(--astra-c-insight);
+  background: var(--astra-c-insight-soft);
+}
+
+.astra-evidence__item {
+  border: 1px solid color-mix(in srgb, var(--astra-c-insight) 20%, var(--astra-rule));
+  background: var(--astra-c-insight-soft);
+}
+
+.astra-ref-trigger .astra-evidence__name { color: var(--astra-c-insight-ink); }
+
+.astra-ref-trigger:hover .astra-evidence__name,
+.astra-ref-trigger:focus-visible .astra-evidence__name {
+  background: var(--astra-c-insight-soft);
+  text-decoration-color: var(--astra-c-insight-ink);
+}
+
+.inventory-paper-insight__locate,
+.inventory-insight-detail__open-source,
+.inventory-finding-evidence-preview__open {
+  border-color: var(--astra-rule-strong);
+  border-radius: var(--astra-radius);
+  background: var(--astra-raised);
+  color: var(--astra-action);
+  font-family: var(--astra-label);
+}
+
+.inventory-paper-insight__locate:hover,
+.inventory-insight-detail__open-source:hover,
+.inventory-finding-evidence-preview__open:hover {
+  border-color: var(--astra-action);
+  background: var(--astra-hover);
+}
+
+/* The compact panel treatment must not undo the existing full-screen mobile
+ * dialog behavior declared above. */
+@media (max-width: 640px) {
+  .inventory-detail-dialog > section {
+    border-radius: 0;
+    box-shadow: none;
+  }
+}

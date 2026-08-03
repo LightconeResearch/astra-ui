@@ -107,6 +107,7 @@ export function InsightDetailDialog({
 
   return (
     <InventoryDetailDialog
+      kind="prior_insight"
       eyebrow={`Insight · ${scope.name}`}
       title={title}
       identifier={insight.label ? insight.id : undefined}

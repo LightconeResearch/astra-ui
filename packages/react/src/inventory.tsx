@@ -155,6 +155,7 @@ export function InventoryExplorer({
                       <li key={record.id}>
                         <button
                           className="astra-record-card"
+                          data-kind={record.kind}
                           type="button"
                           onClick={() => onOpenReference?.({
                             kind: record.kind,

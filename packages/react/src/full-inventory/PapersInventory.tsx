@@ -228,6 +228,7 @@ export function PaperDialog({
   return (
     <InventoryDetailDialog
       className="inventory-detail-dialog--paper"
+      kind="paper"
       eyebrow={`Paper · ${scope.name}`}
       title={paper.title}
       onBack={onBack}

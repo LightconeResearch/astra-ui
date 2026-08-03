@@ -71,6 +71,7 @@ export function FindingDialog({
   const evidence = findingEvidence(model, scope, record);
   return (
     <InventoryDetailDialog
+      kind="finding"
       eyebrow={`Finding · ${scope.name}`}
       title={inventoryRecordTitle(record)}
       identifier={record.label ? record.id : undefined}

@@ -56,6 +56,7 @@ export function DecisionDialog({
   const insights = inventoryDecisionInsights(model, scope, record);
   return (
     <InventoryDetailDialog
+      kind="decision"
       eyebrow={`Decision · ${scope.name}`}
       title={inventoryRecordTitle(record)}
       identifier={record.id}
