@@ -1,0 +1,86 @@
+/*
+ * Lightcone's canonical ASTRA publication palette.
+ *
+ * The selectors are deliberately scoped: publication hosts opt in with
+ * `.astra-brand`; portable viewer hosts opt in with data-astra-theme.
+ * This file never styles :root, html, body, or host application chrome.
+ */
+.astra-brand,
+.astra-brand .astra-viewer,
+.astra-viewer[data-astra-theme="brand-light"] {
+  /* surfaces */
+  --astra-paper: #ffffff;
+  --astra-surface: #f1efe9;
+  --astra-surface-2: #e9e6dd;
+
+  /* ink */
+  --astra-ink: #221f20;
+  --astra-ink-soft: #4e5a70;
+  --astra-muted: #8b7d70;
+  --astra-faint: #bcb2a6;
+
+  /* rules */
+  --astra-rule: #e4e1d7;
+  --astra-rule-strong: #d2ccbf;
+
+  /* Antique Gold accent and Slate Blue kicker */
+  --astra-accent: #a67c3c;
+  --astra-link: #a67c3c;
+  --astra-accent-soft: rgb(166 124 60 / 0.12);
+  --astra-kicker: #3f7280;
+
+  /* record-kind accents */
+  --astra-c-decision: #a67c3c;
+  --astra-c-finding: #3b7a73;
+  --astra-c-insight: #a45a43;
+  --astra-c-analysis: #3f7280;
+  --astra-c-output: #4e5a70;
+  --astra-c-input: #4e5a70;
+  --astra-c-value: #3f7280;
+
+  /* canonical typography with offline-safe fallbacks */
+  --astra-heading: "Quattrocento", Georgia, "Times New Roman", serif;
+  --astra-serif: "Newsreader", Georgia, "Times New Roman", serif;
+  --astra-label: "Alegreya", Georgia, serif;
+  --astra-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  /* shared geometry */
+  --astra-measure: 40rem;
+  --astra-card-w: 27.5rem;
+  --astra-radius: 3px;
+  --astra-shadow: 0 6px 18px rgb(38 28 15 / 0.1);
+  --astra-kind: var(--astra-accent);
+}
+
+.astra-brand[data-astra-color-scheme="dark"],
+.astra-brand[data-astra-color-scheme="dark"] .astra-viewer,
+.astra-viewer[data-astra-theme="brand-dark"] {
+  --astra-paper: #221f20;
+  --astra-surface: #2a2728;
+  --astra-surface-2: #312d2e;
+
+  --astra-ink: #f1efe9;
+  --astra-ink-soft: #b4bdcd;
+  --astra-muted: #9c9085;
+  --astra-faint: #6e6660;
+
+  --astra-rule: #3b3738;
+  --astra-rule-strong: #4c4747;
+
+  --astra-accent: #c2924a;
+  --astra-link: #c2924a;
+  --astra-accent-soft: rgb(194 146 74 / 0.16);
+  --astra-kicker: #7fa8b5;
+
+  --astra-c-decision: #c2924a;
+  --astra-c-finding: #5fa199;
+  --astra-c-insight: #c97f66;
+  --astra-c-analysis: #6fa0ae;
+  --astra-c-output: #93a1bc;
+  --astra-c-input: #93a1bc;
+  --astra-c-value: #6fa0ae;
+
+  --astra-shadow: 0 6px 18px rgb(0 0 0 / 0.45);
+  --astra-kind: var(--astra-accent);
+}
+

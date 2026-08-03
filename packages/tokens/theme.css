@@ -1,0 +1,88 @@
+@import "./brand.css";
+
+/*
+ * Host-aware semantic mapping for portable ASTRA surfaces.
+ *
+ * JupyterLab and VS Code variables win when present. Brand values are the
+ * offline fallback and can be selected explicitly with data-astra-theme.
+ */
+.astra-viewer {
+  --astra-paper: var(--jp-layout-color1, var(--vscode-editor-background, #ffffff));
+  --astra-surface: var(--jp-layout-color0, var(--vscode-sideBar-background, #f1efe9));
+  --astra-surface-2: var(--jp-layout-color2, var(--vscode-editorWidget-background, #e9e6dd));
+
+  --astra-ink: var(--jp-ui-font-color1, var(--vscode-editor-foreground, #221f20));
+  --astra-ink-soft: var(--jp-ui-font-color2, var(--vscode-descriptionForeground, #4e5a70));
+  --astra-muted: var(--jp-ui-font-color3, var(--vscode-disabledForeground, #8b7d70));
+  --astra-faint: var(--jp-ui-font-color3, var(--vscode-disabledForeground, #bcb2a6));
+
+  --astra-rule: var(--jp-border-color2, var(--vscode-widget-border, #e4e1d7));
+  --astra-rule-strong: var(--jp-border-color1, var(--vscode-contrastBorder, #d2ccbf));
+
+  --astra-accent: var(--jp-brand-color1, var(--vscode-textLink-foreground, #a67c3c));
+  --astra-link: var(--jp-content-link-color, var(--vscode-textLink-foreground, var(--astra-accent)));
+  --astra-accent-soft: var(--jp-brand-color3, var(--vscode-list-hoverBackground, rgb(166 124 60 / 0.12)));
+  --astra-kicker: var(--jp-info-color1, var(--vscode-textLink-activeForeground, #3f7280));
+
+  --astra-c-decision: var(--astra-accent);
+  --astra-c-finding: var(--jp-success-color1, var(--vscode-testing-iconPassed, #3b7a73));
+  --astra-c-insight: var(--jp-warn-color1, var(--vscode-editorWarning-foreground, #a45a43));
+  --astra-c-analysis: var(--astra-kicker);
+  --astra-c-output: var(--astra-ink-soft);
+  --astra-c-input: var(--astra-ink-soft);
+  --astra-c-value: var(--astra-kicker);
+
+  --astra-heading: var(--jp-content-font-family, var(--vscode-font-family, "Quattrocento", Georgia, "Times New Roman", serif));
+  --astra-serif: var(--jp-content-font-family, var(--vscode-font-family, "Newsreader", Georgia, "Times New Roman", serif));
+  --astra-label: var(--jp-ui-font-family, var(--vscode-font-family, "Alegreya", Georgia, serif));
+  --astra-mono: var(--jp-code-font-family, var(--vscode-editor-font-family, "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace));
+
+  --astra-measure: 40rem;
+  --astra-card-w: 27.5rem;
+  --astra-radius: 3px;
+  --astra-shadow: var(--jp-elevation-z4, 0 6px 18px rgb(38 28 15 / 0.1));
+  --astra-kind: var(--astra-accent);
+
+  /* Explicit aliases for consumers that prefer role-oriented names. */
+  --astra-color-surface: var(--astra-paper);
+  --astra-color-surface-raised: var(--astra-surface);
+  --astra-color-surface-muted: var(--astra-surface-2);
+  --astra-color-text: var(--astra-ink);
+  --astra-color-text-muted: var(--astra-ink-soft);
+  --astra-color-border: var(--astra-rule);
+  --astra-color-accent: var(--astra-accent);
+  --astra-color-accent-contrast: var(--jp-ui-inverse-font-color1, var(--vscode-button-foreground, #ffffff));
+  --astra-color-danger: var(--jp-error-color1, var(--vscode-errorForeground, var(--astra-c-insight)));
+  --astra-color-warning: var(--jp-warn-color1, var(--vscode-editorWarning-foreground, var(--astra-accent)));
+  --astra-color-success: var(--jp-success-color1, var(--vscode-testing-iconPassed, var(--astra-c-finding)));
+  --astra-font-ui: var(--astra-label);
+  --astra-font-body: var(--astra-serif);
+  --astra-font-heading: var(--astra-heading);
+  --astra-font-mono: var(--astra-mono);
+  --astra-font-size: var(--jp-ui-font-size1, 0.875rem);
+  --astra-radius-sm: var(--astra-radius);
+  --astra-radius-md: 0.65rem;
+  --astra-shadow-raised: var(--astra-shadow);
+  --astra-space-1: 0.25rem;
+  --astra-space-2: 0.5rem;
+  --astra-space-3: 0.75rem;
+  --astra-space-4: 1rem;
+
+  box-sizing: border-box;
+  color: var(--astra-ink);
+  background: var(--astra-paper);
+  font-family: var(--astra-label);
+  font-size: var(--astra-font-size);
+  line-height: 1.5;
+}
+
+.astra-viewer *,
+.astra-viewer *::before,
+.astra-viewer *::after {
+  box-sizing: inherit;
+}
+
+.astra-viewer :where(button, a, input, select, textarea):focus-visible {
+  outline: 2px solid var(--astra-accent);
+  outline-offset: 2px;
+}

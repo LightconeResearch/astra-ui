@@ -1,0 +1,27 @@
+{
+  "name": "astra-viewer-workspace",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Host-neutral view models and React components for inspecting ASTRA analyses.",
+  "license": "BSD-3-Clause",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "tsc -b packages/model packages/tokens packages/react",
+    "typecheck": "tsc -b packages/model packages/tokens packages/react --pretty false --force",
+    "test": "npm run build && node --test tests/*.test.mjs && npm test -w packages/tokens",
+    "test:packages": "node --test tests/package-contract.test.mjs"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "typescript": "^5.7.0"
+  }
+}

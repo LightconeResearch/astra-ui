@@ -1,0 +1,42 @@
+{
+  "name": "@lightcone-research/astra-viewer-react",
+  "version": "0.1.0",
+  "description": "Host-neutral React surfaces for inspecting ASTRA project view models.",
+  "license": "BSD-3-Clause",
+  "type": "module",
+  "sideEffects": [
+    "./styles.css",
+    "./inventory.css"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./styles.css": "./styles.css",
+    "./inventory.css": "./inventory.css"
+  },
+  "files": [
+    "dist",
+    "styles.css",
+    "inventory.css",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@lightcone-research/astra-viewer-model": "0.1.0"
+  },
+  "peerDependencies": {
+    "react": ">=18 <20",
+    "react-dom": ">=18 <20"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
