@@ -1048,17 +1048,21 @@
   font-size: 0.82rem;
 }
 
-.inventory-decision-options ul,
-.inventory-relation-list ul {
+.inventory-decision-options ul {
   display: grid;
-  gap: 0;
+  gap: 0.55rem;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .inventory-relation-list ul {
+  display: grid;
+  gap: 0;
+  margin: 0;
   border-top: 1px solid var(--astra-rule);
+  padding: 0;
+  list-style: none;
 }
 
 .inventory-decision-options li {
