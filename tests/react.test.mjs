@@ -6,6 +6,7 @@ import {
   ArtifactPreview,
   InventoryExplorer,
   OverviewInventory,
+  PaperDialog,
 } from '../packages/react/dist/index.js';
 import { legacyFixture } from './model.test.mjs';
 
@@ -57,4 +58,40 @@ test('artifact previews render host-safe data rather than paths', () => {
   assert.match(html, /tracer/);
   assert.match(html, /1\.002/);
   assert.doesNotMatch(html, /results\//);
+});
+
+test('paper details use compact insight and informed-decision lists', () => {
+  const html = renderToStaticMarkup(
+    React.createElement(PaperDialog, {
+      paper: {
+        doi: '10.0000/example',
+        title: 'Example paper',
+        insights: [{
+          id: 'a_very_long_prior_insight_identifier_that_must_stay_inside_the_rail',
+          path: 'prior_insights.a_very_long_prior_insight_identifier_that_must_stay_inside_the_rail',
+          kind: 'prior_insight',
+          claim: 'A compact claim preview.',
+          doi: '10.0000/example',
+          quote: 'A source passage.',
+        }],
+        decisions: [{
+          id: 'method',
+          path: 'decisions.method',
+          kind: 'decision',
+          label: 'Method choice',
+        }],
+      },
+      scope: { id: 'root', path: '', name: 'Example', children: [], records: [] },
+      onOpenInsight: () => {},
+      onOpenDecision: () => {},
+      onClose: () => {},
+    }),
+  );
+
+  assert.match(html, /inventory-paper-insights/);
+  assert.match(html, /inventory-paper-insight__claim/);
+  assert.match(html, /Informs decisions/);
+  assert.match(html, /inventory-paper-informs/);
+  assert.doesNotMatch(html, />prior insight</);
+  assert.doesNotMatch(html, /inventory-paper-insight__quote/);
 });

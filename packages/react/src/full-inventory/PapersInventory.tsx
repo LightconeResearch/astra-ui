@@ -1,4 +1,4 @@
-import { Fragment, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { InventoryProse } from './InventoryProse.js';
 import { InsightDetailTrigger } from './InsightDetailDialog.js';
 import {
@@ -247,31 +247,43 @@ export function PaperDialog({
         <aside className="inventory-paper-dialog__rail" aria-label="Paper insights and decisions">
           <section className="inventory-insight-list">
             <InventoryCountHeading title="Insights from this paper" count={paper.insights.length} />
-            <ul className="astra-evidence">
+            <ul className="astra-evidence inventory-paper-insights">
               {paper.insights.map((insight) => {
                 const evidence = paperEvidence(insight, paper.doi);
                 return (
-                  <li key={insight.path} className="astra-evidence__item">
-                  <InsightDetailTrigger insight={insight} onOpen={() => onOpenInsight(insight)} />
-                  {insight.label && insight.claim ? (
-                    <div className="astra-evidence__note">
-                      <InventoryProse text={insight.claim} />
-                    </div>
-                  ) : null}
-                  {evidence.map((source, index) => (
-                    <Fragment key={`${insight.path}-${index}`}>
-                      <blockquote className="inventory-paper-insight__quote">{source.quote}</blockquote>
-                      {paper.pdfUrl ? (
-                        <button
-                          type="button"
-                          className="inventory-paper-insight__locate"
-                          onClick={() => focusInsight(insight, source)}
-                        >
-                          Locate quote in PDF
-                        </button>
-                      ) : null}
-                    </Fragment>
-                  ))}
+                  <li key={insight.path} className="astra-evidence__item inventory-paper-insight">
+                    <InsightDetailTrigger
+                      insight={insight}
+                      tag=""
+                      onOpen={() => onOpenInsight(insight)}
+                    />
+                    {insight.claim ? (
+                      <div className="inventory-paper-insight__claim">
+                        <InventoryProse text={insight.claim} />
+                      </div>
+                    ) : null}
+                    {evidence.length ? (
+                      <div className="inventory-paper-insight__sources">
+                        <span>
+                          {evidence.length} {evidence.length === 1 ? 'passage' : 'passages'}
+                        </span>
+                        {paper.pdfUrl ? (
+                          <div>
+                            {evidence.map((source, index) => (
+                              <button
+                                key={`${insight.path}-${index}`}
+                                type="button"
+                                className="inventory-paper-insight__locate"
+                                onClick={() => focusInsight(insight, source)}
+                                aria-label={`Locate source passage ${index + 1} in PDF`}
+                              >
+                                Locate{evidence.length > 1 ? ` ${index + 1}` : ''}
+                              </button>
+                            ))}
+                          </div>
+                        ) : null}
+                      </div>
+                    ) : null}
                   </li>
                 );
               })}
@@ -284,11 +296,11 @@ export function PaperDialog({
             </a>
           </section>
           <InventoryRelationList
-            title="Informs"
+            title="Informs decisions"
+            className="inventory-record-detail__relations inventory-paper-informs"
             items={paper.decisions.map((decision) => ({
               key: decision.path,
               label: inventoryRecordTitle(decision),
-              identifier: decision.path,
               accessibleLabel: `View decision: ${inventoryRecordTitle(decision)}`,
               onOpen: () => onOpenDecision(decision),
             }))}
