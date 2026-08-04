@@ -521,7 +521,7 @@ export function AstraGraphView({
   const [selectedId, setSelectedId] = useState<string>();
   const [hoveredId, setHoveredId] = useState<string>();
   const [legendOpen, setLegendOpen] = useState(false);
-  const [showPriorInsights, setShowPriorInsights] = useState(initialShowPriorInsights);
+  const [showPriorInsights] = useState(initialShowPriorInsights);
   const markerPrefix = `astraGraph${useId().replace(/:/g, '')}`;
   const layout = useMemo(
     () => layoutGraph(renderedProjection, expanded, showPriorInsights, minWidth),
@@ -573,13 +573,6 @@ export function AstraGraphView({
         <strong>{title ?? renderedProjection.project.name}</strong>
         <code>universe: {renderedProjection.universe.id}</code>
         <span />
-        <button
-          type="button"
-          aria-pressed={showPriorInsights}
-          onClick={() => setShowPriorInsights((current) => !current)}
-        >
-          {showPriorInsights ? 'Hide prior evidence' : 'Show prior evidence'}
-        </button>
         {expanded.size ? (
           <button type="button" onClick={() => setExpanded(new Set())}>
             Collapse decisions

@@ -164,7 +164,7 @@ test('the shared graph renders the semantic projection without host chrome', () 
   assert.match(html, /astra-graph/);
   assert.match(html, /DESI demo/);
   assert.match(html, /universe: baseline/);
-  assert.match(html, /Show prior evidence/);
+  assert.doesNotMatch(html, /prior evidence/i);
   assert.match(html, /data-node-kind="decision-cluster"/);
   assert.doesNotMatch(html, /jupyter|myst|vscode/i);
 });
