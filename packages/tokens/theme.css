@@ -1,17 +1,19 @@
 @import "./brand.css";
 
 /*
- * Host-aware semantic mapping for portable ASTRA surfaces.
+ * Portable ASTRA component theme.
  *
- * Neutral surfaces follow JupyterLab or VS Code. ASTRA record kinds keep a
- * stable colour grammar so an output or decision reads the same in every host.
- * Brand-light and brand-dark can be selected explicitly with data-astra-theme.
+ * The component palette is ASTRA-owned so the same record looks the same in
+ * MyST, JupyterLab, VS Code, and other hosts. Host tokens are used only for
+ * typography and detecting an accessible dark variant; they never recolour
+ * the component surface or semantic grammar. Brand-light and brand-dark can
+ * also be selected explicitly with data-astra-theme.
  */
 .astra-viewer {
-  --astra-canvas: var(--jp-layout-color0, var(--vscode-sideBar-background, #f1efe9));
-  --astra-panel: var(--jp-layout-color1, var(--vscode-editor-background, #f8f7f3));
-  --astra-raised: var(--jp-layout-color1, var(--vscode-editorWidget-background, #ffffff));
-  --astra-hover: var(--jp-layout-color2, var(--vscode-list-hoverBackground, #f1efe9));
+  --astra-canvas: #f1efe9;
+  --astra-panel: #f8f7f3;
+  --astra-raised: #ffffff;
+  --astra-hover: #f1efe9;
   --astra-artifact-paper: #ffffff;
   --astra-artifact-ink: #221f20;
 
@@ -20,20 +22,20 @@
   --astra-surface: var(--astra-raised);
   --astra-surface-2: var(--astra-hover);
 
-  --astra-ink: var(--jp-ui-font-color1, var(--vscode-editor-foreground, #221f20));
-  --astra-ink-soft: var(--jp-ui-font-color2, var(--vscode-descriptionForeground, #4e5a70));
-  --astra-muted: var(--jp-ui-font-color3, var(--vscode-disabledForeground, #8b7d70));
-  --astra-faint: var(--jp-ui-font-color3, var(--vscode-disabledForeground, #b8b0a8));
+  --astra-ink: #221f20;
+  --astra-ink-soft: #4e5a70;
+  --astra-muted: #8b7d70;
+  --astra-faint: #b8b0a8;
 
-  --astra-rule-subtle: var(--jp-border-color3, var(--vscode-widget-shadow, #f0ede6));
-  --astra-rule: var(--jp-border-color2, var(--vscode-widget-border, #eae7e0));
-  --astra-rule-strong: var(--jp-border-color1, var(--vscode-contrastBorder, #d5d2cb));
+  --astra-rule-subtle: #f0ede6;
+  --astra-rule: #eae7e0;
+  --astra-rule-strong: #d5d2cb;
 
-  --astra-action: var(--jp-brand-color1, var(--vscode-textLink-foreground, #4e5a70));
-  --astra-focus: var(--jp-brand-color1, var(--vscode-focusBorder, #3f7280));
+  --astra-action: #4e5a70;
+  --astra-focus: #3f7280;
   --astra-accent: var(--astra-action);
-  --astra-link: var(--jp-content-link-color, var(--vscode-textLink-foreground, var(--astra-action)));
-  --astra-accent-soft: var(--jp-brand-color3, color-mix(in srgb, var(--astra-action) 10%, transparent));
+  --astra-link: var(--astra-action);
+  --astra-accent-soft: rgb(78 90 112 / 0.1);
   --astra-kicker: #3f7280;
 
   /* Host themes do not redefine the meaning of ASTRA record kinds. */
@@ -66,7 +68,7 @@
   --astra-measure: 40rem;
   --astra-card-w: 27.5rem;
   --astra-radius: 5px;
-  --astra-shadow: var(--jp-elevation-z4, 0 4px 14px rgb(40 36 28 / 0.1));
+  --astra-shadow: 0 4px 14px rgb(40 36 28 / 0.1);
   --astra-kind: var(--astra-action);
 
   /* Explicit aliases for consumers that prefer role-oriented names. */
@@ -79,7 +81,7 @@
   --astra-color-border: var(--astra-rule);
   --astra-color-border-strong: var(--astra-rule-strong);
   --astra-color-accent: var(--astra-action);
-  --astra-color-accent-contrast: var(--jp-ui-inverse-font-color1, var(--vscode-button-foreground, #ffffff));
+  --astra-color-accent-contrast: #ffffff;
   --astra-color-danger: var(--astra-c-danger);
   --astra-color-warning: var(--astra-c-decision);
   --astra-color-success: var(--astra-c-output);
@@ -107,11 +109,36 @@
   line-height: 1.5;
 }
 
-/* JupyterLab and VS Code expose host darkness on an ancestor. Keep ASTRA's
- * semantic families stable while lifting them to accessible dark-mode hues.
+/* JupyterLab and VS Code expose host darkness on an ancestor. Select ASTRA's
+ * complete dark component palette without inheriting the host's colours.
  * Explicit brand-light/brand-dark selections remain authoritative. */
 :where([data-jp-theme-light="false"], .vscode-dark, .vscode-high-contrast)
   .astra-viewer:not([data-astra-theme]) {
+  --astra-canvas: #171614;
+  --astra-panel: #1e1d1a;
+  --astra-raised: #272520;
+  --astra-hover: #302d27;
+  --astra-artifact-paper: #f8f7f3;
+  --astra-artifact-ink: #221f20;
+
+  --astra-paper: var(--astra-panel);
+  --astra-surface: var(--astra-raised);
+  --astra-surface-2: var(--astra-hover);
+
+  --astra-ink: #f2eee7;
+  --astra-ink-soft: #c4bdb2;
+  --astra-muted: #a39b90;
+  --astra-faint: #777168;
+
+  --astra-rule-subtle: #302d28;
+  --astra-rule: #3b3731;
+  --astra-rule-strong: #514b42;
+
+  --astra-action: #aeb8ca;
+  --astra-focus: #86adb7;
+  --astra-accent: var(--astra-action);
+  --astra-link: var(--astra-action);
+  --astra-accent-soft: rgb(174 184 202 / 0.16);
   --astra-kicker: #86adb7;
   --astra-c-input: #aeb8ca;
   --astra-c-analysis: #86adb7;
@@ -133,6 +160,9 @@
   --astra-c-insight-soft: color-mix(in srgb, var(--astra-c-insight) 15%, var(--astra-panel));
   --astra-c-value-soft: color-mix(in srgb, var(--astra-c-value) 15%, var(--astra-panel));
   --astra-c-danger-soft: color-mix(in srgb, var(--astra-c-danger) 13%, var(--astra-panel));
+
+  --astra-shadow: 0 5px 18px rgb(0 0 0 / 0.38);
+  --astra-kind: var(--astra-action);
 }
 
 .astra-viewer *,

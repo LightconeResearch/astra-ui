@@ -13,7 +13,7 @@ engine, or a claim that an analysis is scientifically correct.
 | --- | --- | --- |
 | `@lightcone-research/astra-viewer-model` | `ProjectViewModelV1`, runtime/materialization overlay, host capabilities, indexing, viewability diagnostics, compatibility projection | React, filesystem paths, URLs, credentials, artifact bytes |
 | `@lightcone-research/astra-viewer-react` | Inventory, record detail, safe result previews | JupyterLab, MyST, VS Code, chat, file access |
-| `@lightcone-research/astra-viewer-tokens` | Canonical ASTRA brand variables and host-aware semantic mappings | Paper layout, inventory layout, application chrome |
+| `@lightcone-research/astra-viewer-tokens` | Canonical ASTRA component palette with light/dark host detection | Paper layout, inventory layout, application chrome |
 
 The graph view is intentionally deferred. Relations are preserved in the model
 so a graph can be added later without changing the host protocol.
@@ -48,9 +48,12 @@ Portable viewers import:
 @import '@lightcone-research/astra-viewer-react/styles.css';
 ```
 
-The `.astra-viewer` scope follows JupyterLab or VS Code semantic variables by
-default. MyST paper themes import only `brand.css` and opt in with
-`.astra-brand`; they do not import inventory/result application layout.
+The `.astra-viewer` scope keeps the complete ASTRA component palette in every
+host, selecting its accessible light or dark variant from the host colour
+scheme. MyST paper themes import only `brand.css` and opt in with
+`.astra-brand`; they do not import inventory/result application layout. A host
+theme may style surrounding application chrome, but is not required for the
+React components.
 
 ## Development
 
