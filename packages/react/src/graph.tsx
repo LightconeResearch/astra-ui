@@ -697,17 +697,43 @@ export function AstraGraphView({
 
   const onGraphWheel = (event: ReactWheelEvent<SVGSVGElement>): void => {
     event.preventDefault();
-    const rect = event.currentTarget.getBoundingClientRect();
-    const anchor = {
-      x: event.clientX - rect.left,
-      y: event.clientY - rect.top,
-    };
-    const factor = Math.exp(-event.deltaY * 0.0015);
-    setCamera((current) => zoomGraphCamera(
-      current,
-      current.scale * factor,
-      anchor,
-    ));
+    const deltaUnit = event.deltaMode === 1
+      ? 16
+      : event.deltaMode === 2
+        ? Math.max(1, viewportSize.height)
+        : 1;
+    const deltaX = event.deltaX * deltaUnit;
+    const deltaY = event.deltaY * deltaUnit;
+
+    // Trackpad pinches are exposed as Ctrl+wheel by browsers. Keep ordinary
+    // two-axis wheel gestures for panning so a graph behaves like a canvas,
+    // while pinch/Ctrl+wheel zooms around the pointer.
+    if (event.ctrlKey || event.metaKey) {
+      const rect = event.currentTarget.getBoundingClientRect();
+      const anchor = {
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top,
+      };
+      const factor = Math.exp(-deltaY * 0.0015);
+      setCamera((current) => zoomGraphCamera(
+        current,
+        current.scale * factor,
+        anchor,
+      ));
+      return;
+    }
+
+    const horizontalDelta = event.shiftKey && Math.abs(deltaX) < Math.abs(deltaY)
+      ? deltaY
+      : deltaX;
+    const verticalDelta = event.shiftKey && Math.abs(deltaX) < Math.abs(deltaY)
+      ? 0
+      : deltaY;
+    setCamera((current) => ({
+      ...current,
+      x: current.x - horizontalDelta,
+      y: current.y - verticalDelta,
+    }));
   };
 
   const activateNode = (node: AstraGraphNode): void => {
@@ -740,7 +766,9 @@ export function AstraGraphView({
       <header className="astra-graph-toolbar">
         <strong>{title ?? renderedProjection.project.name}</strong>
         <code>universe: {renderedProjection.universe.id}</code>
-        <span className="astra-graph-help">Drag to pan · scroll to zoom</span>
+        <span className="astra-graph-help">
+          Drag or scroll to pan · pinch or Ctrl+scroll to zoom
+        </span>
         <div className="astra-graph-view-controls" aria-label="Graph view controls">
           <button
             type="button"

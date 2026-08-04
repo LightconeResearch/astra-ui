@@ -165,7 +165,7 @@ test('the shared graph renders the semantic projection without host chrome', () 
   assert.match(html, /DESI demo/);
   assert.match(html, /universe: baseline/);
   assert.doesNotMatch(html, /prior evidence/i);
-  assert.match(html, /Drag to pan · scroll to zoom/);
+  assert.match(html, /Drag or scroll to pan · pinch or Ctrl\+scroll to zoom/);
   assert.match(html, /aria-label="Zoom out"/);
   assert.match(html, /aria-label="Zoom in"/);
   assert.match(html, /data-node-kind="decision-cluster"/);

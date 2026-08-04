@@ -26,4 +26,7 @@ test('graph ships from the shared viewer without a host-specific dependency', as
   assert.match(entry, /graph/i);
   assert.match(css, /graph\.css/i);
   assert.doesNotMatch(graph, /jupyter|myst|vscode/i);
+  assert.match(graph, /event\.ctrlKey \|\| event\.metaKey/);
+  assert.match(graph, /x: current\.x - horizontalDelta/);
+  assert.match(graph, /y: current\.y - verticalDelta/);
 });

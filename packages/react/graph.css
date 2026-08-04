@@ -84,6 +84,7 @@
 
 .astra-viewer .astra-graph-viewport {
   position: relative;
+  isolation: isolate;
   height: clamp(24rem, calc(100dvh - 16rem), 48rem);
   min-height: 24rem;
   overflow: hidden;
