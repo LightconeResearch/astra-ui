@@ -1,8 +1,10 @@
 import {
+  createAstraGraphOrganizationProjection,
   createAstraGraphViewProjection,
   type AstraGraphEdge,
   type AstraGraphEdgeKind,
   type AstraGraphNode,
+  type AstraGraphOrganizationV1,
   type AstraGraphProjectionV1,
   type AstraGraphViewSpecV1,
   type ViewerOpenReference,
@@ -29,6 +31,7 @@ const PRIMARY_EDGE_KINDS = new Set<AstraGraphEdgeKind>([
 
 const NODE_COLORS: Record<AstraGraphNode['kind'], string> = {
   analysis: 'var(--astra-c-analysis)',
+  'visual-stage': 'var(--astra-color-accent)',
   input: 'var(--astra-c-input)',
   'input-group': 'var(--astra-c-input)',
   output: 'var(--astra-c-output)',
@@ -92,7 +95,7 @@ interface GraphViewportSize {
   height: number;
 }
 
-const MIN_GRAPH_SCALE = 0.35;
+const MIN_GRAPH_SCALE = 0.04;
 const MAX_GRAPH_SCALE = 2.5;
 
 function clampGraphScale(scale: number): number {
@@ -135,6 +138,7 @@ function zoomGraphCamera(
 
 export interface AstraGraphViewProps {
   projection: AstraGraphProjectionV1;
+  organization?: AstraGraphOrganizationV1;
   view?: AstraGraphViewSpecV1;
   title?: string;
   minWidth?: number;
@@ -235,13 +239,14 @@ function layoutGraph(
   }
   const entries = [...layers.entries()].sort(([left], [right]) => left - right);
   const horizontalGap = 240;
+  const minimumHorizontalGap = 140;
   const verticalGap = 110;
   const leftGutter = showPriorInsights ? 300 : 260;
   const margin = 62;
   const maxLayer = Math.max(1, ...entries.map(([, layer]) => layer.length));
   const width = Math.max(
     minWidth,
-    leftGutter + (Math.min(maxLayer, 6) - 1) * horizontalGap + 300,
+    leftGutter + (maxLayer - 1) * minimumHorizontalGap + 300,
   );
   const positions = new Map<string, PositionedNode>();
   for (const [rank, layer] of entries) {
@@ -251,7 +256,7 @@ function layoutGraph(
       || left.scopeId.localeCompare(right.scopeId)
       || left.label.localeCompare(right.label));
     const gap = layer.length > 4
-      ? Math.max(115, Math.min(
+      ? Math.max(minimumHorizontalGap, Math.min(
           horizontalGap,
           (width - leftGutter - 150) / (layer.length - 1),
         ))
@@ -395,7 +400,7 @@ function referenceForMember(
 ): ViewerOpenReference | undefined {
   const kind = node.kind === 'input-group'
     ? 'input'
-    : node.kind === 'output-group'
+    : node.kind === 'output-group' || node.kind === 'visual-stage'
       ? 'output'
       : node.kind === 'finding-group'
         ? 'finding'
@@ -440,11 +445,18 @@ function GraphInspector({
           className="astra-graph-kind"
           style={{ '--astra-graph-kind': NODE_COLORS[node.kind] } as CSSProperties}
         >
-          {node.kind.replace('-group', '')}
+          {node.kind === 'visual-stage'
+            ? 'visual stage'
+            : node.kind.replace('-group', ' group')}
         </span>
         <strong>{node.title ?? node.label}</strong>
       </header>
-      <code>{node.canonicalPath ?? (node.synthetic ? 'Display aggregation' : '')}</code>
+      <code>
+        {node.canonicalPath
+          ?? (node.kind === 'visual-stage'
+            ? 'Visual organization · not ASTRA hierarchy'
+            : node.synthetic ? 'Display aggregation' : '')}
+      </code>
       {node.description ? <p>{node.description}</p> : null}
       {node.meta.length ? (
         <ul className="astra-graph-meta">
@@ -558,6 +570,7 @@ function GraphLegend({
 
 export function AstraGraphView({
   projection,
+  organization,
   view,
   title,
   minWidth = 1040,
@@ -568,11 +581,18 @@ export function AstraGraphView({
   onOpenReference,
   onReferenceInChat,
 }: AstraGraphViewProps): ReactElement {
-  const renderedProjection = useMemo(
-    () => view ? createAstraGraphViewProjection(projection, view) : projection,
-    [projection, view],
-  );
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
+  const organizationKey = organization
+    ? JSON.stringify(organization)
+    : undefined;
+  const renderedProjection = useMemo(
+    () => organization
+      ? createAstraGraphOrganizationProjection(projection, organization, {
+          expandedNodeIds: [...expanded],
+        })
+      : view ? createAstraGraphViewProjection(projection, view) : projection,
+    [expanded, organization, projection, view],
+  );
   const [selectedId, setSelectedId] = useState<string>();
   const [hoveredId, setHoveredId] = useState<string>();
   const [legendOpen, setLegendOpen] = useState(false);
@@ -585,12 +605,21 @@ export function AstraGraphView({
   const [isPanning, setIsPanning] = useState(false);
   const viewportRef = useRef<HTMLDivElement>(null);
   const cameraInitializedRef = useRef(false);
+  const fittedStructureRef = useRef<string>();
   const dragRef = useRef<{
     pointerId: number;
     x: number;
     y: number;
   }>();
   const markerPrefix = `astraGraph${useId().replace(/:/g, '')}`;
+  const projectionStructureKey = useMemo(() => JSON.stringify({
+    nodes: projection.nodes.map((node) => node.id).sort(),
+    edges: projection.edges
+      .map((edge) => `${edge.source}\0${edge.target}\0${edge.kind}`)
+      .sort(),
+    organization: organizationKey,
+    view: view ? JSON.stringify(view) : undefined,
+  }), [organizationKey, projection.edges, projection.nodes, view]);
   const layout = useMemo(
     () => layoutGraph(renderedProjection, expanded, showPriorInsights, minWidth),
     [expanded, minWidth, renderedProjection, showPriorInsights],
@@ -600,15 +629,33 @@ export function AstraGraphView({
     ?? selectedNode;
 
   useEffect(() => {
+    setExpanded((current) => {
+      const retained = [...current].filter(
+        (id) => !id.startsWith('organization:'),
+      );
+      return retained.length === current.size
+        ? current
+        : new Set(retained);
+    });
+  }, [organizationKey]);
+
+  useEffect(() => {
     if (selectedId && !renderedProjection.nodes.some((node) => node.id === selectedId)) {
       setSelectedId(undefined);
     }
-    setExpanded((current) => new Set(
-      [...current].filter((id) =>
-        renderedProjection.nodes.some((node) =>
-          node.id === id && node.kind === 'decision-cluster')),
-    ));
-  }, [renderedProjection, selectedId]);
+    setExpanded((current) => {
+      const retained = [...current].filter(
+        (id) =>
+          (Boolean(organization) && id.startsWith('organization:'))
+          || renderedProjection.nodes.some(
+            (node) => node.id === id && node.kind === 'decision-cluster',
+          ),
+      );
+      return retained.length === current.size
+        ? current
+        : new Set(retained);
+    });
+  }, [organization, renderedProjection, selectedId]);
 
   useEffect(() => {
     const viewport = viewportRef.current;
@@ -632,13 +679,17 @@ export function AstraGraphView({
 
   useEffect(() => {
     if (
-      cameraInitializedRef.current
-      || viewportSize.width <= 1
+      viewportSize.width <= 1
       || viewportSize.height <= 1
+      || (
+        cameraInitializedRef.current
+        && fittedStructureRef.current === projectionStructureKey
+      )
     ) return;
     setCamera(fitGraphCamera(layout, viewportSize));
     cameraInitializedRef.current = true;
-  }, [layout, viewportSize]);
+    fittedStructureRef.current = projectionStructureKey;
+  }, [layout, projectionStructureKey, viewportSize]);
 
   const resetCamera = (): void => {
     setCamera(fitGraphCamera(layout, viewportSize));
@@ -737,7 +788,12 @@ export function AstraGraphView({
   };
 
   const activateNode = (node: AstraGraphNode): void => {
-    if (node.kind === 'decision-cluster') {
+    const isOrganizationNode = node.kind === 'visual-stage'
+      || (
+        node.kind === 'output-group'
+        && node.id.startsWith('organization:group:')
+      );
+    if (node.kind === 'decision-cluster' || isOrganizationNode) {
       setExpanded((current) => {
         const next = new Set(current);
         if (next.has(node.id)) next.delete(node.id);
@@ -790,7 +846,7 @@ export function AstraGraphView({
         </div>
         {expanded.size ? (
           <button type="button" onClick={() => setExpanded(new Set())}>
-            Collapse decisions
+            Collapse expanded nodes
           </button>
         ) : null}
       </header>
@@ -805,7 +861,7 @@ export function AstraGraphView({
           height="100%"
           viewBox={`0 0 ${Math.max(1, viewportSize.width)} ${Math.max(1, viewportSize.height)}`}
           preserveAspectRatio="none"
-          role="img"
+          role="group"
           aria-label={`${renderedProjection.project.name} provenance graph`}
           onPointerDown={onGraphPointerDown}
           onPointerMove={onGraphPointerMove}
@@ -853,40 +909,68 @@ export function AstraGraphView({
                 && edge.source !== selectedId
                 && edge.target !== selectedId,
               );
+              const showCoverage = edge.label?.startsWith('affects ');
               return (
-                <path
-                  key={edge.id}
-                  className="astra-graph-edge"
-                  d={edgePath(source, target)}
-                  stroke={style.color}
-                  strokeWidth={style.width}
-                  strokeDasharray={style.dash}
-                  markerEnd={`url(#${markerPrefix}-${edge.kind})`}
-                  opacity={dimmed ? 0.18 : 0.72}
-                  aria-label={edge.label}
-                />
+                <g key={edge.id}>
+                  <path
+                    className="astra-graph-edge"
+                    d={edgePath(source, target)}
+                    stroke={style.color}
+                    strokeWidth={style.width}
+                    strokeDasharray={style.dash}
+                    markerEnd={`url(#${markerPrefix}-${edge.kind})`}
+                    opacity={dimmed ? 0.18 : 0.72}
+                    aria-label={edge.label}
+                  />
+                  {showCoverage ? (
+                    <text
+                      className="astra-graph-edge-label"
+                      x={(source.x + target.x) / 2}
+                      y={(source.y + target.y) / 2 - 5}
+                      opacity={dimmed ? 0.18 : 1}
+                    >
+                      {edge.label}
+                    </text>
+                  ) : null}
+                </g>
               );
             })}
             {layout.nodes.map((node) => {
               const isDecision = node.kind === 'decision'
                 || node.kind === 'decision-cluster';
               const isCluster = node.kind === 'decision-cluster';
+              const isOrganizationNode = node.kind === 'visual-stage'
+                || (
+                  node.kind === 'output-group'
+                  && node.id.startsWith('organization:group:')
+                );
               const radius = node.kind === 'analysis' || node.kind === 'result'
                 ? 7.5
                 : 6;
-              const suffix = isCluster
+              const suffix = isCluster || isOrganizationNode
                 ? expanded.has(node.id) ? ' ▾' : ' ▸'
                 : '';
+              const isExpandable = isCluster || isOrganizationNode;
+              const canOpen = Boolean(referenceForNode(node) && onOpenReference);
+              const action = isExpandable
+                ? expanded.has(node.id) ? 'Collapse' : 'Expand'
+                : canOpen ? 'Open' : 'Inspect';
+              const accessibleKind = node.kind === 'visual-stage'
+                ? 'visual stage'
+                : node.kind.replaceAll('-', ' ');
               return (
                 <g
                   key={node.id}
-                  className={`astra-graph-node${isCluster ? ' is-cluster' : ''}${selectedId === node.id ? ' is-selected' : ''}`}
+                  className={`astra-graph-node${isCluster ? ' is-cluster' : ''}${isOrganizationNode ? ' is-organization' : ''}${selectedId === node.id ? ' is-selected' : ''}`}
                   data-node-id={node.id}
                   data-node-kind={node.kind}
                   transform={`translate(${node.x} ${node.y})`}
                   tabIndex={0}
-                  role={isCluster ? 'button' : 'img'}
-                  aria-label={node.label}
+                  role="button"
+                  {...(isExpandable
+                    ? { 'aria-expanded': expanded.has(node.id) }
+                    : {})}
+                  aria-label={`${action} ${accessibleKind}: ${node.label}`}
                   onMouseEnter={() => setHoveredId(node.id)}
                   onMouseLeave={() => setHoveredId(undefined)}
                   onClick={() => activateNode(node)}
@@ -916,6 +1000,14 @@ export function AstraGraphView({
                   {node.kind === 'analysis' ? (
                     <text className="astra-graph-stage-label" x="11" y="-10">
                       Analysis stage
+                    </text>
+                  ) : node.kind === 'visual-stage' ? (
+                    <text className="astra-graph-stage-label is-visual" x="11" y="-10">
+                      Visual stage
+                    </text>
+                  ) : isOrganizationNode ? (
+                    <text className="astra-graph-stage-label is-visual" x="11" y="-10">
+                      Output group
                     </text>
                   ) : null}
                   <text

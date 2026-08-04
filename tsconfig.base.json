@@ -12,10 +12,10 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
+    "inlineSources": true,
     "composite": true,
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
     "skipLibCheck": true
   }
 }
-

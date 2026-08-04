@@ -16,6 +16,7 @@ export const ASTRA_GRAPH_VIEW_VERSION = 1 as const;
 
 export type AstraGraphNodeKind =
   | 'analysis'
+  | 'visual-stage'
   | 'input'
   | 'input-group'
   | 'output'
@@ -92,6 +93,11 @@ export interface AstraGraphProjectionV1 {
 }
 
 export interface AstraGraphProjectionOptions {
+  /**
+   * `lossless` keeps every active canonical input, output, and finding as its
+   * own node. The default `overview` mode may compact large repeated sets.
+   */
+  mode?: 'overview' | 'lossless';
   groupOutputs?: boolean;
   outputGroupThreshold?: number;
   maxOutputNodes?: number;
@@ -149,6 +155,7 @@ export interface AstraGraphViewSpecV1 {
 }
 
 interface ProjectionSettings {
+  lossless: boolean;
   groupOutputs: boolean;
   outputGroupThreshold: number;
   maxOutputNodes: number;
@@ -385,7 +392,7 @@ function outputPresentation(
     }
   }
 
-  if (batches.length > settings.maxOutputNodes) {
+  if (!settings.lossless && batches.length > settings.maxOutputNodes) {
     const byCategory = new Map<string, OutputRecordView[]>();
     for (const batch of batches) {
       const first = batch.records[0];
@@ -448,7 +455,7 @@ function inputPresentation(
 ): { nodes: AstraGraphNode[]; nodeByRecordId: Map<string, string> } {
   const nodes: AstraGraphNode[] = [];
   const nodeByRecordId = new Map<string, string>();
-  const groups = inputs.length > settings.maxInputNodes
+  const groups = !settings.lossless && inputs.length > settings.maxInputNodes
     ? lexicalInputGroups(inputs)
     : [];
   const groupedIds = new Set(
@@ -506,7 +513,8 @@ export function createAstraGraphProjection(
   options: AstraGraphProjectionOptions = {},
 ): AstraGraphProjectionV1 {
   const settings: ProjectionSettings = {
-    groupOutputs: options.groupOutputs ?? true,
+    lossless: options.mode === 'lossless',
+    groupOutputs: options.mode === 'lossless' ? false : options.groupOutputs ?? true,
     outputGroupThreshold: Math.max(2, options.outputGroupThreshold ?? 3),
     maxOutputNodes: Math.max(4, options.maxOutputNodes ?? 18),
     maxInputNodes: Math.max(3, options.maxInputNodes ?? 8),
@@ -561,12 +569,14 @@ export function createAstraGraphProjection(
   for (const scope of model.scopes) {
     const stage = analysisNodeByScope.get(scope.id);
     const scopeRecords = index.recordsByScope.get(scope.id) ?? [];
-    for (const declaredInput of scopeRecords.filter((record) => record.kind === 'input')) {
-      const canonical = canonicalRecord(declaredInput, index, ['input', 'output']);
-      const source = canonical?.kind === 'output'
-        ? outputs.nodeByRecordId.get(canonical.id)
-        : canonical ? inputs.nodeByRecordId.get(canonical.id) : undefined;
-      addEdge(edges, edgeSeen, source, stage, 'flow');
+    if (!settings.lossless) {
+      for (const declaredInput of scopeRecords.filter((record) => record.kind === 'input')) {
+        const canonical = canonicalRecord(declaredInput, index, ['input', 'output']);
+        const source = canonical?.kind === 'output'
+          ? outputs.nodeByRecordId.get(canonical.id)
+          : canonical ? inputs.nodeByRecordId.get(canonical.id) : undefined;
+        addEdge(edges, edgeSeen, source, stage, 'flow');
+      }
     }
     for (const output of scopeRecords.filter(
       (record): record is OutputRecordView => record.kind === 'output' && record.active !== false,
@@ -575,14 +585,24 @@ export function createAstraGraphProjection(
       if (!canonical || canonical.id !== output.id) continue;
       const target = outputs.nodeByRecordId.get(output.id);
       let hasLocalOutputDependency = false;
+      let hasLosslessDependency = false;
       for (const dependencyId of relationTargets(output, 'depends_on')) {
         const dependencyRecord = index.recordById.get(dependencyId);
         const dependency = dependencyRecord
           ? canonicalRecord(dependencyRecord, index, ['input', 'output'])
           : undefined;
         if (!dependency) continue;
+        const source = dependency.kind === 'output'
+          ? outputs.nodeByRecordId.get(dependency.id)
+          : inputs.nodeByRecordId.get(dependency.id);
+        if (settings.lossless) {
+          if (source && target) {
+            hasLosslessDependency = true;
+            addEdge(edges, edgeSeen, source, target, 'flow');
+          }
+          continue;
+        }
         if (dependency.kind === 'output') {
-          const source = outputs.nodeByRecordId.get(dependency.id);
           if (dependency.scopeId === output.scopeId) {
             hasLocalOutputDependency = true;
             addEdge(edges, edgeSeen, source, target, 'flow');
@@ -590,10 +610,12 @@ export function createAstraGraphProjection(
             addEdge(edges, edgeSeen, source, stage, 'flow');
           }
         } else {
-          addEdge(edges, edgeSeen, inputs.nodeByRecordId.get(dependency.id), stage, 'flow');
+          addEdge(edges, edgeSeen, source, stage, 'flow');
         }
       }
-      if (!hasLocalOutputDependency) addEdge(edges, edgeSeen, stage, target, 'produces');
+      if (settings.lossless ? !hasLosslessDependency : !hasLocalOutputDependency) {
+        addEdge(edges, edgeSeen, stage, target, 'produces');
+      }
     }
   }
 
@@ -628,7 +650,7 @@ export function createAstraGraphProjection(
       (record): record is FindingRecordView =>
         record.kind === 'finding' && record.active !== false,
     );
-    const groupFindings = findings.length > settings.maxFindingNodes;
+    const groupFindings = !settings.lossless && findings.length > settings.maxFindingNodes;
     const findingGroupId = graphNodeId('finding-group', scope.id);
     if (groupFindings) {
       nodes.push({
@@ -684,6 +706,7 @@ export function createAstraGraphProjection(
 
   const impactsByScope = new Map<string, Map<string, DecisionRecordView>>();
   const affectedByScopeDecision = new Map<string, Set<string>>();
+  const affectedOutputsByScopeDecision = new Map<string, Set<string>>();
   for (const scope of model.scopes) {
     const declared = (index.recordsByScope.get(scope.id) ?? []).filter(
       (record): record is DecisionRecordView =>
@@ -706,6 +729,9 @@ export function createAstraGraphProjection(
       const outputNode = outputs.nodeByRecordId.get(output.id);
       if (outputNode) affected.add(outputNode);
       affectedByScopeDecision.set(key, affected);
+      const affectedOutputs = affectedOutputsByScopeDecision.get(key) ?? new Set<string>();
+      affectedOutputs.add(output.id);
+      affectedOutputsByScopeDecision.set(key, affectedOutputs);
     }
   }
 
@@ -734,6 +760,8 @@ export function createAstraGraphProjection(
       const selected = decision.options.find((option) => option.selected)
         ?? decision.options.find((option) => option.id === decision.selectedOptionId);
       const affected = affectedByScopeDecision.get(`${scope.id}\0${decision.id}`);
+      const affectedOutputCount = affectedOutputsByScopeDecision
+        .get(`${scope.id}\0${decision.id}`)?.size ?? 0;
       const inherited = decision.scopeId !== scope.id;
       const node: AstraGraphNode = {
         id,
@@ -751,8 +779,8 @@ export function createAstraGraphProjection(
           ...(inherited
             ? [`inherited from: ${index.scopeById.get(decision.scopeId)?.name ?? decision.scopeId}`]
             : []),
-          ...(affected?.size
-            ? [`affects ${affected.size} visible output node${affected.size === 1 ? '' : 's'}`]
+          ...(affectedOutputCount
+            ? [`affects ${affectedOutputCount} output${affectedOutputCount === 1 ? '' : 's'}`]
             : []),
         ],
         parentId: clusterId,

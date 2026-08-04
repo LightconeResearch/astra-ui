@@ -168,6 +168,9 @@ test('the shared graph renders the semantic projection without host chrome', () 
   assert.match(html, /Drag or scroll to pan · pinch or Ctrl\+scroll to zoom/);
   assert.match(html, /aria-label="Zoom out"/);
   assert.match(html, /aria-label="Zoom in"/);
+  assert.match(html, /<svg[^>]+role="group"/);
+  assert.match(html, /data-node-kind="output"[^>]+role="button"/);
+  assert.match(html, /aria-label="Inspect output:/);
   assert.match(html, /data-node-kind="decision-cluster"/);
   assert.doesNotMatch(html, /jupyter|myst|vscode/i);
 });

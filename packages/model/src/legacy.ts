@@ -449,7 +449,9 @@ export function adaptLegacyInventorySnapshot(
       const transitiveDecisionRelations = record.kind === 'output'
         ? (record.decisions_transitive ?? []).map((dependency) => {
           const owner = dependency.via === 'root'
-            ? snapshot.scopes.find((candidate) => !candidate.id && !candidate.path)
+            ? snapshot.scopes.find((candidate) =>
+              normalizedScopeId(candidate.id) === 'root'
+              && (!candidate.path || candidate.path === 'root'))
             : dependency.via
               ? snapshot.scopes.find((candidate) =>
                 candidate.id === dependency.via || candidate.path === dependency.via)
