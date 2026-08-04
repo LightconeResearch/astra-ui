@@ -35,20 +35,28 @@ test('preserves the canonical ASTRA palette and offline font fallbacks', async (
   assert.doesNotMatch(css, /@import\s+url|https?:\/\//i);
 });
 
-test('keeps host surfaces native without remapping ASTRA record kinds', async () => {
+test('keeps the complete ASTRA component palette stable across hosts', async () => {
   const css = await readFile(themeUrl, 'utf8');
-  assert.match(css, /--astra-panel:\s*var\(--jp-layout-color1/);
-  assert.match(css, /--astra-action:\s*var\(--jp-brand-color1/);
-  assert.match(css, /--astra-focus:\s*var\(--jp-brand-color1/);
+  assert.match(css, /--astra-canvas:\s*#f1efe9/i);
+  assert.match(css, /--astra-panel:\s*#f8f7f3/i);
+  assert.match(css, /--astra-ink:\s*#221f20/i);
+  assert.match(css, /--astra-action:\s*#4e5a70/i);
+  assert.match(css, /--astra-focus:\s*#3f7280/i);
   assert.match(css, /--astra-c-input:\s*#4e5a70/i);
   assert.match(css, /--astra-c-output:\s*#3b7a73/i);
   assert.match(css, /--astra-c-decision:\s*#a67c3c/i);
   assert.match(css, /--astra-c-decision-ink:\s*#765a2f/i);
   assert.match(css, /\[data-jp-theme-light="false"\]/);
   assert.match(css, /\.vscode-dark/);
+  assert.match(css, /--astra-canvas:\s*#171614/i);
+  assert.match(css, /--astra-panel:\s*#1e1d1a/i);
+  assert.match(css, /--astra-ink:\s*#f2eee7/i);
+  assert.match(css, /--astra-action:\s*#aeb8ca/i);
   assert.match(css, /--astra-c-input:\s*#aeb8ca/i);
   assert.match(css, /--astra-color-canvas:\s*var\(--astra-canvas\)/);
   assert.match(css, /--astra-radius-panel:\s*10px/);
+  assert.doesNotMatch(css, /--astra-panel:\s*var\(--jp-layout/);
+  assert.doesNotMatch(css, /--astra-action:\s*var\(--jp-brand/);
   assert.doesNotMatch(css, /--astra-c-decision:\s*var\(--astra-accent/);
 });
 
@@ -62,6 +70,6 @@ test('keeps all selectors scoped and contains no component styling', async () =>
   assert.doesNotMatch(rules, /(^|[,{])\s*:root\b/m);
   assert.doesNotMatch(rules, /(^|[,{])\s*(html|body)\b/m);
   assert.doesNotMatch(rules, /\.astra-(inventory|record|result|artifact|graph|badge)\b/);
-  assert.match(theme, /--jp-layout-color1/);
-  assert.match(theme, /--vscode-editor-background/);
+  assert.match(theme, /--jp-ui-font-family/);
+  assert.match(theme, /--vscode-font-family/);
 });
