@@ -154,11 +154,11 @@ export function InsightDetailDialog({
             </section>
           ) : null}
           <InventoryRelationList
-            title="Informs"
+            title="Informs decisions"
             items={decisions.map((decision) => ({
               key: decision.path,
               label: inventoryRecordTitle(decision),
-              identifier: decision.path,
+              kind: 'decision',
               accessibleLabel: `View decision: ${inventoryRecordTitle(decision)}`,
               onOpen: onOpenDecision ? () => onOpenDecision(decision) : undefined,
             }))}

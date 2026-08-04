@@ -287,7 +287,7 @@ export function OutputDetail({
             items={visibleDependencies.map((dependency) => ({
               key: `${dependency.relationship}-${dependency.via ?? 'local'}-${dependency.id}`,
               label: dependency.label,
-              identifier: dependency.record?.path ?? dependency.id,
+              kind: 'decision',
               detail: [
                 dependency.relationship === 'direct' ? 'Direct' : 'Indirect',
                 dependency.scope?.name ?? dependency.via,
@@ -311,7 +311,7 @@ export function OutputDetail({
             items={inputs.map((input) => ({
               key: input.id,
               label: input.label ?? input.id,
-              identifier: input.record?.path ?? input.id,
+              kind: input.record?.kind === 'output' ? 'output' : 'input',
               detail: [
                 input.record?.kind === 'output' ? 'Upstream output' : 'Input',
                 input.scope?.name,

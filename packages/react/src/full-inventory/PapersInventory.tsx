@@ -301,6 +301,7 @@ export function PaperDialog({
             items={paper.decisions.map((decision) => ({
               key: decision.path,
               label: inventoryRecordTitle(decision),
+              kind: 'decision',
               accessibleLabel: `View decision: ${inventoryRecordTitle(decision)}`,
               onOpen: () => onOpenDecision(decision),
             }))}

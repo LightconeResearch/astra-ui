@@ -1,11 +1,23 @@
 import type { ReactNode } from 'react';
 import { InventoryCountHeading } from './InventoryPrimitives.js';
+import type { InventoryKind } from './types.js';
+
+const RELATION_GLYPHS: Record<InventoryKind | 'paper', string> = {
+  analysis: '◐',
+  input: '↳',
+  decision: '◇',
+  output: '◆',
+  finding: '●',
+  prior_insight: '◈',
+  paper: '▧',
+};
 
 export interface InventoryRelationItem {
   key: string;
   label: ReactNode;
   identifier?: ReactNode | undefined;
   detail?: ReactNode | undefined;
+  kind?: InventoryKind | 'paper' | undefined;
   className?: string | undefined;
   accessibleLabel?: string | undefined;
   onOpen?: (() => void) | undefined;
@@ -44,6 +56,7 @@ export function InventoryRelationList({
           {items.map((item) => (
             <li
               key={item.key}
+              data-kind={item.kind}
               className={[
                 item.onOpen ? 'has-inventory-relation-trigger' : '',
                 item.className ?? '',
@@ -56,7 +69,13 @@ export function InventoryRelationList({
                   aria-label={item.accessibleLabel}
                   onClick={item.onOpen}
                 >
-                  <span>
+                  <span
+                    className={`inventory-relation-item__glyph${item.kind ? '' : ' is-empty'}`}
+                    aria-hidden="true"
+                  >
+                    {item.kind ? RELATION_GLYPHS[item.kind] : ''}
+                  </span>
+                  <span className="inventory-relation-item__copy">
                     <strong>{item.label}</strong>
                     {item.identifier != null ? <code>{item.identifier}</code> : null}
                   </span>
@@ -65,7 +84,13 @@ export function InventoryRelationList({
                 </button>
               ) : (
                 <>
-                  <span>
+                  <span
+                    className={`inventory-relation-item__glyph${item.kind ? '' : ' is-empty'}`}
+                    aria-hidden="true"
+                  >
+                    {item.kind ? RELATION_GLYPHS[item.kind] : ''}
+                  </span>
+                  <span className="inventory-relation-item__copy">
                     <strong>{item.label}</strong>
                     {item.identifier != null ? <code>{item.identifier}</code> : null}
                   </span>

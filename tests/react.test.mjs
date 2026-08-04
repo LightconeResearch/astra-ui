@@ -4,7 +4,10 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import {
   ArtifactPreview,
+  createInventoryModel,
+  InsightDetailDialog,
   InventoryExplorer,
+  InventoryRelationList,
   OverviewInventory,
   PaperDialog,
 } from '../packages/react/dist/index.js';
@@ -94,4 +97,47 @@ test('paper details use compact insight and informed-decision lists', () => {
   assert.match(html, /inventory-paper-informs/);
   assert.doesNotMatch(html, />prior insight</);
   assert.doesNotMatch(html, /inventory-paper-insight__quote/);
+});
+
+test('relationship lists share compact typed rows instead of pill boxes', () => {
+  const html = renderToStaticMarkup(
+    React.createElement(InventoryRelationList, {
+      title: 'Dependencies',
+      items: [{
+        key: 'method',
+        label: 'Method choice',
+        kind: 'decision',
+        detail: 'Direct',
+        onOpen: () => {},
+      }],
+      empty: 'No dependencies.',
+    }),
+  );
+
+  assert.match(html, /inventory-relation-item__glyph/);
+  assert.match(html, /data-kind="decision"/);
+  assert.match(html, />◇</);
+  assert.match(html, /Method choice/);
+  assert.match(html, /Direct/);
+});
+
+test('insight details use the same compact informed-decision relationship', () => {
+  const model = createInventoryModel(legacyFixture);
+  const scope = model.snapshot.scopes[0];
+  const insight = scope.records.find((record) => record.kind === 'prior_insight');
+  assert.ok(insight);
+
+  const html = renderToStaticMarkup(
+    React.createElement(InsightDetailDialog, {
+      insight,
+      model,
+      scope,
+      onOpenDecision: () => {},
+      onClose: () => {},
+    }),
+  );
+
+  assert.match(html, /Informs decisions/);
+  assert.match(html, /data-kind="decision"/);
+  assert.doesNotMatch(html, /decisions\.method/);
 });

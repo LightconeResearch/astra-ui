@@ -185,11 +185,25 @@
 .astra-viewer .astra-record-detail__header h2 { margin: var(--astra-space-2) 0 0; }
 .astra-viewer .astra-record-detail__header-actions { display: flex; flex-wrap: wrap; gap: var(--astra-space-2); }
 
-.astra-viewer :is(.astra-record-detail__header-actions button, .astra-record-detail__action, .astra-result-viewer__download, .astra-evidence-list button, .astra-relation-list button) {
+.astra-viewer :is(.astra-record-detail__header-actions button, .astra-record-detail__action, .astra-result-viewer__download, .astra-evidence-list button) {
   padding: 0.35rem 0.65rem;
   border: 1px solid var(--astra-color-border);
   border-radius: var(--astra-radius-sm);
   background: var(--astra-color-surface);
+}
+
+.astra-viewer .astra-relation-list button {
+  cursor: pointer;
+  border: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--astra-color-accent) 42%, transparent);
+  border-radius: 0;
+  background: transparent;
+  color: var(--astra-color-accent);
+  padding: 0;
+}
+
+.astra-viewer .astra-relation-list button:hover {
+  border-bottom-color: var(--astra-color-accent);
 }
 
 .astra-viewer .astra-record-detail__section { margin-block-start: var(--astra-space-4); }
