@@ -270,6 +270,7 @@ export function OutputDetail({
           <InventoryRelationList
             title="Decision dependencies"
             className="inventory-output-provenance__group inventory-output-dependencies"
+            description="Method choices recorded for this output."
             headerAction={indirectDependencies.length ? (
               <label
                 className="inventory-dependency-toggle"
@@ -286,6 +287,12 @@ export function OutputDetail({
             items={visibleDependencies.map((dependency) => ({
               key: `${dependency.relationship}-${dependency.via ?? 'local'}-${dependency.id}`,
               label: dependency.label,
+              identifier: dependency.record?.path ?? dependency.id,
+              detail: [
+                dependency.relationship === 'direct' ? 'Direct' : 'Indirect',
+                dependency.scope?.name ?? dependency.via,
+              ].filter(Boolean).join(' · '),
+              className: `is-${dependency.relationship}`,
               accessibleLabel: dependency.record
                 ? `View ${dependency.relationship} decision dependency: ${dependency.label}`
                 : undefined,
@@ -300,9 +307,16 @@ export function OutputDetail({
           <InventoryRelationList
             title="Inputs and upstream outputs"
             className="inventory-output-provenance__group inventory-output-provenance__group--scrollable"
+            description="Trace the data products this result was built from."
             items={inputs.map((input) => ({
               key: input.id,
               label: input.label ?? input.id,
+              identifier: input.record?.path ?? input.id,
+              detail: [
+                input.record?.kind === 'output' ? 'Upstream output' : 'Input',
+                input.scope?.name,
+              ].filter(Boolean).join(' · '),
+              className: input.record?.kind === 'output' ? 'is-output' : 'is-input',
               accessibleLabel: input.record
                 ? `View ${input.record.kind}: ${input.label ?? input.id}`
                 : undefined,

@@ -16,17 +16,17 @@ test('publishes stable brand and host-aware CSS entry points', async () => {
 
 test('preserves the canonical ASTRA palette and offline font fallbacks', async () => {
   const css = await readFile(brandUrl, 'utf8');
-  assert.match(css, /--astra-canvas:\s*#e9e7e2/i);
-  assert.match(css, /--astra-panel:\s*#fffdfa/i);
+  assert.match(css, /--astra-canvas:\s*#f1efe9/i);
+  assert.match(css, /--astra-panel:\s*#f8f7f3/i);
   assert.match(css, /--astra-raised:\s*#ffffff/i);
-  assert.match(css, /--astra-action:\s*#3563a8/i);
-  assert.match(css, /--astra-c-decision:\s*#b07818/i);
-  assert.match(css, /--astra-c-decision-ink:\s*#7a5410/i);
-  assert.match(css, /--astra-artifact-ink:\s*#1e1c19/i);
-  assert.match(css, /--astra-c-output:\s*#2e7d5b/i);
-  assert.match(css, /--astra-c-finding:\s*#7a4fae/i);
-  assert.match(css, /--astra-c-insight:\s*#8c72a8/i);
-  assert.match(css, /--astra-c-insight-ink:\s*#6f4a91/i);
+  assert.match(css, /--astra-action:\s*#4e5a70/i);
+  assert.match(css, /--astra-c-decision:\s*#a67c3c/i);
+  assert.match(css, /--astra-c-decision-ink:\s*#765a2f/i);
+  assert.match(css, /--astra-artifact-ink:\s*#221f20/i);
+  assert.match(css, /--astra-c-output:\s*#3b7a73/i);
+  assert.match(css, /--astra-c-finding:\s*#a45a43/i);
+  assert.match(css, /--astra-c-insight:\s*#8b7d70/i);
+  assert.match(css, /--astra-c-insight-ink:\s*#4e5a70/i);
   assert.match(css, /--astra-canvas:\s*#171614/i);
   assert.match(css, /--astra-heading:\s*"IBM Plex Sans"/);
   assert.match(css, /--astra-serif:\s*"IBM Plex Sans"/);
@@ -40,13 +40,13 @@ test('keeps host surfaces native without remapping ASTRA record kinds', async ()
   assert.match(css, /--astra-panel:\s*var\(--jp-layout-color1/);
   assert.match(css, /--astra-action:\s*var\(--jp-brand-color1/);
   assert.match(css, /--astra-focus:\s*var\(--jp-brand-color1/);
-  assert.match(css, /--astra-c-input:\s*#3563a8/i);
-  assert.match(css, /--astra-c-output:\s*#2e7d5b/i);
-  assert.match(css, /--astra-c-decision:\s*#b07818/i);
-  assert.match(css, /--astra-c-decision-ink:\s*#7a5410/i);
+  assert.match(css, /--astra-c-input:\s*#4e5a70/i);
+  assert.match(css, /--astra-c-output:\s*#3b7a73/i);
+  assert.match(css, /--astra-c-decision:\s*#a67c3c/i);
+  assert.match(css, /--astra-c-decision-ink:\s*#765a2f/i);
   assert.match(css, /\[data-jp-theme-light="false"\]/);
   assert.match(css, /\.vscode-dark/);
-  assert.match(css, /--astra-c-input:\s*#8eb4ed/i);
+  assert.match(css, /--astra-c-input:\s*#aeb8ca/i);
   assert.match(css, /--astra-color-canvas:\s*var\(--astra-canvas\)/);
   assert.match(css, /--astra-radius-panel:\s*10px/);
   assert.doesNotMatch(css, /--astra-c-decision:\s*var\(--astra-accent/);

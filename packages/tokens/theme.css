@@ -8,46 +8,46 @@
  * Brand-light and brand-dark can be selected explicitly with data-astra-theme.
  */
 .astra-viewer {
-  --astra-canvas: var(--jp-layout-color0, var(--vscode-sideBar-background, #e9e7e2));
-  --astra-panel: var(--jp-layout-color1, var(--vscode-editor-background, #fffdfa));
+  --astra-canvas: var(--jp-layout-color0, var(--vscode-sideBar-background, #f1efe9));
+  --astra-panel: var(--jp-layout-color1, var(--vscode-editor-background, #f8f7f3));
   --astra-raised: var(--jp-layout-color1, var(--vscode-editorWidget-background, #ffffff));
-  --astra-hover: var(--jp-layout-color2, var(--vscode-list-hoverBackground, #faf8f4));
-  --astra-artifact-paper: #fffdfa;
-  --astra-artifact-ink: #1e1c19;
+  --astra-hover: var(--jp-layout-color2, var(--vscode-list-hoverBackground, #f1efe9));
+  --astra-artifact-paper: #ffffff;
+  --astra-artifact-ink: #221f20;
 
   /* Backwards-compatible surface names. */
   --astra-paper: var(--astra-panel);
   --astra-surface: var(--astra-raised);
   --astra-surface-2: var(--astra-hover);
 
-  --astra-ink: var(--jp-ui-font-color1, var(--vscode-editor-foreground, #1e1c19));
-  --astra-ink-soft: var(--jp-ui-font-color2, var(--vscode-descriptionForeground, #5c584f));
-  --astra-muted: var(--jp-ui-font-color3, var(--vscode-disabledForeground, #8a857a));
-  --astra-faint: var(--jp-ui-font-color3, var(--vscode-disabledForeground, #aaa59b));
+  --astra-ink: var(--jp-ui-font-color1, var(--vscode-editor-foreground, #221f20));
+  --astra-ink-soft: var(--jp-ui-font-color2, var(--vscode-descriptionForeground, #4e5a70));
+  --astra-muted: var(--jp-ui-font-color3, var(--vscode-disabledForeground, #8b7d70));
+  --astra-faint: var(--jp-ui-font-color3, var(--vscode-disabledForeground, #b8b0a8));
 
   --astra-rule-subtle: var(--jp-border-color3, var(--vscode-widget-shadow, #f0ede6));
   --astra-rule: var(--jp-border-color2, var(--vscode-widget-border, #eae7e0));
   --astra-rule-strong: var(--jp-border-color1, var(--vscode-contrastBorder, #d5d2cb));
 
-  --astra-action: var(--jp-brand-color1, var(--vscode-textLink-foreground, #3563a8));
-  --astra-focus: var(--jp-brand-color1, var(--vscode-focusBorder, #3563a8));
+  --astra-action: var(--jp-brand-color1, var(--vscode-textLink-foreground, #4e5a70));
+  --astra-focus: var(--jp-brand-color1, var(--vscode-focusBorder, #3f7280));
   --astra-accent: var(--astra-action);
   --astra-link: var(--jp-content-link-color, var(--vscode-textLink-foreground, var(--astra-action)));
   --astra-accent-soft: var(--jp-brand-color3, color-mix(in srgb, var(--astra-action) 10%, transparent));
-  --astra-kicker: #3b7f8c;
+  --astra-kicker: #3f7280;
 
   /* Host themes do not redefine the meaning of ASTRA record kinds. */
-  --astra-c-input: #3563a8;
-  --astra-c-analysis: #3b7f8c;
-  --astra-c-output: #2e7d5b;
-  --astra-c-decision: #b07818;
-  --astra-c-decision-ink: #7a5410;
-  --astra-c-finding: #7a4fae;
-  --astra-c-insight: #8c72a8;
-  --astra-c-insight-ink: #6f4a91;
-  --astra-c-value: #3b7f8c;
-  --astra-c-result: #26241f;
-  --astra-c-danger: #a34e4e;
+  --astra-c-input: #4e5a70;
+  --astra-c-analysis: #3f7280;
+  --astra-c-output: #3b7a73;
+  --astra-c-decision: #a67c3c;
+  --astra-c-decision-ink: #765a2f;
+  --astra-c-finding: #a45a43;
+  --astra-c-insight: #8b7d70;
+  --astra-c-insight-ink: #4e5a70;
+  --astra-c-value: #3f7280;
+  --astra-c-result: #221f20;
+  --astra-c-danger: #a45a43;
 
   --astra-c-input-soft: color-mix(in srgb, var(--astra-c-input) 10%, var(--astra-panel));
   --astra-c-analysis-soft: color-mix(in srgb, var(--astra-c-analysis) 10%, var(--astra-panel));
@@ -112,18 +112,18 @@
  * Explicit brand-light/brand-dark selections remain authoritative. */
 :where([data-jp-theme-light="false"], .vscode-dark, .vscode-high-contrast)
   .astra-viewer:not([data-astra-theme]) {
-  --astra-kicker: #82bdc8;
-  --astra-c-input: #8eb4ed;
-  --astra-c-analysis: #82bdc8;
-  --astra-c-output: #78c39e;
-  --astra-c-decision: #e2b45f;
-  --astra-c-decision-ink: #e2b45f;
-  --astra-c-finding: #b99adf;
-  --astra-c-insight: #c3a8dc;
-  --astra-c-insight-ink: #c3a8dc;
-  --astra-c-value: #82bdc8;
+  --astra-kicker: #86adb7;
+  --astra-c-input: #aeb8ca;
+  --astra-c-analysis: #86adb7;
+  --astra-c-output: #79b6ae;
+  --astra-c-decision: #d8b477;
+  --astra-c-decision-ink: #d8b477;
+  --astra-c-finding: #d6927d;
+  --astra-c-insight: #c2b5a9;
+  --astra-c-insight-ink: #c2b5a9;
+  --astra-c-value: #86adb7;
   --astra-c-result: #f2eee7;
-  --astra-c-danger: #e49393;
+  --astra-c-danger: #d6927d;
 
   --astra-c-input-soft: color-mix(in srgb, var(--astra-c-input) 15%, var(--astra-panel));
   --astra-c-analysis-soft: color-mix(in srgb, var(--astra-c-analysis) 15%, var(--astra-panel));

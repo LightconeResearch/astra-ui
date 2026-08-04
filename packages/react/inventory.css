@@ -1155,6 +1155,12 @@
 .inventory-record-detail__relations code,
 .inventory-record-detail__relations small { color: var(--astra-muted); font-size: 0.59rem; }
 .inventory-relation-list > p { color: var(--astra-muted); font-size: 0.72rem; }
+.inventory-relation-list > .inventory-relation-list__description {
+  margin: 0.22rem 0 0.62rem;
+  color: var(--astra-muted);
+  font-size: 0.67rem;
+  line-height: 1.45;
+}
 .inventory-insight-list > p { color: var(--astra-muted); font-size: 0.72rem; }
 
 .inventory-finding-detail__claim > div {
@@ -1457,32 +1463,72 @@
 
 .inventory-output-provenance__group ul {
   display: grid;
-  gap: 0.38rem;
-  margin: 0;
+  gap: 0;
+  margin: 0 0 0 0.38rem;
+  border-left: 1px solid var(--astra-rule-strong);
   padding: 0;
   list-style: none;
 }
 
 .inventory-output-provenance__group li {
+  position: relative;
   display: flex;
   gap: 0.55rem;
   align-items: center;
   justify-content: space-between;
-  border: 1px solid var(--astra-rule);
-  border-radius: 0.28rem;
-  background: var(--astra-paper);
-  padding: 0.48rem 0.55rem;
+  min-height: 2.8rem;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0.42rem 0.25rem 0.48rem 1rem;
 }
 
-.inventory-output-provenance__group li.has-inventory-relation-trigger { padding: 0; }
+.inventory-output-provenance__group li::before {
+  position: absolute;
+  top: 1rem;
+  left: -0.31rem;
+  width: 0.52rem;
+  height: 0.52rem;
+  border: 2px solid var(--astra-paper);
+  border-radius: 50%;
+  background: var(--astra-muted);
+  box-shadow: 0 0 0 1px var(--astra-rule-strong);
+  content: "";
+}
+
+.inventory-output-provenance__group li.has-inventory-relation-trigger {
+  padding: 0;
+}
+
+.inventory-output-provenance__group li.is-direct::before {
+  background: var(--astra-c-decision);
+}
+
+.inventory-output-provenance__group li.is-indirect::before {
+  border-color: var(--astra-surface);
+  background: var(--astra-c-decision-soft);
+  box-shadow: 0 0 0 1px var(--astra-c-decision);
+}
+
+.inventory-output-provenance__group li.is-input::before {
+  background: var(--astra-c-input);
+}
+
+.inventory-output-provenance__group li.is-output::before {
+  background: var(--astra-c-output);
+}
+
+.inventory-output-provenance__group .inventory-relation-trigger {
+  min-height: 2.8rem;
+  border-radius: var(--astra-radius);
+  padding: 0.42rem 0.25rem 0.48rem 1rem;
+}
 
 .inventory-output-provenance__group li > span { display: grid; min-width: 0; gap: 0.1rem; }
 .inventory-output-provenance__group li strong {
-  overflow: hidden;
+  overflow-wrap: anywhere;
   font-family: var(--astra-label);
   font-size: 0.72rem;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .inventory-output-provenance__group li code,
@@ -1891,8 +1937,7 @@
 }
 
 .inventory-decision-options li,
-.inventory-record-detail__relations li,
-.inventory-output-provenance__group li {
+.inventory-record-detail__relations li {
   border-color: var(--astra-rule);
   border-radius: var(--astra-radius);
   background: var(--astra-raised);

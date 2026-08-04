@@ -6,6 +6,7 @@ export interface InventoryRelationItem {
   label: ReactNode;
   identifier?: ReactNode | undefined;
   detail?: ReactNode | undefined;
+  className?: string | undefined;
   accessibleLabel?: string | undefined;
   onOpen?: (() => void) | undefined;
 }
@@ -16,12 +17,14 @@ export function InventoryRelationList({
   empty,
   className = 'inventory-record-detail__relations',
   headerAction,
+  description,
 }: {
   title: ReactNode;
   items: InventoryRelationItem[];
   empty: ReactNode;
   className?: string | undefined;
   headerAction?: ReactNode | undefined;
+  description?: ReactNode | undefined;
 }) {
   return (
     <section className={`inventory-relation-list ${className}`}>
@@ -33,10 +36,19 @@ export function InventoryRelationList({
       ) : (
         <InventoryCountHeading title={title} count={items.length} />
       )}
+      {description ? (
+        <p className="inventory-relation-list__description">{description}</p>
+      ) : null}
       {items.length ? (
         <ul>
           {items.map((item) => (
-            <li key={item.key} className={item.onOpen ? 'has-inventory-relation-trigger' : undefined}>
+            <li
+              key={item.key}
+              className={[
+                item.onOpen ? 'has-inventory-relation-trigger' : '',
+                item.className ?? '',
+              ].filter(Boolean).join(' ') || undefined}
+            >
               {item.onOpen ? (
                 <button
                   type="button"
