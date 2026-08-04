@@ -11,10 +11,13 @@ import {
   useEffect,
   useId,
   useMemo,
+  useRef,
   useState,
   type CSSProperties,
   type KeyboardEvent,
+  type PointerEvent as ReactPointerEvent,
   type ReactElement,
+  type WheelEvent as ReactWheelEvent,
 } from 'react';
 
 const PRIMARY_EDGE_KINDS = new Set<AstraGraphEdgeKind>([
@@ -76,6 +79,58 @@ interface GraphLayout {
   edges: AstraGraphEdge[];
   byId: ReadonlyMap<string, PositionedNode>;
   clusterBoxes: ClusterBox[];
+}
+
+interface GraphCamera {
+  x: number;
+  y: number;
+  scale: number;
+}
+
+interface GraphViewportSize {
+  width: number;
+  height: number;
+}
+
+const MIN_GRAPH_SCALE = 0.35;
+const MAX_GRAPH_SCALE = 2.5;
+
+function clampGraphScale(scale: number): number {
+  return Math.min(MAX_GRAPH_SCALE, Math.max(MIN_GRAPH_SCALE, scale));
+}
+
+function fitGraphCamera(
+  layout: Pick<GraphLayout, 'width' | 'height'>,
+  viewport: GraphViewportSize,
+): GraphCamera {
+  const padding = 48;
+  const availableWidth = Math.max(1, viewport.width - padding * 2);
+  const availableHeight = Math.max(1, viewport.height - padding * 2);
+  const scale = clampGraphScale(Math.min(
+    1,
+    availableWidth / layout.width,
+    availableHeight / layout.height,
+  ));
+  return {
+    x: (viewport.width - layout.width * scale) / 2,
+    y: (viewport.height - layout.height * scale) / 2,
+    scale,
+  };
+}
+
+function zoomGraphCamera(
+  camera: GraphCamera,
+  nextScale: number,
+  anchor: { x: number; y: number },
+): GraphCamera {
+  const scale = clampGraphScale(nextScale);
+  const graphX = (anchor.x - camera.x) / camera.scale;
+  const graphY = (anchor.y - camera.y) / camera.scale;
+  return {
+    x: anchor.x - graphX * scale,
+    y: anchor.y - graphY * scale,
+    scale,
+  };
 }
 
 export interface AstraGraphViewProps {
@@ -522,6 +577,19 @@ export function AstraGraphView({
   const [hoveredId, setHoveredId] = useState<string>();
   const [legendOpen, setLegendOpen] = useState(false);
   const [showPriorInsights] = useState(initialShowPriorInsights);
+  const [viewportSize, setViewportSize] = useState<GraphViewportSize>({
+    width: 0,
+    height: 0,
+  });
+  const [camera, setCamera] = useState<GraphCamera>({ x: 0, y: 0, scale: 1 });
+  const [isPanning, setIsPanning] = useState(false);
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const cameraInitializedRef = useRef(false);
+  const dragRef = useRef<{
+    pointerId: number;
+    x: number;
+    y: number;
+  }>();
   const markerPrefix = `astraGraph${useId().replace(/:/g, '')}`;
   const layout = useMemo(
     () => layoutGraph(renderedProjection, expanded, showPriorInsights, minWidth),
@@ -541,6 +609,106 @@ export function AstraGraphView({
           node.id === id && node.kind === 'decision-cluster')),
     ));
   }, [renderedProjection, selectedId]);
+
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport) return undefined;
+    const measure = (): void => {
+      const next = {
+        width: Math.max(1, viewport.clientWidth),
+        height: Math.max(1, viewport.clientHeight),
+      };
+      setViewportSize((current) =>
+        current.width === next.width && current.height === next.height
+          ? current
+          : next);
+    };
+    measure();
+    if (typeof ResizeObserver === 'undefined') return undefined;
+    const observer = new ResizeObserver(measure);
+    observer.observe(viewport);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (
+      cameraInitializedRef.current
+      || viewportSize.width <= 1
+      || viewportSize.height <= 1
+    ) return;
+    setCamera(fitGraphCamera(layout, viewportSize));
+    cameraInitializedRef.current = true;
+  }, [layout, viewportSize]);
+
+  const resetCamera = (): void => {
+    setCamera(fitGraphCamera(layout, viewportSize));
+  };
+
+  const zoomFromCenter = (factor: number): void => {
+    const anchor = {
+      x: viewportSize.width / 2,
+      y: viewportSize.height / 2,
+    };
+    setCamera((current) => zoomGraphCamera(
+      current,
+      current.scale * factor,
+      anchor,
+    ));
+  };
+
+  const onGraphPointerDown = (
+    event: ReactPointerEvent<SVGSVGElement>,
+  ): void => {
+    const target = event.target as Element;
+    if (event.button !== 0 || target.closest?.('.astra-graph-node')) return;
+    event.preventDefault();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    dragRef.current = {
+      pointerId: event.pointerId,
+      x: event.clientX,
+      y: event.clientY,
+    };
+    setIsPanning(true);
+  };
+
+  const onGraphPointerMove = (
+    event: ReactPointerEvent<SVGSVGElement>,
+  ): void => {
+    const drag = dragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    const dx = event.clientX - drag.x;
+    const dy = event.clientY - drag.y;
+    dragRef.current = { ...drag, x: event.clientX, y: event.clientY };
+    setCamera((current) => ({
+      ...current,
+      x: current.x + dx,
+      y: current.y + dy,
+    }));
+  };
+
+  const endGraphPan = (event: ReactPointerEvent<SVGSVGElement>): void => {
+    if (dragRef.current?.pointerId !== event.pointerId) return;
+    dragRef.current = undefined;
+    setIsPanning(false);
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+  };
+
+  const onGraphWheel = (event: ReactWheelEvent<SVGSVGElement>): void => {
+    event.preventDefault();
+    const rect = event.currentTarget.getBoundingClientRect();
+    const anchor = {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top,
+    };
+    const factor = Math.exp(-event.deltaY * 0.0015);
+    setCamera((current) => zoomGraphCamera(
+      current,
+      current.scale * factor,
+      anchor,
+    ));
+  };
 
   const activateNode = (node: AstraGraphNode): void => {
     if (node.kind === 'decision-cluster') {
@@ -572,21 +740,50 @@ export function AstraGraphView({
       <header className="astra-graph-toolbar">
         <strong>{title ?? renderedProjection.project.name}</strong>
         <code>universe: {renderedProjection.universe.id}</code>
-        <span />
+        <span className="astra-graph-help">Drag to pan · scroll to zoom</span>
+        <div className="astra-graph-view-controls" aria-label="Graph view controls">
+          <button
+            type="button"
+            aria-label="Zoom out"
+            onClick={() => zoomFromCenter(0.82)}
+          >
+            −
+          </button>
+          <button type="button" onClick={resetCamera}>
+            {Math.round(camera.scale * 100)}%
+          </button>
+          <button
+            type="button"
+            aria-label="Zoom in"
+            onClick={() => zoomFromCenter(1.22)}
+          >
+            +
+          </button>
+        </div>
         {expanded.size ? (
           <button type="button" onClick={() => setExpanded(new Set())}>
             Collapse decisions
           </button>
         ) : null}
       </header>
-      <div className="astra-graph-viewport">
+      <div
+        ref={viewportRef}
+        className="astra-graph-viewport"
+        data-panning={isPanning}
+      >
         <svg
           className="astra-graph-svg"
-          width={layout.width}
-          height={layout.height}
-          viewBox={`0 0 ${layout.width} ${layout.height}`}
+          width="100%"
+          height="100%"
+          viewBox={`0 0 ${Math.max(1, viewportSize.width)} ${Math.max(1, viewportSize.height)}`}
+          preserveAspectRatio="none"
           role="img"
           aria-label={`${renderedProjection.project.name} provenance graph`}
+          onPointerDown={onGraphPointerDown}
+          onPointerMove={onGraphPointerMove}
+          onPointerUp={endGraphPan}
+          onPointerCancel={endGraphPan}
+          onWheel={onGraphWheel}
         >
           <defs>
             {(Object.keys(EDGE_STYLES) as AstraGraphEdgeKind[]).map((kind) => (
@@ -603,99 +800,109 @@ export function AstraGraphView({
               </marker>
             ))}
           </defs>
-          {layout.clusterBoxes.map((box) => (
-            <rect
-              key={box.id}
-              className="astra-graph-cluster-box"
-              x={box.x}
-              y={box.y}
-              width={box.width}
-              height={box.height}
-              rx="8"
-            />
-          ))}
-          {layout.edges.map((edge) => {
-            const source = layout.byId.get(edge.source);
-            const target = layout.byId.get(edge.target);
-            if (!source || !target) return null;
-            const style = EDGE_STYLES[edge.kind];
-            const dimmed = Boolean(
-              selectedId
-              && edge.source !== selectedId
-              && edge.target !== selectedId,
-            );
-            return (
-              <path
-                key={edge.id}
-                className="astra-graph-edge"
-                d={edgePath(source, target)}
-                stroke={style.color}
-                strokeWidth={style.width}
-                strokeDasharray={style.dash}
-                markerEnd={`url(#${markerPrefix}-${edge.kind})`}
-                opacity={dimmed ? 0.18 : 0.72}
-                aria-label={edge.label}
+          <g
+            className="astra-graph-world"
+            transform={`translate(${camera.x} ${camera.y}) scale(${camera.scale})`}
+          >
+            {layout.clusterBoxes.map((box) => (
+              <rect
+                key={box.id}
+                className="astra-graph-cluster-box"
+                x={box.x}
+                y={box.y}
+                width={box.width}
+                height={box.height}
+                rx="8"
               />
-            );
-          })}
-          {layout.nodes.map((node) => {
-            const isDecision = node.kind === 'decision' || node.kind === 'decision-cluster';
-            const isCluster = node.kind === 'decision-cluster';
-            const radius = node.kind === 'analysis' || node.kind === 'result' ? 7.5 : 6;
-            const suffix = isCluster ? expanded.has(node.id) ? ' ▾' : ' ▸' : '';
-            return (
-              <g
-                key={node.id}
-                className={`astra-graph-node${isCluster ? ' is-cluster' : ''}${selectedId === node.id ? ' is-selected' : ''}`}
-                data-node-id={node.id}
-                data-node-kind={node.kind}
-                transform={`translate(${node.x} ${node.y})`}
-                tabIndex={0}
-                role={isCluster ? 'button' : 'img'}
-                aria-label={node.label}
-                onMouseEnter={() => setHoveredId(node.id)}
-                onMouseLeave={() => setHoveredId(undefined)}
-                onClick={() => activateNode(node)}
-                onKeyDown={(event) => onNodeKeyDown(event, node)}
-              >
-                <circle
-                  className="astra-graph-focus"
-                  r={radius + 5}
-                  fill="none"
-                  stroke={NODE_COLORS[node.kind]}
-                  strokeWidth="2"
+            ))}
+            {layout.edges.map((edge) => {
+              const source = layout.byId.get(edge.source);
+              const target = layout.byId.get(edge.target);
+              if (!source || !target) return null;
+              const style = EDGE_STYLES[edge.kind];
+              const dimmed = Boolean(
+                selectedId
+                && edge.source !== selectedId
+                && edge.target !== selectedId,
+              );
+              return (
+                <path
+                  key={edge.id}
+                  className="astra-graph-edge"
+                  d={edgePath(source, target)}
+                  stroke={style.color}
+                  strokeWidth={style.width}
+                  strokeDasharray={style.dash}
+                  markerEnd={`url(#${markerPrefix}-${edge.kind})`}
+                  opacity={dimmed ? 0.18 : 0.72}
+                  aria-label={edge.label}
                 />
-                {isDecision ? (
-                  <rect
-                    x={isCluster ? -6 : -5}
-                    y={isCluster ? -6 : -5}
-                    width={isCluster ? 12 : 10}
-                    height={isCluster ? 12 : 10}
-                    fill={isCluster ? NODE_COLORS[node.kind] : 'var(--astra-panel)'}
-                    stroke={NODE_COLORS[node.kind]}
-                    strokeWidth={isCluster ? 0 : 2}
-                    transform="rotate(45)"
-                  />
-                ) : (
-                  <circle r={radius} fill={NODE_COLORS[node.kind]} />
-                )}
-                {node.kind === 'analysis' ? (
-                  <text className="astra-graph-stage-label" x="11" y="-10">
-                    Analysis stage
-                  </text>
-                ) : null}
-                <text
-                  className={isDecision
-                    ? 'astra-graph-label astra-graph-decision-label'
-                    : 'astra-graph-label'}
-                  x="11"
-                  y="4"
+              );
+            })}
+            {layout.nodes.map((node) => {
+              const isDecision = node.kind === 'decision'
+                || node.kind === 'decision-cluster';
+              const isCluster = node.kind === 'decision-cluster';
+              const radius = node.kind === 'analysis' || node.kind === 'result'
+                ? 7.5
+                : 6;
+              const suffix = isCluster
+                ? expanded.has(node.id) ? ' ▾' : ' ▸'
+                : '';
+              return (
+                <g
+                  key={node.id}
+                  className={`astra-graph-node${isCluster ? ' is-cluster' : ''}${selectedId === node.id ? ' is-selected' : ''}`}
+                  data-node-id={node.id}
+                  data-node-kind={node.kind}
+                  transform={`translate(${node.x} ${node.y})`}
+                  tabIndex={0}
+                  role={isCluster ? 'button' : 'img'}
+                  aria-label={node.label}
+                  onMouseEnter={() => setHoveredId(node.id)}
+                  onMouseLeave={() => setHoveredId(undefined)}
+                  onClick={() => activateNode(node)}
+                  onKeyDown={(event) => onNodeKeyDown(event, node)}
                 >
-                  {shortLabel(node.label)}{suffix}
-                </text>
-              </g>
-            );
-          })}
+                  <circle
+                    className="astra-graph-focus"
+                    r={radius + 5}
+                    fill="none"
+                    stroke={NODE_COLORS[node.kind]}
+                    strokeWidth="2"
+                  />
+                  {isDecision ? (
+                    <rect
+                      x={isCluster ? -6 : -5}
+                      y={isCluster ? -6 : -5}
+                      width={isCluster ? 12 : 10}
+                      height={isCluster ? 12 : 10}
+                      fill={isCluster ? NODE_COLORS[node.kind] : 'var(--astra-panel)'}
+                      stroke={NODE_COLORS[node.kind]}
+                      strokeWidth={isCluster ? 0 : 2}
+                      transform="rotate(45)"
+                    />
+                  ) : (
+                    <circle r={radius} fill={NODE_COLORS[node.kind]} />
+                  )}
+                  {node.kind === 'analysis' ? (
+                    <text className="astra-graph-stage-label" x="11" y="-10">
+                      Analysis stage
+                    </text>
+                  ) : null}
+                  <text
+                    className={isDecision
+                      ? 'astra-graph-label astra-graph-decision-label'
+                      : 'astra-graph-label'}
+                    x="11"
+                    y="4"
+                  >
+                    {shortLabel(node.label)}{suffix}
+                  </text>
+                </g>
+              );
+            })}
+          </g>
         </svg>
         {showLegend ? (
           <GraphLegend open={legendOpen} onToggle={() => setLegendOpen((value) => !value)} />

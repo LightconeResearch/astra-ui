@@ -43,6 +43,29 @@
   flex: 1;
 }
 
+.astra-viewer .astra-graph-help {
+  color: var(--astra-muted);
+  font-size: 0.64rem;
+  font-weight: 500;
+  text-align: right;
+}
+
+.astra-viewer .astra-graph-view-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.astra-viewer .astra-graph-view-controls button {
+  min-width: 1.8rem;
+}
+
+.astra-viewer .astra-graph-view-controls button:nth-child(2) {
+  min-width: 3.1rem;
+  font-family: var(--astra-font-mono);
+  font-weight: 500;
+}
+
 .astra-viewer :is(.astra-graph-toolbar, .astra-graph-inspector) button {
   padding: 0.3rem 0.55rem;
   border: 1px solid var(--astra-color-border-strong);
@@ -61,14 +84,26 @@
 
 .astra-viewer .astra-graph-viewport {
   position: relative;
-  min-height: 32.5rem;
-  overflow: auto;
+  height: clamp(24rem, calc(100dvh - 16rem), 48rem);
+  min-height: 24rem;
+  overflow: hidden;
+  overscroll-behavior: contain;
   background: var(--astra-color-surface);
+  touch-action: none;
 }
 
 .astra-viewer .astra-graph-svg {
   display: block;
-  max-width: none;
+  cursor: grab;
+  user-select: none;
+}
+
+.astra-viewer .astra-graph-viewport[data-panning='true'] .astra-graph-svg {
+  cursor: grabbing;
+}
+
+.astra-viewer .astra-graph-world {
+  will-change: transform;
 }
 
 .astra-viewer .astra-graph-cluster-box {
