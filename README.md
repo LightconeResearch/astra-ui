@@ -15,8 +15,10 @@ engine, or a claim that an analysis is scientifically correct.
 | `@lightcone-research/astra-viewer-react` | Inventory, record detail, safe result previews | JupyterLab, MyST, VS Code, chat, file access |
 | `@lightcone-research/astra-viewer-tokens` | Canonical ASTRA brand variables and host-aware semantic mappings | Paper layout, inventory layout, application chrome |
 
-The graph view is intentionally deferred. Relations are preserved in the model
-so a graph can be added later without changing the host protocol.
+The graph view is derived from those same relations. The model package creates
+a complete semantic provenance projection and can validate an optional overview
+specification; the React package renders it without importing JupyterLab, MyST,
+or IDE APIs.
 
 ## Host flow
 

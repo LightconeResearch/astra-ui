@@ -4,6 +4,9 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import {
   ArtifactPreview,
+  AstraGraphView,
+  adaptLegacyInventorySnapshot,
+  createAstraGraphProjection,
   createInventoryModel,
   InsightDetailDialog,
   InventoryExplorer,
@@ -140,4 +143,28 @@ test('insight details use the same compact informed-decision relationship', () =
   assert.match(html, /Informs decisions/);
   assert.match(html, /data-kind="decision"/);
   assert.doesNotMatch(html, /decisions\.method/);
+});
+
+test('the shared graph renders the semantic projection without host chrome', () => {
+  const model = adaptLegacyInventorySnapshot(legacyFixture, {
+    universeId: 'baseline',
+  });
+  const projection = createAstraGraphProjection(model, {
+    outputGroupThreshold: 99,
+  });
+  const html = renderToStaticMarkup(
+    React.createElement('div', { className: 'astra-viewer' },
+      React.createElement(AstraGraphView, {
+        projection,
+        showLegend: false,
+      }),
+    ),
+  );
+
+  assert.match(html, /astra-graph/);
+  assert.match(html, /DESI demo/);
+  assert.match(html, /universe: baseline/);
+  assert.match(html, /Show prior evidence/);
+  assert.match(html, /data-node-kind="decision-cluster"/);
+  assert.doesNotMatch(html, /jupyter|myst|vscode/i);
 });

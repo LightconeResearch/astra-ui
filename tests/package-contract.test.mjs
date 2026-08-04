@@ -19,9 +19,11 @@ test('React package uses host React and has no MyST, Jupyter, or IDE dependency'
   assert.equal(names.some((name) => /jupyter|myst|vscode/i.test(name)), false);
 });
 
-test('graph remains deliberately deferred', async () => {
+test('graph ships from the shared viewer without a host-specific dependency', async () => {
   const entry = await readFile(new URL('../packages/react/src/index.ts', import.meta.url), 'utf8');
   const css = await readFile(new URL('../packages/react/styles.css', import.meta.url), 'utf8');
-  assert.doesNotMatch(entry, /graph/i);
-  assert.doesNotMatch(css, /astra-graph/i);
+  const graph = await readFile(new URL('../packages/react/src/graph.tsx', import.meta.url), 'utf8');
+  assert.match(entry, /graph/i);
+  assert.match(css, /graph\.css/i);
+  assert.doesNotMatch(graph, /jupyter|myst|vscode/i);
 });

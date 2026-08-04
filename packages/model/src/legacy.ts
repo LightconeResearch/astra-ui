@@ -128,6 +128,7 @@ export interface LegacyAdapterOptions {
 }
 
 function outputType(type?: string): OutputType {
+  if (type === 'data') return 'dataset';
   if (
     type === 'figure'
     || type === 'table'

@@ -1,4 +1,5 @@
 @import "./inventory.css";
+@import "./graph.css";
 
 .astra-viewer .astra-inventory {
   display: grid;

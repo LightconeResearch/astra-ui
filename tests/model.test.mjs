@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
   adaptLegacyInventorySnapshot,
+  createAstraGraphProjection,
+  createAstraGraphViewProjection,
   createProjectViewModelIndex,
   validateProjectViewModel,
 } from '../packages/model/dist/index.js';
@@ -171,4 +173,93 @@ test('indexes authored local ids without deriving them from canonical paths', ()
     insight,
   );
   assert.equal(index.recordsByLocalId.has('host_normalized_slug'), false);
+});
+
+test('graph projection derives provenance, decisions, evidence, and a display result', () => {
+  const model = adaptLegacyInventorySnapshot(legacyFixture, {
+    universeId: 'baseline',
+  });
+  const graph = createAstraGraphProjection(model, {
+    outputGroupThreshold: 99,
+  });
+
+  const catalog = graph.nodes.find((node) => node.canonicalPath === 'inputs.catalog');
+  const clustering = graph.nodes.find(
+    (node) => node.kind === 'analysis' && node.scopeId === 'clustering',
+  );
+  const xi = graph.nodes.find((node) => node.canonicalPath === 'clustering.outputs.xi');
+  const headline = graph.nodes.find((node) => node.canonicalPath === 'outputs.headline');
+  const result = graph.nodes.find((node) => node.kind === 'result');
+  const publishedInsight = graph.nodes.find(
+    (node) => node.canonicalPath === 'prior_insights.published_method',
+  );
+
+  assert.ok(catalog);
+  assert.ok(clustering);
+  assert.ok(xi);
+  assert.ok(headline);
+  assert.ok(result?.synthetic);
+  assert.ok(publishedInsight);
+  assert.ok(graph.edges.some(
+    (edge) => edge.source === catalog.id && edge.target === clustering.id,
+  ));
+  assert.ok(graph.edges.some(
+    (edge) => edge.source === xi.id && edge.kind === 'flow',
+  ));
+  assert.ok(graph.edges.some(
+    (edge) => edge.target === headline.id && edge.kind === 'produces',
+  ));
+  assert.ok(graph.edges.some((edge) => edge.kind === 'informs'));
+  assert.ok(graph.edges.some(
+    (edge) => edge.target === result.id && edge.kind === 'concludes',
+  ));
+});
+
+test('curated graph views retain supported provenance and omit invented arrows', () => {
+  const model = adaptLegacyInventorySnapshot(legacyFixture, {
+    universeId: 'baseline',
+  });
+  const semantic = createAstraGraphProjection(model, {
+    outputGroupThreshold: 99,
+  });
+  const view = createAstraGraphViewProjection(semantic, {
+    version: 1,
+    nodes: [
+      {
+        id: 'catalog',
+        kind: 'input',
+        select: { canonicalPaths: ['inputs.catalog'] },
+      },
+      {
+        id: 'headline',
+        kind: 'output',
+        select: { canonicalPaths: ['outputs.headline'] },
+      },
+      {
+        id: 'result',
+        kind: 'result',
+        select: { nodeIds: ['result:project'] },
+      },
+    ],
+    edges: [
+      { source: 'catalog', target: 'headline' },
+      { source: 'result', target: 'catalog' },
+    ],
+    decisionGroups: [{
+      id: 'method',
+      target: 'headline',
+      members: ['decisions.method'],
+    }],
+  });
+
+  assert.ok(view.edges.some(
+    (edge) => edge.source === 'view:catalog' && edge.target === 'view:headline',
+  ));
+  assert.equal(view.edges.some(
+    (edge) => edge.source === 'view:result' && edge.target === 'view:catalog',
+  ), false);
+  assert.ok(view.diagnostics.some(
+    (diagnostic) => diagnostic.code === 'graph_view_unsupported_edge',
+  ));
+  assert.ok(view.nodes.some((node) => node.id === 'view:decision-cluster:method'));
 });
