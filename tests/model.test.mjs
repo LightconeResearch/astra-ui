@@ -215,6 +215,45 @@ test('graph projection derives provenance, decisions, evidence, and a display re
   ));
 });
 
+test('graph projection groups repeated records mechanically without graph metadata', () => {
+  const fixture = structuredClone(legacyFixture);
+  fixture.scopes[0].records.push(
+    {
+      id: 'chain_a',
+      path: 'outputs.chain_a',
+      kind: 'output',
+      type: 'dataset',
+      decisions: ['method'],
+      recipe: { command: 'python scripts/fit.py --sample a' },
+    },
+    {
+      id: 'chain_b',
+      path: 'outputs.chain_b',
+      kind: 'output',
+      type: 'dataset',
+      recipe: { command: 'python scripts/fit.py --sample b' },
+    },
+    {
+      id: 'chain_c',
+      path: 'outputs.chain_c',
+      kind: 'output',
+      type: 'dataset',
+      decisions: ['method'],
+      recipe: { command: 'python scripts/fit.py --sample c' },
+    },
+  );
+  const model = adaptLegacyInventorySnapshot(fixture);
+  const graph = createAstraGraphProjection(model);
+  const group = graph.nodes.find((node) => node.label === 'Chain ×3');
+
+  assert.equal(group?.kind, 'output-group');
+  assert.deepEqual(group?.memberPaths, [
+    'outputs.chain_a',
+    'outputs.chain_b',
+    'outputs.chain_c',
+  ]);
+});
+
 test('curated graph views retain supported provenance and omit invented arrows', () => {
   const model = adaptLegacyInventorySnapshot(legacyFixture, {
     universeId: 'baseline',

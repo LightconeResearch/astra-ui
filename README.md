@@ -16,9 +16,11 @@ engine, or a claim that an analysis is scientifically correct.
 | `@lightcone-research/astra-viewer-tokens` | Canonical ASTRA component palette with light/dark host detection | Paper layout, inventory layout, application chrome |
 
 The graph view is derived from those same relations. The model package creates
-a complete semantic provenance projection and can validate an optional overview
-specification; the React package renders it without importing JupyterLab, MyST,
-or IDE APIs.
+a complete semantic provenance projection and mechanically folds repeated
+inputs and outputs using their scope, type, recipe family, and identifier
+structure. It can also validate an optional overview specification for hosts
+that explicitly choose to support one; the React package renders either
+projection without importing JupyterLab, MyST, or IDE APIs.
 
 ## Host flow
 

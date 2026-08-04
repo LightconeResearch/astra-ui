@@ -250,6 +250,48 @@ function groupLabel(records: readonly ProjectRecordView[], fallback: string): st
   return `${useful} ×${records.length}`;
 }
 
+function pluralOutputType(value: string): string {
+  const normalized = humanize(value).toLowerCase();
+  if (normalized === 'data' || normalized === 'dataset') return 'Datasets';
+  if (normalized.endsWith('s')) return humanize(value);
+  if (normalized.endsWith('y')) return `${humanize(value).slice(0, -1)}ies`;
+  return `${humanize(value)}s`;
+}
+
+function recordIdTokens(record: ProjectRecordView): string[] {
+  return record.localId.split(/[_-]+/).filter(Boolean);
+}
+
+function lexicalInputGroups(
+  inputs: readonly ProjectRecordView[],
+): ProjectRecordView[][] {
+  const remaining = new Map(inputs.map((input) => [input.id, input]));
+  const groups: ProjectRecordView[][] = [];
+  while (remaining.size > 1) {
+    const candidates = new Map<string, ProjectRecordView[]>();
+    for (const input of remaining.values()) {
+      const tokens = recordIdTokens(input);
+      for (let length = 2; length < tokens.length; length += 1) {
+        const prefix = tokens.slice(0, length).join('_');
+        const members = candidates.get(prefix) ?? [];
+        members.push(input);
+        candidates.set(prefix, members);
+      }
+    }
+    const best = [...candidates.entries()]
+      .filter(([, members]) => members.length > 1)
+      .sort(([leftPrefix, left], [rightPrefix, right]) =>
+        right.length - left.length
+        || rightPrefix.split('_').length - leftPrefix.split('_').length
+        || leftPrefix.localeCompare(rightPrefix))[0];
+    if (!best) break;
+    const members = best[1];
+    groups.push(members);
+    for (const member of members) remaining.delete(member.id);
+  }
+  return groups;
+}
+
 function inputFamily(id: string): string {
   const normalized = id.replace(/_(?:pre|post)$/i, '');
   const tokens = normalized.split('_');
@@ -290,56 +332,95 @@ function outputPresentation(
   outputs: readonly OutputRecordView[],
   settings: ProjectionSettings,
 ): { nodes: AstraGraphNode[]; nodeByRecordId: Map<string, string> } {
-  const batches: OutputRecordView[][] = [];
+  interface OutputBatch {
+    records: OutputRecordView[];
+    fallbackLabel: string;
+    key: string;
+  }
+
+  const batches: OutputBatch[] = [];
   const grouped = new Map<string, OutputRecordView[]>();
   for (const output of outputs) {
     const family = recipeFamily(output);
-    const decisions = relationTargets(output, 'parameterized_by').sort().join(',');
     const key = settings.groupOutputs && family
-      ? [output.scopeId, output.outputType, family, decisions].join('\0')
+      ? [output.scopeId, output.outputType, family].join('\0')
       : output.id;
     const group = grouped.get(key) ?? [];
     group.push(output);
     grouped.set(key, group);
   }
-  for (const group of grouped.values()) {
-    if (group.length >= settings.outputGroupThreshold) batches.push(group);
-    else batches.push(...group.map((output) => [output]));
+
+  const leftovers = new Map<string, OutputRecordView[]>();
+  for (const [key, group] of grouped) {
+    if (settings.groupOutputs && group.length >= settings.outputGroupThreshold) {
+      const prefix = commonIdPrefix(group) || group[0]?.outputType || 'output';
+      batches.push({
+        records: group,
+        fallbackLabel: humanize(prefix),
+        key: `recipe:${key}`,
+      });
+      continue;
+    }
+    for (const output of group) {
+      const category = [output.scopeId, output.outputType].join('\0');
+      const records = leftovers.get(category) ?? [];
+      records.push(output);
+      leftovers.set(category, records);
+    }
+  }
+
+  for (const [category, records] of leftovers) {
+    if (settings.groupOutputs && records.length >= settings.outputGroupThreshold) {
+      batches.push({
+        records,
+        fallbackLabel: pluralOutputType(records[0]?.outputType ?? 'output'),
+        key: `category:${category}`,
+      });
+    } else {
+      batches.push(...records.map((output) => ({
+        records: [output],
+        fallbackLabel: output.label ?? humanize(output.localId),
+        key: `record:${output.id}`,
+      })));
+    }
   }
 
   if (batches.length > settings.maxOutputNodes) {
     const byCategory = new Map<string, OutputRecordView[]>();
     for (const batch of batches) {
-      const first = batch[0];
+      const first = batch.records[0];
       if (!first) continue;
       const key = `${first.scopeId}\0${first.outputType}`;
       const members = byCategory.get(key) ?? [];
-      members.push(...batch);
+      members.push(...batch.records);
       byCategory.set(key, members);
     }
-    const compacted = [...byCategory.values()];
+    const compacted = [...byCategory.entries()].map(([key, records]) => ({
+      records,
+      fallbackLabel: pluralOutputType(records[0]?.outputType ?? 'output'),
+      key: `compact:${key}`,
+    }));
     batches.splice(0, batches.length, ...compacted);
   }
 
   const nodes: AstraGraphNode[] = [];
   const nodeByRecordId = new Map<string, string>();
   for (const batch of batches) {
-    const first = batch[0];
+    const first = batch.records[0];
     if (!first) continue;
-    const isGroup = batch.length > 1;
-    const prefix = commonIdPrefix(batch) || first.outputType;
+    const isGroup = batch.records.length > 1;
     const id = isGroup
-      ? graphNodeId('output-group', `${first.scopeId}:${first.outputType}:${prefix}`)
+      ? graphNodeId('output-group', batch.key)
       : graphNodeId('output', first.id);
-    const memberPaths = batch.map((output) => output.canonicalPath);
+    const memberPaths = batch.records.map((output) => output.canonicalPath);
     nodes.push({
       id,
       kind: isGroup ? 'output-group' : 'output',
       label: isGroup
-        ? groupLabel(batch, humanize(prefix))
+        ? groupLabel(batch.records, batch.fallbackLabel)
         : first.label ?? humanize(first.localId),
       title: isGroup
-        ? `${batch.length} related ${humanize(first.outputType).toLowerCase()} outputs`
+        ? `${batch.records.length} related ${humanize(first.outputType).toLowerCase()} outputs`
         : first.label ?? humanize(first.localId),
       scopeId: first.scopeId,
       ...(!isGroup ? {
@@ -353,10 +434,10 @@ function outputPresentation(
       meta: [
         `type: ${first.outputType}`,
         ...(first.recipe?.command ? [`recipe: ${first.recipe.command}`] : []),
-        ...(isGroup ? [`${batch.length} records`] : []),
+        ...(isGroup ? [`${batch.records.length} records`] : []),
       ],
     });
-    for (const output of batch) nodeByRecordId.set(output.id, id);
+    for (const output of batch.records) nodeByRecordId.set(output.id, id);
   }
   return { nodes, nodeByRecordId };
 }
@@ -367,25 +448,17 @@ function inputPresentation(
 ): { nodes: AstraGraphNode[]; nodeByRecordId: Map<string, string> } {
   const nodes: AstraGraphNode[] = [];
   const nodeByRecordId = new Map<string, string>();
-  const groups = new Map<string, ProjectRecordView[]>();
-  if (inputs.length > settings.maxInputNodes) {
-    for (const input of inputs) {
-      const inputType = input.kind === 'input' ? input.inputType ?? 'data' : 'data';
-      const key = `${input.scopeId}\0${inputType}\0${inputFamily(input.localId)}`;
-      const group = groups.get(key) ?? [];
-      group.push(input);
-      groups.set(key, group);
-    }
-  }
+  const groups = inputs.length > settings.maxInputNodes
+    ? lexicalInputGroups(inputs)
+    : [];
   const groupedIds = new Set(
-    [...groups.values()]
-      .filter((group) => group.length > 1)
+    groups
       .flatMap((group) => group.map((record) => record.id)),
   );
-  for (const group of groups.values()) {
+  for (const group of groups) {
     const first = group[0];
-    if (!first || group.length < 2) continue;
-    const family = inputFamily(first.localId);
+    if (!first) continue;
+    const family = commonIdPrefix(group) || inputFamily(first.localId);
     const id = graphNodeId('input-group', `${first.scopeId}:${family}`);
     nodes.push({
       id,
@@ -434,10 +507,10 @@ export function createAstraGraphProjection(
 ): AstraGraphProjectionV1 {
   const settings: ProjectionSettings = {
     groupOutputs: options.groupOutputs ?? true,
-    outputGroupThreshold: Math.max(2, options.outputGroupThreshold ?? 4),
-    maxOutputNodes: Math.max(4, options.maxOutputNodes ?? 12),
+    outputGroupThreshold: Math.max(2, options.outputGroupThreshold ?? 3),
+    maxOutputNodes: Math.max(4, options.maxOutputNodes ?? 18),
     maxInputNodes: Math.max(3, options.maxInputNodes ?? 8),
-    maxFindingNodes: Math.max(1, options.maxFindingNodes ?? 6),
+    maxFindingNodes: Math.max(1, options.maxFindingNodes ?? 4),
     includeResult: options.includeResult ?? true,
     ...(options.resultLabel ? { resultLabel: options.resultLabel } : {}),
   };
