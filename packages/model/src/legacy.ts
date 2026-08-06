@@ -4,6 +4,7 @@ import {
   type DecisionOptionView,
   type EvidenceDescriptor,
   type OutputType,
+  type OutputProvenance,
   type ProjectRecordView,
   type ProjectViewModelV1,
   type RecordRelation,
@@ -202,6 +203,7 @@ function adaptRecord(
   resourceIds: string[] = [],
   relations: RecordRelation[] = [],
   insightRecordIds: ReadonlyMap<string, readonly string[]> = new Map(),
+  provenance?: OutputProvenance,
 ): ProjectRecordView {
   const base = baseRecord(record, scopeId, relations);
   if (record.kind === 'input') {
@@ -238,6 +240,7 @@ function adaptRecord(
       outputType: outputType(record.type),
       ...(record.recipe ? { recipe: record.recipe } : {}),
       resourceIds,
+      provenance: provenance ?? { inputs: [], decisions: [] },
       ...(record.metric ? {
         metric: {
           ...(record.metric.value !== undefined ? { value: record.metric.value } : {}),
@@ -490,6 +493,74 @@ export function adaptLegacyInventorySnapshot(
         }
       }
       const relations = [...relationByTarget.values()];
+      const outputProvenance: OutputProvenance | undefined = record.kind === 'output'
+        ? (() => {
+          const directInputRecordIds = new Set<string>();
+          const inputs = (record.inputs ?? []).map((reference) => {
+            const recordId = resolveReference(scope, reference, ['input', 'output']);
+            if (recordId) directInputRecordIds.add(recordId);
+            return {
+              reference,
+              ...(recordId ? { recordId } : {}),
+              direct: true,
+            };
+          });
+          for (const input of record.inputs_root ?? []) {
+            const reference = typeof input === 'string' ? input : input.id;
+            const recordId = resolveReference(scope, reference, ['input', 'output']);
+            if (recordId && directInputRecordIds.has(recordId)) continue;
+            inputs.push({
+              reference,
+              ...(recordId ? { recordId } : {}),
+              ...(typeof input === 'string' || !input.label
+                ? {}
+                : { label: input.label }),
+              direct: false,
+            });
+          }
+
+          const directDecisionRecordIds = new Set<string>();
+          const decisions = (record.decisions ?? []).map((reference) => {
+            const recordId = resolveReference(scope, reference, ['decision']);
+            if (recordId) directDecisionRecordIds.add(recordId);
+            const metadata = (record.decisions_transitive ?? []).find(
+              (candidate) => candidate.id === reference,
+            );
+            return {
+              reference,
+              ...(recordId ? { recordId } : {}),
+              ...(metadata?.label ? { label: metadata.label } : {}),
+              ...(metadata?.via ? { scopeId: metadata.via } : {}),
+              ...(metadata?.selection ? { selection: metadata.selection } : {}),
+              direct: true,
+            };
+          });
+          for (const dependency of record.decisions_transitive ?? []) {
+            const owner = dependency.via === 'root'
+              ? snapshot.scopes.find((candidate) => !candidate.id && !candidate.path)
+              : dependency.via
+                ? snapshot.scopes.find((candidate) =>
+                  candidate.id === dependency.via || candidate.path === dependency.via)
+                : scope;
+            const recordId = owner
+              ? resolveReference(owner, dependency.id, ['decision'])
+              : undefined;
+            if (
+              (recordId && directDecisionRecordIds.has(recordId))
+              || (record.decisions ?? []).includes(dependency.id)
+            ) continue;
+            decisions.push({
+              reference: dependency.id,
+              ...(recordId ? { recordId } : {}),
+              ...(dependency.label ? { label: dependency.label } : {}),
+              ...(dependency.via ? { scopeId: dependency.via } : {}),
+              ...(dependency.selection ? { selection: dependency.selection } : {}),
+              direct: false,
+            });
+          }
+          return { inputs, decisions };
+        })()
+        : undefined;
       const insightRecordIds = new Map<string, readonly string[]>();
       for (const [optionId, insightReferences] of Object.entries(record.option_insights ?? {})) {
         const resolved = insightReferences
@@ -513,6 +584,7 @@ export function adaptLegacyInventorySnapshot(
         recordResourceIds,
         relations,
         insightRecordIds,
+        outputProvenance,
       );
       records.push(adapted);
       if (record.kind === 'decision' && record.selected) {

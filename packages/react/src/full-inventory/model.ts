@@ -133,12 +133,6 @@ function presentationRecord(
   }
 
   if (record.kind === 'output') {
-    const inputRelations = record.relations.filter(
-      (relation) => relation.kind === 'depends_on',
-    );
-    const decisionRelations = record.relations.filter(
-      (relation) => relation.kind === 'parameterized_by',
-    );
     const resources = record.resourceIds
       .map((resourceId) => index.resourceById.get(resourceId))
       .filter((resource) => Boolean(resource));
@@ -148,35 +142,57 @@ function presentationRecord(
       kind: 'output',
       type: record.outputType,
       ...(record.recipe ? { recipe: record.recipe } : {}),
-      inputs: inputRelations
-        .filter((relation) => relation.direct !== false)
-        .map((relation) =>
-          relatedRecord(index, relation.targetRecordId)?.canonicalPath
-          ?? relation.targetRecordId),
-      inputs_root: inputRelations
-        .filter((relation) => relation.direct === false)
-        .map((relation) => {
-          const target = relatedRecord(index, relation.targetRecordId);
+      inputs: record.provenance.inputs
+        .filter((reference) => reference.direct)
+        .map((reference) =>
+          (reference.recordId
+            ? relatedRecord(index, reference.recordId)?.canonicalPath
+            : undefined)
+          ?? reference.reference),
+      inputs_root: record.provenance.inputs
+        .filter((reference) => !reference.direct)
+        .map((reference) => {
+          const target = reference.recordId
+            ? relatedRecord(index, reference.recordId)
+            : undefined;
           return {
-            id: target?.canonicalPath ?? relation.targetRecordId,
-            ...(target ? { label: target.label ?? target.localId } : {}),
+            id: target?.canonicalPath ?? reference.reference,
+            ...(reference.label
+              ? { label: reference.label }
+              : target
+                ? { label: target.label ?? target.localId }
+                : {}),
           };
         }),
-      decisions: decisionRelations
-        .filter((relation) => relation.direct !== false)
-        .map((relation) =>
-          relatedRecord(index, relation.targetRecordId)?.canonicalPath
-          ?? relation.targetRecordId),
-      decisions_transitive: decisionRelations.map((relation) => {
-        const target = relatedRecord(index, relation.targetRecordId);
+      decisions: record.provenance.decisions
+        .filter((reference) => reference.direct)
+        .map((reference) =>
+          (reference.recordId
+            ? relatedRecord(index, reference.recordId)?.canonicalPath
+            : undefined)
+          ?? reference.reference),
+      decisions_transitive: record.provenance.decisions.map((reference) => {
+        const target = reference.recordId
+          ? relatedRecord(index, reference.recordId)
+          : undefined;
         const scope = target ? index.scopeById.get(target.scopeId) : undefined;
         return {
-          id: target?.canonicalPath ?? relation.targetRecordId,
-          ...(target ? { label: target.label ?? target.localId } : {}),
-          ...(scope ? { via: scope.id } : {}),
-          ...(target?.kind === 'decision' && target.selectedOptionId
-            ? { selection: target.selectedOptionId }
-            : {}),
+          id: target?.canonicalPath ?? reference.reference,
+          ...(reference.label
+            ? { label: reference.label }
+            : target
+              ? { label: target.label ?? target.localId }
+              : {}),
+          ...(reference.scopeId
+            ? { via: reference.scopeId }
+            : scope
+              ? { via: scope.id }
+              : {}),
+          ...(reference.selection
+            ? { selection: reference.selection }
+            : target?.kind === 'decision' && target.selectedOptionId
+              ? { selection: target.selectedOptionId }
+              : {}),
         };
       }),
       resourceIds: [...record.resourceIds],

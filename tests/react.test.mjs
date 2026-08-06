@@ -44,7 +44,7 @@ test('canonical models preserve the complete rich inventory presentation', () =>
   assert.deepEqual(headline?.inputs, ['clustering.outputs.xi']);
   assert.deepEqual(headline?.inputs_root, [{
     id: 'inputs.catalog',
-    label: 'catalog',
+    label: 'Input catalogue',
   }]);
   assert.deepEqual(
     headline?.decisions_transitive?.map(({ id, via }) => [id, via]),

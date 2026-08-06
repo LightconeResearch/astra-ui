@@ -106,6 +106,22 @@ export interface MetricValue {
   label?: string;
 }
 
+export interface ProvenanceReference {
+  /** Authored ASTRA reference, retained even when it cannot be resolved. */
+  reference: string;
+  /** Canonical model record id when the reference resolves uniquely. */
+  recordId?: string;
+  label?: string;
+  scopeId?: string;
+  selection?: string;
+  direct: boolean;
+}
+
+export interface OutputProvenance {
+  inputs: ProvenanceReference[];
+  decisions: ProvenanceReference[];
+}
+
 export interface BaseRecordView {
   /** Stable within one project revision; not a global citation identifier. */
   id: string;
@@ -151,6 +167,8 @@ export interface OutputRecordView extends BaseRecordView {
   recipe?: RecipeDescriptor;
   /** References descriptors; it never contains file paths, URLs, or bytes. */
   resourceIds: string[];
+  /** Complete authored provenance, including unresolved references. */
+  provenance: OutputProvenance;
   metric?: MetricValue;
 }
 
