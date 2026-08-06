@@ -48,6 +48,7 @@ export const legacyFixture = {
           kind: 'output',
           type: 'figure',
           inputs: ['clustering.xi'],
+          inputs_root: [{ id: 'catalog', label: 'Input catalogue' }],
           decisions: ['method'],
           decisions_transitive: [
             { id: 'method', selection: 'Fiducial' },
@@ -130,9 +131,16 @@ test('legacy ASTRA snapshots adapt to one canonical, viewable model', () => {
     ]),
     [
       ['depends_on', 'clustering:output:xi', true],
+      ['depends_on', 'root:input:catalog', false],
       ['parameterized_by', 'root:decision:method', true],
       ['parameterized_by', 'clustering:decision:weighting', false],
     ],
+  );
+  assert.equal(
+    headline.relations.some(
+      (relation) => relation.kind === 'depends_on' && relation.direct === false,
+    ),
+    true,
   );
   const alias = index.recordByPath.get('clustering.decisions.method_alias').record;
   assert.equal(alias.relations[0].targetRecordId, 'root:decision:method');

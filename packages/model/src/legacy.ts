@@ -424,6 +424,15 @@ export function adaptLegacyInventorySnapshot(
       const directRelations = [
         ...(record.inputs ?? []).map((reference) =>
           resolvedRelation(scope, record, 'depends_on', reference, ['input', 'output'])),
+        ...(record.inputs_root ?? []).map((input) =>
+          resolvedRelation(
+            scope,
+            record,
+            'depends_on',
+            typeof input === 'string' ? input : input.id,
+            ['input', 'output'],
+            false,
+          )),
         ...(record.decisions ?? []).map((reference) =>
           resolvedRelation(scope, record, 'parameterized_by', reference, ['decision'])),
         ...(record.from ? [

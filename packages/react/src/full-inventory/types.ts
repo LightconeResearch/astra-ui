@@ -83,6 +83,8 @@ export interface InventoryDiagnostic {
  * never parses astra.yaml or reads files itself.
  */
 export interface InventoryRecord {
+  /** Canonical ProjectViewModel record id, when projected from that model. */
+  modelId?: string | undefined;
   id: string;
   path: string;
   kind: Exclude<InventoryKind, 'analysis'>;
@@ -119,6 +121,7 @@ export interface InventoryRecord {
   table_columns_total?: number | undefined;
   table_preview_omitted?: 'project_size_budget' | undefined;
   metric?: InventoryMetric | undefined;
+  resourceIds?: string[] | undefined;
   resultPreview?: string | undefined;
 }
 

@@ -1,4 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import type {
+  ResourceDescriptor,
+  ResourcePreview,
+} from '@lightcone-research/astra-viewer-model';
+import { useOptionalAstraViewer } from '../context.js';
 import { inventoryRecordTitle } from './model.js';
 import type { InventoryRecord } from './types.js';
 
@@ -27,9 +32,91 @@ function compactValue(value: string | number | undefined): string {
   return value;
 }
 
-function FigurePreview({ record }: { record: InventoryRecord }) {
+interface CanonicalPreview {
+  preview?: ResourcePreview | undefined;
+  resource?: ResourceDescriptor | undefined;
+}
+
+function useCanonicalPreview(record: InventoryRecord): CanonicalPreview {
+  const context = useOptionalAstraViewer();
+  const output = useMemo(() => {
+    const candidate = record.modelId
+      ? context?.index.recordById.get(record.modelId)
+      : context?.index.recordByPath.get(record.path)?.record;
+    return candidate?.kind === 'output' ? candidate : undefined;
+  }, [context?.index, record.modelId, record.path]);
+  const materialization = output
+    ? context?.runtime?.outputs[output.id]
+    : undefined;
+  const resourceIds = materialization?.resourceIds.length
+    ? materialization.resourceIds
+    : output?.resourceIds ?? record.resourceIds ?? [];
+  const resource = resourceIds
+    .map((resourceId) => context?.index.resourceById.get(resourceId))
+    .find((candidate): candidate is ResourceDescriptor => Boolean(candidate));
+  const [preview, setPreview] = useState<ResourcePreview | undefined>();
+
+  useEffect(() => {
+    if (!output || !context) {
+      setPreview(undefined);
+      return;
+    }
+    if (output.metric?.value !== undefined) {
+      setPreview({
+        kind: 'metric',
+        value: output.metric.value,
+        ...(output.metric.uncertainty !== undefined
+          ? { uncertainty: output.metric.uncertainty }
+          : {}),
+        ...(output.metric.unit ? { unit: output.metric.unit } : {}),
+        ...(output.metric.label ? { label: output.metric.label } : {}),
+      });
+      return;
+    }
+    if (!resource || !context.host.getPreview) {
+      setPreview(undefined);
+      return;
+    }
+    let active = true;
+    const controller = new AbortController();
+    setPreview(undefined);
+    void context.host.getPreview(resource.id, {
+      maxRows: TABLE_PREVIEW_DISPLAY_ROWS,
+      maxColumns: TABLE_PREVIEW_DISPLAY_COLUMNS,
+      maxBytes: 512_000,
+      signal: controller.signal,
+    }).then((nextPreview) => {
+      if (active) setPreview(nextPreview);
+    }).catch(() => {
+      if (active && !controller.signal.aborted) setPreview(undefined);
+    });
+    return () => {
+      active = false;
+      controller.abort();
+    };
+  }, [
+    context,
+    context?.runtime?.materializationRevision,
+    output,
+    resource?.id,
+    resource?.revision,
+  ]);
+
+  return { preview, resource };
+}
+
+function FigurePreview({
+  record,
+  preview,
+}: {
+  record: InventoryRecord;
+  preview?: ResourcePreview | undefined;
+}) {
   const [failed, setFailed] = useState(false);
-  if (!record.resultPreview || failed) {
+  const previewUrl = preview?.kind === 'image'
+    ? preview.url
+    : record.resultPreview;
+  if (!previewUrl || failed) {
     return (
       <div className="inventory-output-preview__placeholder" aria-label="Figure preview unavailable">
         <span aria-hidden="true">▦</span>
@@ -39,18 +126,20 @@ function FigurePreview({ record }: { record: InventoryRecord }) {
   }
   return (
     <img
-      src={record.resultPreview}
+      src={previewUrl}
       alt={`Preview of ${inventoryRecordTitle(record)}`}
       onError={() => setFailed(true)}
     />
   );
 }
 
-function TablePreview({ record, compact = false }: {
+function TablePreview({ record, preview, compact = false }: {
   record: InventoryRecord;
+  preview?: ResourcePreview | undefined;
   compact?: boolean | undefined;
 }) {
-  const table = record.table_preview ?? record.table_data;
+  const canonicalTable = preview?.kind === 'table' ? preview : undefined;
+  const table = canonicalTable ?? record.table_preview ?? record.table_data;
   if (!table?.headers.length) {
     const label = record.table_preview_omitted
       ? 'Table preview omitted to keep this project page small'
@@ -68,11 +157,13 @@ function TablePreview({ record, compact = false }: {
   const headers = table.headers.slice(0, columnLimit);
   const rows = table.rows.slice(0, rowLimit);
   const totalRows =
-    record.table_preview?.total_rows
+    canonicalTable?.totalRows
+    ?? record.table_preview?.total_rows
     ?? record.table_rows_total
     ?? table.rows.length;
   const totalColumns =
-    record.table_preview?.total_columns
+    canonicalTable?.totalColumns
+    ?? record.table_preview?.total_columns
     ?? record.table_columns_total
     ?? table.headers.length;
   return (
@@ -101,10 +192,18 @@ function TablePreview({ record, compact = false }: {
   );
 }
 
-function MetricPreview({ record }: { record: InventoryRecord }) {
-  const metric = record.metric;
-  const uncertainty = metric?.uncertainty ?? metric?.error;
-  const unit = metric?.unit ?? metric?.units;
+function MetricPreview({
+  record,
+  preview,
+}: {
+  record: InventoryRecord;
+  preview?: ResourcePreview | undefined;
+}) {
+  const metric = preview?.kind === 'metric' ? preview : record.metric;
+  const uncertainty = metric?.uncertainty
+    ?? (metric && 'error' in metric ? metric.error : undefined);
+  const unit = metric?.unit
+    ?? (metric && 'units' in metric ? metric.units : undefined);
   return (
     <div className="inventory-output-metric">
       <span className="inventory-output-metric__value">{compactValue(metric?.value)}</span>
@@ -120,14 +219,25 @@ export function InventoryArtifactPreview({ record, compact = false }: {
   record: InventoryRecord;
   compact?: boolean | undefined;
 }) {
-  if (record.type === 'figure') return <FigurePreview record={record} />;
-  if (record.type === 'table') return <TablePreview record={record} compact={compact} />;
-  if (record.type === 'metric') return <MetricPreview record={record} />;
+  const { preview, resource } = useCanonicalPreview(record);
+  if (record.type === 'figure') {
+    return <FigurePreview record={record} preview={preview} />;
+  }
+  if (record.type === 'table') {
+    return <TablePreview record={record} preview={preview} compact={compact} />;
+  }
+  if (record.type === 'metric') {
+    return <MetricPreview record={record} preview={preview} />;
+  }
+  const fileName = resource?.fileName ?? inventoryFileName(record);
+  const fileType = resource?.fileName
+    ? inventoryFileExtension({ ...record, resolved_path: resource.fileName })
+    : inventoryFileExtension(record);
   return (
     <div className="inventory-output-file-hero">
       <span aria-hidden="true">↳</span>
-      <strong>{inventoryFileName(record)}</strong>
-      <small>{inventoryFileExtension(record)}</small>
+      <strong>{fileName}</strong>
+      <small>{fileType}</small>
     </div>
   );
 }

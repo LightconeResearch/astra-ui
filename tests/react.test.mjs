@@ -4,6 +4,7 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import {
   ArtifactPreview,
+  adaptLegacyInventorySnapshot,
   createInventoryModel,
   InsightDetailDialog,
   InventoryExplorer,
@@ -32,6 +33,43 @@ test('inventory preserves the full standalone sections without a host dependency
   assert.match(html, /Fiducial/);
   assert.match(html, /10\.0000\/example/);
   assert.doesNotMatch(html, /jupyter|myst/i);
+});
+
+test('canonical models preserve the complete rich inventory presentation', () => {
+  const model = adaptLegacyInventorySnapshot(legacyFixture, {
+    universeId: 'baseline',
+  });
+  const inventory = createInventoryModel(model);
+  const headline = inventory.recordByPath.get('outputs.headline')?.record;
+  assert.deepEqual(headline?.inputs, ['clustering.outputs.xi']);
+  assert.deepEqual(headline?.inputs_root, [{
+    id: 'inputs.catalog',
+    label: 'catalog',
+  }]);
+  assert.deepEqual(
+    headline?.decisions_transitive?.map(({ id, via }) => [id, via]),
+    [
+      ['decisions.method', 'root'],
+      ['clustering.decisions.weighting', 'clustering'],
+    ],
+  );
+  const html = renderToStaticMarkup(
+    React.createElement('div', { className: 'astra-viewer' },
+      React.createElement(InventoryExplorer, {
+        model,
+        scopeId: 'root',
+      }),
+    ),
+  );
+
+  assert.match(html, /1\. Outputs/);
+  assert.match(html, /2\. Decisions/);
+  assert.match(html, /3\. Inputs/);
+  assert.match(html, /4\. Findings/);
+  assert.match(html, /5\. Papers/);
+  assert.match(html, /headline/);
+  assert.match(html, /Fiducial/);
+  assert.match(html, /10\.0000\/example/);
 });
 
 test('analysis hierarchy preserves the standalone recursive scope selector', () => {

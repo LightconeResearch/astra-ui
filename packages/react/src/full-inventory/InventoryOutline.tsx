@@ -1,4 +1,11 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import type {
+  ProjectViewModelIndex,
+  ProjectViewModelV1,
+  RuntimeOverlayV1,
+  ViewerHost,
+} from '@lightcone-research/astra-viewer-model';
+import { AstraViewerProvider } from '../context.js';
 import { DecisionDialog, DecisionsInventory } from './DecisionsInventory.js';
 import { FindingDialog, FindingsInventory } from './FindingsInventory.js';
 import { InputDialog, InputsInventory } from './InputsInventory.js';
@@ -42,6 +49,10 @@ type InventoryModalEntry =
 
 export interface InventoryOutlineProps {
   snapshot?: InventorySnapshot | undefined;
+  /** Canonical input used by application hosts such as JupyterLab. */
+  model?: ProjectViewModelV1 | ProjectViewModelIndex | undefined;
+  runtime?: RuntimeOverlayV1 | undefined;
+  host?: ViewerHost | undefined;
   scopeId?: string | undefined;
   paperMetadata?: InventoryPaperMetadataMap | undefined;
   /** Host-specific directory containing the PDF.js runtime assets. */
@@ -62,7 +73,7 @@ export interface InventoryOutlineProps {
   ) => void;
 }
 
-export function InventoryExplorer({
+function InventoryExplorerView({
   snapshot,
   scopeId = 'root',
   paperMetadata = EMPTY_PAPER_METADATA,
@@ -367,6 +378,39 @@ export function InventoryExplorer({
       </div>
       {modal}
     </div>
+  );
+}
+
+/**
+ * The complete ASTRA inventory and detail experience.
+ *
+ * Application hosts pass the canonical model/runtime/host contract. The
+ * legacy snapshot prop remains temporarily for MyST fixtures and downstream
+ * compatibility while those producers migrate.
+ */
+export function InventoryExplorer(props: InventoryOutlineProps) {
+  const projectedSnapshot = useMemo(
+    () => props.model
+      ? createInventoryModel(props.model, props.runtime).snapshot
+      : props.snapshot,
+    [props.model, props.runtime, props.snapshot],
+  );
+  const view = (
+    <InventoryExplorerView
+      {...props}
+      snapshot={projectedSnapshot}
+    />
+  );
+  if (!props.model) return view;
+  const model = 'model' in props.model ? props.model.model : props.model;
+  return (
+    <AstraViewerProvider
+      model={model}
+      {...(props.runtime ? { runtime: props.runtime } : {})}
+      {...(props.host ? { host: props.host } : {})}
+    >
+      {view}
+    </AstraViewerProvider>
   );
 }
 

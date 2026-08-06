@@ -9,6 +9,13 @@ import type {
   InventoryScope,
   InventorySnapshot,
 } from './types.js';
+import {
+  createProjectViewModelIndex,
+  type ProjectRecordView,
+  type ProjectViewModelIndex,
+  type ProjectViewModelV1,
+  type RuntimeOverlayV1,
+} from '@lightcone-research/astra-viewer-model';
 
 /** Return cited insight ids with the selected option first, then alternatives. */
 export function decisionEvidenceIds(
@@ -53,7 +60,206 @@ export interface InventoryModel {
   recordsById: ReadonlyMap<string, readonly LocatedInventoryRecord[]>;
 }
 
-export function createInventoryModel(snapshot: InventorySnapshot): InventoryModel {
+function isProjectViewModelIndex(
+  source: InventorySnapshot | ProjectViewModelV1 | ProjectViewModelIndex,
+): source is ProjectViewModelIndex {
+  return 'model' in source && 'recordById' in source;
+}
+
+function isProjectViewModel(
+  source: InventorySnapshot | ProjectViewModelV1 | ProjectViewModelIndex,
+): source is ProjectViewModelV1 {
+  return 'schemaVersion' in source
+    && source.schemaVersion === 'project-view-model.v1';
+}
+
+function relatedRecord(
+  index: ProjectViewModelIndex,
+  targetRecordId: string,
+): ProjectRecordView | undefined {
+  return index.recordById.get(targetRecordId)
+    ?? index.recordByPath.get(targetRecordId)?.record;
+}
+
+function presentationRecord(
+  index: ProjectViewModelIndex,
+  record: ProjectRecordView,
+): InventoryRecord {
+  const common = {
+    modelId: record.id,
+    id: record.localId,
+    path: record.canonicalPath,
+    kind: record.kind,
+    ...(record.label ? { label: record.label } : {}),
+    ...(record.description ? { description: record.description } : {}),
+    ...(record.tags ? { tags: record.tags } : {}),
+    ...(record.active !== undefined ? { active: record.active } : {}),
+  };
+
+  if (record.kind === 'input') {
+    const alias = record.relations
+      .filter((relation) => relation.kind === 'aliases')
+      .map((relation) => relatedRecord(index, relation.targetRecordId))
+      .find(Boolean);
+    return {
+      ...common,
+      kind: 'input',
+      ...(record.inputType ? { type: record.inputType } : {}),
+      ...(record.source ? { source: record.source } : {}),
+      ...(record.reference ? { ref: record.reference } : {}),
+      ...(alias ? { from: alias.canonicalPath } : {}),
+    };
+  }
+
+  if (record.kind === 'decision') {
+    return {
+      ...common,
+      kind: 'decision',
+      ...(record.selectedOptionId ? { selected: record.selectedOptionId } : {}),
+      options: Object.fromEntries(
+        record.options.map((option) => [option.id, option.label]),
+      ),
+      option_insights: Object.fromEntries(
+        record.options
+          .filter((option) => option.insightRecordIds?.length)
+          .map((option) => [
+            option.id,
+            option.insightRecordIds!.map((recordId) =>
+              relatedRecord(index, recordId)?.canonicalPath ?? recordId),
+          ]),
+      ),
+      ...(record.rationale ? { rationale: record.rationale } : {}),
+    };
+  }
+
+  if (record.kind === 'output') {
+    const inputRelations = record.relations.filter(
+      (relation) => relation.kind === 'depends_on',
+    );
+    const decisionRelations = record.relations.filter(
+      (relation) => relation.kind === 'parameterized_by',
+    );
+    const resources = record.resourceIds
+      .map((resourceId) => index.resourceById.get(resourceId))
+      .filter((resource) => Boolean(resource));
+    const primaryResource = resources[0];
+    return {
+      ...common,
+      kind: 'output',
+      type: record.outputType,
+      ...(record.recipe ? { recipe: record.recipe } : {}),
+      inputs: inputRelations
+        .filter((relation) => relation.direct !== false)
+        .map((relation) =>
+          relatedRecord(index, relation.targetRecordId)?.canonicalPath
+          ?? relation.targetRecordId),
+      inputs_root: inputRelations
+        .filter((relation) => relation.direct === false)
+        .map((relation) => {
+          const target = relatedRecord(index, relation.targetRecordId);
+          return {
+            id: target?.canonicalPath ?? relation.targetRecordId,
+            ...(target ? { label: target.label ?? target.localId } : {}),
+          };
+        }),
+      decisions: decisionRelations
+        .filter((relation) => relation.direct !== false)
+        .map((relation) =>
+          relatedRecord(index, relation.targetRecordId)?.canonicalPath
+          ?? relation.targetRecordId),
+      decisions_transitive: decisionRelations.map((relation) => {
+        const target = relatedRecord(index, relation.targetRecordId);
+        const scope = target ? index.scopeById.get(target.scopeId) : undefined;
+        return {
+          id: target?.canonicalPath ?? relation.targetRecordId,
+          ...(target ? { label: target.label ?? target.localId } : {}),
+          ...(scope ? { via: scope.id } : {}),
+          ...(target?.kind === 'decision' && target.selectedOptionId
+            ? { selection: target.selectedOptionId }
+            : {}),
+        };
+      }),
+      resourceIds: [...record.resourceIds],
+      ...(primaryResource?.fileName
+        ? { resolved_path: primaryResource.fileName }
+        : {}),
+      ...(record.metric ? { metric: record.metric } : {}),
+    };
+  }
+
+  const evidence = record.evidence.map((item) => {
+    const artifact = item.artifactRecordId
+      ? relatedRecord(index, item.artifactRecordId)
+      : undefined;
+    return {
+      ...(item.artifactRecordId
+        ? { artifact: artifact?.canonicalPath ?? item.artifactRecordId }
+        : {}),
+      ...(item.doi ? { doi: item.doi } : {}),
+      ...(item.quote ? { quote: item.quote } : {}),
+      ...(item.page !== undefined ? { page: item.page } : {}),
+    };
+  });
+  const firstSource = evidence.find((item) => item.doi || item.quote);
+  return {
+    ...common,
+    kind: record.kind,
+    ...(record.claim ? { claim: record.claim } : {}),
+    ...(record.notes ? { notes: record.notes } : {}),
+    evidence,
+    ...(firstSource?.doi ? { doi: firstSource.doi } : {}),
+    ...(firstSource?.quote ? { quote: firstSource.quote } : {}),
+    ...(firstSource?.page !== undefined ? { page: firstSource.page } : {}),
+  };
+}
+
+/**
+ * Project the canonical, host-neutral model into the convenience shape used by
+ * the rich inventory presentation. This is a React-layer view model: hosts do
+ * not construct or transport it.
+ */
+export function inventorySnapshotFromProjectModel(
+  source: ProjectViewModelV1 | ProjectViewModelIndex,
+  runtime?: RuntimeOverlayV1,
+): InventorySnapshot {
+  const index = isProjectViewModelIndex(source)
+    ? source
+    : createProjectViewModelIndex(source, runtime);
+  return {
+    version: 1,
+    analysis: {
+      id: index.model.project.id,
+      name: index.model.project.name,
+      ...(index.model.project.description
+        ? { description: index.model.project.description }
+        : {}),
+    },
+    scopes: index.model.scopes.map((scope) => ({
+      id: scope.id,
+      path: scope.canonicalPath === 'root' ? '' : scope.canonicalPath,
+      name: scope.name,
+      ...(scope.parentId ? { parent: scope.parentId } : {}),
+      children: [...scope.childIds],
+      records: scope.recordIds
+        .map((recordId) => index.recordById.get(recordId))
+        .filter((record): record is ProjectRecordView => Boolean(record))
+        .map((record) => presentationRecord(index, record)),
+    })),
+    diagnostics: index.model.diagnostics.map((diagnostic) => ({
+      severity: diagnostic.severity,
+      message: diagnostic.message,
+      ...(diagnostic.canonicalPath ? { path: diagnostic.canonicalPath } : {}),
+    })),
+  };
+}
+
+export function createInventoryModel(
+  source: InventorySnapshot | ProjectViewModelV1 | ProjectViewModelIndex,
+  runtime?: RuntimeOverlayV1,
+): InventoryModel {
+  const snapshot = isProjectViewModel(source) || isProjectViewModelIndex(source)
+    ? inventorySnapshotFromProjectModel(source, runtime)
+    : source;
   const scopeById = new Map(snapshot.scopes.map((scope) => [scope.id, scope]));
   const scopeByPath = new Map(snapshot.scopes.map((scope) => [scope.path, scope]));
   const recordByPath = new Map<string, LocatedInventoryRecord>();
