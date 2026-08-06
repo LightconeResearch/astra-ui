@@ -133,6 +133,10 @@ function presentationRecord(
   }
 
   if (record.kind === 'output') {
+    const alias = record.relations
+      .filter((relation) => relation.kind === 'aliases')
+      .map((relation) => relatedRecord(index, relation.targetRecordId))
+      .find(Boolean);
     const resources = record.resourceIds
       .map((resourceId) => index.resourceById.get(resourceId))
       .filter((resource) => Boolean(resource));
@@ -141,6 +145,7 @@ function presentationRecord(
       ...common,
       kind: 'output',
       type: record.outputType,
+      ...(alias ? { from: alias.canonicalPath } : {}),
       ...(record.recipe ? { recipe: record.recipe } : {}),
       inputs: record.provenance.inputs
         .filter((reference) => reference.direct)

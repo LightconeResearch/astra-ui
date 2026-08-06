@@ -99,6 +99,7 @@ export const legacyFixture = {
           path: 'clustering.outputs.xi',
           kind: 'output',
           type: 'table',
+          from: '../headline',
           inputs: ['catalog'],
           decisions: ['weighting'],
         },

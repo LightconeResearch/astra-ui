@@ -53,6 +53,10 @@ test('canonical models preserve the complete rich inventory presentation', () =>
       ['clustering.decisions.weighting', 'clustering'],
     ],
   );
+  assert.equal(
+    inventory.recordByPath.get('clustering.outputs.xi')?.record.from,
+    'outputs.headline',
+  );
   const html = renderToStaticMarkup(
     React.createElement('div', { className: 'astra-viewer' },
       React.createElement(InventoryExplorer, {
