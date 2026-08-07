@@ -8,6 +8,7 @@ import {
 } from '@lightcone-research/astra-viewer-model';
 import { passiveViewerHost, useOptionalAstraViewer } from './context.js';
 import { projectIndex, type ModelInput } from './shared.js';
+import { Badge, Button, SurfaceHeader } from './ui.js';
 
 export interface ArtifactPreviewProps {
   preview: ResourcePreview;
@@ -151,26 +152,27 @@ export function ResultViewer({ output, model, runtime, host }: ResultViewerProps
   const status = materialization?.status ?? resource?.availability ?? 'unknown';
   return (
     <section className="astra-result-viewer" aria-label="Result preview">
-      <header>
-        <span className="astra-badge" data-status={status}>{status}</span>
-        {resource?.fileName ? <code>{resource.fileName}</code> : null}
-      </header>
+      <SurfaceHeader
+        className="astra-result-viewer__header"
+        density="inline"
+        eyebrow={<Badge status={status}>{status}</Badge>}
+        identifier={resource?.fileName}
+        actions={resource && resolvedHost.getDownloadUrl ? (
+          <Button
+            className="astra-result-viewer__download"
+            onClick={() => {
+              void resolvedHost.getDownloadUrl!(resource.id).then((url) => {
+                if (resolvedHost.openExternal) resolvedHost.openExternal(url);
+              });
+            }}
+          >
+            Open result
+          </Button>
+        ) : null}
+      />
       {state.status === 'loading' ? <p className="astra-muted" aria-live="polite">Loading the latest result…</p> : null}
       {state.status === 'error' ? <p className="astra-error" role="alert">{state.message}</p> : null}
       {state.status === 'ready' ? <ArtifactPreview preview={state.preview} {...(resource ? { resource } : {})} /> : null}
-      {resource && resolvedHost.getDownloadUrl ? (
-        <button
-          className="astra-result-viewer__download"
-          type="button"
-          onClick={() => {
-            void resolvedHost.getDownloadUrl!(resource.id).then((url) => {
-              if (resolvedHost.openExternal) resolvedHost.openExternal(url);
-            });
-          }}
-        >
-          Open result
-        </button>
-      ) : null}
     </section>
   );
 }

@@ -8,11 +8,12 @@
 .astra-brand,
 .astra-brand .astra-viewer,
 .astra-viewer[data-astra-theme="brand-light"] {
-  /* Reference canvas -> panel -> raised surface hierarchy. */
-  --astra-canvas: #f1efe9;
-  --astra-panel: #f8f7f3;
+  /* White content field with parchment reserved for framing and interaction. */
+  --astra-canvas: #ffffff;
+  --astra-panel: #ffffff;
   --astra-raised: #ffffff;
-  --astra-hover: #f1efe9;
+  --astra-header: #f1efe9;
+  --astra-hover: #f8f7f3;
   --astra-artifact-paper: #ffffff;
   --astra-artifact-ink: #221f20;
 
@@ -78,6 +79,7 @@
 
   /* Role aliases used by host chrome. */
   --astra-color-canvas: var(--astra-canvas);
+  --astra-color-header: var(--astra-header);
   --astra-color-border-strong: var(--astra-rule-strong);
   --astra-radius-control: var(--astra-radius);
   --astra-radius-panel: 10px;
@@ -90,6 +92,7 @@
   --astra-canvas: #171614;
   --astra-panel: #1e1d1a;
   --astra-raised: #272520;
+  --astra-header: #302d27;
   --astra-hover: #302d27;
   /* Scientific figures and tables keep a paper-coloured inspection canvas. */
   --astra-artifact-paper: #f8f7f3;
@@ -140,6 +143,7 @@
   --astra-kind: var(--astra-action);
 
   --astra-color-canvas: var(--astra-canvas);
+  --astra-color-header: var(--astra-header);
   --astra-color-border-strong: var(--astra-rule-strong);
   --astra-radius-control: var(--astra-radius);
   --astra-radius-panel: 10px;

@@ -10,6 +10,7 @@ import { passiveViewerHost, useOptionalAstraViewer } from './context.js';
 import { ResultViewer } from './result-viewer.js';
 import { kindLabel, projectIndex, recordTitle, type ModelInput } from './shared.js';
 import type { InventoryOpenReference } from './types.js';
+import { Badge, Button, SurfaceHeader } from './ui.js';
 
 export interface RecordDetailProps {
   model?: ModelInput;
@@ -59,31 +60,41 @@ export function RecordDetail({
 
   return (
     <article className="astra-record-detail" data-kind={resolvedRecord.kind}>
-      <header className="astra-record-detail__header">
-        <div>
-          <span className="astra-badge">{kindLabel(resolvedRecord.kind)}</span>
-          <h2>{recordTitle(resolvedRecord)}</h2>
-          <code className="astra-record-detail__path">{resolvedRecord.canonicalPath}</code>
-        </div>
-        <div className="astra-record-detail__header-actions">
-          {resolvedHost.capabilities.openSource && resolvedHost.openSource ? (
-            <button type="button" onClick={() => void resolvedHost.openSource!(resolvedRecord.id)}>Open source</button>
-          ) : null}
-          {resolvedHost.capabilities.chatReference && resolvedHost.insertChatReference ? (
-            <button
-              type="button"
-              onClick={() => void resolvedHost.insertChatReference!({
-                kind: resolvedRecord.kind,
-                id: resolvedRecord.id,
-                canonicalPath: resolvedRecord.canonicalPath,
-              })}
-            >
-              Reference in chat
-            </button>
-          ) : null}
-          {onClose ? <button type="button" onClick={onClose} aria-label="Close record detail">Close</button> : null}
-        </div>
-      </header>
+      <SurfaceHeader
+        className="astra-record-detail__header"
+        actionsClassName="astra-record-detail__header-actions"
+        kind={resolvedRecord.kind}
+        eyebrow={(
+          <Badge kind={resolvedRecord.kind}>{kindLabel(resolvedRecord.kind)}</Badge>
+        )}
+        title={recordTitle(resolvedRecord)}
+        titleAs="h2"
+        identifier={resolvedRecord.canonicalPath}
+        identifierClassName="astra-record-detail__path"
+        actions={(
+          <>
+            {resolvedHost.capabilities.openSource && resolvedHost.openSource ? (
+              <Button onClick={() => void resolvedHost.openSource!(resolvedRecord.id)}>
+                Open source
+              </Button>
+            ) : null}
+            {resolvedHost.capabilities.chatReference && resolvedHost.insertChatReference ? (
+              <Button
+                onClick={() => void resolvedHost.insertChatReference!({
+                  kind: resolvedRecord.kind,
+                  id: resolvedRecord.id,
+                  canonicalPath: resolvedRecord.canonicalPath,
+                })}
+              >
+                Reference in chat
+              </Button>
+            ) : null}
+            {onClose ? (
+              <Button onClick={onClose} aria-label="Close record detail">Close</Button>
+            ) : null}
+          </>
+        )}
+      />
 
       <section className="astra-record-detail__section">
         <Prose>{resolvedRecord.description}</Prose>

@@ -1,5 +1,6 @@
 import type { CSSProperties, ReactNode, Ref } from 'react';
 import { useEffect, useId, useRef } from 'react';
+import { IconButton, SurfaceHeader } from '../ui.js';
 import type { InventoryKind } from './types.js';
 
 export interface InventoryListColumn {
@@ -150,21 +151,33 @@ export function InventoryDetailSurface({
       aria-modal={modal || undefined}
       aria-labelledby={titleId}
     >
-      <header className="inventory-detail-dialog__header">
-        <div>
-          <span>{eyebrow}</span>
-          <h3 id={titleId}>{title}</h3>
-          {identifier ? <code>{identifier}</code> : null}
-        </div>
-        <div className="inventory-detail-dialog__actions">
-          {onBack ? (
-            <button type="button" onClick={onBack} aria-label={backLabel} title="Back">
-              <span aria-hidden="true">←</span>
-            </button>
-          ) : null}
-          <button ref={closeRef} type="button" onClick={onClose} aria-label={closeLabel} title="Close all details">×</button>
-        </div>
-      </header>
+      <SurfaceHeader
+        className="inventory-detail-dialog__header"
+        actionsClassName="inventory-detail-dialog__actions"
+        kind={kind}
+        eyebrow={eyebrow}
+        title={title}
+        titleId={titleId}
+        titleAs="h3"
+        identifier={identifier}
+        actions={(
+          <>
+            {onBack ? (
+              <IconButton label={backLabel} onClick={onBack} title="Back">
+                <span aria-hidden="true">←</span>
+              </IconButton>
+            ) : null}
+            <IconButton
+              ref={closeRef}
+              label={closeLabel}
+              onClick={onClose}
+              title="Close all details"
+            >
+              ×
+            </IconButton>
+          </>
+        )}
+      />
       <div className="inventory-detail-dialog__body">{children}</div>
     </section>
   );

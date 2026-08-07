@@ -576,7 +576,7 @@
   align-items: start;
   justify-content: space-between;
   border-bottom: 1px solid var(--astra-rule);
-  background: var(--astra-surface);
+  background: var(--astra-header);
   padding: 1rem 1.2rem;
 }
 
@@ -669,7 +669,7 @@
   min-height: 2.05rem;
   gap: 0.5rem;
   align-items: center;
-  background: var(--astra-surface);
+  background: var(--astra-header);
   padding: 0.3rem 0.5rem;
   font-family: var(--astra-label);
   font-size: 0.66rem;
@@ -1742,8 +1742,8 @@
   color: var(--astra-muted);
   margin-top: 2px;
 }
-.astra-evidence__quote::before { content: "\\201C"; }
-.astra-evidence__quote::after { content: "\\201D"; }
+.astra-evidence__quote::before { content: "\201C"; }
+.astra-evidence__quote::after { content: "\201D"; }
 .astra-evidence__thumb { margin: 2px 0 6px; }
 .astra-evidence__thumb img {
   display: block;
@@ -1869,7 +1869,7 @@
 
 .inventory-record-list__head {
   border-color: var(--astra-rule);
-  background: var(--astra-panel);
+  background: var(--astra-header);
   color: var(--astra-muted);
   font-size: 0.62rem;
   letter-spacing: 0.08em;
@@ -1922,7 +1922,7 @@
 .inventory-detail-dialog__header {
   min-height: 4.5rem;
   border-color: var(--astra-rule);
-  background: var(--astra-panel);
+  background: var(--astra-header);
   padding: 0.85rem 1rem;
 }
 
@@ -1967,7 +1967,7 @@
 .inventory-output-provenance,
 .inventory-paper-dialog__rail {
   border-color: var(--astra-rule);
-  background: var(--astra-panel);
+  background: var(--astra-header);
 }
 
 .inventory-record-detail__prose > span,

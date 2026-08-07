@@ -16,9 +16,10 @@ test('publishes stable brand and host-aware CSS entry points', async () => {
 
 test('preserves the canonical ASTRA palette and offline font fallbacks', async () => {
   const css = await readFile(brandUrl, 'utf8');
-  assert.match(css, /--astra-canvas:\s*#f1efe9/i);
-  assert.match(css, /--astra-panel:\s*#f8f7f3/i);
+  assert.match(css, /--astra-canvas:\s*#ffffff/i);
+  assert.match(css, /--astra-panel:\s*#ffffff/i);
   assert.match(css, /--astra-raised:\s*#ffffff/i);
+  assert.match(css, /--astra-header:\s*#f1efe9/i);
   assert.match(css, /--astra-action:\s*#4e5a70/i);
   assert.match(css, /--astra-c-decision:\s*#a67c3c/i);
   assert.match(css, /--astra-c-decision-ink:\s*#765a2f/i);
@@ -37,8 +38,9 @@ test('preserves the canonical ASTRA palette and offline font fallbacks', async (
 
 test('keeps the complete ASTRA component palette stable across hosts', async () => {
   const css = await readFile(themeUrl, 'utf8');
-  assert.match(css, /--astra-canvas:\s*#f1efe9/i);
-  assert.match(css, /--astra-panel:\s*#f8f7f3/i);
+  assert.match(css, /--astra-canvas:\s*#ffffff/i);
+  assert.match(css, /--astra-panel:\s*#ffffff/i);
+  assert.match(css, /--astra-header:\s*#f1efe9/i);
   assert.match(css, /--astra-ink:\s*#221f20/i);
   assert.match(css, /--astra-action:\s*#4e5a70/i);
   assert.match(css, /--astra-focus:\s*#3f7280/i);
@@ -54,6 +56,7 @@ test('keeps the complete ASTRA component palette stable across hosts', async () 
   assert.match(css, /--astra-action:\s*#aeb8ca/i);
   assert.match(css, /--astra-c-input:\s*#aeb8ca/i);
   assert.match(css, /--astra-color-canvas:\s*var\(--astra-canvas\)/);
+  assert.match(css, /--astra-color-header:\s*var\(--astra-header\)/);
   assert.match(css, /--astra-radius-panel:\s*10px/);
   assert.doesNotMatch(css, /--astra-panel:\s*var\(--jp-layout/);
   assert.doesNotMatch(css, /--astra-action:\s*var\(--jp-brand/);

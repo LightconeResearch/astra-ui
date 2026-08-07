@@ -6,7 +6,9 @@
   "type": "module",
   "sideEffects": [
     "./styles.css",
-    "./inventory.css"
+    "./inventory.css",
+    "./graph.css",
+    "./ui.css"
   ],
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -17,12 +19,16 @@
       "default": "./dist/index.js"
     },
     "./styles.css": "./styles.css",
-    "./inventory.css": "./inventory.css"
+    "./inventory.css": "./inventory.css",
+    "./graph.css": "./graph.css",
+    "./ui.css": "./ui.css"
   },
   "files": [
     "dist",
     "styles.css",
     "inventory.css",
+    "graph.css",
+    "ui.css",
     "README.md"
   ],
   "scripts": {

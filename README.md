@@ -15,8 +15,20 @@ engine, or a claim that an analysis is scientifically correct.
 | `@lightcone-research/astra-viewer-react` | Inventory, record detail, safe result previews | JupyterLab, MyST, VS Code, chat, file access |
 | `@lightcone-research/astra-viewer-tokens` | Canonical ASTRA component palette with light/dark host detection | Paper layout, inventory layout, application chrome |
 
-The graph view is intentionally deferred. Relations are preserved in the model
-so a graph can be added later without changing the host protocol.
+The graph view is a structural projection of inputs, decisions, outputs, and
+sub-analyses; prior insights and findings remain available in inventory and
+record-detail surfaces. Every relation between displayed records is preserved.
+Each real ASTRA child scope is projected mechanically as one sub-analysis node
+in its parent graph and opens into its own scoped graph. Declared child outputs
+that are consumed outside that child scope are mechanically exposed beside the
+sub-analysis node; internal-only outputs stay in the scoped graph. Decisions
+sit at the top of a dedicated left rail and expose direct parameterization
+links on hover or focus; indirect influence stays in record details. An optional
+`astra.graph.yaml` can contract validated peer records,
+including repeated boundary outputs, into presentation groups; it cannot create
+scopes, dependencies, or stages. The
+same model and React surface can be used by an interactive host or a static
+exporter.
 
 ## Host flow
 

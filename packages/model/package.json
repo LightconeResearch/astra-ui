@@ -12,10 +12,12 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "default": "./dist/index.js"
-    }
+    },
+    "./graph-organization.schema.json": "./graph-organization.schema.json"
   },
   "files": [
     "dist",
+    "graph-organization.schema.json",
     "README.md"
   ],
   "scripts": {
@@ -26,4 +28,3 @@
     "node": ">=18"
   }
 }
-

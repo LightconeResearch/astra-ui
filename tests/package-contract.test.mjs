@@ -17,11 +17,19 @@ test('React package uses host React and has no MyST, Jupyter, or IDE dependency'
   const names = Object.keys(manifest.dependencies ?? {});
   assert.deepEqual(names, ['@lightcone-research/astra-viewer-model']);
   assert.equal(names.some((name) => /jupyter|myst|vscode/i.test(name)), false);
+  assert.equal(manifest.exports['./ui.css'], './ui.css');
+  assert.ok(manifest.files.includes('ui.css'));
 });
 
-test('graph remains deliberately deferred', async () => {
+test('graph is portable and contains no host or provider integration', async () => {
   const entry = await readFile(new URL('../packages/react/src/index.ts', import.meta.url), 'utf8');
   const css = await readFile(new URL('../packages/react/styles.css', import.meta.url), 'utf8');
-  assert.doesNotMatch(entry, /graph/i);
-  assert.doesNotMatch(css, /astra-graph/i);
+  const graph = await readFile(new URL('../packages/react/src/graph-view.tsx', import.meta.url), 'utf8');
+  assert.match(entry, /graph-view/);
+  assert.match(css, /graph\.css/);
+  assert.match(graph, /astra-graph__record-popover/);
+  assert.match(graph, /Open full details:/);
+  assert.match(graph, /onOpenScope/);
+  assert.match(graph, />\s*↗\s*</);
+  assert.doesNotMatch(graph, /jupyter|myst|vscode|claude|codex|opencode/i);
 });

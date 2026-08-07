@@ -1,4 +1,6 @@
 @import "./inventory.css";
+@import "./graph.css";
+@import "./ui.css";
 
 .astra-viewer .astra-inventory {
   display: grid;
@@ -185,7 +187,7 @@
 .astra-viewer .astra-record-detail__header h2 { margin: var(--astra-space-2) 0 0; }
 .astra-viewer .astra-record-detail__header-actions { display: flex; flex-wrap: wrap; gap: var(--astra-space-2); }
 
-.astra-viewer :is(.astra-record-detail__header-actions button, .astra-record-detail__action, .astra-result-viewer__download, .astra-evidence-list button) {
+.astra-viewer :is(.astra-record-detail__action, .astra-evidence-list button) {
   padding: 0.35rem 0.65rem;
   border: 1px solid var(--astra-color-border);
   border-radius: var(--astra-radius-sm);

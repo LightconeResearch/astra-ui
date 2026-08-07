@@ -10,10 +10,11 @@
  * also be selected explicitly with data-astra-theme.
  */
 .astra-viewer {
-  --astra-canvas: #f1efe9;
-  --astra-panel: #f8f7f3;
+  --astra-canvas: #ffffff;
+  --astra-panel: #ffffff;
   --astra-raised: #ffffff;
-  --astra-hover: #f1efe9;
+  --astra-header: #f1efe9;
+  --astra-hover: #f8f7f3;
   --astra-artifact-paper: #ffffff;
   --astra-artifact-ink: #221f20;
 
@@ -76,6 +77,7 @@
   --astra-color-surface-raised: var(--astra-raised);
   --astra-color-surface-muted: var(--astra-hover);
   --astra-color-canvas: var(--astra-canvas);
+  --astra-color-header: var(--astra-header);
   --astra-color-text: var(--astra-ink);
   --astra-color-text-muted: var(--astra-ink-soft);
   --astra-color-border: var(--astra-rule);
@@ -117,6 +119,7 @@
   --astra-canvas: #171614;
   --astra-panel: #1e1d1a;
   --astra-raised: #272520;
+  --astra-header: #302d27;
   --astra-hover: #302d27;
   --astra-artifact-paper: #f8f7f3;
   --astra-artifact-ink: #221f20;
