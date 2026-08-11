@@ -13,14 +13,15 @@ import {
   OverviewInventory,
   PaperDialog,
 } from '../packages/react/dist/index.js';
-import { fixtureModel, snapshotFixture } from './model.test.mjs';
+import { fixtureModel } from './model.test.mjs';
 
-test('inventory preserves the full standalone sections without a host dependency', () => {
+test('inventory renders the canonical model without a host dependency', () => {
+  const model = fixtureModel();
   const html = renderToStaticMarkup(
     React.createElement('div', { className: 'astra-ui' },
       React.createElement(InventoryExplorer, {
-        snapshot: snapshotFixture,
-        scopeId: '',
+        model,
+        scopeId: 'root',
       }),
     ),
   );
@@ -40,21 +41,31 @@ test('canonical models preserve the complete rich inventory presentation', () =>
   const model = fixtureModel({ universeId: 'baseline' });
   const inventory = createInventoryModel(model);
   const headline = inventory.recordByPath.get('outputs.headline')?.record;
-  assert.deepEqual(headline?.inputs, ['clustering.outputs.xi']);
-  assert.deepEqual(headline?.inputs_root, [{
-    id: 'inputs.catalog',
-    label: 'Input catalogue',
-  }]);
+  assert.equal(headline?.kind, 'output');
+  assert.deepEqual(headline?.provenance.inputs, [
+    {
+      reference: 'clustering.xi',
+      recordId: 'clustering:output:xi',
+      direct: true,
+    },
+    {
+      reference: 'catalog',
+      recordId: 'root:input:catalog',
+      label: 'Input catalogue',
+      direct: false,
+    },
+  ]);
   assert.deepEqual(
-    headline?.decisions_transitive?.map(({ id, via }) => [id, via]),
+    headline?.provenance.decisions.map(({ recordId, scopeId }) => [recordId, scopeId]),
     [
-      ['decisions.method', 'root'],
-      ['clustering.decisions.weighting', 'clustering'],
+      ['root:decision:method', undefined],
+      ['clustering:decision:weighting', 'clustering'],
     ],
   );
   assert.equal(
-    inventory.recordByPath.get('clustering.outputs.xi')?.record.from,
-    'outputs.headline',
+    inventory.recordByPath.get('clustering.outputs.xi')?.record.relations
+      .find((relation) => relation.kind === 'aliases')?.targetRecordId,
+    'root:output:headline',
   );
   const html = renderToStaticMarkup(
     React.createElement('div', { className: 'astra-ui' },
@@ -76,10 +87,11 @@ test('canonical models preserve the complete rich inventory presentation', () =>
 });
 
 test('analysis hierarchy preserves the standalone recursive scope selector', () => {
+  const model = fixtureModel();
   const html = renderToStaticMarkup(
     React.createElement(OverviewInventory, {
-      snapshot: snapshotFixture,
-      scopeId: '',
+      model,
+      scopeId: 'root',
       onSelectScope: () => {},
     }),
   );
@@ -134,21 +146,33 @@ test('paper details use compact insight and informed-decision lists', () => {
         doi: '10.0000/example',
         title: 'Example paper',
         insights: [{
-          id: 'a_very_long_prior_insight_identifier_that_must_stay_inside_the_rail',
-          path: 'prior_insights.a_very_long_prior_insight_identifier_that_must_stay_inside_the_rail',
+          id: 'root:prior_insight:a_very_long_prior_insight_identifier_that_must_stay_inside_the_rail',
+          localId: 'a_very_long_prior_insight_identifier_that_must_stay_inside_the_rail',
+          canonicalPath: 'prior_insights.a_very_long_prior_insight_identifier_that_must_stay_inside_the_rail',
+          scopeId: 'root',
           kind: 'prior_insight',
+          relations: [],
           claim: 'A compact claim preview.',
-          doi: '10.0000/example',
-          quote: 'A source passage.',
+          evidence: [{ doi: '10.0000/example', quote: 'A source passage.' }],
         }],
         decisions: [{
-          id: 'method',
-          path: 'decisions.method',
+          id: 'root:decision:method',
+          localId: 'method',
+          canonicalPath: 'decisions.method',
+          scopeId: 'root',
           kind: 'decision',
           label: 'Method choice',
+          relations: [],
+          options: [],
         }],
       },
-      scope: { id: 'root', path: '', name: 'Example', children: [], records: [] },
+      scope: {
+        id: 'root',
+        canonicalPath: 'root',
+        name: 'Example',
+        childIds: [],
+        recordIds: [],
+      },
       onOpenInsight: () => {},
       onOpenDecision: () => {},
       onClose: () => {},
@@ -186,10 +210,11 @@ test('relationship lists share compact typed rows instead of pill boxes', () => 
 });
 
 test('insight details use the same compact informed-decision relationship', () => {
-  const model = createInventoryModel(snapshotFixture);
-  const scope = model.snapshot.scopes[0];
-  const insight = scope.records.find((record) => record.kind === 'prior_insight');
+  const model = createInventoryModel(fixtureModel());
+  const scope = model.model.scopes[0];
+  const insight = model.recordById.get('root:prior_insight:published_method');
   assert.ok(insight);
+  assert.equal(insight.kind, 'prior_insight');
 
   const html = renderToStaticMarkup(
     React.createElement(InsightDetailDialog, {

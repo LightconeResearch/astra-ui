@@ -6,7 +6,6 @@
 export * from './graph-view.js';
 export {
   InventoryExplorer,
-  InventoryOutline,
 } from './full-inventory/InventoryOutline.js';
 export type { InventoryOutlineProps } from './full-inventory/InventoryOutline.js';
 export { OverviewInventory } from './full-inventory/OverviewInventory.js';

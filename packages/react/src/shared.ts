@@ -3,8 +3,8 @@ import {
   type ProjectRecordView,
   type ProjectViewModelIndex,
   type ProjectViewModelV1,
-  type RuntimeOverlayV1,
-} from '@lightcone-research/astra-ui-model';
+} from '@astra-spec/sdk/view-model';
+import type { RuntimeOverlayV1 } from './viewer-types.js';
 
 export type ModelInput = ProjectViewModelV1 | ProjectViewModelIndex;
 
@@ -14,7 +14,7 @@ export function projectIndex(
 ): ProjectViewModelIndex {
   return 'recordById' in input
     ? input
-    : createProjectViewModelIndex(input, runtime);
+    : createProjectViewModelIndex(input, runtime?.resources ?? []);
 }
 
 export function recordTitle(record: ProjectRecordView): string {

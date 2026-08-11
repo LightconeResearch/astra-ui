@@ -1,12 +1,12 @@
-import { createProjectViewModelIndex } from './indexing.js';
+import { createProjectViewModelIndex } from '@astra-spec/sdk/view-model';
 import type {
   AstraRecordKind,
   ProjectRecordView,
   ProjectScopeView,
   ProjectViewModelV1,
   RecordRelationKind,
-  ViewerDiagnostic,
-} from './types.js';
+  ViewModelDiagnostic,
+} from '@astra-spec/sdk/view-model';
 
 export const GRAPH_ORGANIZATION_SCHEMA_VERSION =
   'graph-organization.v1' as const;
@@ -108,7 +108,7 @@ export interface ProjectGraphV1 {
   focusScopeId: string;
   organization?: GraphOrganizationV1;
   organizationStatus: GraphOrganizationStatus;
-  diagnostics: ViewerDiagnostic[];
+  diagnostics: ViewModelDiagnostic[];
   validGroups: ValidatedGraphGroup[];
 }
 
@@ -120,14 +120,14 @@ export interface BuildProjectGraphOptions {
 
 interface ParsedOrganization {
   organization?: GraphOrganizationV1;
-  diagnostics: ViewerDiagnostic[];
+  diagnostics: ViewModelDiagnostic[];
 }
 
 interface GroupCandidate {
   group: GraphOrganizationGroup;
   scope?: ProjectScopeView;
   records: ProjectRecordView[];
-  diagnostics: ViewerDiagnostic[];
+  diagnostics: ViewModelDiagnostic[];
 }
 
 const RECORD_KINDS = new Set<AstraRecordKind>([
@@ -163,10 +163,10 @@ function stringField(
 }
 
 function organizationDiagnostic(
-  severity: ViewerDiagnostic['severity'],
+  severity: ViewModelDiagnostic['severity'],
   code: string,
   message: string,
-): ViewerDiagnostic {
+): ViewModelDiagnostic {
   return { severity, code, message };
 }
 
@@ -175,7 +175,7 @@ function organizationDiagnostic(
  * Both YAML snake_case and the in-memory camelCase spellings are accepted.
  */
 export function parseGraphOrganization(value: unknown): ParsedOrganization {
-  const diagnostics: ViewerDiagnostic[] = [];
+  const diagnostics: ViewModelDiagnostic[] = [];
   if (value === undefined || value === null) return { diagnostics };
   if (!isObject(value)) {
     return {
@@ -371,15 +371,15 @@ function hasPath(
 function validateGroups(
   model: ProjectViewModelV1,
   organization: GraphOrganizationV1,
-): { validGroups: ValidatedGraphGroup[]; diagnostics: ViewerDiagnostic[] } {
-  const diagnostics: ViewerDiagnostic[] = [];
+): { validGroups: ValidatedGraphGroup[]; diagnostics: ViewModelDiagnostic[] } {
+  const diagnostics: ViewModelDiagnostic[] = [];
   const candidates: GroupCandidate[] = [];
   const duplicateGroupIds = new Set<string>();
   const seenGroupIds = new Set<string>();
   const adjacency = dependencyAdjacency(model);
 
   for (const group of organization.groups) {
-    const groupDiagnostics: ViewerDiagnostic[] = [];
+    const groupDiagnostics: ViewModelDiagnostic[] = [];
     if (!/^[a-z][a-z0-9_-]*$/.test(group.id)) {
       groupDiagnostics.push(organizationDiagnostic(
         'warning',

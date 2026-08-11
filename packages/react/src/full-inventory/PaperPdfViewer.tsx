@@ -343,7 +343,7 @@ export function PaperPdfViewer({
         pageElement.style.height = `${viewport.height}px`;
         textLayerElement.replaceChildren();
         // PDF.js 5 reads --total-scale-factor; keep the older variable too so
-        // this stays compatible if the package is rolled back.
+        // this remains stable if the package version changes.
         textLayerElement.style.setProperty('--total-scale-factor', String(viewport.scale));
         textLayerElement.style.setProperty('--scale-factor', String(viewport.scale));
 

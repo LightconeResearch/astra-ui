@@ -1,10 +1,16 @@
 import { useMemo } from 'react';
+import type {
+  ProjectViewModelIndex,
+  ProjectViewModelV1,
+} from '@astra-spec/sdk/view-model';
+import type { RuntimeOverlayV1 } from '../viewer-types.js';
 import { createInventoryModel } from './model.js';
 import type { InventoryModel } from './model.js';
-import type { InventoryScope, InventorySnapshot } from './types.js';
+import type { InventoryScope } from '../types.js';
 
 export interface OverviewInventoryProps {
-  snapshot: InventorySnapshot;
+  model: ProjectViewModelV1 | ProjectViewModelIndex;
+  runtime?: RuntimeOverlayV1 | undefined;
   scopeId: string;
   onSelectScope: (scopeId: string) => void;
 }
@@ -48,7 +54,7 @@ function ScopeNode({
 }) {
   const active = scope.id === currentScopeId;
   const nextAncestors = new Set(ancestors).add(scope.id);
-  const children = scope.children
+  const children = scope.childIds
     .map((id) => model.scopeById.get(id))
     .filter(
       (child): child is InventoryScope => Boolean(child && !nextAncestors.has(child.id)),
@@ -87,13 +93,17 @@ function ScopeNode({
 }
 
 export function OverviewInventory({
-  snapshot,
+  model: source,
+  runtime,
   scopeId,
   onSelectScope,
 }: OverviewInventoryProps) {
-  const model = useMemo(() => createInventoryModel(snapshot), [snapshot]);
-  const roots = snapshot.scopes.filter(
-    (scope) => scope.parent === undefined || !model.scopeById.has(scope.parent),
+  const model = useMemo(
+    () => createInventoryModel(source, runtime),
+    [source, runtime],
+  );
+  const roots = model.model.scopes.filter(
+    (scope) => scope.parentId === undefined || !model.scopeById.has(scope.parentId),
   );
 
   return (

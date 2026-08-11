@@ -20,16 +20,16 @@ import {
   type InventoryModel,
 } from './model.js';
 import type {
+  InventoryDecisionRecord,
   InventoryInsightRecord,
-  InventoryRecord,
   InventoryScope,
-} from './types.js';
+} from '../types.js';
 
 interface DecisionsInventoryProps {
   model: InventoryModel;
   scopeId: string;
   tagLabels?: Readonly<Record<string, string>> | undefined;
-  onOpenDecision: (decision: InventoryRecord, scope: InventoryScope) => void;
+  onOpenDecision: (decision: InventoryDecisionRecord, scope: InventoryScope) => void;
 }
 
 function tagLabel(tag: string, labels: Readonly<Record<string, string>>): string {
@@ -45,14 +45,14 @@ export function DecisionDialog({
   onBack,
   onClose,
 }: {
-  record: InventoryRecord;
+  record: InventoryDecisionRecord;
   scope: InventoryScope;
   model: InventoryModel;
   onOpenInsight: (insight: InventoryInsightRecord) => void;
   onBack?: (() => void) | undefined;
   onClose: () => void;
 }) {
-  const options = Object.entries(record.options ?? {});
+  const options = record.options;
   const insights = inventoryDecisionInsights(model, scope, record);
   return (
     <InventoryDetailDialog
@@ -74,16 +74,16 @@ export function DecisionDialog({
           <section className="inventory-decision-options" aria-labelledby="inventory-decision-options-title">
             <h4 id="inventory-decision-options-title">Options</h4>
             <ul>
-              {options.map(([id, label]) => {
-                const selected = id === record.selected;
+              {options.map((option) => {
+                const selected = option.id === record.selectedOptionId;
                 return (
-                  <li key={id} className={selected ? 'is-selected' : undefined}>
+                  <li key={option.id} className={selected ? 'is-selected' : undefined}>
                     <span className="inventory-decision-options__marker" aria-hidden="true">
                       {selected ? '●' : '○'}
                     </span>
                     <span>
-                      <strong>{label ?? id}</strong>
-                      <code>{id}</code>
+                      <strong>{option.label ?? option.id}</strong>
+                      <code>{option.id}</code>
                     </span>
                     {selected ? <small>Selected</small> : null}
                   </li>
@@ -96,7 +96,7 @@ export function DecisionDialog({
             {insights.length ? (
               <ul className="inventory-decision-insights">
                 {insights.map((insight) => (
-                  <li key={insight.path}>
+                  <li key={insight.id}>
                     <InsightDetailTrigger
                       insight={insight}
                       variant="claim"
@@ -126,7 +126,7 @@ export function DecisionsInventory({
     setTagFilter('all');
   }, [scopeId]);
 
-  const records = scope ? inventoryRecordsOfKind(scope, 'decision') : [];
+  const records = scope ? inventoryRecordsOfKind(scope, 'decision', model) : [];
   const tags = [...new Set(records.flatMap((record) => record.tags ?? []))];
   const visibleRecords = tagFilter === 'all'
     ? records
@@ -164,7 +164,7 @@ export function DecisionsInventory({
           { className: 'inventory-record-list__arrow' },
         ]}
         rows={visibleRecords.map((record) => ({
-          key: record.path,
+          key: record.id,
           accessibleLabel: `${inventoryRecordTitle(record)}, selected option ${selectedOptionLabel(record)}`,
           onOpen: () => onOpenDecision(record, scope),
           cells: [

@@ -18,15 +18,25 @@ import {
   resolveInventoryRecordReference,
   type InventoryModel,
 } from './model.js';
-import type { InventoryRecord, InventoryScope } from './types.js';
+import type {
+  InventoryOutputRecord,
+  InventoryRecord,
+  InventoryScope,
+} from '../types.js';
 
 interface OutputsInventoryProps {
   model: InventoryModel;
   scopeId: string;
-  onOpenOutput: (output: InventoryRecord, scope: InventoryScope) => void;
+  onOpenOutput: (output: InventoryOutputRecord, scope: InventoryScope) => void;
 }
 
-function OutputCard({ record, onOpen }: { record: InventoryRecord; onOpen: () => void }) {
+function OutputCard({
+  record,
+  onOpen,
+}: {
+  record: InventoryOutputRecord;
+  onOpen: () => void;
+}) {
   return (
     <button type="button" className="inventory-output-card" onClick={onOpen}>
       <span className="inventory-output-card__preview">
@@ -34,9 +44,9 @@ function OutputCard({ record, onOpen }: { record: InventoryRecord; onOpen: () =>
         <span className="inventory-output-card__open" aria-hidden="true">Open ↗</span>
       </span>
       <span className="inventory-output-card__body">
-        <span className="inventory-output-card__kind">{record.type ?? 'output'}</span>
+        <span className="inventory-output-card__kind">{record.outputType}</span>
         <strong>{inventoryRecordTitle(record)}</strong>
-        {record.label ? <code>{record.id}</code> : null}
+        {record.label ? <code>{record.localId}</code> : null}
       </span>
     </button>
   );
@@ -50,8 +60,8 @@ function OutputGallery({
 }: {
   id: string;
   title: string;
-  records: InventoryRecord[];
-  onOpen: (record: InventoryRecord) => void;
+  records: InventoryOutputRecord[];
+  onOpen: (record: InventoryOutputRecord) => void;
 }) {
   if (!records.length) return null;
   return (
@@ -61,16 +71,19 @@ function OutputGallery({
       </h3>
       <div className="inventory-output-gallery">
         {records.map((record) => (
-          <OutputCard key={record.path} record={record} onOpen={() => onOpen(record)} />
+          <OutputCard key={record.id} record={record} onOpen={() => onOpen(record)} />
         ))}
       </div>
     </section>
   );
 }
 
-function Files({ records, onOpen }: {
-  records: InventoryRecord[];
-  onOpen: (record: InventoryRecord) => void;
+function Files({
+  records,
+  onOpen,
+}: {
+  records: InventoryOutputRecord[];
+  onOpen: (record: InventoryOutputRecord) => void;
 }) {
   if (!records.length) return null;
   return (
@@ -86,7 +99,7 @@ function Files({ records, onOpen }: {
           { className: 'inventory-record-list__arrow' },
         ]}
         rows={records.map((record) => ({
-          key: record.path,
+          key: record.id,
           accessibleLabel: inventoryFileName(record),
           onOpen: () => onOpen(record),
           cells: [
@@ -106,114 +119,76 @@ interface ProvenanceRecord {
   scope?: InventoryScope | undefined;
 }
 
-interface DecisionDependency {
-  id: string;
-  label: string;
+interface DecisionDependency extends ProvenanceRecord {
   via?: string | undefined;
   relationship: 'direct' | 'indirect';
-  record?: InventoryRecord | undefined;
-  scope?: InventoryScope | undefined;
-}
-
-function resolveDecisionDependency(
-  model: InventoryModel,
-  scope: InventoryScope,
-  id: string,
-  via?: string,
-) {
-  const owner = via
-    ? model.scopeById.get(via) ?? model.scopeByPath.get(via)
-    : undefined;
-  const ownedDecision = owner?.records.find(
-    (record) => record.kind === 'decision' && record.id === id,
-  );
-  if (owner && ownedDecision) return { record: ownedDecision, scope: owner };
-  const resolved = resolveInventoryRecordReference(model, scope, id);
-  return resolved?.record.kind === 'decision' ? resolved : undefined;
 }
 
 function decisionDependencies(
   model: InventoryModel,
   scope: InventoryScope,
-  output: InventoryRecord,
+  output: InventoryOutputRecord,
 ): DecisionDependency[] {
-  const directIds = output.decisions ?? [];
-  const directIdSet = new Set(directIds);
-  const transitive = output.decisions_transitive ?? [];
-
-  const direct = directIds.map((id) => {
-    const metadata = transitive.find((candidate) => candidate.id === id);
-    const resolved = resolveDecisionDependency(model, scope, id, metadata?.via);
+  return output.provenance.decisions.map((dependency) => {
+    const resolved = dependency.recordId
+      ? model.recordById.get(dependency.recordId)
+      : resolveInventoryRecordReference(model, scope, dependency.reference, 'decision')?.record;
+    const owner = resolved ? model.scopeById.get(resolved.scopeId) : undefined;
     return {
-      id,
-      label: metadata?.label ?? resolved?.record.label ?? id,
-      via: metadata?.via,
-      relationship: 'direct' as const,
-      record: resolved?.record,
-      scope: resolved?.scope,
+      id: dependency.recordId ?? dependency.reference,
+      label: dependency.label ?? resolved?.label ?? resolved?.localId ?? dependency.reference,
+      ...(dependency.scopeId ? { via: dependency.scopeId } : {}),
+      relationship: dependency.direct ? 'direct' : 'indirect',
+      ...(resolved ? { record: resolved } : {}),
+      ...(owner ? { scope: owner } : {}),
     };
   });
-
-  const indirect = transitive
-    .filter((dependency) => !directIdSet.has(dependency.id))
-    .map((dependency) => {
-      const resolved = resolveDecisionDependency(
-        model,
-        scope,
-        dependency.id,
-        dependency.via,
-      );
-      return {
-        id: dependency.id,
-        label: dependency.label ?? resolved?.record.label ?? dependency.id,
-        via: dependency.via,
-        relationship: 'indirect' as const,
-        record: resolved?.record,
-        scope: resolved?.scope,
-      };
-    });
-
-  return [...direct, ...indirect];
 }
 
 function upstreamRecords(
   model: InventoryModel,
   scope: InventoryScope,
-  output: InventoryRecord,
+  output: InventoryOutputRecord,
 ): ProvenanceRecord[] {
-  const references: Array<{ id: string; label?: string }> = [
-    ...(output.inputs ?? []).map((id) => ({ id })),
-    ...(output.inputs_root ?? []).map((input) => ({ id: input.id, label: input.label })),
-    ...(output.from ? [{ id: output.from }] : []),
-  ];
+  const references = [...output.provenance.inputs];
+  const alias = output.relations.find((relation) => relation.kind === 'aliases');
+  if (alias) {
+    const target = model.recordById.get(alias.targetRecordId);
+    if (target) {
+      references.push({
+        reference: target.localId,
+        recordId: target.id,
+        ...(target.label ? { label: target.label } : {}),
+        direct: true,
+      });
+    }
+  }
   const records = new Map<string, ProvenanceRecord>();
   for (const reference of references) {
-    if (records.has(reference.id)) continue;
-    const resolved = resolveInventoryRecordReference(model, scope, reference.id);
-    records.set(reference.id, {
-      id: reference.id,
-      label: reference.label ?? resolved?.record.label,
-      record: resolved?.record,
-      scope: resolved?.scope,
-    });
+    const resolved = reference.recordId
+      ? model.recordById.get(reference.recordId)
+      : resolveInventoryRecordReference(model, scope, reference.reference)?.record;
+    const owner = resolved ? model.scopeById.get(resolved.scopeId) : undefined;
+    const key = resolved?.id ?? reference.reference;
+    if (!records.has(key)) {
+      records.set(key, {
+        id: key,
+        label: reference.label ?? resolved?.label ?? resolved?.localId,
+        ...(resolved ? { record: resolved } : {}),
+        ...(owner ? { scope: owner } : {}),
+      });
+    }
   }
   return [...records.values()];
 }
 
 export interface OutputDetailProps {
-  record: InventoryRecord;
+  record: InventoryOutputRecord;
   scope: InventoryScope;
   model: InventoryModel;
   onOpenDependency?: ((record: InventoryRecord, scope: InventoryScope) => void) | undefined;
 }
 
-/**
- * Host-neutral output detail body.
- *
- * MyST renders this inside InventoryDetailDialog. Other hosts, such as
- * JupyterLab, can supply their own panel chrome while preserving the exact
- * ASTRA result, description, recipe, and provenance presentation.
- */
 export function OutputDetail({
   record,
   scope,
@@ -230,10 +205,7 @@ export function OutputDetail({
   );
   const [showIndirectDependencies, setShowIndirectDependencies] = useState(false);
 
-  useEffect(() => {
-    setShowIndirectDependencies(false);
-  }, [record.path]);
-
+  useEffect(() => setShowIndirectDependencies(false), [record.id]);
   const visibleDependencies = showIndirectDependencies
     ? dependencies
     : directDependencies;
@@ -241,16 +213,15 @@ export function OutputDetail({
   return (
     <div className="inventory-output-dialog__layout inventory-output-dialog__layout--stacked">
       <div className="inventory-output-dialog__result">
-        <div className={`inventory-output-dialog__preview is-${record.type ?? 'output'}`}>
+        <div className={`inventory-output-dialog__preview is-${record.outputType}`}>
           <InventoryArtifactPreview record={record} />
         </div>
       </div>
-
       <div className="inventory-output-provenance-slot">
         <aside className="inventory-output-provenance" aria-label="Output details">
           <header className="inventory-output-provenance__header">
             <span>Output details</span>
-            <strong>{record.type ?? 'output'}</strong>
+            <strong>{record.outputType}</strong>
           </header>
           {record.description ? (
             <section className="inventory-output-description">
@@ -264,7 +235,9 @@ export function OutputDetail({
             <details className="inventory-output-recipe" open>
               <summary>Recipe</summary>
               <pre><code>{record.recipe.command}</code></pre>
-              {record.recipe.container ? <p>Container: <code>{record.recipe.container}</code></p> : null}
+              {record.recipe.container
+                ? <p>Container: <code>{record.recipe.container}</code></p>
+                : null}
             </details>
           ) : <p className="inventory-output-provenance__empty">No recipe is declared for this output.</p>}
           <InventoryRelationList
@@ -272,9 +245,7 @@ export function OutputDetail({
             className="inventory-output-provenance__group inventory-output-dependencies"
             description="Method choices recorded for this output."
             headerAction={indirectDependencies.length ? (
-              <label
-                className="inventory-dependency-toggle"
-              >
+              <label className="inventory-dependency-toggle">
                 <input
                   type="checkbox"
                   aria-label="Include indirect decision dependencies"
@@ -285,7 +256,7 @@ export function OutputDetail({
               </label>
             ) : undefined}
             items={visibleDependencies.map((dependency) => ({
-              key: `${dependency.relationship}-${dependency.via ?? 'local'}-${dependency.id}`,
+              key: `${dependency.relationship}-${dependency.id}`,
               label: dependency.label,
               kind: 'decision',
               detail: [
@@ -302,7 +273,7 @@ export function OutputDetail({
             }))}
             empty={indirectDependencies.length
               ? 'No decisions are referenced directly by this output recipe.'
-              : 'No decision dependencies are resolved in this snapshot.'}
+              : 'No decision dependencies are resolved in this model.'}
           />
           <InventoryRelationList
             title="Inputs and upstream outputs"
@@ -324,7 +295,7 @@ export function OutputDetail({
                 ? () => onOpenDependency(input.record!, input.scope!)
                 : undefined,
             }))}
-            empty="No upstream dependencies are resolved in this snapshot."
+            empty="No upstream dependencies are resolved in this model."
           />
         </aside>
       </div>
@@ -347,9 +318,9 @@ export function OutputDialog({
   return (
     <InventoryDetailDialog
       kind="output"
-      eyebrow={`${record.type ?? 'output'} · ${scope.name}`}
+      eyebrow={`${record.outputType} · ${scope.name}`}
       title={inventoryRecordTitle(record)}
-      identifier={record.label ? record.id : undefined}
+      identifier={record.label ? record.localId : undefined}
       onBack={onBack}
       closeLabel="Close output details"
       onClose={onClose}
@@ -366,13 +337,12 @@ export function OutputDialog({
 
 export function OutputsInventory({ model, scopeId, onOpenOutput }: OutputsInventoryProps) {
   const scope = getInventoryScope(model, scopeId);
-  const records = scope ? inventoryRecordsOfKind(scope, 'output') : [];
-  const figures = records.filter((record) => record.type === 'figure');
-  const tables = records.filter((record) => record.type === 'table');
+  const records = scope ? inventoryRecordsOfKind(scope, 'output', model) : [];
+  const figures = records.filter((record) => record.outputType === 'figure');
+  const tables = records.filter((record) => record.outputType === 'table');
   const additional = records.filter(
-    (record) => record.type !== 'figure' && record.type !== 'table',
+    (record) => record.outputType !== 'figure' && record.outputType !== 'table',
   );
-
   if (!scope || records.length === 0) {
     return (
       <InventoryEmptyState className="inventory-output-empty">
@@ -380,7 +350,6 @@ export function OutputsInventory({ model, scopeId, onOpenOutput }: OutputsInvent
       </InventoryEmptyState>
     );
   }
-
   return (
     <div className="inventory-outputs">
       <OutputGallery id="figures" title="Figures" records={figures} onOpen={(record) => onOpenOutput(record, scope)} />

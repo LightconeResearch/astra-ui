@@ -2,10 +2,12 @@ import { useMemo } from 'react';
 import {
   resolveProjectRecord,
   type ProjectRecordView,
-  type RuntimeOverlayV1,
-  type ViewerHost,
-  type ViewerOpenReference,
-} from '@lightcone-research/astra-ui-model';
+} from '@astra-spec/sdk/view-model';
+import type {
+  RuntimeOverlayV1,
+  ViewerHost,
+  ViewerOpenReference,
+} from './viewer-types.js';
 import { passiveViewerHost, useOptionalAstraViewer } from './context.js';
 import { ResultViewer } from './result-viewer.js';
 import { kindLabel, projectIndex, recordTitle, type ModelInput } from './shared.js';

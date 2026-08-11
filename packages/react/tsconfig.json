@@ -4,8 +4,7 @@
     "jsx": "react-jsx",
     "rootDir": "src",
     "outDir": "dist",
-    "tsBuildInfoFile": "../../.cache/react.tsbuildinfo"
+    "tsBuildInfoFile": "../../.cache/astra-ui.tsbuildinfo"
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"],
-  "references": [{ "path": "../model" }]
+  "include": ["src/**/*.ts", "src/**/*.tsx"]
 }

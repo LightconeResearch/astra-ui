@@ -1,35 +1,30 @@
 import { useEffect, useMemo, useState } from 'react';
 import type {
   ResourceDescriptor,
-  ResourcePreview,
-} from '@lightcone-research/astra-ui-model';
+} from '@astra-spec/sdk/view-model';
+import type { ResourcePreview } from '../viewer-types.js';
 import { useOptionalAstraViewer } from '../context.js';
 import { inventoryRecordTitle } from './model.js';
-import type { InventoryRecord } from './types.js';
+import type { InventoryOutputRecord } from '../types.js';
 
-/** Presentation policy; hosts remain responsible for payload-size limits. */
 const TABLE_PREVIEW_DISPLAY_ROWS = 30;
 const TABLE_PREVIEW_DISPLAY_COLUMNS = 30;
 
-export function inventoryFileName(record: InventoryRecord): string {
-  const segments = record.resolved_path?.split('/').filter(Boolean);
-  return segments?.[segments.length - 1] ?? record.id;
+export function inventoryFileName(record: InventoryOutputRecord): string {
+  return record.localId;
 }
 
-export function inventoryFileExtension(record: InventoryRecord): string {
+export function inventoryFileExtension(record: InventoryOutputRecord): string {
   const name = inventoryFileName(record);
   const dot = name.lastIndexOf('.');
-  return dot > 0
-    ? name.slice(dot + 1).toUpperCase()
-    : (record.type ?? 'FILE').toUpperCase();
+  return dot > 0 ? name.slice(dot + 1).toUpperCase() : record.outputType.toUpperCase();
 }
 
 function compactValue(value: string | number | undefined): string {
   if (value == null || value === '') return 'Value unavailable';
-  if (typeof value === 'number') {
-    return value.toLocaleString(undefined, { maximumSignificantDigits: 5 });
-  }
-  return value;
+  return typeof value === 'number'
+    ? value.toLocaleString(undefined, { maximumSignificantDigits: 5 })
+    : value;
 }
 
 interface CanonicalPreview {
@@ -37,30 +32,24 @@ interface CanonicalPreview {
   resource?: ResourceDescriptor | undefined;
 }
 
-function useCanonicalPreview(record: InventoryRecord): CanonicalPreview {
+function useCanonicalPreview(record: InventoryOutputRecord): CanonicalPreview {
   const context = useOptionalAstraViewer();
-  const output = useMemo(() => {
-    const candidate = record.modelId
-      ? context?.index.recordById.get(record.modelId)
-      : context?.index.recordByPath.get(record.path)?.record;
-    return candidate?.kind === 'output' ? candidate : undefined;
-  }, [context?.index, record.modelId, record.path]);
-  const materialization = output
-    ? context?.runtime?.outputs[output.id]
-    : undefined;
+  const output = useMemo(
+    () => context?.index.recordById.get(record.id)?.kind === 'output'
+      ? context.index.recordById.get(record.id) as InventoryOutputRecord
+      : record,
+    [context?.index, record],
+  );
+  const materialization = context?.runtime?.outputs[output.id];
   const resourceIds = materialization?.resourceIds.length
     ? materialization.resourceIds
-    : output?.resourceIds ?? record.resourceIds ?? [];
+    : output.resourceIds;
   const resource = resourceIds
     .map((resourceId) => context?.index.resourceById.get(resourceId))
     .find((candidate): candidate is ResourceDescriptor => Boolean(candidate));
   const [preview, setPreview] = useState<ResourcePreview | undefined>();
 
   useEffect(() => {
-    if (!output || !context) {
-      setPreview(undefined);
-      return;
-    }
     if (output.metric?.value !== undefined) {
       setPreview({
         kind: 'metric',
@@ -73,7 +62,7 @@ function useCanonicalPreview(record: InventoryRecord): CanonicalPreview {
       });
       return;
     }
-    if (!resource || !context.host.getPreview) {
+    if (!resource || !context?.host.getPreview) {
       setPreview(undefined);
       return;
     }
@@ -94,13 +83,7 @@ function useCanonicalPreview(record: InventoryRecord): CanonicalPreview {
       active = false;
       controller.abort();
     };
-  }, [
-    context,
-    context?.runtime?.materializationRevision,
-    output,
-    resource?.id,
-    resource?.revision,
-  ]);
+  }, [context, context?.runtime?.materializationRevision, output, resource]);
 
   return { preview, resource };
 }
@@ -109,13 +92,11 @@ function FigurePreview({
   record,
   preview,
 }: {
-  record: InventoryRecord;
+  record: InventoryOutputRecord;
   preview?: ResourcePreview | undefined;
 }) {
   const [failed, setFailed] = useState(false);
-  const previewUrl = preview?.kind === 'image'
-    ? preview.url
-    : record.resultPreview;
+  const previewUrl = preview?.kind === 'image' ? preview.url : undefined;
   if (!previewUrl || failed) {
     return (
       <div className="inventory-output-preview__placeholder" aria-label="Figure preview unavailable">
@@ -133,39 +114,28 @@ function FigurePreview({
   );
 }
 
-function TablePreview({ record, preview, compact = false }: {
-  record: InventoryRecord;
+function TablePreview({
+  preview,
+  compact = false,
+}: {
   preview?: ResourcePreview | undefined;
   compact?: boolean | undefined;
 }) {
-  const canonicalTable = preview?.kind === 'table' ? preview : undefined;
-  const table = canonicalTable ?? record.table_preview ?? record.table_data;
+  const table = preview?.kind === 'table' ? preview : undefined;
   if (!table?.headers.length) {
-    const label = record.table_preview_omitted
-      ? 'Table preview omitted to keep this project page small'
-      : 'Table preview unavailable';
     return (
-      <div className="inventory-output-preview__placeholder" aria-label={label}>
+      <div className="inventory-output-preview__placeholder" aria-label="Table preview unavailable">
         <span aria-hidden="true">▤</span>
-        <span>{label}</span>
+        <span>Table preview unavailable</span>
       </div>
     );
   }
-
   const columnLimit = compact ? 5 : TABLE_PREVIEW_DISPLAY_COLUMNS;
   const rowLimit = compact ? 4 : TABLE_PREVIEW_DISPLAY_ROWS;
   const headers = table.headers.slice(0, columnLimit);
   const rows = table.rows.slice(0, rowLimit);
-  const totalRows =
-    canonicalTable?.totalRows
-    ?? record.table_preview?.total_rows
-    ?? record.table_rows_total
-    ?? table.rows.length;
-  const totalColumns =
-    canonicalTable?.totalColumns
-    ?? record.table_preview?.total_columns
-    ?? record.table_columns_total
-    ?? table.headers.length;
+  const totalRows = table.totalRows ?? table.rows.length;
+  const totalColumns = table.totalColumns ?? table.headers.length;
   return (
     <div className={`inventory-output-table${compact ? ' is-compact' : ''}`}>
       <table>
@@ -196,42 +166,42 @@ function MetricPreview({
   record,
   preview,
 }: {
-  record: InventoryRecord;
+  record: InventoryOutputRecord;
   preview?: ResourcePreview | undefined;
 }) {
   const metric = preview?.kind === 'metric' ? preview : record.metric;
-  const uncertainty = metric?.uncertainty
-    ?? (metric && 'error' in metric ? metric.error : undefined);
-  const unit = metric?.unit
-    ?? (metric && 'units' in metric ? metric.units : undefined);
   return (
     <div className="inventory-output-metric">
       <span className="inventory-output-metric__value">{compactValue(metric?.value)}</span>
-      {uncertainty != null ? (
-        <span className="inventory-output-metric__uncertainty">± {uncertainty}</span>
+      {metric?.uncertainty != null ? (
+        <span className="inventory-output-metric__uncertainty">± {metric.uncertainty}</span>
       ) : null}
-      {unit ? <span className="inventory-output-metric__unit">{unit}</span> : null}
+      {metric?.unit ? <span className="inventory-output-metric__unit">{metric.unit}</span> : null}
     </div>
   );
 }
 
-export function InventoryArtifactPreview({ record, compact = false }: {
-  record: InventoryRecord;
+export function InventoryArtifactPreview({
+  record,
+  compact = false,
+}: {
+  record: InventoryOutputRecord;
   compact?: boolean | undefined;
 }) {
   const { preview, resource } = useCanonicalPreview(record);
-  if (record.type === 'figure') {
+  if (record.outputType === 'figure') {
     return <FigurePreview record={record} preview={preview} />;
   }
-  if (record.type === 'table') {
-    return <TablePreview record={record} preview={preview} compact={compact} />;
+  if (record.outputType === 'table') {
+    return <TablePreview preview={preview} compact={compact} />;
   }
-  if (record.type === 'metric') {
+  if (record.outputType === 'metric') {
     return <MetricPreview record={record} preview={preview} />;
   }
   const fileName = resource?.fileName ?? inventoryFileName(record);
-  const fileType = resource?.fileName
-    ? inventoryFileExtension({ ...record, resolved_path: resource.fileName })
+  const dot = fileName.lastIndexOf('.');
+  const fileType = dot > 0
+    ? fileName.slice(dot + 1).toUpperCase()
     : inventoryFileExtension(record);
   return (
     <div className="inventory-output-file-hero">

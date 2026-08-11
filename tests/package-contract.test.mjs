@@ -4,19 +4,23 @@ import test from 'node:test';
 
 const parse = async (path) => JSON.parse(await readFile(path, 'utf8'));
 
-test('model package is host and framework neutral', async () => {
-  const manifest = await parse(new URL('../packages/model/package.json', import.meta.url));
-  assert.equal(manifest.dependencies, undefined);
-  assert.equal(manifest.peerDependencies, undefined);
+test('the SDK is the sole owner of the canonical project model', async () => {
+  const core = await readFile(new URL('../packages/react/src/core.ts', import.meta.url), 'utf8');
+  const viewerTypes = await readFile(new URL('../packages/react/src/viewer-types.ts', import.meta.url), 'utf8');
+  assert.match(core, /export \* from '@astra-spec\/sdk\/view-model'/);
+  assert.doesNotMatch(viewerTypes, /interface ProjectViewModelV1|interface ProjectRecordView/);
 });
 
-test('React package uses host React and has no MyST, Jupyter, or IDE dependency', async () => {
+test('the unified UI package uses host React and has no host dependency', async () => {
   const manifest = await parse(new URL('../packages/react/package.json', import.meta.url));
+  assert.equal(manifest.name, '@lightcone-research/astra-ui');
+  assert.equal(manifest.peerDependencies['@astra-spec/sdk'], '^0.0.5');
   assert.equal(manifest.peerDependencies.react, '>=18 <20');
   assert.equal(manifest.peerDependencies['react-dom'], '>=18 <20');
   const names = Object.keys(manifest.dependencies ?? {});
-  assert.deepEqual(names, ['@lightcone-research/astra-ui-model']);
+  assert.deepEqual(names, []);
   assert.equal(names.some((name) => /jupyter|myst|vscode/i.test(name)), false);
+  assert.ok(manifest.exports['./core']);
   assert.equal(manifest.exports['./ui.css'], './ui.css');
   assert.ok(manifest.files.includes('ui.css'));
 });

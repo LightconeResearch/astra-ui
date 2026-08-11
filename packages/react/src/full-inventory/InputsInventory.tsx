@@ -14,16 +14,17 @@ import {
   inventoryRecordsOfKind,
   type InventoryModel,
 } from './model.js';
-import type { InventoryRecord, InventoryScope } from './types.js';
+import type { InventoryInputRecord, InventoryScope } from '../types.js';
 
 interface InputsInventoryProps {
   model: InventoryModel;
   scopeId: string;
-  onOpenInput: (input: InventoryRecord, scope: InventoryScope) => void;
+  onOpenInput: (input: InventoryInputRecord, scope: InventoryScope) => void;
 }
 
-function sourceLabel(record: InventoryRecord): string {
-  return record.source ?? record.from ?? 'Source not declared';
+function sourceLabel(record: InventoryInputRecord): string {
+  const alias = record.relations.find((relation) => relation.kind === 'aliases');
+  return record.source ?? record.reference ?? alias?.targetRecordId ?? 'Source not declared';
 }
 
 export function InputDialog({
@@ -32,7 +33,7 @@ export function InputDialog({
   onBack,
   onClose,
 }: {
-  record: InventoryRecord;
+  record: InventoryInputRecord;
   scope: InventoryScope;
   onBack?: (() => void) | undefined;
   onClose: () => void;
@@ -40,9 +41,9 @@ export function InputDialog({
   return (
     <InventoryDetailDialog
       kind="input"
-      eyebrow={`Input · ${record.type ?? 'data'} · ${scope.name}`}
+      eyebrow={`Input · ${record.inputType ?? 'data'} · ${scope.name}`}
       title={inventoryRecordTitle(record)}
-      identifier={record.label ? record.id : undefined}
+      identifier={record.label ? record.localId : undefined}
       onBack={onBack}
       closeLabel="Close input details"
       onClose={onClose}
@@ -55,7 +56,7 @@ export function InputDialog({
             </InventoryDetailProse>
           ) : null}
           <section className="inventory-input-source">
-            <h4>{record.from ? 'Resolved from' : 'Source'}</h4>
+            <h4>{record.relations.some((relation) => relation.kind === 'aliases') ? 'Resolved from' : 'Source'}</h4>
             <code>{sourceLabel(record)}</code>
           </section>
         </InventoryDetailMain>
@@ -66,7 +67,7 @@ export function InputDialog({
 
 export function InputsInventory({ model, scopeId, onOpenInput }: InputsInventoryProps) {
   const scope = getInventoryScope(model, scopeId);
-  const records = scope ? inventoryRecordsOfKind(scope, 'input') : [];
+  const records = scope ? inventoryRecordsOfKind(scope, 'input', model) : [];
 
   if (!scope || !records.length) {
     return <InventoryEmptyState>No inputs are declared in this analysis.</InventoryEmptyState>;
@@ -83,7 +84,7 @@ export function InputsInventory({ model, scopeId, onOpenInput }: InputsInventory
           { className: 'inventory-record-list__arrow' },
         ]}
         rows={records.map((record) => ({
-          key: record.path,
+          key: record.id,
           accessibleLabel: inventoryRecordTitle(record),
           onOpen: () => onOpenInput(record, scope),
           cells: [

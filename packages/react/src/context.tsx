@@ -8,10 +8,12 @@ import {
   createProjectViewModelIndex,
   type ProjectViewModelIndex,
   type ProjectViewModelV1,
-  type RuntimeOverlayV1,
-  type ViewerCapabilities,
-  type ViewerHost,
-} from '@lightcone-research/astra-ui-model';
+} from '@astra-spec/sdk/view-model';
+import type {
+  RuntimeOverlayV1,
+  ViewerCapabilities,
+  ViewerHost,
+} from './viewer-types.js';
 
 const NO_CAPABILITIES: ViewerCapabilities = {
   preview: false,
@@ -56,7 +58,7 @@ export function AstraViewerProvider({
       model,
       ...(runtime ? { runtime } : {}),
       host,
-      index: createProjectViewModelIndex(model, runtime),
+      index: createProjectViewModelIndex(model, runtime?.resources ?? []),
     }),
     [host, model, runtime],
   );

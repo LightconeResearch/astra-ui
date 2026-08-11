@@ -17,10 +17,14 @@ import type {
   InventoryDecisionRecord,
   InventoryInsightRecord,
   InventoryScope,
-} from './types.js';
+} from '../types.js';
 
 function insightEvidenceName(entry: InventoryInsightRecord): string {
-  return entry.label ?? entry.id;
+  return entry.label ?? entry.localId;
+}
+
+function primaryLiteratureEvidence(insight: InventoryInsightRecord) {
+  return insight.evidence.find((evidence) => evidence.doi || evidence.quote);
 }
 
 function InsightEvidenceTitle({
@@ -104,13 +108,14 @@ export function InsightDetailDialog({
 }) {
   const decisions = inventoryInformedDecisions(model, scope, insight);
   const title = insightEvidenceName(insight);
+  const source = primaryLiteratureEvidence(insight);
 
   return (
     <InventoryDetailDialog
       kind="prior_insight"
       eyebrow={`Insight · ${scope.name}`}
       title={title}
-      identifier={insight.label ? insight.id : undefined}
+      identifier={insight.label ? insight.localId : undefined}
       onBack={onBack}
       closeLabel="Close insight details"
       onClose={onClose}
@@ -122,11 +127,11 @@ export function InsightDetailDialog({
               <InventoryProse text={insight.claim} />
             </InventoryDetailProse>
           ) : null}
-          {insight.quote ? (
+          {source?.quote ? (
             <section className="inventory-insight-detail__source-quote">
               <h4>Source quote</h4>
-              <blockquote><InventoryProse text={insight.quote} /></blockquote>
-              {insight.doi && onOpenSource ? (
+              <blockquote><InventoryProse text={source.quote} /></blockquote>
+              {source.doi && onOpenSource ? (
                 <button
                   type="button"
                   className="inventory-insight-detail__open-source"
@@ -145,18 +150,18 @@ export function InsightDetailDialog({
           ) : null}
         </InventoryDetailMain>
         <InventoryDetailRail label="Insight details">
-          {insight.doi ? (
+          {source?.doi ? (
             <section className="inventory-paper-doi">
               <h4>Source paper</h4>
-              <a href={doiHref(insight.doi)} target="_blank" rel="noreferrer">
-                {insight.doi}{insight.page ? ` · page ${insight.page}` : ''} ↗
+              <a href={doiHref(source.doi)} target="_blank" rel="noreferrer">
+                {source.doi}{source.page ? ` · page ${source.page}` : ''} ↗
               </a>
             </section>
           ) : null}
           <InventoryRelationList
             title="Informs decisions"
             items={decisions.map((decision) => ({
-              key: decision.path,
+              key: decision.id,
               label: inventoryRecordTitle(decision),
               kind: 'decision',
               accessibleLabel: `View decision: ${inventoryRecordTitle(decision)}`,

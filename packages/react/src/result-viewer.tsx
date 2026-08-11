@@ -2,10 +2,12 @@ import { useEffect, useMemo, useState } from 'react';
 import {
   type OutputRecordView,
   type ResourceDescriptor,
-  type ResourcePreview,
-  type RuntimeOverlayV1,
-  type ViewerHost,
-} from '@lightcone-research/astra-ui-model';
+} from '@astra-spec/sdk/view-model';
+import type {
+  ResourcePreview,
+  RuntimeOverlayV1,
+  ViewerHost,
+} from './viewer-types.js';
 import { passiveViewerHost, useOptionalAstraViewer } from './context.js';
 import { projectIndex, type ModelInput } from './shared.js';
 import { Badge, Button, SurfaceHeader } from './ui.js';

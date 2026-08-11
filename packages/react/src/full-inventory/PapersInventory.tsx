@@ -28,7 +28,7 @@ import type {
   InventoryDecisionRecord,
   InventoryInsightRecord,
   InventoryScope,
-} from './types.js';
+} from '../types.js';
 
 interface PapersInventoryProps {
   model: InventoryModel;
@@ -96,10 +96,9 @@ function normalizedDoi(doi: string): string {
 }
 
 function insightDois(insight: InventoryInsightRecord): string[] {
-  const dois = [
-    insight.doi,
-    ...(insight.evidence ?? []).map((evidence) => evidence.doi),
-  ].filter((doi): doi is string => Boolean(doi));
+  const dois = insight.evidence
+    .map((evidence) => evidence.doi)
+    .filter((doi): doi is string => Boolean(doi));
   return dois.filter(
     (doi, index) => dois.findIndex(
       (candidate) => normalizedDoi(candidate) === normalizedDoi(doi),
@@ -111,16 +110,11 @@ function paperEvidence(
   insight: InventoryInsightRecord,
   doi: string,
 ): InventoryEvidence[] {
-  const matching = (insight.evidence ?? []).filter(
+  return insight.evidence.filter(
     (evidence) =>
       evidence.quote
-      && normalizedDoi(evidence.doi ?? insight.doi ?? '') === normalizedDoi(doi),
+      && normalizedDoi(evidence.doi ?? '') === normalizedDoi(doi),
   );
-  if (matching.length) return matching;
-  return insight.quote && insight.doi
-    && normalizedDoi(insight.doi) === normalizedDoi(doi)
-    ? [{ doi: insight.doi, quote: insight.quote, page: insight.page }]
-    : [];
 }
 
 export function paperRecords(
@@ -133,19 +127,19 @@ export function paperRecords(
   const decisions = new Map<string, InventoryDecisionRecord>();
 
   for (const candidate of scopes) {
-    for (const record of inventoryRecordsOfKind(candidate, 'decision')) {
-      decisions.set(record.path, record);
+    for (const record of inventoryRecordsOfKind(candidate, 'decision', model)) {
+      decisions.set(record.id, record);
     }
-    for (const record of inventoryRecordsOfKind(candidate, 'prior_insight')) {
-      insights.set(record.path, record);
+    for (const record of inventoryRecordsOfKind(candidate, 'prior_insight', model)) {
+      insights.set(record.id, record);
     }
   }
 
-  if (scope.parent) {
+  if (scope.parentId) {
     for (const decision of decisions.values()) {
-      const decisionScope = model.recordByPath.get(decision.path)?.scope ?? scope;
+      const decisionScope = model.scopeById.get(decision.scopeId) ?? scope;
       for (const insight of inventoryDecisionInsights(model, decisionScope, decision)) {
-        insights.set(insight.path, insight);
+        insights.set(insight.id, insight);
       }
     }
   }
@@ -156,7 +150,7 @@ export function paperRecords(
     for (const doi of insightDois(insight)) {
       const key = normalizedDoi(doi);
       const paper = papers.get(key) ?? paperFromDoi(doi, paperMetadata);
-      if (!paper.insights.some((candidate) => candidate.path === insight.path)) {
+      if (!paper.insights.some((candidate) => candidate.id === insight.id)) {
         paper.insights.push(insight);
       }
       papers.set(key, paper);
@@ -164,7 +158,7 @@ export function paperRecords(
   }
 
   for (const decision of decisions.values()) {
-    const decisionScope = model.recordByPath.get(decision.path)?.scope ?? scope;
+    const decisionScope = model.scopeById.get(decision.scopeId) ?? scope;
     const dois = new Set(
       inventoryDecisionInsights(model, decisionScope, decision)
         .flatMap(insightDois)
@@ -251,7 +245,7 @@ export function PaperDialog({
               {paper.insights.map((insight) => {
                 const evidence = paperEvidence(insight, paper.doi);
                 return (
-                  <li key={insight.path} className="astra-evidence__item inventory-paper-insight">
+                  <li key={insight.id} className="astra-evidence__item inventory-paper-insight">
                     <InsightDetailTrigger
                       insight={insight}
                       tag=""
@@ -271,7 +265,7 @@ export function PaperDialog({
                           <div>
                             {evidence.map((source, index) => (
                               <button
-                                key={`${insight.path}-${index}`}
+                                key={`${insight.id}-${index}`}
                                 type="button"
                                 className="inventory-paper-insight__locate"
                                 onClick={() => focusInsight(insight, source)}
@@ -299,7 +293,7 @@ export function PaperDialog({
             title="Informs decisions"
             className="inventory-record-detail__relations inventory-paper-informs"
             items={paper.decisions.map((decision) => ({
-              key: decision.path,
+              key: decision.id,
               label: inventoryRecordTitle(decision),
               kind: 'decision',
               accessibleLabel: `View decision: ${inventoryRecordTitle(decision)}`,

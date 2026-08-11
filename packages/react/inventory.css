@@ -90,7 +90,7 @@
 }
 
 .astra-ui .inventory-project-structure > header > div > span {
-  color: var(--astra-accent);
+  color: var(--astra-action);
   font-family: var(--astra-label);
   font-size: 0.63rem;
   font-weight: 700;
@@ -148,19 +148,19 @@
   overflow: hidden;
   border: 1px solid var(--astra-rule);
   border-radius: 0.45rem;
-  background: var(--astra-surface);
+  background: var(--astra-raised);
   color: var(--astra-ink);
   transition: border-color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
 }
 
 .astra-ui .inventory-output-card:hover {
   transform: translateY(-2px);
-  border-color: color-mix(in srgb, var(--astra-accent) 62%, var(--astra-rule));
+  border-color: color-mix(in srgb, var(--astra-action) 62%, var(--astra-rule));
   box-shadow: 0 0.65rem 1.6rem rgba(34, 31, 32, 0.09);
 }
 
 .astra-ui .inventory-output-card:focus-visible {
-  outline: 2px solid var(--astra-accent);
+  outline: 2px solid var(--astra-action);
   outline-offset: 3px;
 }
 
@@ -172,7 +172,7 @@
   justify-content: center;
   overflow: hidden;
   border-bottom: 1px solid var(--astra-rule);
-  background: var(--astra-paper);
+  background: var(--astra-panel);
 }
 
 .astra-ui .inventory-output-card__preview > img {
@@ -188,7 +188,7 @@
   top: 0.55rem;
   right: 0.55rem;
   border-radius: 99px;
-  background: color-mix(in srgb, var(--astra-paper) 88%, transparent);
+  background: color-mix(in srgb, var(--astra-panel) 88%, transparent);
   color: var(--astra-ink-soft);
   padding: 0.25rem 0.5rem;
   font-family: var(--astra-label);
@@ -210,7 +210,7 @@
 }
 
 .astra-ui .inventory-output-card__kind {
-  color: var(--astra-accent);
+  color: var(--astra-action);
   font-family: var(--astra-label);
   font-size: 0.65rem;
   font-weight: 700;
@@ -380,7 +380,7 @@
 .astra-ui .inventory-record-list__body > button:hover { background: var(--astra-accent-soft); }
 .astra-ui .inventory-record-list__body > button:focus-visible {
   position: relative;
-  outline: 2px solid var(--astra-accent);
+  outline: 2px solid var(--astra-action);
   outline-offset: -2px;
 }
 
@@ -457,7 +457,7 @@
 
 .astra-ui .inventory-record-list__selected {
   display: block;
-  color: var(--astra-accent);
+  color: var(--astra-action);
   font-family: var(--astra-label);
   font-size: 0.72rem;
   font-weight: 700;
@@ -529,7 +529,7 @@
   cursor: pointer;
   border: 1px solid var(--astra-rule-strong);
   border-radius: 0.28rem;
-  background: var(--astra-paper);
+  background: var(--astra-panel);
   color: var(--astra-ink);
   padding: 0.42rem 2rem 0.42rem 0.58rem;
   font-family: var(--astra-label);
@@ -537,7 +537,7 @@
 }
 
 .astra-ui .inventory-record-filter select:focus-visible {
-  outline: 2px solid var(--astra-accent);
+  outline: 2px solid var(--astra-action);
   outline-offset: 2px;
 }
 

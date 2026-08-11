@@ -1,7 +1,7 @@
 import type { CSSProperties, ReactNode, Ref } from 'react';
 import { useEffect, useId, useRef } from 'react';
 import { IconButton, SurfaceHeader } from '../ui.js';
-import type { InventoryKind } from './types.js';
+import type { InventoryKind } from '../types.js';
 
 export interface InventoryListColumn {
   label?: string | undefined;

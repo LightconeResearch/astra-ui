@@ -190,7 +190,7 @@
   overflow: hidden;
   border: 1px solid var(--astra-rule-strong);
   border-radius: 0.65rem;
-  background: var(--astra-paper);
+  background: var(--astra-panel);
   box-shadow: 0 1.5rem 5rem rgba(20, 18, 19, 0.34);
 }
 
@@ -206,7 +206,7 @@
 
 .astra-ui .inventory-detail-dialog__header > div:first-child { display: grid; min-width: 0; gap: 0.2rem; }
 .astra-ui .inventory-detail-dialog__header > div:first-child > span {
-  color: var(--astra-accent);
+  color: var(--astra-action);
   font-family: var(--astra-label);
   font-size: 0.67rem;
   font-weight: 700;
@@ -239,14 +239,14 @@
   place-items: center;
   border: 1px solid var(--astra-rule-strong);
   border-radius: 50%;
-  background: var(--astra-paper);
+  background: var(--astra-panel);
   color: var(--astra-ink);
   font-size: 1.25rem;
   line-height: 1;
 }
 
-.astra-ui .inventory-detail-dialog__actions > button:hover { border-color: var(--astra-accent); }
-.astra-ui .inventory-detail-dialog__actions > button:focus-visible { outline: 2px solid var(--astra-accent); outline-offset: 2px; }
+.astra-ui .inventory-detail-dialog__actions > button:hover { border-color: var(--astra-action); }
+.astra-ui .inventory-detail-dialog__actions > button:focus-visible { outline: 2px solid var(--astra-action); outline-offset: 2px; }
 
 .astra-ui .inventory-detail-dialog__body {
   display: flex;
@@ -325,7 +325,7 @@
   place-items: center;
   border: 1px solid var(--astra-rule-strong);
   border-radius: 0.22rem;
-  background: var(--astra-paper);
+  background: var(--astra-panel);
   color: var(--astra-ink);
   font: inherit;
 }
@@ -420,7 +420,7 @@
   overscroll-behavior: contain;
   scrollbar-gutter: stable;
   border-left: 1px solid var(--astra-rule);
-  background: var(--astra-surface);
+  background: var(--astra-raised);
   padding: 1.35rem 1.2rem;
 }
 
@@ -510,7 +510,7 @@
 
 .astra-ui .inventory-insight-trigger:focus-visible {
   border-radius: 0.18rem;
-  outline: 2px solid var(--astra-accent);
+  outline: 2px solid var(--astra-action);
   outline-offset: 2px;
 }
 
@@ -563,7 +563,7 @@
 .astra-ui .inventory-insight-detail__source-quote blockquote {
   margin: 0;
   border-left: 3px solid var(--astra-c-insight);
-  background: var(--astra-surface);
+  background: var(--astra-raised);
   color: var(--astra-ink-soft);
   padding: 0.85rem 1rem;
   font-family: var(--astra-serif);
@@ -580,7 +580,7 @@
   cursor: pointer;
   border: 1px solid var(--astra-rule-strong);
   border-radius: 0.25rem;
-  background: var(--astra-paper);
+  background: var(--astra-panel);
   color: var(--astra-link);
   padding: 0.38rem 0.58rem;
   font-family: var(--astra-label);
@@ -589,7 +589,7 @@
 
 .astra-ui .inventory-insight-detail__open-source:hover { border-color: var(--astra-link); }
 .astra-ui .inventory-insight-detail__open-source:focus-visible {
-  outline: 2px solid var(--astra-accent);
+  outline: 2px solid var(--astra-action);
   outline-offset: 2px;
 }
 
@@ -633,12 +633,12 @@
   overscroll-behavior: contain;
   scrollbar-gutter: stable;
   border-left: 1px solid var(--astra-rule);
-  background: var(--astra-surface);
+  background: var(--astra-raised);
   padding: 1.35rem 1.2rem;
 }
 
 .astra-ui .inventory-record-detail__prose > span {
-  color: var(--astra-accent);
+  color: var(--astra-action);
   font-family: var(--astra-label);
   font-size: 0.68rem;
   font-weight: 700;
@@ -696,22 +696,22 @@
   align-items: start;
   border: 1px solid var(--astra-rule);
   border-radius: 0.3rem;
-  background: var(--astra-paper);
+  background: var(--astra-panel);
   padding: 0.6rem 0.7rem;
 }
 
 .astra-ui .inventory-decision-options li.is-selected {
-  border-color: color-mix(in srgb, var(--astra-accent) 45%, var(--astra-rule));
-  background: var(--astra-paper);
+  border-color: color-mix(in srgb, var(--astra-action) 45%, var(--astra-rule));
+  background: var(--astra-panel);
 }
 
 .astra-ui .inventory-decision-options__marker { color: var(--astra-muted); }
-.astra-ui .inventory-decision-options li.is-selected .inventory-decision-options__marker { color: var(--astra-accent); }
+.astra-ui .inventory-decision-options li.is-selected .inventory-decision-options__marker { color: var(--astra-action); }
 .astra-ui .inventory-decision-options li > span:nth-child(2) { display: grid; min-width: 0; gap: 0.12rem; }
 .astra-ui .inventory-decision-options strong { font-family: var(--astra-label); font-size: 0.8rem; }
 .astra-ui .inventory-decision-options code { color: var(--astra-muted); font-size: 0.62rem; }
 .astra-ui .inventory-decision-options small {
-  color: var(--astra-accent);
+  color: var(--astra-action);
   font-family: var(--astra-label);
   font-size: 0.62rem;
   font-weight: 700;
@@ -730,7 +730,7 @@
   overflow-wrap: anywhere;
   border: 1px solid var(--astra-rule);
   border-radius: 0.28rem;
-  background: var(--astra-paper);
+  background: var(--astra-panel);
   color: var(--astra-ink-soft);
   padding: 0.55rem;
   font-size: 0.63rem;
@@ -748,7 +748,7 @@
 
 .astra-ui .inventory-count-heading > span {
   border-radius: 99px;
-  background: var(--astra-surface-2);
+  background: var(--astra-hover);
   color: var(--astra-muted);
   padding: 0.08rem 0.4rem;
   font-size: 0.62rem;
@@ -786,11 +786,11 @@
   width: 0.85rem;
   height: 0.85rem;
   margin: 0;
-  accent-color: var(--astra-accent);
+  accent-color: var(--astra-action);
 }
 
 .astra-ui .inventory-dependency-toggle input:focus-visible {
-  outline: 2px solid var(--astra-accent);
+  outline: 2px solid var(--astra-action);
   outline-offset: 2px;
 }
 
@@ -831,7 +831,7 @@
   color: var(--astra-link);
 }
 .astra-ui .inventory-relation-trigger:focus-visible {
-  outline: 2px solid var(--astra-accent);
+  outline: 2px solid var(--astra-action);
   outline-offset: -2px;
 }
 .astra-ui .inventory-relation-trigger > span:last-child {
@@ -929,7 +929,7 @@
   overflow: hidden;
   border: 1px solid var(--astra-rule);
   border-radius: 0.4rem;
-  background: var(--astra-paper);
+  background: var(--astra-panel);
 }
 
 .astra-ui .inventory-finding-evidence-preview__open,
@@ -940,7 +940,7 @@
   align-items: center;
   justify-content: space-between;
   border: 0;
-  background: var(--astra-paper);
+  background: var(--astra-panel);
   color: var(--astra-ink);
   padding: 0.65rem 0.75rem;
   text-align: left;
@@ -957,7 +957,7 @@
 .astra-ui .inventory-finding-evidence-preview__open:focus-visible {
   position: relative;
   z-index: 1;
-  outline: 2px solid var(--astra-accent);
+  outline: 2px solid var(--astra-action);
   outline-offset: -2px;
 }
 
@@ -1014,7 +1014,7 @@
   overflow-wrap: anywhere;
   border: 1px solid var(--astra-rule);
   border-radius: 0.28rem;
-  background: var(--astra-paper);
+  background: var(--astra-panel);
   color: var(--astra-link);
   padding: 0.55rem;
   font-family: var(--astra-mono);
@@ -1070,7 +1070,7 @@
   overflow: hidden;
   border: 1px solid var(--astra-rule);
   border-radius: 0.4rem;
-  background: var(--astra-surface);
+  background: var(--astra-raised);
 }
 
 .astra-ui .inventory-output-dialog__preview.is-table {
@@ -1130,7 +1130,7 @@
   overscroll-behavior: contain;
   scrollbar-gutter: stable;
   border-left: 1px solid var(--astra-rule);
-  background: var(--astra-surface);
+  background: var(--astra-raised);
   padding: 1.35rem 1.2rem;
 }
 
@@ -1145,7 +1145,7 @@
 }
 
 .astra-ui .inventory-output-provenance__header > span {
-  color: var(--astra-accent);
+  color: var(--astra-action);
   font-family: var(--astra-label);
   font-size: 0.68rem;
   font-weight: 700;
@@ -1156,7 +1156,7 @@
 .astra-ui .inventory-output-provenance__header > strong {
   border: 1px solid var(--astra-rule-strong);
   border-radius: 999px;
-  background: var(--astra-paper);
+  background: var(--astra-panel);
   color: var(--astra-muted);
   padding: 0.2rem 0.45rem;
   font-family: var(--astra-label);
@@ -1227,7 +1227,7 @@
   overflow: auto;
   border: 1px solid var(--astra-rule);
   border-radius: 0.3rem;
-  background: var(--astra-paper);
+  background: var(--astra-panel);
   padding: 0.65rem;
   white-space: pre-wrap;
   word-break: break-word;
@@ -1247,7 +1247,7 @@
   text-align: center;
 }
 
-.astra-ui .inventory-output-file-hero > span { color: var(--astra-accent); font-size: 2rem; }
+.astra-ui .inventory-output-file-hero > span { color: var(--astra-action); font-size: 2rem; }
 .astra-ui .inventory-output-file-hero strong { max-width: 100%; overflow-wrap: anywhere; font-family: var(--astra-label); }
 .astra-ui .inventory-output-file-hero small { color: var(--astra-muted); font-family: var(--astra-mono); }
 
@@ -1315,7 +1315,7 @@
   gap: 8px;
 }
 .astra-ui .astra-evidence__item {
-  background: var(--astra-surface-2);
+  background: var(--astra-hover);
   border-radius: var(--astra-radius);
   padding: 8px 12px;
 }

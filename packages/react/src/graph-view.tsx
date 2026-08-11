@@ -13,11 +13,12 @@ import {
   type ProjectGraphEdge,
   type ProjectGraphNode,
   type ProjectGraphScope,
-  type ProjectRecordView,
-  type ProjectViewModelV1,
-  type RuntimeOverlayV1,
-  type ViewerHost,
-} from '@lightcone-research/astra-ui-model';
+} from './graph.js';
+import type {
+  ProjectRecordView,
+  ProjectViewModelV1,
+} from '@astra-spec/sdk/view-model';
+import type { RuntimeOverlayV1, ViewerHost } from './viewer-types.js';
 import { ResultViewer } from './result-viewer.js';
 import { kindLabel } from './shared.js';
 import {

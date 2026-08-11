@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { InventoryCountHeading } from './InventoryPrimitives.js';
-import type { InventoryKind } from './types.js';
+import type { InventoryKind } from '../types.js';
 
 const RELATION_GLYPHS: Record<InventoryKind | 'paper', string> = {
   analysis: '◐',

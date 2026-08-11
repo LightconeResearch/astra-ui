@@ -16,18 +16,22 @@ import {
   resolveInventoryRecordReference,
   type InventoryModel,
 } from './model.js';
-import type { InventoryRecord, InventoryScope } from './types.js';
+import type {
+  InventoryFindingRecord,
+  InventoryOutputRecord,
+  InventoryScope,
+} from '../types.js';
 
 interface FindingsInventoryProps {
   model: InventoryModel;
   scopeId: string;
-  onOpenFinding: (finding: InventoryRecord, scope: InventoryScope) => void;
+  onOpenFinding: (finding: InventoryFindingRecord, scope: InventoryScope) => void;
 }
 
 interface ResolvedFindingEvidence {
   artifact?: string | undefined;
   quote?: string | undefined;
-  record?: InventoryRecord | undefined;
+  record?: InventoryOutputRecord | undefined;
   scope?: InventoryScope | undefined;
 }
 
@@ -38,16 +42,16 @@ function evidenceLabel(count: number): string {
 function findingEvidence(
   model: InventoryModel,
   scope: InventoryScope,
-  finding: InventoryRecord,
+  finding: InventoryFindingRecord,
 ): ResolvedFindingEvidence[] {
   return (finding.evidence ?? []).map((evidence) => {
-    const resolved = evidence.artifact
-      ? resolveInventoryRecordReference(model, scope, evidence.artifact)
+    const resolved = evidence.artifactRecordId
+      ? resolveInventoryRecordReference(model, scope, evidence.artifactRecordId, 'output')
       : undefined;
     return {
-      artifact: evidence.artifact,
+      artifact: evidence.artifactRecordId,
       quote: evidence.quote,
-      record: resolved?.record,
+      record: resolved?.record.kind === 'output' ? resolved.record : undefined,
       scope: resolved?.scope,
     };
   });
@@ -61,10 +65,10 @@ export function FindingDialog({
   onBack,
   onClose,
 }: {
-  record: InventoryRecord;
+  record: InventoryFindingRecord;
   scope: InventoryScope;
   model: InventoryModel;
-  onOpenEvidence: (output: InventoryRecord, scope: InventoryScope) => void;
+  onOpenEvidence: (output: InventoryOutputRecord, scope: InventoryScope) => void;
   onBack?: (() => void) | undefined;
   onClose: () => void;
 }) {
@@ -74,7 +78,7 @@ export function FindingDialog({
       kind="finding"
       eyebrow={`Finding · ${scope.name}`}
       title={inventoryRecordTitle(record)}
-      identifier={record.label ? record.id : undefined}
+      identifier={record.label ? record.localId : undefined}
       onBack={onBack}
       closeLabel="Close finding details"
       onClose={onClose}
@@ -112,7 +116,7 @@ export function FindingDialog({
                         >
                           <span>
                             <strong>{title}</strong>
-                            <code>{item.record.path}</code>
+                            <code>{item.record.canonicalPath}</code>
                           </span>
                           <span aria-hidden="true">→</span>
                         </button>
@@ -123,7 +127,7 @@ export function FindingDialog({
                         </div>
                       )}
                       {item.record ? (
-                        <div className={`inventory-output-dialog__preview inventory-finding-evidence-preview__media is-${item.record.type ?? 'output'}`}>
+                        <div className={`inventory-output-dialog__preview inventory-finding-evidence-preview__media is-${item.record.outputType}`}>
                           <InventoryArtifactPreview record={item.record} />
                         </div>
                       ) : null}
@@ -148,7 +152,7 @@ export function FindingsInventory({
   onOpenFinding,
 }: FindingsInventoryProps) {
   const scope = getInventoryScope(model, scopeId);
-  const records = scope ? inventoryRecordsOfKind(scope, 'finding') : [];
+  const records = scope ? inventoryRecordsOfKind(scope, 'finding', model) : [];
 
   if (!scope || !records.length) {
     return <InventoryEmptyState>No findings are declared in this analysis.</InventoryEmptyState>;
@@ -167,7 +171,7 @@ export function FindingsInventory({
         rows={records.map((record) => {
           const count = record.evidence?.length ?? 0;
           return {
-            key: record.path,
+            key: record.id,
             accessibleLabel: `${inventoryRecordTitle(record)}: ${record.claim ?? 'Finding claim unavailable'} ${evidenceLabel(count)}`,
             onOpen: () => onOpenFinding(record, scope),
             cells: [

@@ -21,7 +21,6 @@ export {
 } from './InventoryArtifactPreview.js';
 export {
   InventoryExplorer,
-  InventoryOutline,
 } from './InventoryOutline.js';
 export type { InventoryOutlineProps } from './InventoryOutline.js';
 export * from './InventoryPrimitives.js';
@@ -79,4 +78,4 @@ export type {
   InventoryRecordForKind,
   LocatedInventoryRecord,
 } from './model.js';
-export * from './types.js';
+export * from '../types.js';

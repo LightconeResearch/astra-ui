@@ -2,9 +2,8 @@ import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import type {
   ProjectViewModelIndex,
   ProjectViewModelV1,
-  RuntimeOverlayV1,
-  ViewerHost,
-} from '@lightcone-research/astra-ui-model';
+} from '@astra-spec/sdk/view-model';
+import type { RuntimeOverlayV1, ViewerHost } from '../viewer-types.js';
 import { AstraViewerProvider } from '../context.js';
 import { DecisionDialog, DecisionsInventory } from './DecisionsInventory.js';
 import { FindingDialog, FindingsInventory } from './FindingsInventory.js';
@@ -19,6 +18,7 @@ import {
   type InventoryPaperMetadataMap,
 } from './PapersInventory.js';
 import {
+  type InventoryModel,
   createInventoryModel,
   getInventoryScope,
   inventoryScopeForRecord,
@@ -26,19 +26,21 @@ import {
 } from './model.js';
 import { normalizeDoi } from './citationMetadata.js';
 import type {
+  InventoryDecisionRecord,
+  InventoryFindingRecord,
+  InventoryInputRecord,
   InventoryInsightRecord,
   InventoryOpenReference,
-  InventoryRecord,
-  InventorySnapshot,
-} from './types.js';
+  InventoryOutputRecord,
+} from '../types.js';
 
 const EMPTY_PAPER_METADATA: InventoryPaperMetadataMap = {};
 
 type InventoryModalEntry =
-  | { kind: 'output'; record: InventoryRecord; scopeId: string }
-  | { kind: 'decision'; record: InventoryRecord; scopeId: string }
-  | { kind: 'input'; record: InventoryRecord; scopeId: string }
-  | { kind: 'finding'; record: InventoryRecord; scopeId: string }
+  | { kind: 'output'; record: InventoryOutputRecord; scopeId: string }
+  | { kind: 'decision'; record: InventoryDecisionRecord; scopeId: string }
+  | { kind: 'input'; record: InventoryInputRecord; scopeId: string }
+  | { kind: 'finding'; record: InventoryFindingRecord; scopeId: string }
   | { kind: 'insight'; record: InventoryInsightRecord; scopeId: string }
   | {
       kind: 'paper';
@@ -47,10 +49,31 @@ type InventoryModalEntry =
       focusInsight?: InventoryInsightRecord | undefined;
     };
 
+function recordModalEntry(
+  record:
+    | InventoryOutputRecord
+    | InventoryDecisionRecord
+    | InventoryInputRecord
+    | InventoryFindingRecord
+    | InventoryInsightRecord,
+  ownerScopeId: string,
+): InventoryModalEntry {
+  switch (record.kind) {
+    case 'output':
+      return { kind: 'output', record, scopeId: ownerScopeId };
+    case 'decision':
+      return { kind: 'decision', record, scopeId: ownerScopeId };
+    case 'input':
+      return { kind: 'input', record, scopeId: ownerScopeId };
+    case 'finding':
+      return { kind: 'finding', record, scopeId: ownerScopeId };
+    case 'prior_insight':
+      return { kind: 'insight', record, scopeId: ownerScopeId };
+  }
+}
+
 export interface InventoryOutlineProps {
-  snapshot?: InventorySnapshot | undefined;
-  /** Canonical input used by application hosts such as JupyterLab. */
-  model?: ProjectViewModelV1 | ProjectViewModelIndex | undefined;
+  model: ProjectViewModelV1 | ProjectViewModelIndex;
   runtime?: RuntimeOverlayV1 | undefined;
   host?: ViewerHost | undefined;
   scopeId?: string | undefined;
@@ -73,8 +96,13 @@ export interface InventoryOutlineProps {
   ) => void;
 }
 
+interface InventoryExplorerViewProps
+  extends Omit<InventoryOutlineProps, 'model' | 'runtime' | 'host'> {
+  inventory: InventoryModel;
+}
+
 function InventoryExplorerView({
-  snapshot,
+  inventory: model,
   scopeId = 'root',
   paperMetadata = EMPTY_PAPER_METADATA,
   paperPdfAssetBaseUrl,
@@ -83,15 +111,14 @@ function InventoryExplorerView({
   openReference,
   onClose,
   onOpenReference,
-}: InventoryOutlineProps) {
+}: InventoryExplorerViewProps) {
   const [modalStack, setModalStack] = useState<InventoryModalEntry[]>([]);
-  const model = useMemo(() => snapshot ? createInventoryModel(snapshot) : undefined, [snapshot]);
 
   useEffect(() => setModalStack([]), [scopeId]);
   useEffect(() => {
-    if (!model || !openReference) return;
+    if (!openReference) return;
     const fallbackScope = getInventoryScope(model, scopeId)
-      ?? model.snapshot.scopes[0];
+      ?? model.model.scopes[0];
     if (!fallbackScope) return;
     if (openReference.kind === 'paper') {
       const paper = paperRecords(model, fallbackScope, paperMetadata)
@@ -107,26 +134,18 @@ function InventoryExplorerView({
       return;
     }
     const located = (
-      openReference.path
-        ? model.recordByPath.get(openReference.path)
+      openReference.canonicalPath
+        ? model.recordByPath.get(openReference.canonicalPath)
         : undefined
     ) ?? resolveInventoryRecordReference(
       model,
       fallbackScope,
-      openReference.path ?? openReference.id,
+      openReference.canonicalPath ?? openReference.id,
       openReference.kind,
     );
     if (!located || located.record.kind !== openReference.kind) return;
     const { record, scope } = located;
-    if (record.kind === 'prior_insight') {
-      setModalStack([{
-        kind: 'insight',
-        record: record as InventoryInsightRecord,
-        scopeId: scope.id,
-      }]);
-    } else {
-      setModalStack([{ kind: record.kind, record, scopeId: scope.id }]);
-    }
+    setModalStack([recordModalEntry(record, scope.id)]);
   }, [model, openReference, paperMetadata, scopeId]);
 
   const startModal = (entry: InventoryModalEntry) => setModalStack([entry]);
@@ -149,7 +168,7 @@ function InventoryExplorerView({
             ? 'prior_insight'
             : entry.kind,
         id: entry.record.id,
-        path: entry.record.path,
+        canonicalPath: entry.record.canonicalPath,
       },
       entry.scopeId,
     );
@@ -161,13 +180,13 @@ function InventoryExplorerView({
     onClose?.();
   };
   const activeModal = modalStack[modalStack.length - 1];
-  const activeScope = model && activeModal
+  const activeScope = activeModal
     ? getInventoryScope(model, activeModal.scopeId)
     : undefined;
   const backAction = modalStack.length > 1 ? goBack : undefined;
 
   let modal: ReactNode = null;
-  if (model && activeModal && activeScope) {
+  if (activeModal && activeScope) {
     if (activeModal.kind === 'output') {
       modal = (
         <OutputDialog
@@ -180,7 +199,7 @@ function InventoryExplorerView({
               || record.kind === 'input'
               || record.kind === 'decision'
             ) {
-              pushModal({ kind: record.kind, record, scopeId: scope.id });
+              pushModal(recordModalEntry(record, scope.id));
             }
           }}
           onBack={backAction}
@@ -227,7 +246,9 @@ function InventoryExplorerView({
         />
       );
     } else if (activeModal.kind === 'insight') {
-      const insightDoi = activeModal.record.doi;
+      const insightDoi = activeModal.record.evidence.find(
+        (evidence) => evidence.doi,
+      )?.doi;
       const sourcePaper = insightDoi
         ? paperRecords(model, activeScope, paperMetadata)
           .find((paper) => normalizeDoi(paper.doi) === normalizeDoi(insightDoi))
@@ -370,9 +391,6 @@ function InventoryExplorerView({
               <span className="heading-text">{index + 1}. {item.label}</span>
             </h2>
             {item.content}
-            {!model ? (
-              <div className="inventory-outline__empty-slot" aria-hidden="true" />
-            ) : null}
           </section>
         ))}
       </div>
@@ -384,24 +402,19 @@ function InventoryExplorerView({
 /**
  * The complete ASTRA inventory and detail experience.
  *
- * Application hosts pass the canonical model/runtime/host contract. The
- * legacy snapshot prop remains temporarily for MyST fixtures and downstream
- * compatibility while those producers migrate.
+ * Application hosts pass the canonical model/runtime/host contract.
  */
 export function InventoryExplorer(props: InventoryOutlineProps) {
-  const projectedSnapshot = useMemo(
-    () => props.model
-      ? createInventoryModel(props.model, props.runtime).snapshot
-      : props.snapshot,
-    [props.model, props.runtime, props.snapshot],
+  const inventory = useMemo(
+    () => createInventoryModel(props.model, props.runtime),
+    [props.model, props.runtime],
   );
   const view = (
     <InventoryExplorerView
       {...props}
-      snapshot={projectedSnapshot}
+      inventory={inventory}
     />
   );
-  if (!props.model) return view;
   const model = 'model' in props.model ? props.model.model : props.model;
   return (
     <AstraViewerProvider
@@ -413,6 +426,3 @@ export function InventoryExplorer(props: InventoryOutlineProps) {
     </AstraViewerProvider>
   );
 }
-
-/** Backwards-compatible name for the inventory's original public entry point. */
-export const InventoryOutline = InventoryExplorer;

@@ -78,4 +78,4 @@ export type {
   InventoryRecordForKind,
   LocatedInventoryRecord,
 } from './full-inventory/model.js';
-export * from './full-inventory/types.js';
+export * from './types.js';
