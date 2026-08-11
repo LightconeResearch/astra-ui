@@ -45,11 +45,11 @@ exporter.
    through revisions. A changed artifact revision invalidates its preview
    without pretending that `astra.yaml` itself changed.
 
-The current Jupyter adapter has a transitional Python projector because the
-ASTRA CLI does not yet emit a standardized viewer bundle. The compatibility
-projector is isolated at this boundary; the long-term target is for the ASTRA
-SDK/CLI to emit the canonical model input so host implementations do not become
-independent ASTRA parsers.
+Hosts obtain the canonical model from the shared projector in
+`@astra-spec/sdk` (`buildProjectViewModel` over a pluggable file-access
+interface), so host implementations never become independent ASTRA parsers:
+JupyterLab runs it in the browser over the contents API, VSCode and the MyST
+build run it over Node fs.
 
 ## Styling
 
