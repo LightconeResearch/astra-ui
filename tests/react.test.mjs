@@ -251,31 +251,29 @@ test('graph shows the structural ASTRA projection behind an explicit first-run c
   assert.match(html, /DESI demo/);
   assert.match(html, /Clustering ASTRA sub-analysis; click to inspect/);
   assert.match(html, /xi: clustering\.outputs\.xi/);
-  assert.match(html, />From Clustering<\/text>/);
-  assert.doesNotMatch(html, />Sub-analysis · Clustering<\/text>/);
-  assert.doesNotMatch(html, /astra-graph-node__detail[^>]*>Input<\/text>/);
+  assert.match(html, />From Clustering<\/small>/);
+  assert.doesNotMatch(html, />Sub-analysis · Clustering<\/small>/);
+  assert.doesNotMatch(html, /astra-graph-node__detail[^>]*>Input<\/small>/);
   assert.match(html, /data-node-type="scope"/);
   assert.doesNotMatch(html, /visible nodes|canonical links/);
   assert.match(html, /headline/);
   assert.match(html, /Graph grammar/);
   assert.match(html, /aria-haspopup="true"/);
   assert.doesNotMatch(html, /astra-graph__legend-menu/);
-  assert.match(html, /data-edge-kind="scope"/);
-  assert.match(html, /data-edge-kind="flow"[^>]*><title>aliases<\/title>/);
   assert.match(html, /astra-graph__decision-panel/);
   assert.match(html, /data-open="false"/);
   assert.match(html, /aria-label="Expand decisions"/);
   assert.match(html, /aria-expanded="false"/);
   assert.match(html, />1<\/strong>/);
-  assert.match(html, /Graph canvas; drag to pan/);
+  assert.match(html, /Interactive ASTRA graph canvas/);
+  assert.match(html, /react-flow__controls/);
   assert.doesNotMatch(html, /astra-graph__decision-row/);
-  assert.doesNotMatch(html, /class="astra-graph-edge" data-edge-kind="decision"/);
+  assert.doesNotMatch(html, /react-flow__edge[^>]*astra-graph-edge--decision/);
   assert.doesNotMatch(html, /astra-graph__inspector/);
   assert.doesNotMatch(html, /data-kind="prior_insight"/);
   assert.doesNotMatch(html, /data-kind="finding"/);
   assert.doesNotMatch(html, /class="astra-graph-node"[^>]*data-kind="decision"/);
-  assert.match(html, /marker-end="url\(#.*-arrow-/);
-  assert.match(html, / d="M [^"]+ C [^"]+"/);
+  assert.match(html, /react-flow__arrowhead/);
 });
 
 test('grouped records use a stacked kind icon without expanding the graph', () => {

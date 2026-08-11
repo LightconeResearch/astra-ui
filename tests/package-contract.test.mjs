@@ -11,14 +11,14 @@ test('the SDK is the sole owner of the canonical project model', async () => {
   assert.doesNotMatch(viewerTypes, /interface ProjectViewModelV1|interface ProjectRecordView/);
 });
 
-test('the unified UI package uses host React and has no host dependency', async () => {
+test('the unified UI package uses host React and only portable graph dependencies', async () => {
   const manifest = await parse(new URL('../packages/react/package.json', import.meta.url));
   assert.equal(manifest.name, '@lightcone-research/astra-ui');
   assert.equal(manifest.peerDependencies['@astra-spec/sdk'], '^0.0.5');
   assert.equal(manifest.peerDependencies.react, '>=18 <20');
   assert.equal(manifest.peerDependencies['react-dom'], '>=18 <20');
   const names = Object.keys(manifest.dependencies ?? {});
-  assert.deepEqual(names, []);
+  assert.deepEqual(names, ['@dagrejs/dagre', '@xyflow/react']);
   assert.equal(names.some((name) => /jupyter|myst|vscode/i.test(name)), false);
   assert.ok(manifest.exports['./core']);
   assert.equal(manifest.exports['./ui.css'], './ui.css');
@@ -30,6 +30,7 @@ test('graph is portable and contains no host or provider integration', async () 
   const css = await readFile(new URL('../packages/react/styles.css', import.meta.url), 'utf8');
   const views = await readFile(new URL('../packages/react/views.css', import.meta.url), 'utf8');
   const graph = await readFile(new URL('../packages/react/src/graph-view.tsx', import.meta.url), 'utf8');
+  const flow = await readFile(new URL('../packages/react/src/graph-flow.tsx', import.meta.url), 'utf8');
   assert.match(entry, /graph-view/);
   assert.match(css, /views\.css/);
   assert.match(views, /graph\.css/);
@@ -38,6 +39,9 @@ test('graph is portable and contains no host or provider integration', async () 
   assert.match(graph, /onOpenScope/);
   assert.match(graph, />\s*↗\s*</);
   assert.doesNotMatch(graph, /jupyter|myst|vscode|claude|codex|opencode/i);
+  assert.match(flow, /from '@dagrejs\/dagre'/);
+  assert.match(flow, /from '@xyflow\/react'/);
+  assert.doesNotMatch(graph, /setPointerCapture|scrollLeft|onPointerMove|astra-graph__scrollplane/);
 });
 
 test('components layer never imports the application views layer', async () => {

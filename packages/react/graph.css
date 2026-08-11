@@ -1,3 +1,5 @@
+@import '@xyflow/react/dist/style.css';
+
 .astra-ui .astra-graph {
   display: flex;
   min-height: 34rem;
@@ -7,12 +9,6 @@
   border-radius: var(--astra-radius-md);
   background: var(--astra-color-surface-raised);
   color: var(--astra-color-text);
-}
-
-.astra-ui .astra-graph__zoom {
-  display: flex;
-  align-items: center;
-  gap: var(--astra-space-2);
 }
 
 .astra-ui .astra-graph__summary {
@@ -32,7 +28,7 @@
 
 .astra-ui .astra-graph__scope-back:hover { text-decoration: underline; }
 
-.astra-ui :is(.astra-graph__button, .astra-graph__zoom button) {
+.astra-ui .astra-graph__button {
   min-height: 2.35rem;
   padding: 0 0.62rem;
   border: 0;
@@ -45,20 +41,13 @@
   white-space: nowrap;
 }
 
-.astra-ui :is(.astra-graph__button, .astra-graph__zoom button):hover {
+.astra-ui .astra-graph__button:hover {
   background: var(--astra-color-surface-muted);
   color: var(--astra-color-text);
 }
 
 .astra-ui .astra-graph__button:disabled { cursor: default; opacity: 0.55; }
 .astra-ui .astra-graph__actions { gap: 0; }
-.astra-ui .astra-graph__zoom {
-  gap: 0;
-  border-inline: 1px solid var(--astra-color-border);
-}
-.astra-ui .astra-graph__zoom button { padding-inline: var(--astra-space-2); }
-.astra-ui .astra-graph__zoom button + button { border-inline-start: 1px solid var(--astra-color-border); }
-
 .astra-ui .astra-graph__warning {
   padding: var(--astra-space-2) var(--astra-space-3);
   border-block-end: 1px solid color-mix(in srgb, var(--astra-color-warning) 35%, var(--astra-color-border));
@@ -75,83 +64,99 @@
   background: var(--astra-color-surface);
 }
 
-.astra-ui .astra-graph__scrollplane {
+.astra-ui .astra-graph__flow-layer {
   position: absolute;
   inset: 0;
-  overflow: auto;
-  cursor: grab;
-  scrollbar-width: none;
-  touch-action: none;
 }
 
-.astra-ui .astra-graph__scrollplane::-webkit-scrollbar { display: none; }
-.astra-ui .astra-graph__scrollplane.is-panning { cursor: grabbing; user-select: none; }
-
-.astra-ui .astra-graph__canvas {
-  display: block;
-  max-width: none;
-  transition: filter 160ms ease, opacity 160ms ease;
+.astra-ui .astra-graph__flow {
+  position: absolute;
+  inset: 0 0 0 auto;
+  transition: left 160ms ease;
 }
 
-.astra-ui .astra-graph__viewport.is-awaiting-choice .astra-graph__scrollplane {
-  overflow: hidden;
+.astra-ui .astra-graph__flow .react-flow {
+  background: var(--astra-color-surface);
+  color: var(--astra-color-text);
+  font-family: var(--astra-font-ui);
 }
 
-.astra-ui .astra-graph__viewport.is-awaiting-choice
-  :is(.astra-graph__canvas, .astra-graph__decision-panel, .astra-graph__decision-links) {
+.astra-ui .astra-graph__flow-layer[data-awaiting-choice="true"]
+  :is(.astra-graph__flow, .astra-graph__decision-links) {
   filter: grayscale(0.64) blur(0.55px);
   opacity: 0.28;
   pointer-events: none;
   user-select: none;
 }
 
-.astra-ui .astra-graph-edge {
+.astra-ui .astra-graph__flow .react-flow__attribution {
+  color: var(--astra-muted);
+  background: color-mix(in srgb, var(--astra-color-surface-raised) 88%, transparent);
+  font-size: 8px;
+}
+
+.astra-ui .astra-graph__flow .react-flow__controls {
+  overflow: hidden;
+  border: 1px solid var(--astra-color-border-strong);
+  border-radius: 4px;
+  background: var(--astra-color-surface-raised);
+  box-shadow: var(--astra-shadow-raised);
+}
+
+.astra-ui .astra-graph__flow .react-flow__controls-button {
+  border-block-end-color: var(--astra-color-border);
+  background: var(--astra-color-surface-raised);
+  color: var(--astra-color-text-muted);
+  fill: currentcolor;
+}
+
+.astra-ui .astra-graph__flow .react-flow__controls-button:hover {
+  background: var(--astra-color-surface-muted);
+  color: var(--astra-color-text);
+}
+
+.astra-ui .astra-graph-edge .react-flow__edge-path,
+.astra-ui path.astra-graph-edge {
   fill: none;
   stroke-width: 1.45;
   opacity: 0.68;
   transition: opacity 140ms ease, stroke-width 140ms ease;
 }
 
-.astra-ui .astra-graph-edge[data-edge-kind="flow"] { stroke: var(--astra-muted); }
-.astra-ui .astra-graph-edge__arrow[data-edge-kind="flow"] { fill: var(--astra-muted); }
+.astra-ui .astra-graph-edge--flow .react-flow__edge-path {
+  stroke: var(--astra-muted);
+}
 
-.astra-ui .astra-graph-edge[data-edge-kind="scope"] {
+.astra-ui .astra-graph-edge--scope .react-flow__edge-path {
   stroke: var(--astra-c-analysis);
   stroke-width: 1.65;
   opacity: 0.82;
 }
-.astra-ui .astra-graph-edge__arrow[data-edge-kind="scope"] { fill: var(--astra-c-analysis); }
 
-.astra-ui .astra-graph-edge[data-edge-kind="decision"] {
+.astra-ui :is(
+  .astra-graph-edge--decision .react-flow__edge-path,
+  path.astra-graph-edge--decision
+) {
   stroke: var(--astra-c-decision);
-  opacity: 0;
-  pointer-events: none;
-}
-.astra-ui .astra-graph-edge__arrow[data-edge-kind="decision"] { fill: var(--astra-c-decision); }
-
-.astra-ui .astra-graph-edge[data-edge-kind="decision"] { stroke-dasharray: 3 4; }
-.astra-ui .astra-graph-edge[data-edge-kind="decision"][data-edge-active="true"] {
   stroke-width: 1.85;
+  stroke-dasharray: 3 4;
   opacity: 0.84;
 }
 
-.astra-ui .astra-graph-edge[data-edge-kind="evidence"] { stroke: var(--astra-c-insight); }
-.astra-ui .astra-graph-edge__arrow[data-edge-kind="evidence"] { fill: var(--astra-c-insight); }
-
-.astra-ui .astra-graph-edge[data-edge-kind="evidence"] { stroke-dasharray: 1 4; }
-
-.astra-ui .astra-graph-edge[data-edge-kind="reference"] { stroke: var(--astra-c-analysis); }
-.astra-ui .astra-graph-edge__arrow[data-edge-kind="reference"] { fill: var(--astra-c-analysis); }
-
-.astra-ui .astra-graph-edge[data-edge-kind="reference"] { stroke-dasharray: 7 3; }
-.astra-ui .astra-graph-edge__arrow { stroke: none !important; }
-
-.astra-ui .astra-graph-node {
-  --astra-graph-kind: var(--astra-color-text-muted);
-  cursor: pointer;
-  outline: none;
+.astra-ui .astra-graph-edge--evidence .react-flow__edge-path {
+  stroke: var(--astra-c-insight);
+  stroke-dasharray: 1 4;
 }
 
+.astra-ui .astra-graph-edge--reference .react-flow__edge-path {
+  stroke: var(--astra-c-analysis);
+  stroke-dasharray: 7 3;
+}
+
+.astra-ui .astra-graph-edge__arrow {
+  fill: var(--astra-c-decision);
+  stroke: none;
+}
 .astra-ui .astra-graph__decision-panel {
   box-sizing: border-box;
   position: absolute;
@@ -296,6 +301,41 @@
   font-size: 8.5px;
 }
 
+.astra-ui .react-flow__node-astra {
+  width: 220px;
+  height: 54px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.astra-ui .astra-graph-node {
+  --astra-graph-kind: var(--astra-color-text-muted);
+  box-sizing: border-box;
+  display: grid;
+  width: 100%;
+  height: 100%;
+  grid-template-columns: 1rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--astra-color-surface) 90%, transparent);
+  color: var(--astra-color-text);
+  cursor: pointer;
+  font: inherit;
+  text-align: start;
+}
+
+.astra-ui .astra-graph-node:hover,
+.astra-ui .astra-graph-node:focus-visible {
+  border-color: color-mix(in srgb, var(--astra-graph-kind) 62%, transparent);
+  background: var(--astra-color-surface-raised);
+  box-shadow: 0 3px 12px color-mix(in srgb, var(--astra-graph-kind) 12%, transparent);
+  outline: none;
+}
+
 .astra-ui .astra-graph-node[data-kind="input"] { --astra-graph-kind: var(--astra-c-input); }
 .astra-ui .astra-graph-node[data-kind="analysis"] { --astra-graph-kind: var(--astra-c-analysis); }
 .astra-ui .astra-graph-node[data-kind="decision"] { --astra-graph-kind: var(--astra-c-decision); }
@@ -303,89 +343,104 @@
 .astra-ui .astra-graph-node[data-kind="finding"] { --astra-graph-kind: var(--astra-c-finding); }
 .astra-ui .astra-graph-node[data-kind="prior_insight"] { --astra-graph-kind: var(--astra-c-insight); }
 
-.astra-ui .astra-graph-node__focus {
-  fill: none;
-  stroke: var(--astra-graph-kind);
-  stroke-width: 2;
+.astra-ui .astra-graph-node__handle {
+  width: 1px;
+  height: 1px;
+  border: 0;
   opacity: 0;
-  transition: opacity 120ms ease;
+  visibility: hidden;
 }
 
-.astra-ui .astra-graph-node:hover .astra-graph-node__focus,
-.astra-ui .astra-graph-node:focus-visible .astra-graph-node__focus {
-  opacity: 1;
+.astra-ui .astra-graph-node__glyph {
+  position: relative;
+  display: grid;
+  width: 1rem;
+  height: 1rem;
+  place-items: center;
 }
 
 .astra-ui .astra-graph-node__mark {
-  fill: var(--astra-graph-kind);
-  stroke: var(--astra-graph-kind);
-}
-
-.astra-ui .astra-graph-node[data-kind="decision"] .astra-graph-node__mark {
-  fill: var(--astra-color-surface);
-  stroke-width: 2;
-}
-
-.astra-ui .astra-graph-node[data-node-type="group"] .astra-graph-node__mark {
-  fill: var(--astra-color-surface);
-  stroke-width: 1.65;
-}
-
-.astra-ui .astra-graph-node[data-node-type="group"]
-  .astra-graph-node__mark--group-back {
-  opacity: 0.72;
-}
-
-.astra-ui .astra-graph-node[data-node-type="group"]
-  .astra-graph-node__mark--group-front {
-  fill: color-mix(in srgb, var(--astra-graph-kind) 14%, var(--astra-color-surface));
+  box-sizing: border-box;
+  display: block;
+  width: 0.72rem;
+  height: 0.72rem;
+  border: 2px solid var(--astra-graph-kind);
+  border-radius: 50%;
+  background: var(--astra-graph-kind);
 }
 
 .astra-ui .astra-graph-node[data-node-type="scope"] .astra-graph-node__mark {
-  fill: var(--astra-color-surface-raised);
-  stroke-width: 2;
+  border-radius: 3px;
+  background: var(--astra-color-surface-raised);
+}
+
+.astra-ui .astra-graph-node[data-kind="decision"] .astra-graph-node__mark {
+  border-radius: 1px;
+  background: var(--astra-color-surface-raised);
+  transform: rotate(45deg);
+}
+
+.astra-ui .astra-graph-node__group-mark {
+  position: relative;
+  display: block;
+  width: 1rem;
+  height: 1rem;
+}
+
+.astra-ui .astra-graph-node__group-mark .astra-graph-node__mark {
+  position: absolute;
+  width: 0.62rem;
+  height: 0.62rem;
+  background: var(--astra-color-surface-raised);
+}
+
+.astra-ui .astra-graph-node__mark--group-back {
+  inset: 0 auto auto 0;
+  opacity: 0.72;
+}
+
+.astra-ui .astra-graph-node__mark--group-front {
+  inset: auto 0 0 auto;
+  background: color-mix(in srgb, var(--astra-graph-kind) 14%, var(--astra-color-surface));
+}
+
+.astra-ui .astra-graph-node__copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.08rem;
+}
+
+.astra-ui :is(
+  .astra-graph-node__label,
+  .astra-graph-node__detail,
+  .astra-graph-node__scope
+) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .astra-ui .astra-graph-node__label {
-  fill: var(--astra-color-text);
+  color: var(--astra-color-text);
   font-size: 11.5px;
   font-weight: 650;
-  paint-order: stroke;
-  stroke: var(--astra-color-surface);
-  stroke-linejoin: round;
-  stroke-width: 4px;
-}
-
-.astra-ui .astra-graph-node[data-kind="decision"] .astra-graph-node__label {
-  fill: var(--astra-c-decision-ink);
-  font-family: var(--astra-font-mono);
-  font-size: 10.5px;
-  font-weight: 550;
 }
 
 .astra-ui .astra-graph-node__detail {
-  fill: var(--astra-muted);
+  color: var(--astra-muted);
   font-size: 8.5px;
   font-weight: 500;
   letter-spacing: 0.015em;
-  paint-order: stroke;
-  stroke: var(--astra-color-surface);
-  stroke-linejoin: round;
-  stroke-width: 3px;
 }
 
 .astra-ui .astra-graph-node__scope {
-  fill: var(--astra-c-analysis);
+  color: var(--astra-c-analysis);
   font-size: 8px;
   font-weight: 800;
   letter-spacing: 0.08em;
-  paint-order: stroke;
-  stroke: var(--astra-color-surface);
-  stroke-linejoin: round;
-  stroke-width: 3px;
   text-transform: uppercase;
 }
-
 .astra-ui .astra-graph__legend {
   position: relative;
 }

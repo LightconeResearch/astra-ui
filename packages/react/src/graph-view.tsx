@@ -1,11 +1,9 @@
 import {
+  useCallback,
   useEffect,
   useId,
   useMemo,
-  useRef,
   useState,
-  type MouseEvent as ReactMouseEvent,
-  type PointerEvent as ReactPointerEvent,
 } from 'react';
 import {
   buildProjectGraph,
@@ -14,6 +12,7 @@ import {
   type ProjectGraphNode,
   type ProjectGraphScope,
 } from './graph.js';
+import { GraphFlowCanvas } from './graph-flow.js';
 import type {
   ProjectRecordView,
   ProjectViewModelV1,
@@ -28,24 +27,10 @@ import {
   type SurfaceKind,
 } from './ui.js';
 
-const HORIZONTAL_GAP = 230;
-const VERTICAL_GAP = 116;
-const RIGHT_GUTTER = 84;
-const CANVAS_PADDING_Y = 72;
-const NODE_RADIUS = 7;
 const DECISION_PANEL_WIDTH = 264;
 const DECISION_PANEL_COLLAPSED_WIDTH = 44;
 const DECISION_PANEL_HEADER_HEIGHT = 42;
 const DECISION_PANEL_ROW_HEIGHT = 38;
-
-type EdgeVisualKind = 'flow' | 'scope' | 'decision' | 'evidence' | 'reference';
-
-interface PositionedNode {
-  node: ProjectGraphNode;
-  scope?: ProjectGraphScope;
-  x: number;
-  y: number;
-}
 
 interface DisplayGraph {
   nodes: ProjectGraphNode[];
@@ -54,12 +39,6 @@ interface DisplayGraph {
   decisionEdges: ProjectGraphEdge[];
 }
 
-interface GraphLayout {
-  width: number;
-  height: number;
-  nodes: PositionedNode[];
-  nodeById: ReadonlyMap<string, PositionedNode>;
-}
 
 interface ActiveNodePopover {
   nodeId: string;
@@ -94,107 +73,6 @@ function decisionPanelGraph(
   return { nodes: visibleNodes, edges: visibleEdges, decisions, decisionEdges };
 }
 
-function kindRank(kind: ProjectGraphNode['kind']): number {
-  if (kind === 'input' || kind === 'prior_insight') return 0;
-  if (kind === 'decision' || kind === 'analysis') return 1;
-  if (kind === 'output') return 2;
-  return 3;
-}
-
-function nodeRanks(
-  nodes: readonly ProjectGraphNode[],
-  edges: readonly ProjectGraphEdge[],
-): ReadonlyMap<string, number> {
-  const ranks = new Map(nodes.map((node) => [node.id, kindRank(node.kind)]));
-  const indegree = new Map(nodes.map((node) => [node.id, 0]));
-  const outgoing = new Map<string, ProjectGraphEdge[]>();
-  for (const edge of edges) {
-    indegree.set(edge.targetNodeId, (indegree.get(edge.targetNodeId) ?? 0) + 1);
-    const next = outgoing.get(edge.sourceNodeId) ?? [];
-    next.push(edge);
-    outgoing.set(edge.sourceNodeId, next);
-  }
-  const pending = nodes
-    .filter((node) => indegree.get(node.id) === 0)
-    .map((node) => node.id);
-  while (pending.length) {
-    const source = pending.shift()!;
-    for (const edge of outgoing.get(source) ?? []) {
-      ranks.set(
-        edge.targetNodeId,
-        Math.max(ranks.get(edge.targetNodeId) ?? 0, (ranks.get(source) ?? 0) + 1),
-      );
-      const nextIndegree = (indegree.get(edge.targetNodeId) ?? 1) - 1;
-      indegree.set(edge.targetNodeId, nextIndegree);
-      if (nextIndegree === 0) pending.push(edge.targetNodeId);
-    }
-  }
-  return ranks;
-}
-
-function layoutGraph(
-  nodes: readonly ProjectGraphNode[],
-  edges: readonly ProjectGraphEdge[],
-  scopes: readonly ProjectGraphScope[],
-  decisionPanelOpen: boolean,
-  decisionCount: number,
-): GraphLayout {
-  const scopeById = new Map(scopes.map((scope) => [scope.id, scope]));
-  const ranks = nodeRanks(nodes, edges);
-  const layers = new Map<number, ProjectGraphNode[]>();
-  for (const node of nodes) {
-    const rank = ranks.get(node.id) ?? kindRank(node.kind);
-    const layer = layers.get(rank) ?? [];
-    layer.push(node);
-    layers.set(rank, layer);
-  }
-  const layerEntries = [...layers.entries()].sort(([left], [right]) => left - right);
-  for (const [, layer] of layerEntries) {
-    layer.sort((left, right) => {
-      const leftScope = scopeById.get(left.scopeId);
-      const rightScope = scopeById.get(right.scopeId);
-      return (leftScope?.depth ?? 0) - (rightScope?.depth ?? 0)
-        || (leftScope?.canonicalPath ?? '').localeCompare(rightScope?.canonicalPath ?? '')
-        || left.kind.localeCompare(right.kind)
-        || left.label.localeCompare(right.label);
-    });
-  }
-
-  const maxLayerSize = Math.max(1, ...layerEntries.map(([, layer]) => layer.length));
-  const graphSpan = Math.max(0, maxLayerSize - 1) * HORIZONTAL_GAP;
-  const leftGutter = decisionCount
-    ? decisionPanelOpen ? DECISION_PANEL_WIDTH + 80 : DECISION_PANEL_COLLAPSED_WIDTH + 60
-    : 84;
-  const width = Math.max(960, leftGutter + graphSpan + RIGHT_GUTTER + 180);
-  const positions: PositionedNode[] = [];
-  for (const [rank, layer] of layerEntries) {
-    const span = Math.max(0, layer.length - 1) * HORIZONTAL_GAP;
-    const available = width - leftGutter - RIGHT_GUTTER;
-    const start = leftGutter + (available - span) / 2;
-    layer.forEach((node, index) => {
-      const scope = scopeById.get(node.scopeId);
-      positions.push({
-        node,
-        ...(scope ? { scope } : {}),
-        x: start + index * HORIZONTAL_GAP,
-        y: CANVAS_PADDING_Y + rank * VERTICAL_GAP,
-      });
-    });
-  }
-  const maxRank = Math.max(0, ...layerEntries.map(([rank]) => rank));
-  const nodeById = new Map(positions.map((positioned) => [positioned.node.id, positioned]));
-  return {
-    width,
-    height: Math.max(
-      520,
-      CANVAS_PADDING_Y * 2 + maxRank * VERTICAL_GAP + 72,
-      ...positions.map((positioned) => positioned.y + 72),
-    ),
-    nodes: positions,
-    nodeById,
-  };
-}
-
 function statusCopy(status: GraphOrganizationStatus): string | undefined {
   if (status === 'stale_valid') {
     return 'The saved organization predates the current ASTRA analysis. Valid groups remain applied; new records stay exposed.';
@@ -203,151 +81,6 @@ function statusCopy(status: GraphOrganizationStatus): string | undefined {
     return 'Some saved groups no longer match the ASTRA analysis. Invalid groups have been expanded so no records disappear.';
   }
   return undefined;
-}
-
-function shortLabel(label: string, max = 38): string {
-  return label.length <= max ? label : `${label.slice(0, max - 1)}…`;
-}
-
-function edgeVisualKind(edge: ProjectGraphEdge): EdgeVisualKind {
-  if (edge.projectionRole === 'subanalysis_input') return 'flow';
-  if (edge.relationKinds.includes('contains')) return 'scope';
-  if (edge.relationKinds.includes('depends_on')) return 'flow';
-  if (edge.relationKinds.includes('parameterized_by')) return 'decision';
-  if (
-    edge.relationKinds.includes('informed_by')
-    || edge.relationKinds.includes('evidenced_by')
-  ) return 'evidence';
-  if (
-    edge.relationKinds.includes('aliases')
-    || edge.relationKinds.includes('derived_from')
-  ) return 'reference';
-  return 'flow';
-}
-
-function decisionTracePath(
-  sourceX: number,
-  sourceY: number,
-  targetX: number,
-  targetY: number,
-): string {
-  const direction = sourceX <= targetX ? 1 : -1;
-  const targetEdgeX = targetX - direction * NODE_RADIUS;
-  const bend = Math.max(52, Math.min(160, Math.abs(targetEdgeX - sourceX) * 0.34));
-  return `M ${sourceX} ${sourceY} C ${sourceX + direction * bend} ${sourceY}, ${targetEdgeX - direction * bend} ${targetY}, ${targetEdgeX} ${targetY}`;
-}
-
-function edgePath(
-  source: PositionedNode,
-  target: PositionedNode,
-  visualKind: EdgeVisualKind,
-): string {
-  if (visualKind === 'decision') {
-    const direction = source.x <= target.x ? 1 : -1;
-    const sourceX = source.x + direction * NODE_RADIUS;
-    const targetX = target.x - direction * NODE_RADIUS;
-    const bend = Math.max(52, Math.min(160, Math.abs(targetX - sourceX) * 0.34));
-    return `M ${sourceX} ${source.y} C ${sourceX + direction * bend} ${source.y}, ${targetX - direction * bend} ${target.y}, ${targetX} ${target.y}`;
-  }
-  if (Math.abs(source.y - target.y) < 36) {
-    const direction = source.x <= target.x ? 1 : -1;
-    return `M ${source.x + direction * NODE_RADIUS} ${source.y} L ${target.x - direction * NODE_RADIUS} ${target.y}`;
-  }
-  const downward = target.y >= source.y;
-  const y1 = source.y + (downward ? NODE_RADIUS : -NODE_RADIUS);
-  const y2 = target.y - (downward ? NODE_RADIUS : -NODE_RADIUS);
-  const middle = y1 + (y2 - y1) * 0.52;
-  return `M ${source.x} ${y1} C ${source.x} ${middle}, ${target.x} ${middle}, ${target.x} ${y2}`;
-}
-
-function nodeDetail(positioned: PositionedNode): string | undefined {
-  const { node, scope } = positioned;
-  if (node.nodeType === 'scope') {
-    return `Sub-analysis · ${node.recordCount} records · click to inspect`;
-  }
-  if (node.kind === 'output' && scope?.depth) {
-    return `From ${scope.name}`;
-  }
-  return undefined;
-}
-
-function GraphNodeGlyph({
-  positioned,
-  recordsById,
-  onInspect,
-}: {
-  positioned: PositionedNode;
-  recordsById: ReadonlyMap<string, ProjectRecordView>;
-  onInspect: (node: ProjectGraphNode, x: number, y: number) => void;
-}) {
-  const { node, x, y } = positioned;
-  const record = node.nodeType === 'record' ? recordsById.get(node.recordId) : undefined;
-  const activate = () => onInspect(node, x, y);
-  const title = node.nodeType === 'scope'
-    ? `${node.label} ASTRA sub-analysis; click to inspect`
-    : node.nodeType === 'group'
-    ? `${node.label}: ${node.memberRecordIds.length} grouped records`
-    : `${record?.label ?? node.label}: ${node.canonicalPath}`;
-  return (
-    <g
-      className="astra-graph-node"
-      data-kind={node.kind}
-      data-node-type={node.nodeType}
-      transform={`translate(${x} ${y})`}
-      role="button"
-      tabIndex={0}
-      aria-label={title}
-      onClick={activate}
-      onKeyDown={(event) => {
-        if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault();
-          activate();
-        }
-      }}
-    >
-      <title>{title}</title>
-      <circle className="astra-graph-node__focus" r="13" />
-      {node.nodeType === 'scope' ? (
-        <rect
-          className="astra-graph-node__mark"
-          x="-7"
-          y="-6"
-          width="14"
-          height="12"
-          rx="3"
-        />
-      ) : node.kind === 'decision' ? (
-        <rect
-          className="astra-graph-node__mark"
-          x="-5.5"
-          y="-5.5"
-          width="11"
-          height="11"
-          transform="rotate(45)"
-        />
-      ) : node.nodeType === 'group' ? (
-        <g className="astra-graph-node__group-mark" aria-hidden="true">
-          <circle className="astra-graph-node__mark astra-graph-node__mark--group-back" cx="-3" cy="-3" r="5" />
-          <circle className="astra-graph-node__mark astra-graph-node__mark--group-front" cx="2" cy="2" r="5" />
-        </g>
-      ) : (
-        <circle className="astra-graph-node__mark" r={NODE_RADIUS} />
-      )}
-      {node.nodeType === 'scope' ? (
-        <text className="astra-graph-node__scope" x="12" y="-11">
-          Sub-analysis
-        </text>
-      ) : null}
-      <text className="astra-graph-node__label" x="12" y="4">
-        {shortLabel(node.label)}
-      </text>
-      {nodeDetail(positioned) ? (
-        <text className="astra-graph-node__detail" x="12" y="20">
-          {nodeDetail(positioned)}
-        </text>
-      ) : null}
-    </g>
-  );
 }
 
 function PopoverDismiss({ label, onClose }: { label: string; onClose: () => void }) {
@@ -834,22 +567,9 @@ export function GraphExplorer({
   const [decisionPanelOpen, setDecisionPanelOpen] = useState(false);
   const [selectedDecisionNodeId, setSelectedDecisionNodeId] = useState<string>();
   const [decisionListScrollTop, setDecisionListScrollTop] = useState(0);
-  const [scrollPosition, setScrollPosition] = useState({ left: 0, top: 0 });
-  const [panning, setPanning] = useState(false);
-  const [zoom, setZoom] = useState(1);
   const [legendOpen, setLegendOpen] = useState(false);
   const [organizeError, setOrganizeError] = useState<string>();
   const [organizing, setOrganizing] = useState(false);
-  const viewportRef = useRef<HTMLDivElement>(null);
-  const dragPanRef = useRef<{
-    pointerId: number;
-    originX: number;
-    originY: number;
-    scrollLeft: number;
-    scrollTop: number;
-    moved: boolean;
-  }>();
-  const suppressPanClickRef = useRef(false);
 
   useEffect(() => {
     if (hasOrganization) {
@@ -885,16 +605,6 @@ export function GraphExplorer({
     () => decisionPanelGraph(structuralGraph.nodes, structuralGraph.edges),
     [structuralGraph.edges, structuralGraph.nodes],
   );
-  const layout = useMemo(
-    () => layoutGraph(
-      displayGraph.nodes,
-      displayGraph.edges,
-      graph.scopes,
-      decisionPanelOpen,
-      displayGraph.decisions.length,
-    ),
-    [decisionPanelOpen, displayGraph.decisions.length, displayGraph.edges, displayGraph.nodes, graph.scopes],
-  );
   const recordsById = useMemo(
     () => new Map(model.records.map((record) => [record.id, record])),
     [model.records],
@@ -926,6 +636,16 @@ export function GraphExplorer({
   const parentScope = focusedScope?.parentId
     ? model.scopes.find((scope) => scope.id === focusedScope.parentId)
     : undefined;
+  const graphInsetLeft = displayGraph.decisions.length
+    ? decisionPanelOpen ? DECISION_PANEL_WIDTH : DECISION_PANEL_COLLAPSED_WIDTH
+    : 0;
+  const inspectNode = useCallback((
+    node: ProjectGraphNode,
+    anchorX: number,
+    anchorY: number,
+  ) => {
+    setActiveNodePopover({ nodeId: node.id, anchorX, anchorY });
+  }, []);
 
   useEffect(() => {
     if (
@@ -939,17 +659,6 @@ export function GraphExplorer({
   useEffect(() => {
     if (activeNodePopover && !activePopoverNode) setActiveNodePopover(undefined);
   }, [activeNodePopover, activePopoverNode]);
-
-  useEffect(() => {
-    if (!choiceDismissed || !viewportRef.current) return;
-    const viewport = viewportRef.current;
-    const frame = requestAnimationFrame(() => {
-      viewport.scrollLeft = 0;
-      viewport.scrollTop = 0;
-      setScrollPosition({ left: 0, top: 0 });
-    });
-    return () => cancelAnimationFrame(frame);
-  }, [choiceDismissed, focusedScopeId, useOrganization]);
 
   const organize = async () => {
     if (!onOrganize || organizing) return;
@@ -965,59 +674,12 @@ export function GraphExplorer({
     }
   };
 
-  const beginPan = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (event.button !== 0) return;
-    const target = event.target as Element;
-    if (target.closest('button, a, input, textarea, select, [role="button"]')) return;
-    dragPanRef.current = {
-      pointerId: event.pointerId,
-      originX: event.clientX,
-      originY: event.clientY,
-      scrollLeft: event.currentTarget.scrollLeft,
-      scrollTop: event.currentTarget.scrollTop,
-      moved: false,
-    };
-    event.currentTarget.setPointerCapture(event.pointerId);
-    setPanning(true);
-    event.preventDefault();
-  };
-  const movePan = (event: ReactPointerEvent<HTMLDivElement>) => {
-    const drag = dragPanRef.current;
-    if (!drag || drag.pointerId !== event.pointerId) return;
-    const deltaX = event.clientX - drag.originX;
-    const deltaY = event.clientY - drag.originY;
-    if (Math.hypot(deltaX, deltaY) > 4) drag.moved = true;
-    event.currentTarget.scrollLeft = drag.scrollLeft - deltaX;
-    event.currentTarget.scrollTop = drag.scrollTop - deltaY;
-  };
-  const endPan = (event: ReactPointerEvent<HTMLDivElement>) => {
-    const drag = dragPanRef.current;
-    if (!drag || drag.pointerId !== event.pointerId) return;
-    suppressPanClickRef.current = drag.moved;
-    if (drag.moved) {
-      window.setTimeout(() => {
-        suppressPanClickRef.current = false;
-      }, 0);
-    }
-    dragPanRef.current = undefined;
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    }
-    setPanning(false);
-  };
-  const suppressDraggedClick = (event: ReactMouseEvent<HTMLDivElement>) => {
-    if (!suppressPanClickRef.current) return;
-    event.preventDefault();
-    event.stopPropagation();
-    suppressPanClickRef.current = false;
-  };
   const enterScope = (scopeId: string) => {
     setFocusedScopeId(scopeId);
     setActiveNodePopover(undefined);
     setDecisionPanelOpen(false);
     setSelectedDecisionNodeId(undefined);
     setDecisionListScrollTop(0);
-    setZoom(1);
     setChoiceDismissed(true);
   };
 
@@ -1066,19 +728,6 @@ export function GraphExplorer({
                 {hasOrganization ? 'Refresh with AI' : 'Organize with AI'}
               </button>
             ) : null}
-            <div className="astra-graph__zoom" aria-label="Graph zoom">
-              <button
-                type="button"
-                aria-label="Zoom out"
-                onClick={() => setZoom((value) => Math.max(0.65, value - 0.1))}
-              >−</button>
-              <button type="button" onClick={() => setZoom(1)}>{`${Math.round(zoom * 100)}%`}</button>
-              <button
-                type="button"
-                aria-label="Zoom in"
-                onClick={() => setZoom((value) => Math.min(1.4, value + 0.1))}
-              >+</button>
-            </div>
             <GraphLegend open={legendOpen} onToggle={() => setLegendOpen((value) => !value)} />
           </>
         )}
@@ -1087,120 +736,30 @@ export function GraphExplorer({
       {warning ? <div className="astra-graph__warning" role="status">{warning}</div> : null}
       {organizeError ? <div className="astra-graph__warning" role="alert">{organizeError}</div> : null}
 
-      <div className={`astra-graph__viewport${!choiceDismissed ? ' is-awaiting-choice' : ''}`}>
-        <div
-          ref={viewportRef}
-          className={`astra-graph__scrollplane${panning ? ' is-panning' : ''}`}
-          aria-label="Graph canvas; drag to pan"
-          onScroll={(event) => setScrollPosition({
-            left: event.currentTarget.scrollLeft,
-            top: event.currentTarget.scrollTop,
-          })}
-          onPointerDown={beginPan}
-          onPointerMove={movePan}
-          onPointerUp={endPan}
-          onPointerCancel={endPan}
-          onClickCapture={suppressDraggedClick}
-        >
-          <svg
-            className="astra-graph__canvas"
-            width={layout.width * zoom}
-            height={layout.height * zoom}
-            viewBox={`0 0 ${layout.width} ${layout.height}`}
-            role="img"
-            aria-label={`Graph of ${model.project.name}`}
-          >
-            <defs>
-              {(['flow', 'scope', 'decision', 'evidence', 'reference'] as const).map((kind) => (
-                <marker
-                  key={kind}
-                  id={`${markerBase}-arrow-${kind}`}
-                  viewBox="0 0 7 7"
-                  refX="6"
-                  refY="3.5"
-                  markerWidth="7"
-                  markerHeight="7"
-                  orient="auto"
-                >
-                  <path className="astra-graph-edge__arrow" data-edge-kind={kind} d="M 0 0 L 7 3.5 L 0 7 z" />
-                </marker>
-              ))}
-            </defs>
-            <g className="astra-graph__edges">
-              {displayGraph.edges.map((edge) => {
-                const source = layout.nodeById.get(edge.sourceNodeId);
-                const target = layout.nodeById.get(edge.targetNodeId);
-                if (!source || !target) return null;
-                const visualKind = edgeVisualKind(edge);
-                return (
-                  <path
-                    key={edge.id}
-                    className="astra-graph-edge"
-                    data-edge-kind={visualKind}
-                    data-edge-active="true"
-                    d={edgePath(source, target, visualKind)}
-                    markerEnd={`url(#${markerBase}-arrow-${visualKind})`}
-                  >
-                    <title>{edge.relationKinds.join(', ')}</title>
-                  </path>
-                );
-              })}
-            </g>
-            {layout.nodes.map((positioned) => (
-              <GraphNodeGlyph
-                key={positioned.node.id}
-                positioned={positioned}
-                recordsById={recordsById}
-                onInspect={(node, x, y) => setActiveNodePopover({
-                  nodeId: node.id,
-                  anchorX: x * zoom - scrollPosition.left + 18,
-                  anchorY: y * zoom - scrollPosition.top + 18,
-                })}
-              />
-            ))}
-          </svg>
-        </div>
-
-        {decisionPanelOpen && selectedDecision && selectedDecisionSourceY !== undefined ? (
-          <svg className="astra-graph__decision-links" aria-hidden="true">
-            <defs>
-              <marker
-                id={`${markerBase}-arrow-decision-overlay`}
-                viewBox="0 0 7 7"
-                refX="6"
-                refY="3.5"
-                markerWidth="7"
-                markerHeight="7"
-                orient="auto"
-              >
-                <path className="astra-graph-edge__arrow" data-edge-kind="decision" d="M 0 0 L 7 3.5 L 0 7 z" />
-              </marker>
-            </defs>
-            {displayGraph.decisionEdges
-              .filter((edge) => edge.sourceNodeId === selectedDecision.id)
-              .map((edge) => {
-                const target = layout.nodeById.get(edge.targetNodeId);
-                if (!target) return null;
-                return (
-                  <path
-                    key={`selected-${edge.id}`}
-                    className="astra-graph-edge"
-                    data-edge-kind="decision"
-                    data-edge-active="true"
-                    d={decisionTracePath(
-                      DECISION_PANEL_WIDTH,
-                      selectedDecisionSourceY,
-                      target.x * zoom - scrollPosition.left,
-                      target.y * zoom - scrollPosition.top,
-                    )}
-                    markerEnd={`url(#${markerBase}-arrow-decision-overlay)`}
-                  >
-                    <title>{edge.relationKinds.join(', ')}</title>
-                  </path>
-                );
-              })}
-          </svg>
-        ) : null}
+      <div className="astra-graph__viewport">
+        <GraphFlowCanvas
+          nodes={displayGraph.nodes}
+          edges={displayGraph.edges}
+          scopes={graph.scopes}
+          insetLeft={graphInsetLeft}
+          awaitingChoice={!choiceDismissed}
+          {...(
+            selectedDecision
+            && selectedDecisionSourceY !== undefined
+            ? {
+                decisionTrace: {
+                  markerId: `${markerBase}-arrow-decision-overlay`,
+                  sourceX: DECISION_PANEL_WIDTH,
+                  sourceY: selectedDecisionSourceY,
+                  targetNodeIds: displayGraph.decisionEdges
+                    .filter((edge) => edge.sourceNodeId === selectedDecision.id)
+                    .map((edge) => edge.targetNodeId),
+                },
+              }
+            : {}
+          )}
+          onInspect={inspectNode}
+        />
         <DecisionPanel
           decisions={displayGraph.decisions}
           recordsById={recordsById}
