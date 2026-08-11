@@ -1,14 +1,18 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
-  adaptLegacyInventorySnapshot,
   buildGraphOrganizerBrief,
   buildProjectGraph,
   createProjectViewModelIndex,
   validateProjectViewModel,
 } from '../packages/model/dist/index.js';
 
-export const legacyFixture = {
+/**
+ * Presentation-shape inventory snapshot consumed by the InventoryExplorer /
+ * OverviewInventory `snapshot` prop (the MyST fixture path). Kept alongside
+ * the canonical model fixture below, which is what hosts emit on the wire.
+ */
+export const snapshotFixture = {
   version: 1,
   analysis: {
     id: 'desi-demo',
@@ -114,8 +118,273 @@ export const legacyFixture = {
   diagnostics: [],
 };
 
-test('legacy ASTRA snapshots adapt to one canonical, viewable model', () => {
-  const model = adaptLegacyInventorySnapshot(legacyFixture, {
+/**
+ * The same project as a canonical project-view-model.v1 document — the shape
+ * hosts now emit directly (the JupyterLab server projects ASTRA to this
+ * server-side; see jupyterlab-astra's projector).
+ */
+const canonicalFixture = {
+  schemaVersion: 'project-view-model.v1',
+  revision: { analysis: 'fixture-analysis' },
+  project: {
+    id: 'desi-demo',
+    name: 'DESI demo',
+    description: 'A small nested ASTRA viewer fixture.',
+  },
+  selection: {
+    availableUniverses: [],
+    decisions: {
+      'root:decision:method': 'fiducial',
+      'clustering:decision:weighting': 'fkp',
+    },
+    source: 'unknown',
+  },
+  scopes: [
+    {
+      id: 'root',
+      canonicalPath: 'root',
+      name: 'DESI demo',
+      childIds: ['clustering'],
+      recordIds: [
+        'root:input:catalog',
+        'root:decision:method',
+        'root:prior_insight:published_method',
+        'root:output:headline',
+      ],
+    },
+    {
+      id: 'clustering',
+      canonicalPath: 'clustering',
+      name: 'Clustering',
+      parentId: 'root',
+      childIds: [],
+      recordIds: [
+        'clustering:input:headline_alias',
+        'clustering:decision:method_alias',
+        'clustering:decision:weighting',
+        'clustering:output:xi',
+      ],
+    },
+  ],
+  records: [
+    {
+      id: 'root:input:catalog',
+      localId: 'catalog',
+      canonicalPath: 'inputs.catalog',
+      scopeId: 'root',
+      kind: 'input',
+      description: 'Input catalogue.',
+      relations: [],
+      inputType: 'data',
+    },
+    {
+      id: 'root:decision:method',
+      localId: 'method',
+      canonicalPath: 'decisions.method',
+      scopeId: 'root',
+      kind: 'decision',
+      relations: [],
+      selectedOptionId: 'fiducial',
+      options: [
+        {
+          id: 'fiducial',
+          label: 'Fiducial',
+          selected: true,
+          insightRecordIds: ['root:prior_insight:published_method'],
+        },
+        { id: 'alternate', label: 'Alternate', selected: false },
+      ],
+    },
+    {
+      id: 'root:prior_insight:published_method',
+      localId: 'published_method',
+      canonicalPath: 'prior_insights.published_method',
+      scopeId: 'root',
+      kind: 'prior_insight',
+      relations: [],
+      claim: 'The method is established.',
+      evidence: [{ doi: '10.0000/example' }],
+    },
+    {
+      id: 'root:output:headline',
+      localId: 'headline',
+      canonicalPath: 'outputs.headline',
+      scopeId: 'root',
+      kind: 'output',
+      relations: [
+        {
+          kind: 'depends_on',
+          targetRecordId: 'clustering:output:xi',
+          direct: true,
+        },
+        {
+          kind: 'depends_on',
+          targetRecordId: 'root:input:catalog',
+          direct: false,
+        },
+        {
+          kind: 'parameterized_by',
+          targetRecordId: 'root:decision:method',
+          direct: true,
+        },
+        {
+          kind: 'parameterized_by',
+          targetRecordId: 'clustering:decision:weighting',
+          direct: false,
+        },
+      ],
+      outputType: 'figure',
+      recipe: {
+        command: 'python scripts/render_headline.py --output {output}',
+      },
+      resourceIds: ['resource:headline'],
+      provenance: {
+        inputs: [
+          {
+            reference: 'clustering.xi',
+            recordId: 'clustering:output:xi',
+            direct: true,
+          },
+          {
+            reference: 'catalog',
+            recordId: 'root:input:catalog',
+            label: 'Input catalogue',
+            direct: false,
+          },
+        ],
+        decisions: [
+          {
+            reference: 'method',
+            recordId: 'root:decision:method',
+            selection: 'Fiducial',
+            direct: true,
+          },
+          {
+            reference: 'weighting',
+            recordId: 'clustering:decision:weighting',
+            label: 'Weighting',
+            scopeId: 'clustering',
+            selection: 'FKP',
+            direct: false,
+          },
+        ],
+      },
+    },
+    {
+      id: 'clustering:input:headline_alias',
+      localId: 'headline_alias',
+      canonicalPath: 'clustering.inputs.headline_alias',
+      scopeId: 'clustering',
+      kind: 'input',
+      relations: [
+        {
+          kind: 'aliases',
+          targetRecordId: 'root:output:headline',
+          direct: true,
+        },
+      ],
+    },
+    {
+      id: 'clustering:decision:method_alias',
+      localId: 'method_alias',
+      canonicalPath: 'clustering.decisions.method_alias',
+      scopeId: 'clustering',
+      kind: 'decision',
+      relations: [
+        {
+          kind: 'aliases',
+          targetRecordId: 'root:decision:method',
+          direct: true,
+        },
+      ],
+      options: [],
+    },
+    {
+      id: 'clustering:decision:weighting',
+      localId: 'weighting',
+      canonicalPath: 'clustering.decisions.weighting',
+      scopeId: 'clustering',
+      kind: 'decision',
+      label: 'Weighting',
+      relations: [],
+      selectedOptionId: 'fkp',
+      options: [{ id: 'fkp', label: 'FKP', selected: true }],
+    },
+    {
+      id: 'clustering:output:xi',
+      localId: 'xi',
+      canonicalPath: 'clustering.outputs.xi',
+      scopeId: 'clustering',
+      kind: 'output',
+      relations: [
+        {
+          kind: 'depends_on',
+          targetRecordId: 'root:input:catalog',
+          direct: true,
+        },
+        {
+          kind: 'parameterized_by',
+          targetRecordId: 'clustering:decision:weighting',
+          direct: true,
+        },
+        {
+          kind: 'aliases',
+          targetRecordId: 'root:output:headline',
+          direct: true,
+        },
+      ],
+      outputType: 'table',
+      resourceIds: [],
+      provenance: {
+        inputs: [
+          {
+            reference: 'catalog',
+            recordId: 'root:input:catalog',
+            direct: true,
+          },
+        ],
+        decisions: [
+          {
+            reference: 'weighting',
+            recordId: 'clustering:decision:weighting',
+            direct: true,
+          },
+        ],
+      },
+    },
+  ],
+  resources: [
+    {
+      id: 'resource:headline',
+      kind: 'figure',
+      fileName: 'headline.png',
+      mediaType: 'image/png',
+      revision: 'image-1',
+      availability: 'available',
+      source: 'inferred',
+      outputRecordId: 'root:output:headline',
+    },
+  ],
+  diagnostics: [],
+};
+
+export function fixtureModel(options = {}) {
+  const model = structuredClone(canonicalFixture);
+  if (options.analysisRevision) {
+    model.revision.analysis = options.analysisRevision;
+  }
+  if (options.selectionRevision) {
+    model.revision.selection = options.selectionRevision;
+  }
+  if (options.universeId) {
+    model.selection.universeId = options.universeId;
+    model.selection.source = 'explicit';
+  }
+  return model;
+}
+
+test('the canonical model fixture indexes and validates as one viewable model', () => {
+  const model = fixtureModel({
     analysisRevision: 'analysis-1',
     selectionRevision: 'selection-1',
     universeId: 'baseline',
@@ -142,12 +411,6 @@ test('legacy ASTRA snapshots adapt to one canonical, viewable model', () => {
       ['parameterized_by', 'clustering:decision:weighting', false],
     ],
   );
-  assert.equal(
-    headline.relations.some(
-      (relation) => relation.kind === 'depends_on' && relation.direct === false,
-    ),
-    true,
-  );
   const alias = index.recordByPath.get('clustering.decisions.method_alias').record;
   assert.equal(alias.relations[0].targetRecordId, 'root:decision:method');
   const inputAlias = index.recordByPath.get('clustering.inputs.headline_alias').record;
@@ -158,21 +421,8 @@ test('legacy ASTRA snapshots adapt to one canonical, viewable model', () => {
   assert.deepEqual(validateProjectViewModel(model), []);
 });
 
-test('unresolved legacy relations are viewing diagnostics, not dangling edges', () => {
-  const fixture = structuredClone(legacyFixture);
-  fixture.scopes[0].records.at(-1).inputs = ['missing_output'];
-  const model = adaptLegacyInventorySnapshot(fixture);
-  const headline = model.records.find((record) => record.canonicalPath === 'outputs.headline');
-
-  assert.equal(headline.relations.some((relation) => relation.targetRecordId === 'missing_output'), false);
-  assert.equal(
-    model.diagnostics.some((diagnostic) => diagnostic.code === 'legacy_unresolved_relation'),
-    true,
-  );
-});
-
 test('indexes authored local ids without deriving them from canonical paths', () => {
-  const model = adaptLegacyInventorySnapshot(legacyFixture);
+  const model = fixtureModel();
   const insight = model.records.find(
     (record) => record.kind === 'prior_insight',
   );
@@ -188,9 +438,7 @@ test('indexes authored local ids without deriving them from canonical paths', ()
 });
 
 test('parent graph projects each child scope once and exposes canonical boundary outputs', () => {
-  const model = adaptLegacyInventorySnapshot(legacyFixture, {
-    analysisRevision: 'analysis-graph-1',
-  });
+  const model = fixtureModel({ analysisRevision: 'analysis-graph-1' });
   const graph = buildProjectGraph(model);
   const clusteringOutput = model.records.find(
     (record) => record.canonicalPath === 'clustering.outputs.xi',
@@ -311,18 +559,41 @@ test('parent graph projects each child scope once and exposes canonical boundary
 });
 
 test('organization contracts valid peers without authoring graph edges', () => {
-  const fixture = structuredClone(legacyFixture);
-  fixture.scopes[1].records.push({
-    id: 'xi_alt',
-    path: 'clustering.outputs.xi_alt',
+  const model = fixtureModel({ analysisRevision: 'analysis-graph-2' });
+  model.records.push({
+    id: 'clustering:output:xi_alt',
+    localId: 'xi_alt',
+    canonicalPath: 'clustering.outputs.xi_alt',
+    scopeId: 'clustering',
     kind: 'output',
-    type: 'table',
-    inputs: ['catalog'],
-    decisions: ['weighting'],
+    relations: [
+      {
+        kind: 'depends_on',
+        targetRecordId: 'root:input:catalog',
+        direct: true,
+      },
+      {
+        kind: 'parameterized_by',
+        targetRecordId: 'clustering:decision:weighting',
+        direct: true,
+      },
+    ],
+    outputType: 'table',
+    resourceIds: [],
+    provenance: {
+      inputs: [
+        { reference: 'catalog', recordId: 'root:input:catalog', direct: true },
+      ],
+      decisions: [
+        {
+          reference: 'weighting',
+          recordId: 'clustering:decision:weighting',
+          direct: true,
+        },
+      ],
+    },
   });
-  const model = adaptLegacyInventorySnapshot(fixture, {
-    analysisRevision: 'analysis-graph-2',
-  });
+  model.scopes[1].recordIds.push('clustering:output:xi_alt');
   const organization = {
     schema_version: 'graph-organization.v1',
     source: {
@@ -360,9 +631,7 @@ test('organization contracts valid peers without authoring graph edges', () => {
 });
 
 test('decision groups stay mechanically expanded for the decision list', () => {
-  const model = adaptLegacyInventorySnapshot(legacyFixture, {
-    analysisRevision: 'analysis-decisions-list',
-  });
+  const model = fixtureModel({ analysisRevision: 'analysis-decisions-list' });
   const organization = {
     schema_version: 'graph-organization.v1',
     source: {
@@ -387,9 +656,7 @@ test('decision groups stay mechanically expanded for the decision list', () => {
 });
 
 test('stale and invalid groups degrade without making records disappear', () => {
-  const model = adaptLegacyInventorySnapshot(legacyFixture, {
-    analysisRevision: 'analysis-current',
-  });
+  const model = fixtureModel({ analysisRevision: 'analysis-current' });
   const organization = {
     schema_version: 'graph-organization.v1',
     source: {
@@ -425,9 +692,7 @@ test('stale and invalid groups degrade without making records disappear', () => 
 });
 
 test('graph organizer brief is self-contained and stamped to the analysis', () => {
-  const model = adaptLegacyInventorySnapshot(legacyFixture, {
-    analysisRevision: 'analysis-brief-1',
-  });
+  const model = fixtureModel({ analysisRevision: 'analysis-brief-1' });
   const brief = buildGraphOrganizerBrief(model, {
     entrypoint: 'projects/DESI run/astra.yaml',
     organizationPath: 'projects/DESI run/astra.graph.yaml',

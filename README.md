@@ -11,9 +11,9 @@ engine, or a claim that an analysis is scientifically correct.
 
 | Package | Owns | Does not own |
 | --- | --- | --- |
-| `@lightcone-research/astra-viewer-model` | `ProjectViewModelV1`, runtime/materialization overlay, host capabilities, indexing, viewability diagnostics, compatibility projection | React, filesystem paths, URLs, credentials, artifact bytes |
-| `@lightcone-research/astra-viewer-react` | Inventory, record detail, safe result previews | JupyterLab, MyST, VS Code, chat, file access |
-| `@lightcone-research/astra-viewer-tokens` | Canonical ASTRA component palette with light/dark host detection | Paper layout, inventory layout, application chrome |
+| `@lightcone-research/astra-ui-model` | `ProjectViewModelV1`, runtime/materialization overlay, host capabilities, indexing, viewability diagnostics, compatibility projection | React, filesystem paths, URLs, credentials, artifact bytes |
+| `@lightcone-research/astra-ui-react` | Inventory, record detail, safe result previews | JupyterLab, MyST, VS Code, chat, file access |
+| `@lightcone-research/astra-brand` | Canonical ASTRA component palette with light/dark host detection | Paper layout, inventory layout, application chrome |
 
 The graph view is a structural projection of inputs, decisions, outputs, and
 sub-analyses; prior insights and findings remain available in inventory and
@@ -56,8 +56,8 @@ independent ASTRA parsers.
 Portable viewers import:
 
 ```css
-@import '@lightcone-research/astra-viewer-tokens/theme.css';
-@import '@lightcone-research/astra-viewer-react/styles.css';
+@import '@lightcone-research/astra-brand/theme.css';
+@import '@lightcone-research/astra-ui-react/styles.css';
 ```
 
 The `.astra-viewer` scope keeps the complete ASTRA component palette in every

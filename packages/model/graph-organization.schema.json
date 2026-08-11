@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://lightconeresearch.org/schemas/astra-viewer/graph-organization.v1.json",
+  "$id": "https://lightconeresearch.org/schemas/astra-ui/graph-organization.v1.json",
   "title": "ASTRA viewer graph organization",
   "type": "object",
   "additionalProperties": false,

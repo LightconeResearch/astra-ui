@@ -3,7 +3,7 @@ import type {
   ProjectScopeView,
   ViewerDiagnostic,
   ViewerOpenReference,
-} from '@lightcone-research/astra-viewer-model';
+} from '@lightcone-research/astra-ui-model';
 
 export interface PaperOpenReference {
   kind: 'paper';

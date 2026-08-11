@@ -1,5 +1,5 @@
 {
-  "name": "astra-viewer-workspace",
+  "name": "astra-ui-workspace",
   "version": "0.1.0",
   "private": true,
   "description": "Host-neutral view models and React components for inspecting ASTRA analyses.",
@@ -12,9 +12,9 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "tsc -b packages/model packages/tokens packages/react",
-    "typecheck": "tsc -b packages/model packages/tokens packages/react --pretty false --force",
-    "test": "npm run build && node --test tests/*.test.mjs && npm test -w packages/tokens",
+    "build": "tsc -b packages/model packages/react",
+    "typecheck": "tsc -b packages/model packages/brand packages/react --pretty false --force",
+    "test": "npm run build && node --test tests/*.test.mjs",
     "test:packages": "node --test tests/package-contract.test.mjs"
   },
   "devDependencies": {

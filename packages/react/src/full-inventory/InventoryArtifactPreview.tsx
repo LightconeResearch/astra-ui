@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import type {
   ResourceDescriptor,
   ResourcePreview,
-} from '@lightcone-research/astra-viewer-model';
+} from '@lightcone-research/astra-ui-model';
 import { useOptionalAstraViewer } from '../context.js';
 import { inventoryRecordTitle } from './model.js';
 import type { InventoryRecord } from './types.js';

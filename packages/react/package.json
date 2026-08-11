@@ -1,11 +1,13 @@
 {
-  "name": "@lightcone-research/astra-viewer-react",
+  "name": "@lightcone-research/astra-ui-react",
   "version": "0.1.0",
   "description": "Host-neutral React surfaces for inspecting ASTRA project view models.",
   "license": "BSD-3-Clause",
   "type": "module",
   "sideEffects": [
     "./styles.css",
+    "./components.css",
+    "./views.css",
     "./inventory.css",
     "./graph.css",
     "./ui.css"
@@ -18,7 +20,19 @@
       "import": "./dist/index.js",
       "default": "./dist/index.js"
     },
+    "./components": {
+      "types": "./dist/components.d.ts",
+      "import": "./dist/components.js",
+      "default": "./dist/components.js"
+    },
+    "./views": {
+      "types": "./dist/views.d.ts",
+      "import": "./dist/views.js",
+      "default": "./dist/views.js"
+    },
     "./styles.css": "./styles.css",
+    "./components.css": "./components.css",
+    "./views.css": "./views.css",
     "./inventory.css": "./inventory.css",
     "./graph.css": "./graph.css",
     "./ui.css": "./ui.css"
@@ -26,6 +40,8 @@
   "files": [
     "dist",
     "styles.css",
+    "components.css",
+    "views.css",
     "inventory.css",
     "graph.css",
     "ui.css",
@@ -36,7 +52,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@lightcone-research/astra-viewer-model": "0.1.0"
+    "@lightcone-research/astra-ui-model": "0.1.0"
   },
   "peerDependencies": {
     "react": ">=18 <20",

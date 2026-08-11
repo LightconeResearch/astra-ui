@@ -17,7 +17,7 @@ import {
   type ProjectViewModelV1,
   type RuntimeOverlayV1,
   type ViewerHost,
-} from '@lightcone-research/astra-viewer-model';
+} from '@lightcone-research/astra-ui-model';
 import { ResultViewer } from './result-viewer.js';
 import { kindLabel } from './shared.js';
 import {

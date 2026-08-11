@@ -4,7 +4,7 @@ import {
   type ProjectViewModelIndex,
   type ProjectViewModelV1,
   type RuntimeOverlayV1,
-} from '@lightcone-research/astra-viewer-model';
+} from '@lightcone-research/astra-ui-model';
 
 export type ModelInput = ProjectViewModelV1 | ProjectViewModelIndex;
 

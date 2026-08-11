@@ -842,7 +842,7 @@ export function buildGraphOrganizerBrief(
   options: GraphOrganizerBriefOptions = {},
 ): string {
   const entrypoint = options.entrypoint ?? 'astra.yaml';
-  const organizationPath = options.organizationPath ?? 'astra.graph.yaml';
+  const organizationPath = options.organizationPath ?? '.astra/astra.graph.yaml';
   const index = createProjectViewModelIndex(model);
   const inventory = model.scopes.flatMap((scope) => {
     const records = scope.recordIds

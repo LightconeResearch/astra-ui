@@ -5,7 +5,7 @@ import {
   type RuntimeOverlayV1,
   type ViewerHost,
   type ViewerOpenReference,
-} from '@lightcone-research/astra-viewer-model';
+} from '@lightcone-research/astra-ui-model';
 import { passiveViewerHost, useOptionalAstraViewer } from './context.js';
 import { ResultViewer } from './result-viewer.js';
 import { kindLabel, projectIndex, recordTitle, type ModelInput } from './shared.js';

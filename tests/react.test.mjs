@@ -4,7 +4,6 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import {
   ArtifactPreview,
-  adaptLegacyInventorySnapshot,
   createInventoryModel,
   GraphExplorer,
   InsightDetailDialog,
@@ -14,13 +13,13 @@ import {
   OverviewInventory,
   PaperDialog,
 } from '../packages/react/dist/index.js';
-import { legacyFixture } from './model.test.mjs';
+import { fixtureModel, snapshotFixture } from './model.test.mjs';
 
 test('inventory preserves the full standalone sections without a host dependency', () => {
   const html = renderToStaticMarkup(
-    React.createElement('div', { className: 'astra-viewer' },
+    React.createElement('div', { className: 'astra-ui' },
       React.createElement(InventoryExplorer, {
-        snapshot: legacyFixture,
+        snapshot: snapshotFixture,
         scopeId: '',
       }),
     ),
@@ -38,9 +37,7 @@ test('inventory preserves the full standalone sections without a host dependency
 });
 
 test('canonical models preserve the complete rich inventory presentation', () => {
-  const model = adaptLegacyInventorySnapshot(legacyFixture, {
-    universeId: 'baseline',
-  });
+  const model = fixtureModel({ universeId: 'baseline' });
   const inventory = createInventoryModel(model);
   const headline = inventory.recordByPath.get('outputs.headline')?.record;
   assert.deepEqual(headline?.inputs, ['clustering.outputs.xi']);
@@ -60,7 +57,7 @@ test('canonical models preserve the complete rich inventory presentation', () =>
     'outputs.headline',
   );
   const html = renderToStaticMarkup(
-    React.createElement('div', { className: 'astra-viewer' },
+    React.createElement('div', { className: 'astra-ui' },
       React.createElement(InventoryExplorer, {
         model,
         scopeId: 'root',
@@ -81,7 +78,7 @@ test('canonical models preserve the complete rich inventory presentation', () =>
 test('analysis hierarchy preserves the standalone recursive scope selector', () => {
   const html = renderToStaticMarkup(
     React.createElement(OverviewInventory, {
-      snapshot: legacyFixture,
+      snapshot: snapshotFixture,
       scopeId: '',
       onSelectScope: () => {},
     }),
@@ -189,7 +186,7 @@ test('relationship lists share compact typed rows instead of pill boxes', () => 
 });
 
 test('insight details use the same compact informed-decision relationship', () => {
-  const model = createInventoryModel(legacyFixture);
+  const model = createInventoryModel(snapshotFixture);
   const scope = model.snapshot.scopes[0];
   const insight = scope.records.find((record) => record.kind === 'prior_insight');
   assert.ok(insight);
@@ -210,11 +207,9 @@ test('insight details use the same compact informed-decision relationship', () =
 });
 
 test('graph shows the structural ASTRA projection behind an explicit first-run choice', () => {
-  const model = adaptLegacyInventorySnapshot(legacyFixture, {
-    analysisRevision: 'analysis-graph-react',
-  });
+  const model = fixtureModel({ analysisRevision: 'analysis-graph-react' });
   const html = renderToStaticMarkup(
-    React.createElement('div', { className: 'astra-viewer' },
+    React.createElement('div', { className: 'astra-ui' },
       React.createElement(GraphExplorer, {
         model,
         onOrganize: () => {},
@@ -259,28 +254,31 @@ test('graph shows the structural ASTRA projection behind an explicit first-run c
 });
 
 test('grouped records use a stacked kind icon without expanding the graph', () => {
-  const fixture = structuredClone(legacyFixture);
-  fixture.scopes[0].records.push(
-    {
-      id: 'chart_a',
-      path: 'outputs.chart_a',
+  const model = fixtureModel({ analysisRevision: 'analysis-react-groups' });
+  for (const localId of ['chart_a', 'chart_b']) {
+    model.records.push({
+      id: `root:output:${localId}`,
+      localId,
+      canonicalPath: `outputs.${localId}`,
+      scopeId: 'root',
       kind: 'output',
-      type: 'figure',
-      inputs: ['catalog'],
-      decisions: ['method'],
-    },
-    {
-      id: 'chart_b',
-      path: 'outputs.chart_b',
-      kind: 'output',
-      type: 'figure',
-      inputs: ['catalog'],
-      decisions: ['method'],
-    },
-  );
-  const model = adaptLegacyInventorySnapshot(fixture, {
-    analysisRevision: 'analysis-react-groups',
-  });
+      relations: [
+        { kind: 'depends_on', targetRecordId: 'root:input:catalog', direct: true },
+        { kind: 'parameterized_by', targetRecordId: 'root:decision:method', direct: true },
+      ],
+      outputType: 'figure',
+      resourceIds: [],
+      provenance: {
+        inputs: [
+          { reference: 'catalog', recordId: 'root:input:catalog', direct: true },
+        ],
+        decisions: [
+          { reference: 'method', recordId: 'root:decision:method', direct: true },
+        ],
+      },
+    });
+    model.scopes[0].recordIds.push(`root:output:${localId}`);
+  }
   const organization = {
     schema_version: 'graph-organization.v1',
     source: {
@@ -296,7 +294,7 @@ test('grouped records use a stacked kind icon without expanding the graph', () =
     }],
   };
   const html = renderToStaticMarkup(
-    React.createElement('div', { className: 'astra-viewer' },
+    React.createElement('div', { className: 'astra-ui' },
       React.createElement(GraphExplorer, { model, organization }),
     ),
   );

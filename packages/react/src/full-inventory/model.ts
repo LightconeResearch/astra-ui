@@ -15,7 +15,7 @@ import {
   type ProjectViewModelIndex,
   type ProjectViewModelV1,
   type RuntimeOverlayV1,
-} from '@lightcone-research/astra-viewer-model';
+} from '@lightcone-research/astra-ui-model';
 
 /** Return cited insight ids with the selected option first, then alternatives. */
 export function decisionEvidenceIds(

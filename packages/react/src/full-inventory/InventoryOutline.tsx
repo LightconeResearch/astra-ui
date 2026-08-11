@@ -4,7 +4,7 @@ import type {
   ProjectViewModelV1,
   RuntimeOverlayV1,
   ViewerHost,
-} from '@lightcone-research/astra-viewer-model';
+} from '@lightcone-research/astra-ui-model';
 import { AstraViewerProvider } from '../context.js';
 import { DecisionDialog, DecisionsInventory } from './DecisionsInventory.js';
 import { FindingDialog, FindingsInventory } from './FindingsInventory.js';

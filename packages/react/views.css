@@ -1,0 +1,163 @@
+/* Application views: the inventory and graph explorers plus the simple
+   inventory frame. Imported by application hosts only; the shared detail
+   surfaces live in components.css. */
+
+@import "./ui.css";
+@import "./inventory.css";
+@import "./graph.css";
+
+.astra-ui .astra-inventory {
+  display: grid;
+  grid-template-columns: minmax(11rem, 15rem) minmax(0, 1fr);
+  min-height: 22rem;
+  border: 1px solid var(--astra-color-border);
+  border-radius: var(--astra-radius-md);
+  overflow: hidden;
+  background: var(--astra-color-surface);
+}
+
+.astra-ui .astra-inventory__sidebar {
+  padding: var(--astra-space-3);
+  border-inline-end: 1px solid var(--astra-color-border);
+  background: var(--astra-color-surface-raised);
+}
+
+.astra-ui :is(.astra-inventory__sidebar, .astra-inventory__content) h2 {
+  margin: 0;
+  color: var(--astra-color-text);
+  font-size: 1rem;
+  line-height: 1.35;
+}
+
+.astra-ui :is(.astra-scope-tree, .astra-record-list) {
+  margin: var(--astra-space-3) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.astra-ui .astra-scope-tree button {
+  width: 100%;
+  padding: var(--astra-space-2);
+  border: 0;
+  border-radius: var(--astra-radius-sm);
+  background: transparent;
+  text-align: start;
+}
+
+.astra-ui .astra-scope-tree button:hover,
+.astra-ui .astra-scope-tree button[aria-current="true"] {
+  background: var(--astra-color-surface-muted);
+  color: var(--astra-color-accent);
+}
+
+.astra-ui .astra-inventory__content {
+  min-width: 0;
+  padding: var(--astra-space-4);
+}
+
+.astra-ui .astra-inventory__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--astra-space-3);
+  margin-block-end: var(--astra-space-4);
+}
+
+.astra-ui .astra-inventory__header p {
+  margin: var(--astra-space-1) 0 0;
+  color: var(--astra-color-text-muted);
+}
+
+.astra-ui .astra-record-group + .astra-record-group { margin-block-start: 1.25rem; }
+
+.astra-ui .astra-record-group h3 {
+  margin: 0 0 var(--astra-space-2);
+  color: var(--astra-color-text-muted);
+  font-size: 0.72rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.astra-ui .astra-record-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: var(--astra-space-2);
+  margin: 0;
+}
+
+.astra-ui .astra-record-card[data-kind="input"] {
+  --astra-kind: var(--astra-c-input);
+  --astra-kind-ink: var(--astra-c-input);
+  --astra-kind-soft: var(--astra-c-input-soft);
+}
+
+.astra-ui .astra-record-card[data-kind="analysis"] {
+  --astra-kind: var(--astra-c-analysis);
+  --astra-kind-ink: var(--astra-c-analysis);
+  --astra-kind-soft: var(--astra-c-analysis-soft);
+}
+
+.astra-ui .astra-record-card[data-kind="output"] {
+  --astra-kind: var(--astra-c-output);
+  --astra-kind-ink: var(--astra-c-output);
+  --astra-kind-soft: var(--astra-c-output-soft);
+}
+
+.astra-ui .astra-record-card[data-kind="decision"] {
+  --astra-kind: var(--astra-c-decision);
+  --astra-kind-ink: var(--astra-c-decision-ink);
+  --astra-kind-soft: var(--astra-c-decision-soft);
+}
+
+.astra-ui .astra-record-card[data-kind="finding"] {
+  --astra-kind: var(--astra-c-finding);
+  --astra-kind-ink: var(--astra-c-finding);
+  --astra-kind-soft: var(--astra-c-finding-soft);
+}
+
+.astra-ui .astra-record-card[data-kind="prior_insight"] {
+  --astra-kind: var(--astra-c-insight);
+  --astra-kind-ink: var(--astra-c-insight-ink);
+  --astra-kind-soft: var(--astra-c-insight-soft);
+}
+
+.astra-ui .astra-record-card {
+  display: flex;
+  min-height: 4.5rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--astra-space-1);
+  width: 100%;
+  padding: var(--astra-space-3);
+  border: 1px solid var(--astra-color-border);
+  border-inline-start: 3px solid var(--astra-kind, var(--astra-color-border));
+  border-radius: var(--astra-radius-sm);
+  background: var(--astra-color-surface-raised);
+  text-align: start;
+}
+
+.astra-ui .astra-record-card:hover {
+  border-color: var(--astra-kind, var(--astra-color-accent));
+  background: var(--astra-kind-soft, var(--astra-color-surface-raised));
+  box-shadow: 0 2px 10px color-mix(in srgb, var(--astra-kind, var(--astra-color-accent)) 12%, transparent);
+}
+
+.astra-ui .astra-record-card code {
+  overflow-wrap: anywhere;
+  color: var(--astra-color-text-muted);
+  font-size: 0.75rem;
+}
+
+.astra-ui .astra-record-card > span {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--astra-color-text-muted);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+@media (max-width: 720px) {
+  .astra-ui .astra-inventory { grid-template-columns: 1fr; }
+  .astra-ui .astra-inventory__sidebar { border-inline-end: 0; border-block-end: 1px solid var(--astra-color-border); }
+}

@@ -11,7 +11,7 @@ import {
   type RuntimeOverlayV1,
   type ViewerCapabilities,
   type ViewerHost,
-} from '@lightcone-research/astra-viewer-model';
+} from '@lightcone-research/astra-ui-model';
 
 const NO_CAPABILITIES: ViewerCapabilities = {
   preview: false,

@@ -1,4 +1,4 @@
-export * from '@lightcone-research/astra-viewer-model';
+export * from '@lightcone-research/astra-ui-model';
 export * from './context.js';
 export * from './full-inventory/index.js';
 export * from './graph-view.js';

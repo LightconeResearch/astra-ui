@@ -1,5 +1,5 @@
 {
-  "name": "@lightcone-research/astra-viewer-model",
+  "name": "@lightcone-research/astra-ui-model",
   "version": "0.1.0",
   "description": "Serializable, host-neutral view contracts for ASTRA analyses.",
   "license": "BSD-3-Clause",

@@ -5,7 +5,7 @@ import {
   type ResourcePreview,
   type RuntimeOverlayV1,
   type ViewerHost,
-} from '@lightcone-research/astra-viewer-model';
+} from '@lightcone-research/astra-ui-model';
 import { passiveViewerHost, useOptionalAstraViewer } from './context.js';
 import { projectIndex, type ModelInput } from './shared.js';
 import { Badge, Button, SurfaceHeader } from './ui.js';
