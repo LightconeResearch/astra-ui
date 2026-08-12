@@ -174,10 +174,24 @@
   position: fixed;
   z-index: 1000;
   inset: 0;
+  box-sizing: border-box;
   display: grid;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
   place-items: center;
-  background: rgba(20, 18, 19, 0.54);
+  border: 0;
+  background: transparent;
+  color: inherit;
   padding: clamp(0.75rem, 3vw, 2.5rem);
+}
+
+.astra-ui .inventory-detail-dialog:not([open]) { display: none; }
+
+.astra-ui .inventory-detail-dialog::backdrop {
+  background: rgba(20, 18, 19, 0.54);
   backdrop-filter: blur(3px);
 }
 
@@ -1387,4 +1401,3 @@
   background: var(--astra-artifact-paper);
   border-radius: 3px;
 }
-

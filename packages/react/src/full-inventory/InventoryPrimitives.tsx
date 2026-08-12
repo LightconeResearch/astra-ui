@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode, Ref } from 'react';
-import { useEffect, useId, useRef } from 'react';
+import { useCallback, useEffect, useId, useRef } from 'react';
 import { IconButton, SurfaceHeader } from '../ui.js';
 import type { InventoryKind } from '../types.js';
 
@@ -118,7 +118,7 @@ export interface InventoryDetailSurfaceProps {
   onClose: () => void;
   children: ReactNode;
   closeRef?: Ref<HTMLButtonElement> | undefined;
-  modal?: boolean | undefined;
+  titleId?: string | undefined;
 }
 
 /**
@@ -139,17 +139,17 @@ export function InventoryDetailSurface({
   onClose,
   children,
   closeRef,
-  modal = false,
+  titleId,
 }: InventoryDetailSurfaceProps) {
-  const titleId = useId();
+  const generatedTitleId = useId();
+  const resolvedTitleId = titleId ?? generatedTitleId;
 
   return (
     <section
       className={className}
       data-kind={kind}
-      role={modal ? 'dialog' : 'region'}
-      aria-modal={modal || undefined}
-      aria-labelledby={titleId}
+      role="region"
+      aria-labelledby={resolvedTitleId}
     >
       <SurfaceHeader
         className="inventory-detail-dialog__header"
@@ -157,7 +157,7 @@ export function InventoryDetailSurface({
         kind={kind}
         eyebrow={eyebrow}
         title={title}
-        titleId={titleId}
+        titleId={resolvedTitleId}
         titleAs="h3"
         identifier={identifier}
         actions={(
@@ -185,7 +185,7 @@ export function InventoryDetailSurface({
 
 interface InventoryDetailDialogProps extends Omit<
   InventoryDetailSurfaceProps,
-  'closeRef' | 'modal'
+  'closeRef' | 'titleId'
 > {}
 
 export function InventoryDetailDialog({
@@ -193,33 +193,43 @@ export function InventoryDetailDialog({
   ...props
 }: InventoryDetailDialogProps) {
   const closeRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    const previousOverflow = document.body.style.overflow;
-    const previouslyFocused = document.activeElement;
-    document.body.style.overflow = 'hidden';
-    closeRef.current?.focus();
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') props.onClose();
-    };
-    document.addEventListener('keydown', onKeyDown);
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      document.removeEventListener('keydown', onKeyDown);
-      if (previouslyFocused instanceof HTMLElement) previouslyFocused.focus();
-    };
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const titleId = useId();
+  const requestClose = useCallback(() => {
+    const dialog = dialogRef.current;
+    if (dialog?.open) {
+      dialog.close();
+    } else {
+      props.onClose();
+    }
   }, [props.onClose]);
 
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    if (!dialog.open) dialog.showModal();
+    closeRef.current?.focus();
+  }, []);
+
   return (
-    <div className={`inventory-detail-dialog${className ? ` ${className}` : ''}`} role="presentation" onMouseDown={(event) => {
-      if (event.target === event.currentTarget) props.onClose();
-    }}>
+    <dialog
+      ref={dialogRef}
+      className={`inventory-detail-dialog${className ? ` ${className}` : ''}`}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={titleId}
+      onClose={props.onClose}
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) requestClose();
+      }}
+    >
       <InventoryDetailSurface
         {...props}
         closeRef={closeRef}
-        modal
+        titleId={titleId}
+        onClose={requestClose}
       />
-    </div>
+    </dialog>
   );
 }
 

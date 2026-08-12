@@ -108,7 +108,8 @@ export type ViewerChange =
   | { kind: 'resource'; revision: string; resourceIds: string[] };
 
 export interface ViewerHost {
-  capabilities: ViewerCapabilities;
+  /** Optional descriptive metadata; method presence is authoritative. */
+  capabilities?: Partial<ViewerCapabilities>;
   getPreview?: (
     resourceId: string,
     request: PreviewRequest,
@@ -126,5 +127,5 @@ export interface ViewerSessionV1 {
   schemaVersion: typeof VIEWER_SESSION_SCHEMA_VERSION;
   model: ProjectViewModelV1;
   runtime?: RuntimeOverlayV1;
-  capabilities: ViewerCapabilities;
+  capabilities?: Partial<ViewerCapabilities>;
 }

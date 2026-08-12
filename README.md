@@ -1,6 +1,6 @@
-# ASTRA Viewer
+# `@lightcone-research/astra-ui`
 
-`astra-viewer` is the host-neutral viewing layer for ASTRA projects. It gives
+`@lightcone-research/astra-ui` is the host-neutral viewing layer for ASTRA projects. It gives
 JupyterLab, a future VS Code extension, and other hosts one serializable model,
 one set of inventory/result components, and one scoped design-token contract.
 
@@ -15,7 +15,7 @@ engine, or a claim that an analysis is scientifically correct.
 | `@lightcone-research/astra-ui/core` | Runtime overlays, host capabilities, and graph projection | React components, JupyterLab, MyST, VS Code |
 | `@lightcone-research/astra-ui/components` | Portable record detail and result previews | Application views and host APIs |
 | `@lightcone-research/astra-ui/views` | Inventory and graph application views | JupyterLab, MyST, VS Code APIs |
-| `@lightcone-research/astra-brand` | Canonical ASTRA component palette with light/dark host detection | Paper layout, inventory layout, application chrome |
+| `@lightcone-research/lightcone-brand` | Canonical ASTRA component palette with light/dark host detection | Paper layout, inventory layout, application chrome |
 
 The graph view is a structural projection of inputs, decisions, outputs, and
 sub-analyses; prior insights and findings remain available in inventory and
@@ -58,11 +58,11 @@ build run it over Node fs.
 Portable viewers import:
 
 ```css
-@import '@lightcone-research/astra-brand/theme.css';
+@import '@lightcone-research/lightcone-brand/theme.css';
 @import '@lightcone-research/astra-ui/styles.css';
 ```
 
-The `.astra-viewer` scope keeps the complete ASTRA component palette in every
+The `.astra-ui` scope keeps the complete ASTRA component palette in every
 host, selecting its accessible light or dark variant from the host colour
 scheme. MyST paper themes import only `brand.css` and opt in with
 `.astra-brand`; they do not import inventory/result application layout. A host

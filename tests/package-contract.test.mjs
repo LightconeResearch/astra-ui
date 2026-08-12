@@ -54,3 +54,23 @@ test('components layer never imports the application views layer', async () => {
   assert.doesNotMatch(componentsCss, /@import "\.\/(inventory|graph|views|styles)\.css"/);
   assert.match(componentsCss, /@import "\.\/ui\.css"/);
 });
+
+test('detail and preview behavior use native and canonical signals', async () => {
+  const primitives = await readFile(
+    new URL('../packages/react/src/full-inventory/InventoryPrimitives.tsx', import.meta.url),
+    'utf8',
+  );
+  const recordDetail = await readFile(
+    new URL('../packages/react/src/record-detail.tsx', import.meta.url),
+    'utf8',
+  );
+  const resultViewer = await readFile(
+    new URL('../packages/react/src/result-viewer.tsx', import.meta.url),
+    'utf8',
+  );
+  assert.match(primitives, /<dialog/);
+  assert.match(primitives, /\.showModal\(\)/);
+  assert.doesNotMatch(primitives, /document\.body|addEventListener\(['"]keydown/);
+  assert.doesNotMatch(recordDetail, /capabilities\.(?:openSource|chatReference)/);
+  assert.match(resultViewer, /missing_expected_result/);
+});

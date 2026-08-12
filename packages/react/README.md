@@ -7,12 +7,11 @@ VS Code, filesystem, networking, or chat dependency.
 `InventoryExplorer` is the canonical rich inventory surface. Pass it a
 `ProjectViewModelV1` (plus an optional runtime overlay and `ViewerHost`).
 
-Hosts provide capabilities through `ViewerHost`; in particular, resource IDs
-are resolved into safe previews at the host boundary. Import the component CSS
-separately:
+Hosts provide the `ViewerHost` methods they support; resource IDs are resolved
+into safe previews at that boundary. Import the component CSS separately:
 
 ```ts
-import '@lightcone-research/astra-brand/theme.css';
+import '@lightcone-research/lightcone-brand/theme.css';
 import '@lightcone-research/astra-ui/styles.css';
 ```
 

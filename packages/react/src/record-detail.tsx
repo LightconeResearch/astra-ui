@@ -75,12 +75,12 @@ export function RecordDetail({
         identifierClassName="astra-record-detail__path"
         actions={(
           <>
-            {resolvedHost.capabilities.openSource && resolvedHost.openSource ? (
+            {resolvedHost.openSource ? (
               <Button onClick={() => void resolvedHost.openSource!(resolvedRecord.id)}>
                 Open source
               </Button>
             ) : null}
-            {resolvedHost.capabilities.chatReference && resolvedHost.insertChatReference ? (
+            {resolvedHost.insertChatReference ? (
               <Button
                 onClick={() => void resolvedHost.insertChatReference!({
                   kind: resolvedRecord.kind,

@@ -11,23 +11,10 @@ import {
 } from '@astra-spec/sdk/view-model';
 import type {
   RuntimeOverlayV1,
-  ViewerCapabilities,
   ViewerHost,
 } from './viewer-types.js';
 
-const NO_CAPABILITIES: ViewerCapabilities = {
-  preview: false,
-  download: false,
-  openSource: false,
-  changeUniverse: false,
-  execution: false,
-  externalNavigation: false,
-  chatReference: false,
-};
-
-export const passiveViewerHost: ViewerHost = {
-  capabilities: NO_CAPABILITIES,
-};
+export const passiveViewerHost: ViewerHost = {};
 
 export interface AstraViewerContextValue {
   model: ProjectViewModelV1;

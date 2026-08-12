@@ -132,6 +132,7 @@ test('shared detail headers preserve the inventory modal contract', () => {
   assert.match(html, /inventory-detail-dialog__header astra-surface-header|astra-surface-header inventory-detail-dialog__header/);
   assert.match(html, /data-density="regular"/);
   assert.match(html, /data-kind="decision"/);
+  assert.match(html, /<dialog/);
   assert.match(html, /role="dialog"/);
   assert.match(html, /aria-modal="true"/);
   assert.match(html, /aria-label="Close decision details"/);

@@ -95,6 +95,11 @@ export function ResultViewer({ output, model, runtime, host }: ResultViewerProps
     ? materialization.resourceIds
     : output.resourceIds;
   const resource = ids.map((id) => index?.resourceById.get(id)).find(Boolean);
+  const missingReason = materialization?.message
+    ?? index?.model.diagnostics.find((diagnostic) =>
+      diagnostic.code === 'missing_expected_result'
+      && diagnostic.canonicalPath === output.canonicalPath
+    )?.message;
   const [state, setState] = useState<PreviewState>({ status: 'loading' });
 
   useEffect(() => {
@@ -115,7 +120,13 @@ export function ResultViewer({ output, model, runtime, host }: ResultViewerProps
       return () => { active = false; };
     }
     if (!resource) {
-      setState({ status: 'ready', preview: { kind: 'unavailable', reason: 'This output has no materialized resource.' } });
+      setState({
+        status: 'ready',
+        preview: {
+          kind: 'unavailable',
+          reason: missingReason ?? 'This output has no materialized resource.',
+        },
+      });
       return () => { active = false; };
     }
     if (!resolvedHost.getPreview) {
@@ -145,6 +156,7 @@ export function ResultViewer({ output, model, runtime, host }: ResultViewerProps
     };
   }, [
     output.metric,
+    missingReason,
     resource?.id,
     resource?.revision,
     resolvedHost,
