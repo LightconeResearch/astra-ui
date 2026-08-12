@@ -1,4 +1,5 @@
 export * from './core.js';
+export * from './artifact-preview.js';
 export * from './context.js';
 export * from './full-inventory/index.js';
 export * from './graph-view.js';

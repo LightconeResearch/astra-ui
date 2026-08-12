@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type {
   ProjectViewModelIndex,
   ProjectViewModelV1,
@@ -26,49 +26,146 @@ import {
 } from './model.js';
 import { normalizeDoi } from './citationMetadata.js';
 import type {
-  InventoryDecisionRecord,
-  InventoryFindingRecord,
-  InventoryInputRecord,
-  InventoryInsightRecord,
   InventoryOpenReference,
-  InventoryOutputRecord,
+  InventoryRecord,
+  InventoryScope,
 } from '../types.js';
 
 const EMPTY_PAPER_METADATA: InventoryPaperMetadataMap = {};
 
 type InventoryModalEntry =
-  | { kind: 'output'; record: InventoryOutputRecord; scopeId: string }
-  | { kind: 'decision'; record: InventoryDecisionRecord; scopeId: string }
-  | { kind: 'input'; record: InventoryInputRecord; scopeId: string }
-  | { kind: 'finding'; record: InventoryFindingRecord; scopeId: string }
-  | { kind: 'insight'; record: InventoryInsightRecord; scopeId: string }
+  | { kind: 'record'; record: InventoryRecord; scopeId: string }
   | {
       kind: 'paper';
       paper: InventoryPaper;
       scopeId: string;
-      focusInsight?: InventoryInsightRecord | undefined;
+      focusInsight?: Extract<InventoryRecord, { kind: 'prior_insight' }> | undefined;
     };
 
 function recordModalEntry(
-  record:
-    | InventoryOutputRecord
-    | InventoryDecisionRecord
-    | InventoryInputRecord
-    | InventoryFindingRecord
-    | InventoryInsightRecord,
+  record: InventoryRecord,
   ownerScopeId: string,
 ): InventoryModalEntry {
+  return { kind: 'record', record, scopeId: ownerScopeId };
+}
+
+interface InventoryRecordDetailProps {
+  entry: InventoryModalEntry;
+  scope: InventoryScope;
+  model: InventoryModel;
+  paperMetadata: InventoryPaperMetadataMap;
+  paperPdfAssetBaseUrl?: string | undefined;
+  onPush: (entry: InventoryModalEntry) => void;
+  onBack?: (() => void) | undefined;
+  onClose: () => void;
+}
+
+/** The sole discriminator from a canonical ASTRA record to rich detail UI. */
+function InventoryRecordDetail({
+  entry,
+  scope,
+  model,
+  paperMetadata,
+  paperPdfAssetBaseUrl,
+  onPush,
+  onBack,
+  onClose,
+}: InventoryRecordDetailProps) {
+  const openRecord = (record: InventoryRecord, owner?: InventoryScope) => {
+    const resolvedOwner = owner ?? inventoryScopeForRecord(model, record, scope);
+    if (resolvedOwner) onPush(recordModalEntry(record, resolvedOwner.id));
+  };
+
+  if (entry.kind === 'paper') {
+    return (
+      <PaperDialog
+        paper={entry.paper}
+        scope={scope}
+        initialFocusInsight={entry.focusInsight}
+        pdfAssetBaseUrl={paperPdfAssetBaseUrl}
+        onOpenInsight={(insight) => openRecord(insight)}
+        onOpenDecision={(decision) => openRecord(decision)}
+        onBack={onBack}
+        onClose={onClose}
+      />
+    );
+  }
+
+  const { record } = entry;
   switch (record.kind) {
     case 'output':
-      return { kind: 'output', record, scopeId: ownerScopeId };
-    case 'decision':
-      return { kind: 'decision', record, scopeId: ownerScopeId };
+      return (
+        <OutputDialog
+          record={record}
+          scope={scope}
+          model={model}
+          onOpenDependency={(dependency, owner) => {
+            if (
+              dependency.kind === 'output'
+              || dependency.kind === 'input'
+              || dependency.kind === 'decision'
+            ) {
+              openRecord(dependency, owner);
+            }
+          }}
+          onBack={onBack}
+          onClose={onClose}
+        />
+      );
     case 'input':
-      return { kind: 'input', record, scopeId: ownerScopeId };
+      return (
+        <InputDialog
+          record={record}
+          scope={scope}
+          onBack={onBack}
+          onClose={onClose}
+        />
+      );
+    case 'decision':
+      return (
+        <DecisionDialog
+          record={record}
+          scope={scope}
+          model={model}
+          onOpenInsight={(insight) => openRecord(insight)}
+          onBack={onBack}
+          onClose={onClose}
+        />
+      );
     case 'finding':
-      return { kind: 'finding', record, scopeId: ownerScopeId };
-    case 'prior_insight':
-      return { kind: 'insight', record, scopeId: ownerScopeId };
+      return (
+        <FindingDialog
+          record={record}
+          scope={scope}
+          model={model}
+          onOpenEvidence={(output, owner) => openRecord(output, owner)}
+          onBack={onBack}
+          onClose={onClose}
+        />
+      );
+    case 'prior_insight': {
+      const insightDoi = record.evidence.find((evidence) => evidence.doi)?.doi;
+      const sourcePaper = insightDoi
+        ? paperRecords(model, scope, paperMetadata)
+          .find((paper) => normalizeDoi(paper.doi) === normalizeDoi(insightDoi))
+        : undefined;
+      return (
+        <InsightDetailDialog
+          insight={record}
+          model={model}
+          scope={scope}
+          onOpenSource={sourcePaper ? () => onPush({
+            kind: 'paper',
+            paper: sourcePaper,
+            scopeId: scope.id,
+            focusInsight: record,
+          }) : undefined}
+          onOpenDecision={(decision) => openRecord(decision)}
+          onBack={onBack}
+          onClose={onClose}
+        />
+      );
+    }
   }
 }
 
@@ -161,17 +258,11 @@ function InventoryExplorerView({
       );
       return;
     }
-    onOpenReference(
-      {
-        kind:
-          entry.kind === 'insight'
-            ? 'prior_insight'
-            : entry.kind,
-        id: entry.record.id,
-        canonicalPath: entry.record.canonicalPath,
-      },
-      entry.scopeId,
-    );
+    onOpenReference({
+      kind: entry.record.kind,
+      id: entry.record.id,
+      canonicalPath: entry.record.canonicalPath,
+    }, entry.scopeId);
   };
   const pushModal = (entry: InventoryModalEntry) => setModalStack((stack) => [...stack, entry]);
   const goBack = () => setModalStack((stack) => stack.slice(0, -1));
@@ -185,117 +276,18 @@ function InventoryExplorerView({
     : undefined;
   const backAction = modalStack.length > 1 ? goBack : undefined;
 
-  let modal: ReactNode = null;
-  if (activeModal && activeScope) {
-    if (activeModal.kind === 'output') {
-      modal = (
-        <OutputDialog
-          record={activeModal.record}
-          scope={activeScope}
-          model={model}
-          onOpenDependency={(record, scope) => {
-            if (
-              record.kind === 'output'
-              || record.kind === 'input'
-              || record.kind === 'decision'
-            ) {
-              pushModal(recordModalEntry(record, scope.id));
-            }
-          }}
-          onBack={backAction}
-          onClose={closeAll}
-        />
-      );
-    } else if (activeModal.kind === 'input') {
-      modal = (
-        <InputDialog
-          record={activeModal.record}
-          scope={activeScope}
-          onBack={backAction}
-          onClose={closeAll}
-        />
-      );
-    } else if (activeModal.kind === 'decision') {
-      modal = (
-        <DecisionDialog
-          record={activeModal.record}
-          scope={activeScope}
-          model={model}
-          onOpenInsight={(insight) => pushModal({
-            kind: 'insight',
-            record: insight,
-            scopeId: inventoryScopeForRecord(model, insight, activeScope)!.id,
-          })}
-          onBack={backAction}
-          onClose={closeAll}
-        />
-      );
-    } else if (activeModal.kind === 'finding') {
-      modal = (
-        <FindingDialog
-          record={activeModal.record}
-          scope={activeScope}
-          model={model}
-          onOpenEvidence={(output, scope) => pushModal({
-            kind: 'output',
-            record: output,
-            scopeId: scope.id,
-          })}
-          onBack={backAction}
-          onClose={closeAll}
-        />
-      );
-    } else if (activeModal.kind === 'insight') {
-      const insightDoi = activeModal.record.evidence.find(
-        (evidence) => evidence.doi,
-      )?.doi;
-      const sourcePaper = insightDoi
-        ? paperRecords(model, activeScope, paperMetadata)
-          .find((paper) => normalizeDoi(paper.doi) === normalizeDoi(insightDoi))
-        : undefined;
-      modal = (
-        <InsightDetailDialog
-          insight={activeModal.record}
-          model={model}
-          scope={activeScope}
-          onOpenSource={sourcePaper ? () => pushModal({
-            kind: 'paper',
-            paper: sourcePaper,
-            scopeId: activeScope.id,
-            focusInsight: activeModal.record,
-          }) : undefined}
-          onOpenDecision={(decision) => pushModal({
-            kind: 'decision',
-            record: decision,
-            scopeId: inventoryScopeForRecord(model, decision, activeScope)!.id,
-          })}
-          onBack={backAction}
-          onClose={closeAll}
-        />
-      );
-    } else {
-      modal = (
-        <PaperDialog
-          paper={activeModal.paper}
-          scope={activeScope}
-          initialFocusInsight={activeModal.focusInsight}
-          pdfAssetBaseUrl={paperPdfAssetBaseUrl}
-          onOpenInsight={(insight) => pushModal({
-            kind: 'insight',
-            record: insight,
-            scopeId: inventoryScopeForRecord(model, insight, activeScope)!.id,
-          })}
-          onOpenDecision={(decision) => pushModal({
-            kind: 'decision',
-            record: decision,
-            scopeId: inventoryScopeForRecord(model, decision, activeScope)!.id,
-          })}
-          onBack={backAction}
-          onClose={closeAll}
-        />
-      );
-    }
-  }
+  const modal = activeModal && activeScope ? (
+    <InventoryRecordDetail
+      entry={activeModal}
+      scope={activeScope}
+      model={model}
+      paperMetadata={paperMetadata}
+      paperPdfAssetBaseUrl={paperPdfAssetBaseUrl}
+      onPush={pushModal}
+      onBack={backAction}
+      onClose={closeAll}
+    />
+  ) : null;
 
   if (dialogsOnly) return <>{modal}</>;
 
@@ -307,11 +299,9 @@ function InventoryExplorerView({
         <OutputsInventory
           model={model}
           scopeId={scopeId}
-          onOpenOutput={(record, scope) => openFromOverview({
-            kind: 'output',
-            record,
-            scopeId: scope.id,
-          })}
+          onOpenOutput={(record, scope) => openFromOverview(
+            recordModalEntry(record, scope.id),
+          )}
         />
       ) : null,
     },
@@ -323,11 +313,9 @@ function InventoryExplorerView({
           model={model}
           scopeId={scopeId}
           tagLabels={decisionTagLabels}
-          onOpenDecision={(record, scope) => openFromOverview({
-            kind: 'decision',
-            record,
-            scopeId: scope.id,
-          })}
+          onOpenDecision={(record, scope) => openFromOverview(
+            recordModalEntry(record, scope.id),
+          )}
         />
       ) : null,
     },
@@ -338,11 +326,9 @@ function InventoryExplorerView({
         <InputsInventory
           model={model}
           scopeId={scopeId}
-          onOpenInput={(record, scope) => openFromOverview({
-            kind: 'input',
-            record,
-            scopeId: scope.id,
-          })}
+          onOpenInput={(record, scope) => openFromOverview(
+            recordModalEntry(record, scope.id),
+          )}
         />
       ) : null,
     },
@@ -353,11 +339,9 @@ function InventoryExplorerView({
         <FindingsInventory
           model={model}
           scopeId={scopeId}
-          onOpenFinding={(record, scope) => openFromOverview({
-            kind: 'finding',
-            record,
-            scopeId: scope.id,
-          })}
+          onOpenFinding={(record, scope) => openFromOverview(
+            recordModalEntry(record, scope.id),
+          )}
         />
       ) : null,
     },

@@ -5,6 +5,7 @@
  * Pair with the `components.css` entry.
  */
 export * from './context.js';
+export * from './artifact-preview.js';
 export * from './record-detail.js';
 export * from './result-viewer.js';
 export * from './shared.js';

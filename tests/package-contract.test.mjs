@@ -68,14 +68,27 @@ test('detail and preview behavior use native and canonical signals', async () =>
     new URL('../packages/react/src/result-viewer.tsx', import.meta.url),
     'utf8',
   );
-  assert.match(primitives, /<dialog/);
-  assert.match(primitives, /\.showModal\(\)/);
-  assert.doesNotMatch(primitives, /document\.body|addEventListener\(['"]keydown/);
-  assert.doesNotMatch(recordDetail, /capabilities\.(?:openSource|chatReference)/);
-  assert.match(resultViewer, /missing_expected_result/);
+  const artifactPreview = await readFile(
+    new URL('../packages/react/src/artifact-preview.tsx', import.meta.url),
+    'utf8',
+  );
   const inventoryPreview = await readFile(
     new URL('../packages/react/src/full-inventory/InventoryArtifactPreview.tsx', import.meta.url),
     'utf8',
   );
-  assert.match(inventoryPreview, /missing_expected_result/);
+  const inventoryOutline = await readFile(
+    new URL('../packages/react/src/full-inventory/InventoryOutline.tsx', import.meta.url),
+    'utf8',
+  );
+  assert.match(primitives, /<dialog/);
+  assert.match(primitives, /\.showModal\(\)/);
+  assert.doesNotMatch(primitives, /document\.body|addEventListener\(['"]keydown/);
+  assert.doesNotMatch(recordDetail, /capabilities\.(?:openSource|chatReference)/);
+  assert.match(artifactPreview, /export function useResourcePreview/);
+  assert.match(artifactPreview, /export function ArtifactPreview/);
+  assert.match(artifactPreview, /missing_expected_result/);
+  assert.doesNotMatch(resultViewer, /useEffect|missing_expected_result/);
+  assert.doesNotMatch(inventoryPreview, /useCanonicalPreview|useEffect|missing_expected_result/);
+  assert.match(inventoryOutline, /function InventoryRecordDetail/);
+  assert.match(inventoryOutline, /switch \(record\.kind\)/);
 });
