@@ -73,4 +73,9 @@ test('detail and preview behavior use native and canonical signals', async () =>
   assert.doesNotMatch(primitives, /document\.body|addEventListener\(['"]keydown/);
   assert.doesNotMatch(recordDetail, /capabilities\.(?:openSource|chatReference)/);
   assert.match(resultViewer, /missing_expected_result/);
+  const inventoryPreview = await readFile(
+    new URL('../packages/react/src/full-inventory/InventoryArtifactPreview.tsx', import.meta.url),
+    'utf8',
+  );
+  assert.match(inventoryPreview, /missing_expected_result/);
 });

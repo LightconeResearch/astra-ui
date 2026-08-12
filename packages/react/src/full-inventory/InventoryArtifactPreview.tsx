@@ -30,6 +30,7 @@ function compactValue(value: string | number | undefined): string {
 interface CanonicalPreview {
   preview?: ResourcePreview | undefined;
   resource?: ResourceDescriptor | undefined;
+  unavailableReason?: string | undefined;
 }
 
 function useCanonicalPreview(record: InventoryOutputRecord): CanonicalPreview {
@@ -85,7 +86,14 @@ function useCanonicalPreview(record: InventoryOutputRecord): CanonicalPreview {
     };
   }, [context, context?.runtime?.materializationRevision, output, resource]);
 
-  return { preview, resource };
+  const unavailableReason = !resource
+    ? context?.index.model.diagnostics.find((diagnostic) =>
+      diagnostic.code === 'missing_expected_result'
+      && diagnostic.canonicalPath === output.canonicalPath
+    )?.message
+    : undefined;
+
+  return { preview, resource, unavailableReason };
 }
 
 function FigurePreview({
@@ -188,7 +196,15 @@ export function InventoryArtifactPreview({
   record: InventoryOutputRecord;
   compact?: boolean | undefined;
 }) {
-  const { preview, resource } = useCanonicalPreview(record);
+  const { preview, resource, unavailableReason } = useCanonicalPreview(record);
+  if (unavailableReason) {
+    return (
+      <div className="inventory-output-preview__placeholder" role="alert">
+        <span aria-hidden="true">!</span>
+        <span>{unavailableReason}</span>
+      </div>
+    );
+  }
   if (record.outputType === 'figure') {
     return <FigurePreview record={record} preview={preview} />;
   }
