@@ -18,7 +18,7 @@ test('the unified UI package uses host React and only portable graph dependencie
   assert.equal(manifest.peerDependencies.react, '>=18 <20');
   assert.equal(manifest.peerDependencies['react-dom'], '>=18 <20');
   const names = Object.keys(manifest.dependencies ?? {});
-  assert.deepEqual(names, ['@dagrejs/dagre', '@xyflow/react']);
+  assert.deepEqual(names, ['@xyflow/react']);
   assert.equal(names.some((name) => /jupyter|myst|vscode/i.test(name)), false);
   assert.ok(manifest.exports['./core']);
   assert.equal(manifest.exports['./ui.css'], './ui.css');
@@ -39,7 +39,8 @@ test('graph is portable and contains no host or provider integration', async () 
   assert.match(graph, /onOpenScope/);
   assert.match(graph, />\s*↗\s*</);
   assert.doesNotMatch(graph, /jupyter|myst|vscode|claude|codex|opencode/i);
-  assert.match(flow, /from '@dagrejs\/dagre'/);
+  assert.doesNotMatch(flow, /dagre/i);
+  assert.match(flow, /function nodeRanks/);
   assert.match(flow, /from '@xyflow\/react'/);
   assert.doesNotMatch(graph, /setPointerCapture|scrollLeft|onPointerMove|astra-graph__scrollplane/);
 });

@@ -1,4 +1,3 @@
-import dagre from '@dagrejs/dagre';
 import {
   Controls,
   getBezierPath,
@@ -26,8 +25,15 @@ import type {
   ProjectGraphScope,
 } from './graph.js';
 
+// Keep React Flow's layout box close to the original hand-laid-out graph.
+// The visible node is intentionally only a glyph and label; the box preserves
+// enough room to keep neighboring labels legible.
 const NODE_WIDTH = 220;
-const NODE_HEIGHT = 54;
+const NODE_HEIGHT = 46;
+const HORIZONTAL_GAP = 230;
+const VERTICAL_GAP = 116;
+const CANVAS_PADDING_X = 64;
+const CANVAS_PADDING_Y = 72;
 
 type EdgeVisualKind = 'flow' | 'scope' | 'decision' | 'evidence' | 'reference';
 
@@ -152,34 +158,89 @@ function GraphNode({ data }: NodeProps<AstraFlowNode>) {
 
 const nodeTypes = { astra: GraphNode };
 
+function kindRank(kind: ProjectGraphNode['kind']): number {
+  if (kind === 'input' || kind === 'prior_insight') return 0;
+  if (kind === 'decision' || kind === 'analysis') return 1;
+  if (kind === 'output') return 2;
+  return 3;
+}
+
+function nodeRanks(
+  nodes: readonly ProjectGraphNode[],
+  edges: readonly ProjectGraphEdge[],
+): ReadonlyMap<string, number> {
+  const ranks = new Map(nodes.map((node) => [node.id, kindRank(node.kind)]));
+  const indegree = new Map(nodes.map((node) => [node.id, 0]));
+  const outgoing = new Map<string, ProjectGraphEdge[]>();
+  for (const edge of edges) {
+    indegree.set(edge.targetNodeId, (indegree.get(edge.targetNodeId) ?? 0) + 1);
+    const next = outgoing.get(edge.sourceNodeId) ?? [];
+    next.push(edge);
+    outgoing.set(edge.sourceNodeId, next);
+  }
+  const pending = nodes
+    .filter((node) => indegree.get(node.id) === 0)
+    .map((node) => node.id);
+  while (pending.length) {
+    const source = pending.shift()!;
+    for (const edge of outgoing.get(source) ?? []) {
+      ranks.set(
+        edge.targetNodeId,
+        Math.max(ranks.get(edge.targetNodeId) ?? 0, (ranks.get(source) ?? 0) + 1),
+      );
+      const nextIndegree = (indegree.get(edge.targetNodeId) ?? 1) - 1;
+      indegree.set(edge.targetNodeId, nextIndegree);
+      if (nextIndegree === 0) pending.push(edge.targetNodeId);
+    }
+  }
+  return ranks;
+}
+
 function layoutNodes(
   nodes: readonly ProjectGraphNode[],
   edges: readonly ProjectGraphEdge[],
   scopes: readonly ProjectGraphScope[],
 ): AstraFlowNode[] {
-  const layout = new dagre.graphlib.Graph({ multigraph: true })
-    .setDefaultEdgeLabel(() => ({}))
-    .setGraph({
-      rankdir: 'TB',
-      ranker: 'network-simplex',
-      acyclicer: 'greedy',
-      nodesep: 42,
-      edgesep: 18,
-      ranksep: 74,
-      marginx: 64,
-      marginy: 54,
-    });
+  const ranks = nodeRanks(nodes, edges);
   const scopeById = new Map(scopes.map((scope) => [scope.id, scope]));
+  const layers = new Map<number, ProjectGraphNode[]>();
   for (const node of nodes) {
-    layout.setNode(node.id, { width: NODE_WIDTH, height: NODE_HEIGHT });
+    const rank = ranks.get(node.id) ?? kindRank(node.kind);
+    const layer = layers.get(rank) ?? [];
+    layer.push(node);
+    layers.set(rank, layer);
   }
-  for (const edge of edges) {
-    layout.setEdge(edge.sourceNodeId, edge.targetNodeId, {}, edge.id);
+  const layerEntries = [...layers.entries()].sort(([left], [right]) => left - right);
+  for (const [, layer] of layerEntries) {
+    layer.sort((left, right) => {
+      const leftScope = scopeById.get(left.scopeId);
+      const rightScope = scopeById.get(right.scopeId);
+      return (leftScope?.depth ?? 0) - (rightScope?.depth ?? 0)
+        || (leftScope?.canonicalPath ?? '').localeCompare(rightScope?.canonicalPath ?? '')
+        || left.kind.localeCompare(right.kind)
+        || left.label.localeCompare(right.label);
+    });
   }
-  dagre.layout(layout);
+
+  const maxLayerSize = Math.max(1, ...layerEntries.map(([, layer]) => layer.length));
+  const widestSpan = Math.max(0, maxLayerSize - 1) * HORIZONTAL_GAP;
+  const positions = new Map<string, { x: number; y: number }>();
+  for (const [rank, layer] of layerEntries) {
+    const span = Math.max(0, layer.length - 1) * HORIZONTAL_GAP;
+    const start = CANVAS_PADDING_X + (widestSpan - span) / 2;
+    layer.forEach((node, index) => {
+      positions.set(node.id, {
+        x: start + index * HORIZONTAL_GAP,
+        y: CANVAS_PADDING_Y + rank * VERTICAL_GAP,
+      });
+    });
+  }
 
   return nodes.map((graphNode) => {
-    const position = layout.node(graphNode.id) as { x: number; y: number };
+    const position = positions.get(graphNode.id) ?? {
+      x: CANVAS_PADDING_X,
+      y: CANVAS_PADDING_Y,
+    };
     const detail = nodeDetail(graphNode, scopeById.get(graphNode.scopeId));
     const title = nodeTitle(graphNode);
     return {
@@ -213,7 +274,7 @@ function flowEdges(edges: readonly ProjectGraphEdge[]): AstraFlowEdge[] {
       id: edge.id,
       source: edge.sourceNodeId,
       target: edge.targetNodeId,
-      type: 'smoothstep',
+      type: 'default',
       className: `astra-graph-edge astra-graph-edge--${visualKind}`,
       selectable: false,
       focusable: true,
