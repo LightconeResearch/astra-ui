@@ -24,6 +24,7 @@ function classes(...values: Array<string | undefined | false>): string {
 }
 
 export interface SurfaceHeaderProps {
+  leading?: ReactNode | undefined;
   eyebrow?: ReactNode | undefined;
   title?: ReactNode | undefined;
   titleId?: string | undefined;
@@ -42,6 +43,7 @@ export interface SurfaceHeaderProps {
  * artifact metadata. Interaction remains owned by the surrounding surface.
  */
 export function SurfaceHeader({
+  leading,
   eyebrow,
   title,
   titleId,
@@ -61,6 +63,9 @@ export function SurfaceHeader({
       data-density={density}
       {...(kind ? { 'data-kind': kind } : {})}
     >
+      {leading != null ? (
+        <div className="astra-surface-header__leading">{leading}</div>
+      ) : null}
       <div className="astra-surface-header__content">
         {eyebrow != null ? (
           <div className="astra-surface-header__eyebrow">{eyebrow}</div>

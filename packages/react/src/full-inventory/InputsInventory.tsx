@@ -38,8 +38,11 @@ export function InputDialog({
   onBack?: (() => void) | undefined;
   onClose: () => void;
 }) {
+  const source = sourceLabel(record);
+
   return (
     <InventoryDetailDialog
+      className="inventory-detail-dialog--input"
       kind="input"
       eyebrow={`Input · ${record.inputType ?? 'data'} · ${scope.name}`}
       title={inventoryRecordTitle(record)}
@@ -51,13 +54,16 @@ export function InputDialog({
       <InventoryDetailLayout className="inventory-record-detail__layout--single">
         <InventoryDetailMain>
           {record.description ? (
-            <InventoryDetailProse label="Description">
+            <InventoryDetailProse
+              label="Description"
+              className="inventory-record-detail__prose--section-heading"
+            >
               <InventoryProse text={record.description} />
             </InventoryDetailProse>
           ) : null}
           <section className="inventory-input-source">
             <h4>{record.relations.some((relation) => relation.kind === 'aliases') ? 'Resolved from' : 'Source'}</h4>
-            <code>{sourceLabel(record)}</code>
+            <code tabIndex={0} title={source}>{source}</code>
           </section>
         </InventoryDetailMain>
       </InventoryDetailLayout>
@@ -77,10 +83,11 @@ export function InputsInventory({ model, scopeId, onOpenInput }: InputsInventory
     <div className="inventory-records inventory-records--inputs">
       <InventoryRecordList
         ariaLabel="Inputs"
-        columnTemplate="minmax(14rem, 1.2fr) minmax(12rem, 1fr) 1.5rem"
+        columnTemplate="minmax(14rem, 1.1fr) minmax(12rem, 1fr) 6.875rem 1.5rem"
         columns={[
           { label: 'Input', className: 'inventory-record-list__primary' },
           { label: 'Source', className: 'inventory-record-list__source' },
+          { label: 'Type', className: 'inventory-record-list__secondary' },
           { className: 'inventory-record-list__arrow' },
         ]}
         rows={records.map((record) => ({
@@ -90,6 +97,7 @@ export function InputsInventory({ model, scopeId, onOpenInput }: InputsInventory
           cells: [
             <InventoryRecordIdentity kind="input" title={inventoryRecordTitle(record)} />,
             <code title={sourceLabel(record)}>{sourceLabel(record)}</code>,
+            <span className="inventory-record-list__tag">{record.inputType ?? 'input'}</span>,
             <span aria-hidden="true">→</span>,
           ],
         }))}

@@ -76,7 +76,7 @@ export function InventoryRelationList({
                     {item.kind ? RELATION_GLYPHS[item.kind] : ''}
                   </span>
                   <span className="inventory-relation-item__copy">
-                    <strong>{item.label}</strong>
+                    <span className="inventory-relation-item__label">{item.label}</span>
                     {item.identifier != null ? <code>{item.identifier}</code> : null}
                   </span>
                   {item.detail != null ? <small>{item.detail}</small> : null}
@@ -91,7 +91,7 @@ export function InventoryRelationList({
                     {item.kind ? RELATION_GLYPHS[item.kind] : ''}
                   </span>
                   <span className="inventory-relation-item__copy">
-                    <strong>{item.label}</strong>
+                    <span className="inventory-relation-item__label">{item.label}</span>
                     {item.identifier != null ? <code>{item.identifier}</code> : null}
                   </span>
                   {item.detail != null ? <small>{item.detail}</small> : null}
@@ -100,7 +100,7 @@ export function InventoryRelationList({
             </li>
           ))}
         </ul>
-      ) : <p>{empty}</p>}
+      ) : empty != null ? <p>{empty}</p> : null}
     </section>
   );
 }

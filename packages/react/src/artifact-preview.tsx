@@ -236,6 +236,12 @@ export function ArtifactPreview(props: ArtifactPreviewProps) {
       const rows = table.rows.slice(0, rowLimit);
       const totalRows = table.totalRows ?? table.rows.length;
       const totalColumns = table.totalColumns ?? table.headers.length;
+      const rowSummary = table.totalRows === undefined
+        ? `first ${rows.length} rows`
+        : `${rows.length} of ${totalRows} rows`;
+      const columnSummary = table.totalColumns === undefined
+        ? `first ${headers.length} columns`
+        : `${headers.length} of ${totalColumns} columns`;
       return (
         <div className={`inventory-output-table${compact ? ' is-compact' : ''}`}>
           <table>
@@ -252,10 +258,13 @@ export function ArtifactPreview(props: ArtifactPreviewProps) {
               ))}
             </tbody>
           </table>
-          {!compact && (totalRows > rows.length || totalColumns > headers.length) ? (
+          {!compact && (
+            table.truncated
+            || totalRows > rows.length
+            || totalColumns > headers.length
+          ) ? (
             <p>
-              Showing {rows.length} of {totalRows} rows and{' '}
-              {headers.length} of {totalColumns} columns.
+              Showing {rowSummary} and {columnSummary}.
             </p>
           ) : null}
         </div>

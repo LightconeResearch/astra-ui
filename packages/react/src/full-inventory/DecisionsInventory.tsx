@@ -67,7 +67,10 @@ export function DecisionDialog({
       <InventoryDetailLayout className="inventory-record-detail__layout--single">
         <InventoryDetailMain>
           {record.rationale ? (
-            <InventoryDetailProse label="Rationale">
+            <InventoryDetailProse
+              label="Rationale"
+              className="inventory-record-detail__prose--section-heading"
+            >
               <InventoryProse text={record.rationale} />
             </InventoryDetailProse>
           ) : null}
@@ -92,7 +95,7 @@ export function DecisionDialog({
             </ul>
           </section>
           <section className="inventory-insight-list">
-            <InventoryCountHeading title="Insights" count={insights.length} />
+            <InventoryCountHeading title="Insights that informed this" count={insights.length} />
             {insights.length ? (
               <ul className="inventory-decision-insights">
                 {insights.map((insight) => (
@@ -139,28 +142,36 @@ export function DecisionsInventory({
   return (
     <div className="inventory-records inventory-records--decisions">
       {tags.length ? (
-        <div className="inventory-record-filter">
-          <select
-            aria-label="Decision tag"
-            value={tagFilter}
-            onChange={(event) => setTagFilter(event.target.value)}
-          >
-            <option value="all">All tags ({records.length})</option>
+        <div className="inventory-record-filter" role="group" aria-label="Filter decisions by tag">
+          <div className="inventory-record-filter__chips">
+            <button
+              type="button"
+              aria-pressed={tagFilter === 'all'}
+              onClick={() => setTagFilter('all')}
+            >
+              All · {records.length}
+            </button>
             {tags.map((tag) => (
-              <option key={tag} value={tag}>
-                {tagLabel(tag, tagLabels)} ({records.filter((record) => record.tags?.includes(tag)).length})
-              </option>
+              <button
+                key={tag}
+                type="button"
+                aria-pressed={tagFilter === tag}
+                onClick={() => setTagFilter(tag)}
+              >
+                {tagLabel(tag, tagLabels)} · {records.filter((record) => record.tags?.includes(tag)).length}
+              </button>
             ))}
-          </select>
+          </div>
           <span>{visibleRecords.length} {visibleRecords.length === 1 ? 'decision' : 'decisions'}</span>
         </div>
       ) : null}
       <InventoryRecordList
         ariaLabel="Decisions"
-        columnTemplate="minmax(14rem, 1.4fr) minmax(12rem, 1fr) 1.5rem"
+        columnTemplate="minmax(14rem, 1.1fr) minmax(12rem, 1fr) 6.875rem 1.5rem"
         columns={[
           { label: 'Decision', className: 'inventory-record-list__primary' },
           { label: 'Selected option', className: 'inventory-record-list__selection' },
+          { label: 'Tag', className: 'inventory-record-list__secondary' },
           { className: 'inventory-record-list__arrow' },
         ]}
         rows={visibleRecords.map((record) => ({
@@ -170,6 +181,9 @@ export function DecisionsInventory({
           cells: [
             <InventoryRecordIdentity kind="decision" title={inventoryRecordTitle(record)} />,
             <span className="inventory-record-list__selected">{selectedOptionLabel(record)}</span>,
+            <span className="inventory-record-list__tag">
+              {record.tags?.[0] ? tagLabel(record.tags[0], tagLabels) : '—'}
+            </span>,
             <span aria-hidden="true">→</span>,
           ],
         }))}

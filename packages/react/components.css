@@ -3,6 +3,7 @@
    own (with ui.css) so publication themes never pull in the applications. */
 
 @import "./ui.css";
+@import "katex/dist/katex.css";
 
 .astra-ui .astra-record-detail h2 {
   margin: 0;
@@ -290,7 +291,7 @@
   width: 100%;
   height: 100%;
   min-height: 0;
-  grid-template-columns: minmax(0, 2.2fr) minmax(20rem, 0.9fr);
+  grid-template-columns: minmax(0, 1fr) clamp(17.5rem, 27%, 20rem);
   overflow: hidden;
 }
 
@@ -881,8 +882,8 @@
   min-width: 0;
 }
 
-.astra-ui .inventory-relation-list strong { font-family: var(--astra-label); font-size: 0.72rem; }
-.astra-ui .inventory-relation-list strong,
+.astra-ui .inventory-relation-item__label { font-family: var(--astra-label); font-size: 0.72rem; }
+.astra-ui .inventory-relation-item__label,
 .astra-ui .inventory-relation-list code,
 .astra-ui .inventory-relation-list small { overflow-wrap: anywhere; }
 .astra-ui .inventory-relation-list code,
@@ -1042,29 +1043,27 @@
   max-height: min(44rem, calc(100vh - 8rem));
   min-height: 0;
   overflow: hidden;
-  grid-template-columns: minmax(0, 1.65fr) minmax(18rem, 0.9fr);
+  grid-template-columns: minmax(0, 1fr) clamp(17.5rem, 27%, 20rem);
   align-items: stretch;
 }
 
-.astra-ui .inventory-output-dialog__layout--stacked {
+.astra-ui .inventory-output-dialog__layout--single {
   display: block;
   overflow-y: auto;
 }
 
-.astra-ui .inventory-output-dialog__layout--stacked .inventory-output-dialog__result {
+.astra-ui .inventory-output-dialog__layout--single .inventory-output-dialog__result {
   overflow: visible;
 }
 
-.astra-ui .inventory-output-dialog__layout--stacked .inventory-output-provenance-slot {
-  min-height: auto;
-}
-
-.astra-ui .inventory-output-dialog__layout--stacked .inventory-output-provenance {
+.astra-ui .inventory-output-dialog__layout--single .inventory-output-provenance {
   position: static;
   overflow: visible;
+  margin-top: 1.5rem;
   border-top: 1px solid var(--astra-rule);
   border-left: 0;
-  padding: clamp(1rem, 2.6vw, 2rem);
+  background: transparent;
+  padding: 1.25rem 0 0;
 }
 
 .astra-ui .inventory-output-dialog__result {
@@ -1087,6 +1086,117 @@
   background: var(--astra-raised);
 }
 
+.astra-ui .inventory-output-artifact {
+  min-width: 0;
+}
+
+.astra-ui .inventory-output-artifact__toolbar {
+  display: flex;
+  min-height: 2.25rem;
+  align-items: center;
+  gap: 0.75rem;
+  justify-content: space-between;
+  border: 1px solid var(--astra-rule);
+  border-bottom: 0;
+  background: var(--astra-header);
+  padding: 0.35rem 0.5rem 0.35rem 0.75rem;
+  color: var(--astra-muted);
+  font-family: var(--astra-label);
+  font-size: 0.68rem;
+}
+
+.astra-ui .inventory-output-artifact__toolbar > span:first-child {
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.astra-ui .inventory-output-artifact__toolbar > strong {
+  display: none;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--astra-ink);
+  font-family: var(--astra-heading);
+  font-size: 0.9rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.astra-ui .inventory-output-artifact__toolbar button {
+  display: inline-flex;
+  min-height: 1.5rem;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  border: 1px solid var(--astra-rule-strong);
+  border-radius: 0;
+  background: var(--astra-raised);
+  color: var(--astra-action);
+  padding: 0.18rem 0.45rem;
+  font: inherit;
+}
+
+.astra-ui .inventory-output-artifact__toolbar button:hover {
+  border-color: var(--astra-action);
+  background: var(--astra-hover);
+}
+
+.astra-ui .inventory-output-artifact.is-expanded {
+  position: fixed;
+  z-index: 10000;
+  inset: 0;
+  display: grid;
+  width: auto;
+  max-width: none;
+  height: auto;
+  margin: 0;
+  grid-template-rows: auto minmax(0, 1fr);
+  background: var(--astra-canvas);
+}
+
+.astra-ui .inventory-output-artifact.is-expanded .inventory-output-artifact__toolbar {
+  min-height: 3.25rem;
+  border: 0;
+  border-bottom: 1px solid var(--astra-rule);
+  padding-inline: 1rem;
+}
+
+.astra-ui .inventory-output-artifact.is-expanded .inventory-output-artifact__toolbar > strong {
+  display: block;
+  flex: 1 1 auto;
+}
+
+.astra-ui .inventory-output-artifact.is-expanded .inventory-output-dialog__preview {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  max-height: none;
+  overflow: hidden;
+  border: 0;
+  border-radius: 0;
+}
+
+.astra-ui .inventory-output-artifact.is-expanded .inventory-output-dialog__preview > img {
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  padding: clamp(1rem, 3vw, 2.5rem);
+  object-fit: contain;
+}
+
+.astra-ui .inventory-output-artifact.is-expanded .inventory-output-table {
+  height: 100%;
+  max-height: none;
+  overflow: auto;
+  scrollbar-gutter: stable;
+}
+
+.astra-ui .inventory-output-artifact.is-expanded .inventory-output-table thead {
+  position: sticky;
+  z-index: 1;
+  top: 0;
+}
+
 .astra-ui .inventory-output-dialog__preview.is-table {
   display: block;
   min-height: 0;
@@ -1101,7 +1211,28 @@
 }
 
 .astra-ui .inventory-output-description {
-  margin: 0 0 1.2rem;
+  margin: 1.25rem 0 0;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--astra-rule);
+}
+
+.astra-ui .inventory-output-dialog__layout--single .inventory-output-description:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.astra-ui .inventory-output-dialog__inline-result {
+  width: max-content;
+  max-width: 100%;
+  margin-bottom: 1.25rem;
+  border: 1px solid var(--astra-rule);
+  background: var(--astra-raised);
+  padding: 1rem 1.25rem;
+}
+
+.astra-ui .inventory-output-dialog__inline-result .inventory-output-metric {
+  justify-content: flex-start;
 }
 
 .astra-ui .inventory-output-description h4 {
@@ -1122,6 +1253,17 @@
 }
 
 .astra-ui .inventory-output-description__text .katex-display {
+  max-width: 100%;
+  margin: 0.8rem 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.astra-ui .inventory-prose__inline-math {
+  white-space: nowrap;
+}
+
+.astra-ui .inventory-prose__display-math .katex-display {
   max-width: 100%;
   margin: 0.8rem 0;
   overflow-x: auto;
@@ -1209,10 +1351,11 @@
   padding-block: 0.55rem;
 }
 
-.astra-ui .inventory-output-provenance__group li strong {
+.astra-ui .inventory-output-provenance__group .inventory-relation-item__label {
   overflow-wrap: anywhere;
   font-family: var(--astra-label);
   font-size: 0.72rem;
+  font-weight: 400;
 }
 
 .astra-ui .inventory-output-provenance__group li code,
@@ -1400,4 +1543,1620 @@
 .astra-ui[data-astra-theme="brand-dark"] .astra-evidence__thumb img {
   background: var(--astra-artifact-paper);
   border-radius: 3px;
+}
+
+/* --------------------------------------------------------------------------
+   Editorial record and artifact presentation
+   -------------------------------------------------------------------------- */
+
+.astra-ui .astra-record-detail {
+  width: min(74rem, 100%);
+  margin-inline: auto;
+  padding: clamp(1.5rem, 4vw, 3rem);
+  border: 0;
+  border-radius: 0;
+  background: var(--astra-canvas);
+  font-family: var(--astra-font-body);
+}
+
+.astra-ui .astra-record-detail__header {
+  min-height: 0;
+  align-items: flex-end;
+  padding: 0 0 1rem;
+  border-color: var(--astra-rule-strong);
+  background: transparent;
+}
+
+.astra-ui .astra-record-detail__header .astra-surface-header__content {
+  gap: 0.35rem;
+}
+
+.astra-ui .astra-record-detail__header .astra-surface-header__title {
+  max-width: 48rem;
+  font-family: var(--astra-font-heading);
+  font-size: clamp(1.9rem, 4vw, 2.8rem);
+  line-height: 1.08;
+}
+
+.astra-ui .astra-record-detail__path {
+  font-size: 0.6875rem;
+}
+
+.astra-ui .astra-record-detail__section {
+  max-width: 56rem;
+  margin-block-start: 1.75rem;
+  font-family: var(--astra-font-body);
+  font-size: 1rem;
+  line-height: 1.62;
+}
+
+.astra-ui .astra-record-detail__section h3 {
+  padding-block-end: 0.5rem;
+  border-block-end: 1px solid var(--astra-rule);
+  color: var(--astra-muted);
+  font-family: var(--astra-font-ui);
+}
+
+.astra-ui .astra-option-list li,
+.astra-ui .astra-relation-list li {
+  padding-block: 0.7rem;
+}
+
+.astra-ui .astra-result-viewer {
+  margin-block-start: 2rem;
+  padding: 1rem 0 0;
+  border: 0;
+  border-block-start: 1px solid var(--astra-rule-strong);
+  border-radius: 0;
+  background: transparent;
+}
+
+.astra-ui .astra-result-viewer > header {
+  margin-block-end: 0.75rem;
+  font-family: var(--astra-font-ui);
+}
+
+.astra-ui .astra-artifact--image,
+.astra-ui .astra-artifact--table,
+.astra-ui .astra-artifact--text pre {
+  border: 1px solid var(--astra-rule);
+  background: var(--astra-artifact-paper);
+}
+
+.astra-ui .astra-artifact--image img {
+  padding: clamp(0.75rem, 2vw, 1.5rem);
+}
+
+.astra-ui .astra-artifact--image figcaption {
+  margin: 0;
+  padding: 0.55rem 0.75rem;
+  border-block-start: 1px solid var(--astra-rule);
+  font-family: var(--astra-font-ui);
+  font-size: 0.75rem;
+  text-align: start;
+}
+
+.astra-ui .inventory-detail-dialog {
+  padding: clamp(0.75rem, 2vw, 1.5rem);
+}
+
+.astra-ui .inventory-detail-dialog::backdrop {
+  background: rgb(34 31 32 / 0.42);
+  backdrop-filter: blur(2px);
+}
+
+.astra-ui .inventory-detail-dialog > section {
+  width: min(74rem, 100%);
+  max-height: calc(100dvh - 2rem);
+  border-color: var(--astra-rule-strong);
+  border-radius: 0;
+  background: var(--astra-canvas);
+  box-shadow: none;
+  font-family: var(--astra-font-body);
+}
+
+.astra-ui .inventory-detail-dialog__header {
+  min-height: 5.5rem;
+  align-items: flex-end;
+  padding: 1.1rem clamp(1rem, 2.6vw, 2rem);
+  border-color: var(--astra-rule-strong);
+  background: var(--astra-canvas);
+}
+
+.astra-ui .inventory-detail-dialog__header h3 {
+  max-width: 50rem;
+  font-family: var(--astra-font-heading);
+  font-size: clamp(1.5rem, 3vw, 2.15rem);
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.astra-ui .inventory-detail-dialog__header > div:first-child > span {
+  color: var(--astra-kind-ink, var(--astra-muted));
+  font-family: var(--astra-font-ui);
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+}
+
+.astra-ui .inventory-detail-dialog__body,
+.astra-ui .inventory-record-detail__main,
+.astra-ui .inventory-output-dialog__result {
+  background: var(--astra-canvas);
+}
+
+.astra-ui .inventory-record-detail__main {
+  padding: clamp(1.5rem, 3.2vw, 2.75rem);
+}
+
+.astra-ui .inventory-record-detail__prose > div,
+.astra-ui .inventory-output-description__text,
+.astra-ui .inventory-finding-detail__notes > div {
+  color: var(--astra-ink);
+  font-family: var(--astra-font-body);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.astra-ui .inventory-record-detail__aside,
+.astra-ui .inventory-output-provenance,
+.astra-ui .inventory-paper-dialog__rail {
+  border-color: var(--astra-rule);
+  background: var(--astra-raised);
+}
+
+.astra-ui .inventory-decision-options {
+  margin-top: 2rem;
+  padding-top: 1rem;
+}
+
+.astra-ui .inventory-decision-options ul {
+  gap: 0;
+}
+
+.astra-ui .inventory-decision-options li {
+  border: 0;
+  border-block-end: 1px solid var(--astra-rule);
+  border-radius: 0;
+  background: transparent;
+  padding: 0.75rem 0.25rem;
+}
+
+.astra-ui .inventory-decision-options li.is-selected {
+  border-block-end-color: var(--astra-rule);
+  background: var(--astra-c-decision-soft);
+  box-shadow: inset 2px 0 0 var(--astra-c-decision);
+}
+
+.astra-ui .inventory-output-dialog__preview {
+  border-color: var(--astra-rule);
+  border-radius: 0;
+  background: var(--astra-artifact-paper);
+}
+
+.astra-ui .inventory-output-provenance__header {
+  border-color: var(--astra-rule-strong);
+}
+
+.astra-ui .inventory-output-provenance__header > strong {
+  border-radius: 999px;
+}
+
+@media (max-width: 720px) {
+  .astra-ui .astra-record-detail__header {
+    align-items: stretch;
+  }
+
+  .astra-ui .inventory-detail-dialog {
+    padding: 0;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Record.dc detail composition
+
+   The dialog keeps the complete ASTRA record behavior, while the embedded
+   host presentation follows the supplied record-page hierarchy: context and
+   back navigation, a large title, an artifact stage, and a quiet details rail.
+   -------------------------------------------------------------------------- */
+
+.astra-ui .inventory-detail-dialog__context {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.875rem;
+}
+
+.astra-ui .inventory-detail-dialog__back {
+  display: inline-flex;
+  min-height: 0;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0;
+  border: 0;
+  color: var(--astra-muted);
+  background: transparent;
+  font: 500 0.8125rem/1.2 var(--astra-font-ui);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.astra-ui .inventory-detail-dialog__back:hover,
+.astra-ui .inventory-detail-dialog__back:focus-visible {
+  color: var(--astra-c-output);
+  background: transparent;
+}
+
+.astra-ui .inventory-detail-dialog__back:focus-visible {
+  outline: 1px solid currentcolor;
+  outline-offset: 0.25rem;
+}
+
+.astra-ui .inventory-detail-dialog__kind {
+  overflow: hidden;
+  color: var(--astra-kind-ink, var(--astra-muted));
+  font: 700 0.625rem/1.2 var(--astra-font-ui);
+  letter-spacing: 0.09em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.astra-ui .inventory-record-detail__label {
+  margin: 0 0 0.875rem;
+  color: var(--astra-muted);
+  font: 700 0.6875rem/1.2 var(--astra-font-ui);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.astra-ui .inventory-detail-dialog.inventory-detail-dialog--embedded {
+  position: static;
+  inset: auto;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: none;
+  height: auto;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--astra-canvas);
+  container-type: inline-size;
+}
+
+.astra-ui .inventory-detail-dialog--embedded > section {
+  display: flex;
+  width: 100%;
+  max-width: none;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: var(--astra-canvas);
+  box-shadow: none;
+}
+
+.astra-ui .inventory-detail-dialog--embedded .inventory-detail-dialog__header {
+  min-height: 0;
+  align-items: flex-start;
+  margin: 0 0 1.375rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.astra-ui .inventory-detail-dialog--embedded .astra-surface-header__content {
+  display: grid;
+  min-width: 0;
+  gap: 0.5rem;
+}
+
+.astra-ui .inventory-detail-dialog--embedded .astra-surface-header__eyebrow {
+  min-width: 0;
+}
+
+.astra-ui .inventory-detail-dialog--embedded .inventory-detail-dialog__header h3 {
+  max-width: 56.25rem;
+  margin: 0;
+  color: var(--astra-ink);
+  font-family: var(--astra-font-heading);
+  font-size: clamp(1.65rem, 3vw, 1.8125rem);
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.astra-ui .inventory-detail-dialog--embedded .inventory-detail-dialog__header code {
+  color: var(--astra-muted);
+  font: 400 0.6875rem/1.25 var(--astra-font-mono);
+}
+
+.astra-ui .inventory-detail-dialog--embedded .inventory-detail-dialog__actions > button {
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--astra-rule-strong);
+  border-radius: 0;
+  background: transparent;
+  color: var(--astra-muted);
+}
+
+.astra-ui .inventory-detail-dialog--embedded .inventory-detail-dialog__body {
+  display: flex;
+  width: 100%;
+  max-height: none;
+  flex: 0 0 auto;
+  overflow: visible;
+  border: 1px solid var(--astra-rule-strong);
+  background: var(--astra-canvas);
+}
+
+.astra-ui .inventory-detail-dialog--embedded .inventory-record-detail__layout,
+.astra-ui .inventory-detail-dialog--embedded .inventory-output-dialog__layout {
+  height: auto;
+  max-height: none;
+  overflow: visible;
+}
+
+.astra-ui .inventory-detail-dialog--embedded .inventory-record-detail__main {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: none;
+  min-height: 18rem;
+  overflow: visible;
+  padding: 1.25rem 1.625rem 2rem;
+  background: var(--astra-canvas);
+}
+
+.astra-ui .inventory-detail-dialog--embedded .inventory-record-detail__prose,
+.astra-ui .inventory-detail-dialog--embedded .inventory-decision-options,
+.astra-ui .inventory-detail-dialog--embedded .inventory-input-source,
+.astra-ui .inventory-detail-dialog--embedded .inventory-insight-list,
+.astra-ui .inventory-detail-dialog--embedded .inventory-finding-detail__notes {
+  padding-block: 0.875rem;
+  border-block-start: 1px solid var(--astra-rule);
+}
+
+.astra-ui .inventory-detail-dialog--embedded .inventory-record-detail__prose > span,
+.astra-ui .inventory-detail-dialog--embedded .inventory-output-description h4,
+.astra-ui .inventory-detail-dialog--embedded .inventory-output-recipe summary,
+.astra-ui .inventory-detail-dialog--embedded :is(
+  .inventory-decision-options,
+  .inventory-input-source,
+  .inventory-insight-list,
+  .inventory-finding-detail__notes,
+  .inventory-record-detail__relations
+) h4 {
+  color: var(--astra-ink);
+  font: 700 0.8125rem/1.25 var(--astra-font-ui);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.astra-ui .inventory-detail-dialog--embedded .inventory-record-detail__prose > div,
+.astra-ui .inventory-detail-dialog--embedded .inventory-output-description__text,
+.astra-ui .inventory-detail-dialog--embedded .inventory-finding-detail__notes > div {
+  color: var(--astra-ink-soft);
+  font: 400 0.84375rem/1.55 var(--astra-font-body);
+}
+
+.astra-ui .inventory-detail-dialog--embedded .inventory-output-dialog__result {
+  display: block;
+  min-height: 0;
+  overflow: visible;
+  padding: 1.5rem;
+  background: var(--astra-canvas);
+}
+
+.astra-ui .inventory-detail-dialog--embedded .inventory-output-dialog__layout--reader {
+  grid-template-columns: minmax(0, 1fr) clamp(17.5rem, 27%, 20rem);
+  min-height: max(32rem, calc(100dvh - 13rem));
+}
+
+.astra-ui .inventory-detail-dialog--embedded .inventory-output-dialog__layout--reader .inventory-output-dialog__result {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.astra-ui .inventory-detail-dialog--embedded .inventory-output-dialog__layout--reader .inventory-output-dialog__preview {
+  width: 100%;
+  min-height: 24rem;
+  margin: 0;
+  border: 1px solid var(--astra-rule);
+  background: var(--astra-raised);
+}
+
+.astra-ui .inventory-detail-dialog--embedded .inventory-output-dialog__preview.is-table {
+  --inventory-table-preview-max-height: min(36rem, 65dvh);
+
+  display: block;
+  width: 100%;
+  min-height: 0;
+  max-height: var(--inventory-table-preview-max-height);
+  overflow: hidden;
+}
+
+.astra-ui .inventory-detail-dialog--embedded .inventory-output-dialog__preview.is-table > .inventory-output-table {
+  width: 100%;
+  max-height: var(--inventory-table-preview-max-height);
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.astra-ui .inventory-detail-dialog--embedded .inventory-output-dialog__preview.is-table thead {
+  position: sticky;
+  z-index: 1;
+  top: 0;
+}
+
+.astra-ui .inventory-detail-dialog--embedded .inventory-output-provenance {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 1.25rem 1.625rem 2rem;
+  border-block-start: 1px solid var(--astra-rule);
+  background: var(--astra-canvas);
+}
+
+.astra-ui .inventory-detail-dialog--embedded .inventory-output-dialog__layout--reader .inventory-output-provenance {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  border-block-start: 0;
+  border-inline-start: 1px solid var(--astra-rule);
+  padding: 1.125rem 1rem 1.5rem;
+}
+
+.astra-ui .inventory-detail-dialog--embedded .inventory-output-artifact.is-expanded .inventory-output-dialog__preview,
+.astra-ui .inventory-detail-dialog--embedded .inventory-output-artifact.is-expanded .inventory-output-dialog__preview.is-table,
+.astra-ui .inventory-detail-dialog--embedded .inventory-output-artifact.is-expanded .inventory-output-table {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  max-height: none;
+}
+
+.astra-ui .inventory-detail-dialog--embedded .inventory-output-dialog__layout--single .inventory-output-provenance {
+  position: static;
+  overflow: visible;
+  margin-top: 1.5rem;
+  border-inline-start: 0;
+  background: transparent;
+  padding: 1.25rem 0 0;
+}
+
+.astra-ui .inventory-detail-dialog--embedded .inventory-output-provenance__header {
+  margin: 0 0 0.25rem;
+  padding: 0 0 0.5rem;
+  border-block-end: 0;
+}
+
+.astra-ui .inventory-detail-dialog--embedded .inventory-output-provenance__header > span {
+  color: var(--astra-muted);
+}
+
+.astra-ui .inventory-detail-dialog--embedded .inventory-output-description,
+.astra-ui .inventory-detail-dialog--embedded .inventory-output-recipe,
+.astra-ui .inventory-detail-dialog--embedded .inventory-output-provenance__group {
+  margin: 0;
+  padding-block: 0.875rem;
+  border-block-start: 1px solid var(--astra-rule);
+}
+
+.astra-ui .inventory-detail-dialog--embedded .inventory-output-recipe pre,
+.astra-ui .inventory-detail-dialog--embedded .inventory-input-source code {
+  border: 1px solid var(--astra-rule);
+  border-radius: 0;
+  background: var(--astra-raised);
+  color: var(--astra-action);
+}
+
+.astra-ui .inventory-detail-dialog--embedded .inventory-relation-list li,
+.astra-ui .inventory-detail-dialog--embedded .inventory-relation-trigger {
+  min-height: 0;
+  padding-block: 0.5rem;
+}
+
+.astra-ui .inventory-detail-dialog--embedded.inventory-detail-dialog--paper .inventory-detail-dialog__body {
+  height: max(32rem, calc(100dvh - 13rem));
+  overflow: hidden;
+}
+
+.astra-ui .inventory-detail-dialog--embedded .inventory-paper-dialog__rail {
+  padding: 1.125rem 1rem 1.5rem;
+  background: var(--astra-canvas);
+}
+
+@media (max-width: 760px) {
+  .astra-ui .inventory-detail-dialog--embedded .inventory-detail-dialog__context {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .astra-ui .inventory-detail-dialog--embedded .inventory-output-dialog__result {
+    min-height: 20rem;
+    padding: 1rem;
+  }
+
+  .astra-ui .inventory-detail-dialog--embedded .inventory-output-dialog__preview {
+    min-height: 17rem;
+  }
+
+  .astra-ui .inventory-detail-dialog--embedded .inventory-output-dialog__layout--reader {
+    display: block;
+    min-height: 0;
+  }
+
+  .astra-ui .inventory-detail-dialog--embedded .inventory-output-dialog__layout--reader .inventory-output-dialog__result {
+    overflow: visible;
+  }
+
+  .astra-ui .inventory-detail-dialog--embedded .inventory-output-dialog__layout--reader .inventory-output-provenance {
+    position: static;
+    overflow: visible;
+    border-block-start: 1px solid var(--astra-rule);
+    border-inline-start: 0;
+  }
+
+  .astra-ui .inventory-detail-dialog--embedded.inventory-detail-dialog--paper .inventory-detail-dialog__body {
+    height: auto;
+    overflow: visible;
+  }
+
+  .astra-ui .inventory-detail-dialog--embedded .inventory-paper-dialog__layout {
+    display: block;
+    height: auto;
+    overflow: visible;
+  }
+
+  .astra-ui .inventory-detail-dialog--embedded .inventory-paper-pdf {
+    min-height: 32rem;
+  }
+}
+
+@container (max-width: 47.5rem) {
+  .astra-ui .inventory-detail-dialog--embedded .inventory-detail-dialog__context {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .astra-ui .inventory-detail-dialog--embedded .inventory-output-dialog__result {
+    min-height: 20rem;
+    padding: 1rem;
+  }
+
+  .astra-ui .inventory-detail-dialog--embedded .inventory-output-dialog__preview {
+    min-height: 17rem;
+  }
+
+  .astra-ui .inventory-detail-dialog--embedded .inventory-output-dialog__layout--reader {
+    display: block;
+    min-height: 0;
+  }
+
+  .astra-ui .inventory-detail-dialog--embedded .inventory-output-dialog__layout--reader .inventory-output-dialog__result {
+    overflow: visible;
+  }
+
+  .astra-ui .inventory-detail-dialog--embedded .inventory-output-dialog__layout--reader .inventory-output-provenance {
+    position: static;
+    overflow: visible;
+    border-block-start: 1px solid var(--astra-rule);
+    border-inline-start: 0;
+  }
+
+  .astra-ui .inventory-detail-dialog--embedded.inventory-detail-dialog--paper .inventory-detail-dialog__body {
+    height: auto;
+    overflow: visible;
+  }
+
+  .astra-ui .inventory-detail-dialog--embedded .inventory-paper-dialog__layout {
+    display: block;
+    height: auto;
+    overflow: visible;
+  }
+
+  .astra-ui .inventory-detail-dialog--embedded .inventory-paper-pdf {
+    min-height: 32rem;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Claude Design record-popup handoff
+
+   The supplied `ASTRA Record Popups.dc.html` is the source of truth for this
+   shell: one 70px header, 1120px split readers for inspectable artifacts,
+   720px single-column records, local overflow, and in-place record trails.
+   The product-specific adaptation is deliberate: popup chrome, controls,
+   side-cars, and stages use the inventory canvas rather than white.
+   -------------------------------------------------------------------------- */
+
+.astra-ui .inventory-detail-dialog {
+  padding: clamp(0.75rem, 2.4vw, 1.625rem);
+}
+
+.astra-ui .inventory-detail-dialog::backdrop {
+  background: rgb(34 31 32 / 0.26);
+  backdrop-filter: none;
+}
+
+.astra-ui .inventory-detail-dialog > section {
+  display: flex;
+  width: min(45rem, 100%);
+  height: min(38.75rem, calc(100dvh - 2rem));
+  max-height: calc(100dvh - 2rem);
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--astra-rule-strong);
+  border-radius: 0.625rem;
+  background: var(--astra-canvas);
+  box-shadow: 0 1.375rem 4rem rgb(34 31 32 / 0.22);
+  color: var(--astra-ink);
+  font-family: var(--astra-font-body);
+}
+
+.astra-ui .inventory-detail-dialog--reader > section {
+  width: min(70rem, 100%);
+  height: min(43.75rem, calc(100dvh - 2rem));
+}
+
+.astra-ui .inventory-detail-dialog--output-reader > section {
+  width: min(78rem, 100%);
+}
+
+.astra-ui :is(
+  .inventory-detail-dialog--input,
+  .inventory-detail-dialog--finding
+) > section {
+  height: auto;
+}
+
+.astra-ui :is(
+  .inventory-detail-dialog--input,
+  .inventory-detail-dialog--finding
+) .inventory-detail-dialog__body {
+  flex: 0 1 auto;
+}
+
+.astra-ui :is(
+  .inventory-detail-dialog--input,
+  .inventory-detail-dialog--finding
+) .inventory-record-detail__layout--single {
+  height: auto;
+}
+
+.astra-ui .inventory-detail-dialog__header,
+.astra-ui .inventory-detail-dialog--embedded .inventory-detail-dialog__header {
+  display: flex;
+  box-sizing: border-box;
+  min-height: 4.375rem;
+  flex: 0 0 auto;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0.8125rem 0.875rem 0.8125rem 1rem;
+  border: 0;
+  border-block-end: 1px solid var(--astra-rule);
+  background: var(--astra-canvas);
+}
+
+.astra-ui .inventory-detail-dialog__header .astra-surface-header__leading {
+  flex: 0 0 auto;
+  margin-top: 0.1875rem;
+}
+
+.astra-ui .inventory-detail-dialog__header .astra-surface-header__content,
+.astra-ui .inventory-detail-dialog--embedded .inventory-detail-dialog__header .astra-surface-header__content {
+  display: grid;
+  min-width: 0;
+  flex: 1 1 auto;
+  gap: 0.1875rem;
+}
+
+.astra-ui .inventory-detail-dialog__header .astra-surface-header__eyebrow {
+  min-width: 0;
+  overflow: hidden;
+  font-family: var(--astra-font-ui);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.075em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.astra-ui .inventory-detail-dialog__trail {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.4375rem;
+}
+
+.astra-ui .inventory-detail-dialog__crumb {
+  max-width: 14.375rem;
+  overflow: hidden;
+  color: var(--astra-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.astra-ui .inventory-detail-dialog__trail-separator {
+  flex: 0 0 auto;
+  color: var(--astra-rule-strong);
+  font-size: 0.625rem;
+}
+
+.astra-ui .inventory-detail-dialog__kind {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--astra-kind-ink, var(--astra-muted));
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.astra-ui .inventory-detail-dialog__header h3,
+.astra-ui .inventory-detail-dialog--embedded .inventory-detail-dialog__header h3 {
+  max-width: none;
+  margin: 0;
+  overflow: hidden;
+  color: var(--astra-ink);
+  font-family: var(--astra-font-ui);
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.astra-ui .inventory-detail-dialog__actions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.4375rem;
+  margin-top: 0.0625rem;
+}
+
+.astra-ui :is(
+  .inventory-detail-dialog__header-action,
+  .inventory-detail-dialog__actions > .astra-icon-button,
+  .inventory-detail-dialog__back,
+  .inventory-artifact-fullscreen__header button
+) {
+  display: inline-flex;
+  box-sizing: border-box;
+  min-height: 2rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  border: 1px solid var(--astra-rule);
+  border-radius: 0.375rem;
+  background: var(--astra-canvas);
+  color: var(--astra-link);
+  padding: 0.375rem 0.625rem;
+  font: 650 0.8125rem/1 var(--astra-font-ui);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.astra-ui .inventory-detail-dialog__actions > .astra-icon-button,
+.astra-ui .inventory-detail-dialog__back {
+  width: 2rem;
+  height: 2rem;
+  min-height: 2rem;
+  flex: 0 0 auto;
+  padding: 0;
+}
+
+.astra-ui .inventory-detail-dialog__actions > .astra-icon-button {
+  color: var(--astra-muted);
+  font-size: 1.0625rem;
+}
+
+.astra-ui :is(
+  .inventory-detail-dialog__header-action,
+  .inventory-detail-dialog__actions > .astra-icon-button,
+  .inventory-detail-dialog__back,
+  .inventory-artifact-fullscreen__header button
+):hover {
+  border-color: var(--astra-rule-strong);
+  background: var(--astra-canvas);
+  color: var(--astra-ink);
+}
+
+.astra-ui .inventory-detail-dialog__body {
+  display: flex;
+  max-height: none;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--astra-canvas);
+}
+
+.astra-ui .inventory-record-detail__layout,
+.astra-ui .inventory-output-dialog__layout,
+.astra-ui .inventory-paper-dialog__layout {
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.astra-ui .inventory-record-detail__layout--single,
+.astra-ui .inventory-output-dialog__layout--single {
+  display: block;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.astra-ui .inventory-record-detail__main {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: visible;
+  background: var(--astra-canvas);
+  padding: 1.5rem 1.625rem 1.875rem;
+}
+
+.astra-ui .inventory-record-detail__prose > span {
+  color: var(--astra-muted);
+  font: 700 0.75rem/1 var(--astra-font-ui);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.astra-ui .inventory-record-detail__prose > div {
+  width: 100%;
+  max-width: none;
+  margin-top: 0.5rem;
+  color: var(--astra-ink-soft);
+  font: 1rem/1.55 var(--astra-font-body);
+}
+
+.astra-ui :is(
+  .inventory-decision-options,
+  .inventory-input-source,
+  .inventory-insight-detail__paper,
+  .inventory-insight-detail__source-quote,
+  .inventory-insight-detail__notes,
+  .inventory-insight-list,
+  .inventory-finding-detail__notes,
+  .inventory-finding-evidence-previews,
+  .inventory-record-detail__relations
+) {
+  margin-top: 1.625rem;
+}
+
+.astra-ui :is(
+  .inventory-decision-options,
+  .inventory-input-source
+) {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.astra-ui :is(
+  .inventory-decision-options,
+  .inventory-input-source,
+  .inventory-insight-detail__paper,
+  .inventory-insight-detail__source-quote,
+  .inventory-insight-detail__notes,
+  .inventory-insight-list,
+  .inventory-finding-detail__notes,
+  .inventory-finding-evidence-previews,
+  .inventory-record-detail__relations,
+  .inventory-output-description,
+  .inventory-output-recipe,
+  .inventory-output-provenance__group,
+  .inventory-paper-doi
+) h4 {
+  margin: 0 0 0.5rem;
+  color: var(--astra-ink);
+  font: 700 0.875rem/1.2 var(--astra-font-ui);
+}
+
+.astra-ui .inventory-decision-options ul {
+  display: grid;
+  gap: 0.4375rem;
+  margin: 0;
+  padding: 0;
+}
+
+.astra-ui .inventory-decision-options li {
+  display: grid;
+  grid-template-columns: 1.375rem minmax(0, 1fr) auto;
+  gap: 0.6875rem;
+  align-items: center;
+  border: 1px solid var(--astra-rule);
+  border-radius: 0.625rem;
+  background: var(--astra-canvas);
+  padding: 0.6875rem 0.875rem;
+}
+
+.astra-ui .inventory-decision-options li.is-selected {
+  border-color: color-mix(in srgb, var(--astra-c-decision) 42%, var(--astra-rule));
+  background: color-mix(in srgb, var(--astra-c-decision) 8%, var(--astra-canvas));
+  box-shadow: none;
+}
+
+.astra-ui .inventory-decision-options strong {
+  font: 700 0.875rem/1.2 var(--astra-font-ui);
+}
+
+.astra-ui .inventory-decision-options code {
+  margin-top: 0.125rem;
+  color: var(--astra-muted);
+  font-size: 0.6875rem;
+}
+
+.astra-ui .inventory-decision-options small {
+  color: var(--astra-c-decision-ink);
+  font-size: 0.625rem;
+}
+
+.astra-ui .inventory-input-source code,
+.astra-ui .inventory-insight-detail__paper :is(button, a),
+.astra-ui .inventory-paper-doi a {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--astra-rule);
+  border-radius: 999px;
+  background: var(--astra-canvas);
+  color: var(--astra-link);
+  padding: 0.5625rem 1rem;
+  font: 0.6875rem/1.6 var(--astra-font-mono);
+  text-align: left;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.astra-ui .inventory-detail-dialog--input .inventory-input-source {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.astra-ui .inventory-detail-dialog--input .inventory-input-source code {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overflow-wrap: normal;
+  scrollbar-color: var(--astra-rule-strong) transparent;
+  scrollbar-width: thin;
+  white-space: nowrap;
+  word-break: normal;
+}
+
+.astra-ui .inventory-detail-dialog--input .inventory-input-source code::-webkit-scrollbar {
+  height: 0.375rem;
+}
+
+.astra-ui .inventory-detail-dialog--input .inventory-input-source code::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: var(--astra-rule-strong);
+}
+
+.astra-ui .inventory-detail-dialog--input .inventory-input-source code::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.astra-ui .inventory-insight-detail__paper button {
+  cursor: pointer;
+}
+
+.astra-ui .inventory-insight-detail__source-quote blockquote {
+  margin: 0;
+  border-left: 3px solid var(--astra-muted);
+  background: var(--astra-canvas);
+  color: var(--astra-ink-soft);
+  padding: 0.9375rem 1.0625rem;
+  font: italic 0.9375rem/1.55 var(--astra-font-body);
+}
+
+.astra-ui .inventory-insight-detail__open-source {
+  min-height: 2rem;
+  margin-top: 0.6875rem;
+  border: 1px solid var(--astra-rule);
+  border-radius: 0.375rem;
+  background: var(--astra-canvas);
+  color: var(--astra-link);
+  padding: 0.375rem 0.625rem;
+  font: 650 0.8125rem/1 var(--astra-font-ui);
+}
+
+.astra-ui .inventory-insight-detail__notes > div,
+.astra-ui .inventory-finding-detail__notes > div {
+  color: var(--astra-ink-soft);
+  font: 0.9375rem/1.55 var(--astra-font-body);
+}
+
+.astra-ui .inventory-count-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.astra-ui .inventory-count-heading > span {
+  min-width: 1.375rem;
+  border-radius: 999px;
+  background: var(--astra-canvas);
+  color: var(--astra-muted);
+  padding: 0.125rem 0.4375rem;
+  font: 700 0.625rem/1.5 var(--astra-font-ui);
+  text-align: center;
+}
+
+.astra-ui .inventory-relation-list ul {
+  display: grid;
+  gap: 0;
+  margin: 0.5rem 0 0;
+  border: 0;
+  padding: 0;
+}
+
+.astra-ui .inventory-relation-list li,
+.astra-ui .inventory-relation-trigger {
+  min-height: 0;
+  border: 0;
+  background: transparent;
+}
+
+.astra-ui .inventory-relation-list li + li {
+  border-top: 1px solid var(--astra-rule);
+}
+
+.astra-ui .inventory-relation-list li.has-inventory-relation-trigger {
+  border-radius: 0;
+}
+
+.astra-ui .inventory-relation-trigger {
+  grid-template-columns: 1.375rem minmax(0, 1fr) 1rem;
+  padding: 0.625rem 0.25rem;
+}
+
+.astra-ui .inventory-relation-item__label {
+  font: 400 0.8125rem/1.25 var(--astra-font-ui);
+}
+
+.astra-ui .inventory-relation-list small {
+  margin-top: 0.125rem;
+  color: var(--astra-muted);
+  font-size: 0.6875rem;
+}
+
+.astra-ui .inventory-decision-insights > li {
+  border: 0;
+  padding: 0;
+}
+
+.astra-ui .inventory-decision-insights > li + li {
+  border-top: 1px solid var(--astra-rule);
+}
+
+.astra-ui .inventory-insight-trigger--claim {
+  grid-template-columns: 1.375rem minmax(0, 1fr);
+  padding: 0.625rem 0.25rem;
+}
+
+.astra-ui .inventory-insight-trigger__claim {
+  color: var(--astra-ink);
+  font: 400 0.8125rem/1.35 var(--astra-font-ui);
+}
+
+.astra-ui .inventory-record-detail__prose.inventory-record-detail__prose--section-heading > span {
+  color: var(--astra-ink);
+  font: 700 0.875rem/1.2 var(--astra-font-ui);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.astra-ui .inventory-finding-evidence-preview {
+  overflow: hidden;
+  border: 0;
+  border-radius: 0.375rem;
+  background: var(--astra-canvas);
+}
+
+.astra-ui .inventory-finding-evidence-preview__open,
+.astra-ui .inventory-finding-evidence-preview__unresolved {
+  background: var(--astra-canvas);
+  padding: 0.625rem 0.375rem;
+}
+
+.astra-ui .inventory-finding-evidence-preview .inventory-finding-evidence-preview__media {
+  height: 6.5rem;
+  min-height: 6.5rem;
+  border: 0;
+  border-radius: 0.25rem;
+  background: var(--astra-canvas);
+}
+
+.astra-ui .inventory-finding-detail__notes:first-child {
+  margin-top: 0;
+}
+
+.astra-ui .inventory-finding-supporting-results {
+  margin-top: 1.625rem;
+}
+
+.astra-ui .inventory-output-dialog__layout--reader {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(19.5rem, 27%, 21rem);
+  align-items: stretch;
+}
+
+.astra-ui .inventory-output-dialog__result {
+  min-width: 0;
+  min-height: 0;
+  background: var(--astra-canvas);
+}
+
+.astra-ui .inventory-output-dialog__layout--reader .inventory-output-dialog__result {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-right: 1px solid var(--astra-rule);
+  padding: 0;
+}
+
+.astra-ui .inventory-output-artifact {
+  position: relative;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  min-width: 0;
+  min-height: 0;
+  flex: 1 1 auto;
+  place-items: center;
+  overflow: hidden;
+  background: var(--astra-canvas);
+  padding: 1rem;
+}
+
+.astra-ui .inventory-output-dialog__preview {
+  display: flex;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 1px solid var(--astra-rule);
+  border-radius: 0;
+  background: var(--astra-canvas);
+}
+
+.astra-ui .inventory-output-dialog__preview.is-table {
+  display: block;
+  width: 100%;
+  min-height: 0;
+  max-height: 100%;
+  background: var(--astra-canvas);
+}
+
+.astra-ui .inventory-output-dialog__preview.is-table > .inventory-output-table {
+  width: 100%;
+  max-height: 100%;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.astra-ui .inventory-output-dialog__preview.is-table thead {
+  position: sticky;
+  z-index: 1;
+  top: 0;
+}
+
+.astra-ui .inventory-output-dialog__preview > img {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  padding: 0.75rem;
+}
+
+.astra-ui .inventory-output-description {
+  max-height: 36%;
+  flex: 0 0 auto;
+  margin: 0;
+  overflow-y: auto;
+  border: 0;
+  border-top: 1px solid var(--astra-rule);
+  background: var(--astra-canvas);
+  padding: 1rem 1.375rem;
+}
+
+.astra-ui .inventory-output-description__text {
+  color: var(--astra-ink-soft);
+  font: 1rem/1.55 var(--astra-font-body);
+}
+
+.astra-ui .inventory-output-provenance > .inventory-output-description--rail {
+  max-height: none;
+  margin: 0 0 1rem;
+  overflow: visible;
+  border-top: 0;
+  border-bottom: 0;
+  padding: 0 0 1rem;
+}
+
+.astra-ui .inventory-output-description--rail .inventory-output-description__text {
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.astra-ui .inventory-output-provenance-slot {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+}
+
+.astra-ui .inventory-output-provenance {
+  position: absolute;
+  inset: 0;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  border: 0;
+  background: var(--astra-canvas);
+  padding: 1.25rem 1.125rem 1.875rem;
+}
+
+.astra-ui .inventory-output-recipe {
+  margin: 0;
+  padding: 0 0 0.125rem;
+  border: 0;
+}
+
+.astra-ui .inventory-output-recipe pre {
+  max-height: 8.25rem;
+  margin: 0;
+  overflow: auto;
+  border: 1px solid var(--astra-rule);
+  border-radius: 0.25rem;
+  background: var(--astra-canvas);
+  color: var(--astra-ink-soft);
+  padding: 0.625rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.astra-ui .inventory-output-recipe code {
+  font-size: 0.6875rem;
+  line-height: 1.5;
+}
+
+.astra-ui .inventory-output-provenance__group {
+  margin-top: 1.375rem;
+}
+
+.astra-ui .inventory-output-provenance__empty {
+  margin: 0;
+}
+
+.astra-ui .inventory-output-dialog__layout--single .inventory-output-dialog__result {
+  overflow: visible;
+  padding: 1.5rem 1.625rem 1.875rem;
+}
+
+.astra-ui .inventory-output-dialog__inline-result {
+  width: max-content;
+  max-width: 100%;
+  margin: 0 0 1.25rem;
+  border: 1px solid var(--astra-rule);
+  border-radius: 0.375rem;
+  background: var(--astra-canvas);
+  padding: 1rem 1.25rem;
+}
+
+.astra-ui .inventory-output-dialog__layout--single .inventory-output-description {
+  max-height: none;
+  margin: 0;
+  overflow: visible;
+  border: 0;
+  padding: 0;
+}
+
+.astra-ui .inventory-output-dialog__layout--single .inventory-output-provenance {
+  position: static;
+  overflow: visible;
+  margin-top: 1.625rem;
+  border: 0;
+  background: var(--astra-canvas);
+  padding: 0;
+}
+
+.astra-ui .inventory-artifact-fullscreen__header {
+  display: none;
+}
+
+.astra-ui .inventory-output-artifact.is-expanded {
+  position: fixed;
+  z-index: 10000;
+  inset: 0;
+  display: grid;
+  width: auto;
+  max-width: none;
+  height: auto;
+  min-height: 0;
+  margin: 0;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+  border: 0;
+  border-radius: 0;
+  background: var(--astra-canvas);
+  padding: 0;
+}
+
+.astra-ui .inventory-output-artifact.is-expanded .inventory-artifact-fullscreen__header {
+  display: flex;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 3.25rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid var(--astra-rule);
+  background: var(--astra-canvas);
+  padding: 0.5625rem 0.875rem;
+}
+
+.astra-ui .inventory-artifact-fullscreen__header > span {
+  display: grid;
+  min-width: 0;
+  gap: 0.125rem;
+}
+
+.astra-ui .inventory-artifact-fullscreen__header small {
+  color: var(--astra-muted);
+  font: 700 0.6875rem/1.2 var(--astra-font-ui);
+  letter-spacing: 0.075em;
+  text-transform: uppercase;
+}
+
+.astra-ui .inventory-artifact-fullscreen__header strong {
+  overflow: hidden;
+  font: 700 1rem/1.2 var(--astra-font-ui);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.astra-ui .inventory-output-artifact.is-expanded .inventory-output-dialog__preview {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  max-height: none;
+  border: 0;
+  background: var(--astra-canvas);
+}
+
+.astra-ui .inventory-output-artifact.is-expanded .inventory-output-dialog__preview > img {
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  object-fit: contain;
+  padding: clamp(1rem, 3vw, 2.5rem);
+}
+
+.astra-ui .inventory-output-artifact.is-expanded .inventory-output-table {
+  height: 100%;
+  max-height: none;
+  overflow: auto;
+}
+
+.astra-ui .inventory-paper-dialog__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(16.25rem, 24%, 18.75rem);
+}
+
+.astra-ui .inventory-paper-dialog__artifact {
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border-right: 1px solid var(--astra-rule);
+  background: var(--astra-canvas);
+}
+
+.astra-ui .inventory-paper-pdf {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  background: var(--astra-canvas);
+}
+
+.astra-ui .inventory-paper-pdf__toolbar {
+  position: absolute;
+  z-index: 3;
+  top: 0.875rem;
+  left: 50%;
+  display: flex;
+  width: max-content;
+  max-width: calc(100% - 2rem);
+  min-height: 2rem;
+  align-items: center;
+  gap: 0.6875rem;
+  border: 1px solid var(--astra-rule);
+  border-radius: 999px;
+  background: var(--astra-canvas);
+  color: var(--astra-muted);
+  padding: 0.375rem 0.875rem;
+  box-shadow: 0 0.125rem 0.5rem rgb(34 31 32 / 0.06);
+  font: 0.8125rem/1 var(--astra-font-ui);
+  transform: translateX(-50%);
+}
+
+.astra-ui .inventory-paper-pdf__toolbar button {
+  width: auto;
+  height: auto;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--astra-link);
+  padding: 0.125rem 0.25rem;
+  font-size: 0.9375rem;
+}
+
+.astra-ui .inventory-paper-pdf__page-controls > span {
+  color: var(--astra-muted);
+}
+
+.astra-ui .inventory-paper-pdf__scroll {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: auto;
+  background: var(--astra-canvas);
+  padding: 3.5rem 1.125rem 1.125rem;
+}
+
+.astra-ui .inventory-paper-dialog__rail {
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  border: 0;
+  background: var(--astra-canvas);
+  padding: 1.25rem 1.125rem 1.875rem;
+}
+
+.astra-ui .inventory-paper-dialog__rail .inventory-insight-list,
+.astra-ui .inventory-paper-dialog__rail .inventory-record-detail__relations {
+  margin-top: 1.375rem;
+}
+
+.astra-ui .inventory-paper-insights {
+  margin-top: 0.375rem;
+  border: 0;
+}
+
+.astra-ui .inventory-paper-insights > .inventory-paper-insight {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0.75rem 0.375rem;
+}
+
+.astra-ui .inventory-paper-insights > .inventory-paper-insight + .inventory-paper-insight {
+  border-top: 1px solid var(--astra-rule);
+}
+
+.astra-ui .inventory-paper-insight__claim {
+  color: var(--astra-ink-soft);
+  font: 0.75rem/1.45 var(--astra-font-body);
+}
+
+.astra-ui .inventory-paper-insight__locate {
+  color: var(--astra-link);
+  font: 0.6875rem/1.2 var(--astra-font-ui);
+}
+
+.astra-ui .inventory-paper-dialog__unavailable {
+  color: var(--astra-muted);
+}
+
+@media (max-width: 47.5rem) {
+  .astra-ui .inventory-detail-dialog {
+    padding: 0;
+  }
+
+  .astra-ui .inventory-detail-dialog > section,
+  .astra-ui .inventory-detail-dialog--reader > section {
+    width: 100%;
+    height: 100dvh;
+    max-height: 100dvh;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .astra-ui .inventory-detail-dialog__header {
+    gap: 0.5rem;
+  }
+
+  .astra-ui .inventory-detail-dialog__header-action {
+    padding-inline: 0.5rem;
+  }
+
+  .astra-ui .inventory-detail-dialog__header-action > span + * {
+    display: none;
+  }
+
+  .astra-ui .inventory-output-dialog__layout--reader,
+  .astra-ui .inventory-paper-dialog__layout {
+    display: block;
+    height: auto;
+    overflow-y: auto;
+  }
+
+  .astra-ui .inventory-output-dialog__layout--reader .inventory-output-dialog__result {
+    overflow: visible;
+    border-right: 0;
+  }
+
+  .astra-ui .inventory-output-artifact {
+    min-height: 20rem;
+  }
+
+  .astra-ui .inventory-output-provenance {
+    position: static;
+    overflow: visible;
+    border-top: 1px solid var(--astra-rule);
+  }
+
+  .astra-ui .inventory-paper-dialog__artifact {
+    height: 58dvh;
+    border-right: 0;
+    border-bottom: 1px solid var(--astra-rule);
+  }
+
+  .astra-ui .inventory-paper-dialog__rail {
+    overflow: visible;
+  }
+}
+
+.astra-ui .inventory-detail-dialog.inventory-detail-dialog--embedded {
+  position: static;
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: none;
+  padding: 0;
+  background: var(--astra-canvas);
+}
+
+.astra-ui .inventory-detail-dialog--embedded > section,
+.astra-ui .inventory-detail-dialog--embedded.inventory-detail-dialog--reader > section {
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  border-radius: 0.625rem;
+}
+
+.astra-ui .inventory-detail-dialog--embedded .inventory-detail-dialog__body {
+  min-height: min(43.75rem, calc(100dvh - 8rem));
 }

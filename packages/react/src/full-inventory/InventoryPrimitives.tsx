@@ -1,5 +1,12 @@
 import type { CSSProperties, ReactNode, Ref } from 'react';
-import { useCallback, useEffect, useId, useRef } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useId,
+  useRef,
+} from 'react';
 import { IconButton, SurfaceHeader } from '../ui.js';
 import type { InventoryKind } from '../types.js';
 
@@ -113,12 +120,44 @@ export interface InventoryDetailSurfaceProps {
   title: string;
   identifier?: string | undefined;
   backLabel?: string | undefined;
+  backText?: string | undefined;
   onBack?: (() => void) | undefined;
+  headerActions?: ReactNode | undefined;
   closeLabel: string;
   onClose: () => void;
   children: ReactNode;
   closeRef?: Ref<HTMLButtonElement> | undefined;
   titleId?: string | undefined;
+}
+
+export type InventoryDetailMode = 'modal' | 'embedded';
+
+interface InventoryDetailPresentationValue {
+  mode: InventoryDetailMode;
+  backLabel?: string | undefined;
+  backText?: string | undefined;
+}
+
+const InventoryDetailModeContext = createContext<InventoryDetailPresentationValue>({
+  mode: 'modal',
+});
+
+export function InventoryDetailPresentation({
+  mode,
+  backLabel,
+  backText,
+  children,
+}: {
+  mode: InventoryDetailMode;
+  backLabel?: string | undefined;
+  backText?: string | undefined;
+  children: ReactNode;
+}) {
+  return (
+    <InventoryDetailModeContext.Provider value={{ mode, backLabel, backText }}>
+      {children}
+    </InventoryDetailModeContext.Provider>
+  );
 }
 
 /**
@@ -132,9 +171,10 @@ export function InventoryDetailSurface({
   kind,
   eyebrow,
   title,
-  identifier,
-  backLabel = 'Back to previous details',
+  backLabel = 'Back to previous record',
+  backText,
   onBack,
+  headerActions,
   closeLabel,
   onClose,
   children,
@@ -143,6 +183,7 @@ export function InventoryDetailSurface({
 }: InventoryDetailSurfaceProps) {
   const generatedTitleId = useId();
   const resolvedTitleId = titleId ?? generatedTitleId;
+  const typeLabel = eyebrow.split(' · ', 1)[0] ?? eyebrow;
 
   return (
     <section
@@ -155,18 +196,34 @@ export function InventoryDetailSurface({
         className="inventory-detail-dialog__header"
         actionsClassName="inventory-detail-dialog__actions"
         kind={kind}
-        eyebrow={eyebrow}
+        leading={onBack ? (
+          <IconButton
+            className="inventory-detail-dialog__back"
+            label={backLabel}
+            onClick={onBack}
+            title="Back"
+          >
+            <span aria-hidden="true">←</span>
+          </IconButton>
+        ) : undefined}
+        eyebrow={(
+          <span className="inventory-detail-dialog__trail">
+            {onBack && backText ? (
+              <>
+                <span className="inventory-detail-dialog__crumb">{backText}</span>
+                <span className="inventory-detail-dialog__trail-separator" aria-hidden="true">▸</span>
+              </>
+            ) : null}
+            <span className="inventory-detail-dialog__kind">{typeLabel}</span>
+          </span>
+        )}
         title={title}
         titleId={resolvedTitleId}
         titleAs="h3"
-        identifier={identifier}
+        density="compact"
         actions={(
           <>
-            {onBack ? (
-              <IconButton label={backLabel} onClick={onBack} title="Back">
-                <span aria-hidden="true">←</span>
-              </IconButton>
-            ) : null}
+            {headerActions}
             <IconButton
               ref={closeRef}
               label={closeLabel}
@@ -192,6 +249,8 @@ export function InventoryDetailDialog({
   className,
   ...props
 }: InventoryDetailDialogProps) {
+  const presentation = useContext(InventoryDetailModeContext);
+  const { mode } = presentation;
   const closeRef = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const titleId = useId();
@@ -205,11 +264,28 @@ export function InventoryDetailDialog({
   }, [props.onClose]);
 
   useEffect(() => {
+    if (mode === 'embedded') return;
     const dialog = dialogRef.current;
     if (!dialog) return;
     if (!dialog.open) dialog.showModal();
     closeRef.current?.focus();
-  }, []);
+  }, [mode]);
+
+  if (mode === 'embedded') {
+    return (
+      <div
+        className={`inventory-detail-dialog inventory-detail-dialog--embedded${className ? ` ${className}` : ''}`}
+      >
+        <InventoryDetailSurface
+          {...props}
+          backLabel={presentation.backLabel ?? props.backLabel}
+          backText={presentation.backText ?? props.backText}
+          titleId={titleId}
+          onClose={props.onClose}
+        />
+      </div>
+    );
+  }
 
   return (
     <dialog
@@ -225,6 +301,8 @@ export function InventoryDetailDialog({
     >
       <InventoryDetailSurface
         {...props}
+        backLabel={presentation.backLabel ?? props.backLabel}
+        backText={presentation.backText ?? props.backText}
         closeRef={closeRef}
         titleId={titleId}
         onClose={requestClose}

@@ -11,14 +11,14 @@ test('the SDK is the sole owner of the canonical project model', async () => {
   assert.doesNotMatch(viewerTypes, /interface ProjectViewModelV1|interface ProjectRecordView/);
 });
 
-test('the unified UI package uses host React and only portable graph dependencies', async () => {
+test('the unified UI package uses host React and only portable rendering dependencies', async () => {
   const manifest = await parse(new URL('../packages/react/package.json', import.meta.url));
   assert.equal(manifest.name, '@lightcone-research/astra-ui');
   assert.equal(manifest.peerDependencies['@astra-spec/sdk'], '^0.0.5');
   assert.equal(manifest.peerDependencies.react, '>=18 <20');
   assert.equal(manifest.peerDependencies['react-dom'], '>=18 <20');
   const names = Object.keys(manifest.dependencies ?? {});
-  assert.deepEqual(names, ['@xyflow/react']);
+  assert.deepEqual(names, ['@xyflow/react', 'katex']);
   assert.equal(names.some((name) => /jupyter|myst|vscode/i.test(name)), false);
   assert.ok(manifest.exports['./core']);
   assert.equal(manifest.exports['./ui.css'], './ui.css');

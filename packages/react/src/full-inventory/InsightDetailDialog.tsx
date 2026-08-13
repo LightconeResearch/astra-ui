@@ -4,7 +4,6 @@ import {
   InventoryDetailLayout,
   InventoryDetailMain,
   InventoryDetailProse,
-  InventoryDetailRail,
 } from './InventoryPrimitives.js';
 import { InventoryRelationList } from './InventoryRelations.js';
 import { doiHref } from './citationMetadata.js';
@@ -120,16 +119,30 @@ export function InsightDetailDialog({
       closeLabel="Close insight details"
       onClose={onClose}
     >
-      <InventoryDetailLayout className="inventory-insight-detail">
+      <InventoryDetailLayout className="inventory-insight-detail inventory-record-detail__layout--single">
         <InventoryDetailMain as="main">
           {insight.claim ? (
             <InventoryDetailProse label="Claim">
               <InventoryProse text={insight.claim} />
             </InventoryDetailProse>
           ) : null}
+          {source?.doi ? (
+            <section className="inventory-insight-detail__paper inventory-paper-doi">
+              <h4>Source paper</h4>
+              {onOpenSource ? (
+                <button type="button" onClick={onOpenSource}>
+                  {source.doi}{source.page ? ` · page ${source.page}` : ''} ↗
+                </button>
+              ) : (
+                <a href={doiHref(source.doi)} target="_blank" rel="noreferrer">
+                  {source.doi}{source.page ? ` · page ${source.page}` : ''} ↗
+                </a>
+              )}
+            </section>
+          ) : null}
           {source?.quote ? (
             <section className="inventory-insight-detail__source-quote">
-              <h4>Source quote</h4>
+              <h4>Source passage</h4>
               <blockquote><InventoryProse text={source.quote} /></blockquote>
               {source.doi && onOpenSource ? (
                 <button
@@ -137,7 +150,7 @@ export function InsightDetailDialog({
                   className="inventory-insight-detail__open-source"
                   onClick={onOpenSource}
                 >
-                  View quote in paper <span aria-hidden="true">→</span>
+                  Locate passage in paper <span aria-hidden="true">→</span>
                 </button>
               ) : null}
             </section>
@@ -146,16 +159,6 @@ export function InsightDetailDialog({
             <section className="inventory-insight-detail__notes">
               <h4>Notes</h4>
               <div><InventoryProse text={insight.notes} /></div>
-            </section>
-          ) : null}
-        </InventoryDetailMain>
-        <InventoryDetailRail label="Insight details">
-          {source?.doi ? (
-            <section className="inventory-paper-doi">
-              <h4>Source paper</h4>
-              <a href={doiHref(source.doi)} target="_blank" rel="noreferrer">
-                {source.doi}{source.page ? ` · page ${source.page}` : ''} ↗
-              </a>
             </section>
           ) : null}
           <InventoryRelationList
@@ -169,7 +172,7 @@ export function InsightDetailDialog({
             }))}
             empty="No decisions in this scope cite this insight."
           />
-        </InventoryDetailRail>
+        </InventoryDetailMain>
       </InventoryDetailLayout>
     </InventoryDetailDialog>
   );

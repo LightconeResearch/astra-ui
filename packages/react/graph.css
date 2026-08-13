@@ -882,3 +882,119 @@
   .astra-ui .astra-graph__legend-menu { width: min(15.25rem, calc(100vw - 2rem)); }
   .astra-ui .astra-graph__legend-body { max-height: 52vh; overflow: auto; }
 }
+
+/* --------------------------------------------------------------------------
+   Editorial graph lift
+   -------------------------------------------------------------------------- */
+
+.astra-ui .astra-graph {
+  border: 0;
+  border-radius: 0;
+  background: var(--astra-canvas);
+  font-family: var(--astra-font-ui);
+}
+
+.astra-ui .astra-graph__viewport,
+.astra-ui .astra-graph__flow .react-flow {
+  background: var(--astra-canvas);
+}
+
+.astra-ui .astra-graph__flow .react-flow__controls {
+  border-color: var(--astra-rule-strong);
+  border-radius: 0;
+  background: var(--astra-raised);
+  box-shadow: none;
+}
+
+.astra-ui .astra-graph__flow .react-flow__controls-button {
+  border-color: var(--astra-rule);
+  background: var(--astra-raised);
+}
+
+.astra-ui .astra-graph__decision-panel {
+  width: 17.5rem;
+  border-color: var(--astra-rule-strong);
+  background: var(--astra-raised);
+  box-shadow: none;
+}
+
+.astra-ui .astra-graph__decision-panel-toggle {
+  height: 3.25rem;
+  flex-basis: 3.25rem;
+  border-block-end: 1px solid var(--astra-rule);
+  color: var(--astra-c-decision-ink);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+}
+
+.astra-ui .astra-graph__decision-list {
+  border-block-start: 0;
+  background: var(--astra-raised);
+}
+
+.astra-ui .astra-graph__decision-row {
+  height: auto;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.75rem;
+  border-color: var(--astra-rule-subtle);
+}
+
+.astra-ui .astra-graph__decision-row span {
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.astra-ui .astra-graph__decision-row small {
+  font-family: var(--astra-font-body);
+  font-size: 0.6875rem;
+}
+
+.astra-ui .astra-graph__decision-row[data-selected="true"] {
+  background: var(--astra-c-decision-soft);
+  box-shadow: inset 2px 0 0 var(--astra-c-decision);
+}
+
+.astra-ui .astra-graph-node__label {
+  font-family: var(--astra-font-ui);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.astra-ui .astra-graph-node[data-kind="decision"] .astra-graph-node__label {
+  font-family: var(--astra-font-ui);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.astra-ui .astra-graph-node__detail {
+  font-family: var(--astra-font-body);
+  font-size: 0.6875rem;
+}
+
+.astra-ui :is(.astra-graph__legend-menu, .astra-graph__group-popover) {
+  border-color: var(--astra-rule-strong);
+  border-radius: 0;
+  background: var(--astra-raised);
+  box-shadow: none;
+}
+
+.astra-ui .astra-graph__group-popover-header {
+  border-color: var(--astra-rule);
+  background: var(--astra-canvas);
+}
+
+.astra-ui .astra-graph__group-popover-header h2 {
+  font-family: var(--astra-font-heading);
+  font-weight: 700;
+}
+
+.astra-ui .astra-graph-choice {
+  border-radius: 0;
+  background: var(--astra-raised);
+  box-shadow: none;
+}
+
+.astra-ui .astra-graph-choice h2 {
+  font-family: var(--astra-font-heading);
+}

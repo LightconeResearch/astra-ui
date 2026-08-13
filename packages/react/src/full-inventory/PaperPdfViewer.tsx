@@ -484,16 +484,15 @@ export function PaperPdfViewer({
     <div className="inventory-paper-pdf" aria-label={`PDF viewer for ${title}`}>
       <div className="inventory-paper-pdf__toolbar">
         <div className="inventory-paper-pdf__page-controls">
-          <button type="button" disabled={!pdf || pageNumber <= 1} onClick={() => changePage(pageNumber - 1)} aria-label="Previous PDF page">←</button>
+          <button type="button" disabled={!pdf || pageNumber <= 1} onClick={() => changePage(pageNumber - 1)} aria-label="Previous PDF page">‹</button>
           <span aria-live="polite" title={status}>{status}</span>
-          <button type="button" disabled={!pdf || pageNumber >= pdf.numPages} onClick={() => changePage(pageNumber + 1)} aria-label="Next PDF page">→</button>
+          <button type="button" disabled={!pdf || pageNumber >= pdf.numPages} onClick={() => changePage(pageNumber + 1)} aria-label="Next PDF page">›</button>
         </div>
         <div className="inventory-paper-pdf__zoom-controls">
           <button type="button" disabled={!pdf || zoomIndex === 0} onClick={() => setZoomIndex((index) => Math.max(0, index - 1))} aria-label="Zoom PDF out">−</button>
           <span>{Math.round((ZOOM_LEVELS[zoomIndex] ?? 1) * 100)}%</span>
           <button type="button" disabled={!pdf || zoomIndex === ZOOM_LEVELS.length - 1} onClick={() => setZoomIndex((index) => Math.min(ZOOM_LEVELS.length - 1, index + 1))} aria-label="Zoom PDF in">+</button>
         </div>
-        <a href={withoutFragment(pdfUrl)} target="_blank" rel="noreferrer" aria-label="Open PDF in a new tab">Open ↗</a>
       </div>
       <div ref={scrollRef} className="inventory-paper-pdf__scroll">
         <div ref={pageRef} className="inventory-paper-pdf__page">

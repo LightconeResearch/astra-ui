@@ -9,6 +9,10 @@ import { DecisionDialog, DecisionsInventory } from './DecisionsInventory.js';
 import { FindingDialog, FindingsInventory } from './FindingsInventory.js';
 import { InputDialog, InputsInventory } from './InputsInventory.js';
 import { InsightDetailDialog } from './InsightDetailDialog.js';
+import {
+  InventoryDetailPresentation,
+  type InventoryDetailMode,
+} from './InventoryPrimitives.js';
 import { OutputDialog, OutputsInventory } from './OutputsInventory.js';
 import {
   PaperDialog,
@@ -21,6 +25,7 @@ import {
   type InventoryModel,
   createInventoryModel,
   getInventoryScope,
+  inventoryRecordsOfKind,
   inventoryScopeForRecord,
   resolveInventoryRecordReference,
 } from './model.js';
@@ -47,6 +52,12 @@ function recordModalEntry(
   ownerScopeId: string,
 ): InventoryModalEntry {
   return { kind: 'record', record, scopeId: ownerScopeId };
+}
+
+function modalEntryCrumb(entry: InventoryModalEntry): string {
+  return entry.kind === 'paper'
+    ? entry.paper.title
+    : entry.record.localId;
 }
 
 interface InventoryRecordDetailProps {
@@ -178,6 +189,8 @@ export interface InventoryOutlineProps {
   /** Host-specific directory containing the PDF.js runtime assets. */
   paperPdfAssetBaseUrl?: string | undefined;
   decisionTagLabels?: Readonly<Record<string, string>> | undefined;
+  /** Render record details as a modal or as a host-owned full detail page. */
+  detailMode?: InventoryDetailMode | undefined;
   dialogsOnly?: boolean | undefined;
   openReference?: InventoryOpenReference | undefined;
   /** Notified when the shared detail stack closes from its UI. */
@@ -204,6 +217,7 @@ function InventoryExplorerView({
   paperMetadata = EMPTY_PAPER_METADATA,
   paperPdfAssetBaseUrl,
   decisionTagLabels = {},
+  detailMode = 'modal',
   dialogsOnly = false,
   openReference,
   onClose,
@@ -275,26 +289,45 @@ function InventoryExplorerView({
     ? getInventoryScope(model, activeModal.scopeId)
     : undefined;
   const backAction = modalStack.length > 1 ? goBack : undefined;
+  const previousModal = modalStack.length > 1
+    ? modalStack[modalStack.length - 2]
+    : undefined;
 
   const modal = activeModal && activeScope ? (
-    <InventoryRecordDetail
-      entry={activeModal}
-      scope={activeScope}
-      model={model}
-      paperMetadata={paperMetadata}
-      paperPdfAssetBaseUrl={paperPdfAssetBaseUrl}
-      onPush={pushModal}
-      onBack={backAction}
-      onClose={closeAll}
-    />
+    <InventoryDetailPresentation
+      mode={detailMode}
+      backLabel="Back to previous record"
+      backText={previousModal ? modalEntryCrumb(previousModal) : undefined}
+    >
+      <InventoryRecordDetail
+        entry={activeModal}
+        scope={activeScope}
+        model={model}
+        paperMetadata={paperMetadata}
+        paperPdfAssetBaseUrl={paperPdfAssetBaseUrl}
+        onPush={pushModal}
+        onBack={backAction}
+        onClose={closeAll}
+      />
+    </InventoryDetailPresentation>
   ) : null;
 
   if (dialogsOnly) return <>{modal}</>;
+
+  const scope = getInventoryScope(model, scopeId);
+  const outputs = scope ? inventoryRecordsOfKind(scope, 'output', model) : [];
+  const decisions = scope ? inventoryRecordsOfKind(scope, 'decision', model) : [];
+  const inputs = scope ? inventoryRecordsOfKind(scope, 'input', model) : [];
+  const findings = scope ? inventoryRecordsOfKind(scope, 'finding', model) : [];
+  const papers = scope ? paperRecords(model, scope, paperMetadata) : [];
 
   const sections = [
     {
       id: 'outputs',
       label: 'Outputs',
+      count: outputs.length,
+      countLabel: `${outputs.length} ${outputs.length === 1 ? 'output' : 'outputs'}`,
+      glyph: '◆',
       content: model ? (
         <OutputsInventory
           model={model}
@@ -308,6 +341,9 @@ function InventoryExplorerView({
     {
       id: 'decisions',
       label: 'Decisions',
+      count: decisions.length,
+      countLabel: `${decisions.length} ${decisions.length === 1 ? 'decision' : 'decisions'}`,
+      glyph: '◇',
       content: model ? (
         <DecisionsInventory
           model={model}
@@ -322,6 +358,9 @@ function InventoryExplorerView({
     {
       id: 'inputs',
       label: 'Inputs',
+      count: inputs.length,
+      countLabel: `${inputs.length} ${inputs.length === 1 ? 'input' : 'inputs'}`,
+      glyph: '↳',
       content: model ? (
         <InputsInventory
           model={model}
@@ -335,6 +374,9 @@ function InventoryExplorerView({
     {
       id: 'findings',
       label: 'Findings',
+      count: findings.length,
+      countLabel: `${findings.length} ${findings.length === 1 ? 'finding' : 'findings'}`,
+      glyph: '●',
       content: model ? (
         <FindingsInventory
           model={model}
@@ -348,6 +390,9 @@ function InventoryExplorerView({
     {
       id: 'papers',
       label: 'Papers',
+      count: papers.length,
+      countLabel: `${papers.length} cited ${papers.length === 1 ? 'work' : 'works'}`,
+      glyph: '▧',
       content: model ? (
         <PapersInventory
           model={model}
@@ -365,18 +410,37 @@ function InventoryExplorerView({
 
   return (
     <div className="inventory-outline">
-      <div className="inventory-outline__sections">
-        {sections.map((item, index) => (
-          <section
-            key={item.id}
-            className={`inventory-outline__section inventory-outline__section--${item.id}`}
-          >
-            <h2 id={item.id} tabIndex={-1}>
-              <span className="heading-text">{index + 1}. {item.label}</span>
-            </h2>
-            {item.content}
-          </section>
-        ))}
+      <div className="inventory-page-layout">
+        <div className="inventory-outline__sections">
+          {sections.map((item) => (
+            <section
+              key={item.id}
+              className={`inventory-outline__section inventory-outline__section--${item.id}`}
+            >
+              <div className="inventory-section-heading">
+                <h2 id={item.id} tabIndex={-1}>
+                  <span className="heading-text">{item.label}</span>
+                </h2>
+                <span>{item.countLabel}</span>
+              </div>
+              {item.content}
+            </section>
+          ))}
+        </div>
+        <aside className="inventory-page-outline" aria-label="Inventory outline">
+          <h3>On this page</h3>
+          <nav>
+            {sections.map((item) => (
+              <a key={item.id} href={`#${item.id}`}>
+                <span className={`inventory-page-outline__glyph is-${item.id}`} aria-hidden="true">
+                  {item.glyph}
+                </span>
+                <span>{item.label}</span>
+                <span>{item.count}</span>
+              </a>
+            ))}
+          </nav>
+        </aside>
       </div>
       {modal}
     </div>

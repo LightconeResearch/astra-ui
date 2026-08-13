@@ -5,8 +5,6 @@ import {
   InventoryCountHeading,
   InventoryDetailDialog,
   InventoryEmptyState,
-  InventoryRecordIdentity,
-  InventoryRecordList,
 } from './InventoryPrimitives.js';
 import { InventoryRelationList } from './InventoryRelations.js';
 import { PaperPdfViewer, type PaperQuoteFocusRequest } from './PaperPdfViewer.js';
@@ -221,24 +219,44 @@ export function PaperDialog({
 
   return (
     <InventoryDetailDialog
-      className="inventory-detail-dialog--paper"
+      className="inventory-detail-dialog--paper inventory-detail-dialog--reader"
       kind="paper"
       eyebrow={`Paper · ${scope.name}`}
       title={paper.title}
       onBack={onBack}
+      headerActions={(
+        paper.pdfUrl ? (
+          <a
+            className="inventory-detail-dialog__header-action"
+            href={paper.pdfUrl}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Open ↗
+          </a>
+        ) : null
+      )}
       closeLabel="Close paper details"
       onClose={onClose}
     >
       <div className="inventory-paper-dialog__layout">
-        {paper.pdfUrl ? (
-          <PaperPdfViewer
-            pdfUrl={paper.pdfUrl}
-            title={paper.title}
-            focusRequest={focusRequest}
-            pdfAssetBaseUrl={pdfAssetBaseUrl ?? ''}
-          />
-        ) : <p className="inventory-paper-dialog__unavailable">No PDF source is available for this paper.</p>}
+        <div className="inventory-paper-dialog__artifact">
+          {paper.pdfUrl ? (
+            <PaperPdfViewer
+              pdfUrl={paper.pdfUrl}
+              title={paper.title}
+              focusRequest={focusRequest}
+              pdfAssetBaseUrl={pdfAssetBaseUrl ?? ''}
+            />
+          ) : <p className="inventory-paper-dialog__unavailable">No PDF source is available for this paper.</p>}
+        </div>
         <aside className="inventory-paper-dialog__rail" aria-label="Paper insights and decisions">
+          <section className="inventory-paper-doi">
+            <h4>DOI</h4>
+            <a href={doiHref(paper.doi)} target="_blank" rel="noreferrer">
+              {paper.doi} ↗
+            </a>
+          </section>
           <section className="inventory-insight-list">
             <InventoryCountHeading title="Insights from this paper" count={paper.insights.length} />
             <ul className="astra-evidence inventory-paper-insights">
@@ -283,12 +301,6 @@ export function PaperDialog({
               })}
             </ul>
           </section>
-          <section className="inventory-paper-doi">
-            <h4>DOI</h4>
-            <a href={doiHref(paper.doi)} target="_blank" rel="noreferrer">
-              {paper.doi} ↗
-            </a>
-          </section>
           <InventoryRelationList
             title="Informs decisions"
             className="inventory-record-detail__relations inventory-paper-informs"
@@ -324,31 +336,27 @@ export function PapersInventory({
 
   return (
     <div className="inventory-records inventory-records--papers">
-      <InventoryRecordList
-        ariaLabel="Papers"
-        columnTemplate="minmax(16rem, 1.7fr) 7rem 7rem 1.5rem"
-        columns={[
-          { label: 'Paper', className: 'inventory-record-list__primary' },
-          { label: 'Insights', className: 'inventory-record-list__count' },
-          { label: 'Decisions', className: 'inventory-record-list__count' },
-          { className: 'inventory-record-list__arrow' },
-        ]}
-        rows={papers.map((paper) => ({
-          key: paper.doi,
-          accessibleLabel: `${paper.title}, ${paper.doi}, ${paper.insights.length} insights, ${paper.decisions.length} decisions`,
-          onOpen: () => onOpenPaper(paper, scope),
-          cells: [
-            <InventoryRecordIdentity
-              kind="paper"
-              title={paper.title}
-              subtitle={[paper.authors, paper.doi].filter(Boolean).join(' · ')}
-            />,
-            <span>{paper.insights.length} {paper.insights.length === 1 ? 'insight' : 'insights'}</span>,
-            <span>{paper.decisions.length} {paper.decisions.length === 1 ? 'decision' : 'decisions'}</span>,
-            <span aria-hidden="true">→</span>,
-          ],
-        }))}
-      />
+      <div className="inventory-paper-list" aria-label="Papers">
+        {papers.map((paper) => (
+          <button
+            key={paper.doi}
+            type="button"
+            aria-label={`${paper.title}, ${paper.doi}, ${paper.insights.length} insights, ${paper.decisions.length} decisions`}
+            onClick={() => onOpenPaper(paper, scope)}
+          >
+            <span className="inventory-paper-list__thumbnail" aria-hidden="true">p.1</span>
+            <span className="inventory-paper-list__copy">
+              <strong>{paper.title}</strong>
+              <small>{[paper.authors, paper.doi].filter(Boolean).join(' · ')}</small>
+            </span>
+            <span className="inventory-paper-list__meta">
+              {paper.insights.length} {paper.insights.length === 1 ? 'insight' : 'insights'} ·{' '}
+              {paper.decisions.length} {paper.decisions.length === 1 ? 'decision' : 'decisions'}
+            </span>
+            <span className="inventory-paper-list__arrow" aria-hidden="true">→</span>
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

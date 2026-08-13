@@ -78,6 +78,45 @@ function OutputGallery({
   );
 }
 
+function OutputTables({
+  records,
+  onOpen,
+}: {
+  records: InventoryOutputRecord[];
+  onOpen: (record: InventoryOutputRecord) => void;
+}) {
+  if (!records.length) return null;
+  return (
+    <section className="inventory-output-section inventory-output-tables" aria-labelledby="tables">
+      <h3 id="tables" className="inventory-output-section__heading exclude-from-outline">
+        <span className="heading-text">Tables</span>
+      </h3>
+      <div className="inventory-output-table-list">
+        {records.map((record) => (
+          <button
+            key={record.id}
+            type="button"
+            className="inventory-output-table-card"
+            aria-label={`Open table: ${inventoryRecordTitle(record)}`}
+            onClick={() => onOpen(record)}
+          >
+            <span className="inventory-output-table-card__preview">
+              <InventoryArtifactPreview record={record} compact />
+            </span>
+            <span className="inventory-output-table-card__footer">
+              <span>
+                <small>Table</small>
+                <strong>{inventoryRecordTitle(record)}</strong>
+              </span>
+              <span>{record.localId} ↗</span>
+            </span>
+          </button>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function Files({
   records,
   onOpen,
@@ -187,6 +226,8 @@ export interface OutputDetailProps {
   scope: InventoryScope;
   model: InventoryModel;
   onOpenDependency?: ((record: InventoryRecord, scope: InventoryScope) => void) | undefined;
+  expanded?: boolean | undefined;
+  onExitFullScreen?: (() => void) | undefined;
 }
 
 export function OutputDetail({
@@ -194,7 +235,10 @@ export function OutputDetail({
   scope,
   model,
   onOpenDependency,
+  expanded = false,
+  onExitFullScreen,
 }: OutputDetailProps) {
+  const visualResult = record.outputType === 'figure' || record.outputType === 'table';
   const inputs = upstreamRecords(model, scope, record);
   const dependencies = decisionDependencies(model, scope, record);
   const directDependencies = dependencies.filter(
@@ -205,100 +249,139 @@ export function OutputDetail({
   );
   const [showIndirectDependencies, setShowIndirectDependencies] = useState(false);
 
-  useEffect(() => setShowIndirectDependencies(false), [record.id]);
+  useEffect(() => {
+    setShowIndirectDependencies(false);
+  }, [record.id]);
+
   const visibleDependencies = showIndirectDependencies
     ? dependencies
     : directDependencies;
 
+  const renderSupportingDetails = (sidebar: boolean) => {
+    const Wrapper = sidebar ? 'aside' : 'section';
+    return (
+      <Wrapper
+        className={`inventory-output-provenance ${sidebar ? 'is-sidebar' : 'is-inline'}`}
+        aria-label={sidebar ? 'Output details' : 'Output provenance and dependencies'}
+      >
+        {sidebar && record.description ? (
+          <section className="inventory-output-description inventory-output-description--rail">
+            <h4>Description</h4>
+            <div className="inventory-output-description__text">
+              <InventoryProse text={record.description} />
+            </div>
+          </section>
+        ) : null}
+        {record.recipe?.command ? (
+          <section className="inventory-output-recipe">
+            <h4>Recipe</h4>
+            <pre><code>{record.recipe.command}</code></pre>
+            {record.recipe.container
+              ? <p>Container: <code>{record.recipe.container}</code></p>
+              : null}
+          </section>
+        ) : <p className="inventory-output-provenance__empty">No recipe is declared for this output.</p>}
+        <InventoryRelationList
+          title="Decision dependencies"
+          className="inventory-output-provenance__group inventory-output-dependencies"
+          headerAction={indirectDependencies.length ? (
+            <label className="inventory-dependency-toggle">
+              <input
+                type="checkbox"
+                aria-label="Include indirect decision dependencies"
+                checked={showIndirectDependencies}
+                onChange={(event) => setShowIndirectDependencies(event.target.checked)}
+              />
+              <span>Include indirect</span>
+            </label>
+          ) : undefined}
+          items={visibleDependencies.map((dependency) => ({
+            key: `${dependency.relationship}-${dependency.id}`,
+            label: dependency.label,
+            kind: 'decision',
+            className: `is-${dependency.relationship}`,
+            accessibleLabel: dependency.record
+              ? `View ${dependency.relationship} decision dependency: ${dependency.label}`
+              : undefined,
+            onOpen: dependency.record && dependency.scope && onOpenDependency
+              ? () => onOpenDependency(dependency.record!, dependency.scope!)
+              : undefined,
+          }))}
+          empty={indirectDependencies.length
+            ? null
+            : 'No decision dependencies are resolved in this model.'}
+        />
+        <InventoryRelationList
+          title="Inputs and upstream outputs"
+          className="inventory-output-provenance__group inventory-output-provenance__group--scrollable"
+          items={inputs.map((input) => ({
+            key: input.id,
+            label: input.label ?? input.id,
+            kind: input.record?.kind === 'output' ? 'output' : 'input',
+            className: input.record?.kind === 'output' ? 'is-output' : 'is-input',
+            accessibleLabel: input.record
+              ? `View ${input.record.kind}: ${input.label ?? input.id}`
+              : undefined,
+            onOpen: input.record && input.scope && onOpenDependency
+              ? () => onOpenDependency(input.record!, input.scope!)
+              : undefined,
+          }))}
+          empty="No upstream dependencies are resolved in this model."
+        />
+      </Wrapper>
+    );
+  };
+
   return (
-    <div className="inventory-output-dialog__layout inventory-output-dialog__layout--stacked">
+    <div className={`inventory-output-dialog__layout inventory-output-dialog__layout--${visualResult ? 'reader' : 'single'}`}>
       <div className="inventory-output-dialog__result">
-        <div className={`inventory-output-dialog__preview is-${record.outputType}`}>
-          <InventoryArtifactPreview record={record} />
+        {visualResult ? (
+          <div
+            className={`inventory-output-artifact is-${record.outputType}${expanded ? ' is-expanded' : ''}`}
+            {...(expanded ? {
+              role: 'dialog',
+              'aria-modal': true,
+              'aria-label': `Full-screen ${record.outputType}: ${inventoryRecordTitle(record)}`,
+            } : {})}
+          >
+            <div className="inventory-artifact-fullscreen__header">
+              <span>
+                <small>Full screen</small>
+                <strong>{inventoryRecordTitle(record)}</strong>
+              </span>
+              <button
+                type="button"
+                aria-label="Exit full-screen result"
+                onClick={onExitFullScreen}
+              >
+                <span aria-hidden="true">×</span>
+                <span>Exit full screen</span>
+              </button>
+            </div>
+            <div className={`inventory-output-dialog__preview is-${record.outputType}`}>
+              <InventoryArtifactPreview record={record} />
+            </div>
+          </div>
+        ) : record.outputType === 'metric' ? (
+          <div className="inventory-output-dialog__inline-result" aria-label="Result value">
+            <InventoryArtifactPreview record={record} compact />
+          </div>
+        ) : null}
+        {!visualResult && record.description ? (
+          <section className="inventory-output-description">
+            <h4>Description</h4>
+            <div className="inventory-output-description__text">
+              <InventoryProse text={record.description} />
+            </div>
+          </section>
+        ) : null}
+        {!visualResult ? renderSupportingDetails(false) : null}
+      </div>
+      {visualResult ? (
+        <div className="inventory-output-provenance-slot">
+          {renderSupportingDetails(true)}
         </div>
-      </div>
-      <div className="inventory-output-provenance-slot">
-        <aside className="inventory-output-provenance" aria-label="Output details">
-          <header className="inventory-output-provenance__header">
-            <span>Output details</span>
-            <strong>{record.outputType}</strong>
-          </header>
-          {record.description ? (
-            <section className="inventory-output-description">
-              <h4>Description</h4>
-              <div className="inventory-output-description__text">
-                <InventoryProse text={record.description} />
-              </div>
-            </section>
-          ) : null}
-          {record.recipe?.command ? (
-            <details className="inventory-output-recipe" open>
-              <summary>Recipe</summary>
-              <pre><code>{record.recipe.command}</code></pre>
-              {record.recipe.container
-                ? <p>Container: <code>{record.recipe.container}</code></p>
-                : null}
-            </details>
-          ) : <p className="inventory-output-provenance__empty">No recipe is declared for this output.</p>}
-          <InventoryRelationList
-            title="Decision dependencies"
-            className="inventory-output-provenance__group inventory-output-dependencies"
-            description="Method choices recorded for this output."
-            headerAction={indirectDependencies.length ? (
-              <label className="inventory-dependency-toggle">
-                <input
-                  type="checkbox"
-                  aria-label="Include indirect decision dependencies"
-                  checked={showIndirectDependencies}
-                  onChange={(event) => setShowIndirectDependencies(event.target.checked)}
-                />
-                <span>Include indirect</span>
-              </label>
-            ) : undefined}
-            items={visibleDependencies.map((dependency) => ({
-              key: `${dependency.relationship}-${dependency.id}`,
-              label: dependency.label,
-              kind: 'decision',
-              detail: [
-                dependency.relationship === 'direct' ? 'Direct' : 'Indirect',
-                dependency.scope?.name ?? dependency.via,
-              ].filter(Boolean).join(' · '),
-              className: `is-${dependency.relationship}`,
-              accessibleLabel: dependency.record
-                ? `View ${dependency.relationship} decision dependency: ${dependency.label}`
-                : undefined,
-              onOpen: dependency.record && dependency.scope && onOpenDependency
-                ? () => onOpenDependency(dependency.record!, dependency.scope!)
-                : undefined,
-            }))}
-            empty={indirectDependencies.length
-              ? 'No decisions are referenced directly by this output recipe.'
-              : 'No decision dependencies are resolved in this model.'}
-          />
-          <InventoryRelationList
-            title="Inputs and upstream outputs"
-            className="inventory-output-provenance__group inventory-output-provenance__group--scrollable"
-            description="Trace the data products this result was built from."
-            items={inputs.map((input) => ({
-              key: input.id,
-              label: input.label ?? input.id,
-              kind: input.record?.kind === 'output' ? 'output' : 'input',
-              detail: [
-                input.record?.kind === 'output' ? 'Upstream output' : 'Input',
-                input.scope?.name,
-              ].filter(Boolean).join(' · '),
-              className: input.record?.kind === 'output' ? 'is-output' : 'is-input',
-              accessibleLabel: input.record
-                ? `View ${input.record.kind}: ${input.label ?? input.id}`
-                : undefined,
-              onOpen: input.record && input.scope && onOpenDependency
-                ? () => onOpenDependency(input.record!, input.scope!)
-                : undefined,
-            }))}
-            empty="No upstream dependencies are resolved in this model."
-          />
-        </aside>
-      </div>
+      ) : null}
     </div>
   );
 }
@@ -315,13 +398,41 @@ export function OutputDialog({
   onBack?: (() => void) | undefined;
   onClose: () => void;
 }) {
+  const visualResult = record.outputType === 'figure' || record.outputType === 'table';
+  const [expanded, setExpanded] = useState(false);
+
+  useEffect(() => setExpanded(false), [record.id]);
+  useEffect(() => {
+    if (!expanded) return undefined;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setExpanded(false);
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [expanded]);
+
   return (
     <InventoryDetailDialog
+      className={visualResult
+        ? 'inventory-detail-dialog--reader inventory-detail-dialog--output-reader'
+        : undefined}
       kind="output"
       eyebrow={`${record.outputType} · ${scope.name}`}
       title={inventoryRecordTitle(record)}
       identifier={record.label ? record.localId : undefined}
       onBack={onBack}
+      headerActions={visualResult ? (
+        <button
+          type="button"
+          className="inventory-detail-dialog__header-action"
+          aria-label={`View ${record.outputType} full screen`}
+          aria-expanded={expanded}
+          onClick={() => setExpanded(true)}
+        >
+          <span aria-hidden="true">⛶</span>
+          <span>Full screen</span>
+        </button>
+      ) : undefined}
       closeLabel="Close output details"
       onClose={onClose}
     >
@@ -330,6 +441,8 @@ export function OutputDialog({
         scope={scope}
         model={model}
         onOpenDependency={onOpenDependency}
+        expanded={expanded}
+        onExitFullScreen={() => setExpanded(false)}
       />
     </InventoryDetailDialog>
   );
@@ -353,7 +466,7 @@ export function OutputsInventory({ model, scopeId, onOpenOutput }: OutputsInvent
   return (
     <div className="inventory-outputs">
       <OutputGallery id="figures" title="Figures" records={figures} onOpen={(record) => onOpenOutput(record, scope)} />
-      <OutputGallery id="tables" title="Tables" records={tables} onOpen={(record) => onOpenOutput(record, scope)} />
+      <OutputTables records={tables} onOpen={(record) => onOpenOutput(record, scope)} />
       <Files records={additional} onOpen={(record) => onOpenOutput(record, scope)} />
     </div>
   );

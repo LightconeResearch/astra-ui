@@ -299,3 +299,70 @@
     width: 100%;
   }
 }
+
+/* --------------------------------------------------------------------------
+   Lightcone editorial lift
+
+   These primitives carry the Claude design's quiet, archival visual language
+   while leaving interaction and view state with their owning components.
+   -------------------------------------------------------------------------- */
+
+.astra-ui .astra-project-view-header {
+  min-height: 3.25rem;
+  padding-inline: clamp(0.75rem, 2vw, 2rem);
+  border-color: var(--astra-rule);
+  background: color-mix(in srgb, var(--astra-canvas) 94%, transparent);
+  backdrop-filter: blur(10px);
+}
+
+.astra-ui .astra-project-view-header__title {
+  font-family: var(--astra-font-ui);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.astra-ui .astra-project-view-header__context {
+  color: var(--astra-muted);
+  font-family: var(--astra-font-ui);
+  font-size: 0.75rem;
+}
+
+.astra-ui .astra-surface-header .astra-surface-header__eyebrow {
+  letter-spacing: 0.1em;
+}
+
+.astra-ui .astra-surface-header .astra-surface-header__title {
+  font-weight: 700;
+}
+
+.astra-ui .astra-button {
+  min-height: 2rem;
+  border-color: var(--astra-rule-strong);
+  border-radius: 0;
+  background: transparent;
+  color: var(--astra-ink);
+  font: 600 0.8125rem/1.2 var(--astra-font-ui);
+}
+
+.astra-ui .astra-button:hover:not(:disabled) {
+  border-color: var(--astra-kind, var(--astra-c-decision));
+  background: var(--astra-raised);
+}
+
+.astra-ui .astra-badge {
+  border-radius: 0;
+  font-family: var(--astra-font-ui);
+}
+
+.astra-ui .astra-badge[data-tone="kind"] {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  letter-spacing: 0.1em;
+}
+
+@media (max-width: 720px) {
+  .astra-ui .astra-project-view-header {
+    padding: 0.55rem 0.75rem;
+  }
+}

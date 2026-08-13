@@ -7,6 +7,7 @@
  * mounting a second document pipeline.
  */
 import * as React from 'react';
+import { renderToString } from 'katex';
 
 export type InventoryProseToken =
   | { type: 'text'; value: string }
@@ -37,6 +38,15 @@ export function parseInventoryProse(text: string): InventoryProseToken[] {
   return nodes;
 }
 
+function renderMath(value: string, displayMode: boolean): string {
+  return renderToString(value, {
+    displayMode,
+    output: 'htmlAndMathml',
+    strict: 'ignore',
+    throwOnError: false,
+  });
+}
+
 export const InventoryProse: React.FC<{ text?: string }> = ({ text }) => {
   if (!text) return null;
   if (!/[`$]/.test(text)) return <>{text}</>;
@@ -46,16 +56,20 @@ export const InventoryProse: React.FC<{ text?: string }> = ({ text }) => {
         if (node.type === 'inlineCode') return <code key={index}>{node.value}</code>;
         if (node.type === 'inlineMath') {
           return (
-            <span key={index} className="inventory-prose__inline-math">
-              {node.value}
-            </span>
+            <span
+              key={index}
+              className="inventory-prose__inline-math"
+              dangerouslySetInnerHTML={{ __html: renderMath(node.value, false) }}
+            />
           );
         }
         if (node.type === 'math') {
           return (
-            <div key={index} className="inventory-prose__display-math">
-              {node.value}
-            </div>
+            <div
+              key={index}
+              className="inventory-prose__display-math"
+              dangerouslySetInnerHTML={{ __html: renderMath(node.value, true) }}
+            />
           );
         }
         return <React.Fragment key={index}>{node.value}</React.Fragment>;

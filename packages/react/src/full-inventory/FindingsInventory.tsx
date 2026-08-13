@@ -1,14 +1,12 @@
 import { InventoryProse } from './InventoryProse.js';
-import { InventoryArtifactPreview } from './InventoryArtifactPreview.js';
 import {
-  InventoryCountHeading,
   InventoryDetailDialog,
   InventoryDetailLayout,
   InventoryDetailMain,
-  InventoryDetailProse,
   InventoryEmptyState,
   InventoryRecordList,
 } from './InventoryPrimitives.js';
+import { InventoryRelationList } from './InventoryRelations.js';
 import {
   getInventoryScope,
   inventoryRecordTitle,
@@ -30,7 +28,6 @@ interface FindingsInventoryProps {
 
 interface ResolvedFindingEvidence {
   artifact?: string | undefined;
-  quote?: string | undefined;
   record?: InventoryOutputRecord | undefined;
   scope?: InventoryScope | undefined;
 }
@@ -50,7 +47,6 @@ function findingEvidence(
       : undefined;
     return {
       artifact: evidence.artifactRecordId,
-      quote: evidence.quote,
       record: resolved?.record.kind === 'output' ? resolved.record : undefined,
       scope: resolved?.scope,
     };
@@ -75,9 +71,10 @@ export function FindingDialog({
   const evidence = findingEvidence(model, scope, record);
   return (
     <InventoryDetailDialog
+      className="inventory-detail-dialog--finding"
       kind="finding"
       eyebrow={`Finding · ${scope.name}`}
-      title={inventoryRecordTitle(record)}
+      title={record.claim ?? inventoryRecordTitle(record)}
       identifier={record.label ? record.localId : undefined}
       onBack={onBack}
       closeLabel="Close finding details"
@@ -85,61 +82,33 @@ export function FindingDialog({
     >
       <InventoryDetailLayout className="inventory-finding-detail inventory-record-detail__layout--single">
         <InventoryDetailMain as="main">
-          {record.claim ? (
-            <InventoryDetailProse label="Finding" className="inventory-finding-detail__claim">
-              <InventoryProse text={record.claim} />
-            </InventoryDetailProse>
-          ) : null}
           {record.notes ? (
             <section className="inventory-finding-detail__notes">
               <h4>Notes</h4>
               <div><InventoryProse text={record.notes} /></div>
             </section>
           ) : null}
-          <section className="inventory-finding-evidence-previews">
-            <InventoryCountHeading title="Evidence" count={evidence.length} />
-            {evidence.length ? (
-              <div className="inventory-finding-evidence-previews__list">
-                {evidence.map((item, index) => {
-                  const title = item.record?.label ?? item.record?.id ?? item.artifact ?? `Evidence ${index + 1}`;
-                  return (
-                    <article
-                      key={`${item.artifact ?? 'evidence'}-${index}`}
-                      className="inventory-finding-evidence-preview"
-                    >
-                      {item.record && item.scope ? (
-                        <button
-                          type="button"
-                          className="inventory-finding-evidence-preview__open"
-                          aria-label={`View evidence output: ${title}`}
-                          onClick={() => onOpenEvidence(item.record!, item.scope!)}
-                        >
-                          <span>
-                            <strong>{title}</strong>
-                            <code>{item.record.canonicalPath}</code>
-                          </span>
-                          <span aria-hidden="true">→</span>
-                        </button>
-                      ) : (
-                        <div className="inventory-finding-evidence-preview__unresolved">
-                          <strong>{title}</strong>
-                          {item.artifact ? <code>{item.artifact}</code> : null}
-                        </div>
-                      )}
-                      {item.record ? (
-                        <div className={`inventory-output-dialog__preview inventory-finding-evidence-preview__media is-${item.record.outputType}`}>
-                          <InventoryArtifactPreview record={item.record} />
-                        </div>
-                      ) : null}
-                      {item.quote ? (
-                        <blockquote><InventoryProse text={item.quote} /></blockquote>
-                      ) : null}
-                    </article>
-                  );
-                })}
-              </div>
-            ) : <p>No evidence artifacts are linked to this finding.</p>}
-          </section>
+          <InventoryRelationList
+            className="inventory-finding-supporting-results"
+            title="Supporting results"
+            empty="No supporting results are linked to this finding."
+            items={evidence.map((item, index) => {
+              const title = item.record
+                ? inventoryRecordTitle(item.record)
+                : item.artifact ?? `Result ${index + 1}`;
+              return {
+                key: `${item.artifact ?? 'result'}-${index}`,
+                label: title,
+                identifier: item.record?.canonicalPath ?? item.artifact,
+                detail: item.record?.outputType ?? 'Unavailable',
+                kind: 'output' as const,
+                accessibleLabel: item.record ? `View supporting result: ${title}` : undefined,
+                onOpen: item.record && item.scope
+                  ? () => onOpenEvidence(item.record!, item.scope!)
+                  : undefined,
+              };
+            })}
+          />
         </InventoryDetailMain>
       </InventoryDetailLayout>
     </InventoryDetailDialog>
