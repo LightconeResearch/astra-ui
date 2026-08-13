@@ -122,7 +122,10 @@ export function InsightDetailDialog({
       <InventoryDetailLayout className="inventory-insight-detail inventory-record-detail__layout--single">
         <InventoryDetailMain as="main">
           {insight.claim ? (
-            <InventoryDetailProse label="Claim">
+            <InventoryDetailProse
+              label="Claim"
+              className="inventory-record-detail__prose--section-heading inventory-insight-detail__claim"
+            >
               <InventoryProse text={insight.claim} />
             </InventoryDetailProse>
           ) : null}

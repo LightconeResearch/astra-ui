@@ -1,10 +1,8 @@
-/* Application views: the inventory and graph explorers plus the simple
-   inventory frame. Imported by application hosts only; the shared detail
-   surfaces live in components.css. */
+/* Application inventory view and simple frame. Imported by application hosts
+   only; the shared detail surfaces live in components.css. */
 
 @import "./ui.css";
 @import "./inventory.css";
-@import "./graph.css";
 
 .astra-ui .astra-inventory {
   display: grid;

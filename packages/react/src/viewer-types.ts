@@ -92,7 +92,6 @@ export interface ViewerCapabilities {
   changeUniverse: boolean;
   execution: boolean;
   externalNavigation: boolean;
-  chatReference: boolean;
 }
 
 export interface ViewerOpenReference {
@@ -119,7 +118,6 @@ export interface ViewerHost {
   openExternal?: (url: string) => void;
   changeUniverse?: (universeId: string) => void | Promise<void>;
   runOutput?: (recordId: string) => void | Promise<void>;
-  insertChatReference?: (reference: ViewerOpenReference) => void | Promise<void>;
   subscribe?: (listener: (change: ViewerChange) => void) => () => void;
 }
 

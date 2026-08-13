@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { InventoryProse } from './InventoryProse.js';
 import { InsightDetailTrigger } from './InsightDetailDialog.js';
 import {
@@ -10,7 +10,6 @@ import { InventoryRelationList } from './InventoryRelations.js';
 import { PaperPdfViewer, type PaperQuoteFocusRequest } from './PaperPdfViewer.js';
 import {
   citationTitleFromHtml,
-  directCitationPdfUrl,
   doiHref,
   normalizeDoi,
 } from './citationMetadata.js';
@@ -62,8 +61,7 @@ export function paperMetadataFromCitations(
         ? normalizeDoi(citation.doi)
         : undefined;
       const title = citationTitleFromHtml(citation?.html);
-      const pdfUrl = directCitationPdfUrl(citation?.url);
-      return doi && (title || pdfUrl) ? [[doi, { title, pdfUrl }]] : [];
+      return doi && title ? [[doi, { title }]] : [];
     }),
   );
 }
@@ -71,17 +69,11 @@ export function paperMetadataFromCitations(
 function paperFromDoi(doi: string, paperMetadata: InventoryPaperMetadataMap): InventoryPaper {
   const canonicalDoi = normalizeDoi(doi);
   const metadata = paperMetadata[canonicalDoi] ?? paperMetadata[doi];
-  const arxivId = /^10\.48550\/arxiv\.(.+)$/i.exec(canonicalDoi)?.[1];
-  const arxivPdfId = arxivId
-    ?.split('/')
-    .map((segment) => encodeURIComponent(segment))
-    .join('/');
   return {
     doi: canonicalDoi,
-    title: metadata?.title ?? (arxivId ? `arXiv ${arxivId}` : canonicalDoi),
+    title: metadata?.title ?? canonicalDoi,
     authors: metadata?.authors,
-    pdfUrl: metadata?.pdfUrl
-      ?? (arxivPdfId ? `https://arxiv.org/pdf/${arxivPdfId}` : undefined),
+    pdfUrl: metadata?.pdfUrl,
     insights: [],
     decisions: [],
   };
@@ -176,6 +168,7 @@ export function PaperDialog({
   scope,
   initialFocusInsight,
   pdfAssetBaseUrl,
+  onFetchPaper,
   onOpenInsight,
   onOpenDecision,
   onBack,
@@ -185,6 +178,7 @@ export function PaperDialog({
   scope: InventoryScope;
   initialFocusInsight?: InventoryInsightRecord | undefined;
   pdfAssetBaseUrl?: string | undefined;
+  onFetchPaper?: ((doi: string) => Promise<InventoryPaperMetadata>) | undefined;
   onOpenInsight: (insight: InventoryInsightRecord) => void;
   onOpenDecision: (decision: InventoryDecisionRecord) => void;
   onBack?: (() => void) | undefined;
@@ -201,7 +195,35 @@ export function PaperDialog({
       page: initialEvidence.page,
     } : undefined
   ));
+  const [fetchedMetadata, setFetchedMetadata] = useState<InventoryPaperMetadata>();
+  const [fetching, setFetching] = useState(false);
+  const [fetchError, setFetchError] = useState<string>();
   const focusSequence = useRef(0);
+  const pdfUrl = fetchedMetadata?.pdfUrl ?? paper.pdfUrl;
+  const title = fetchedMetadata?.title ?? paper.title;
+
+  useEffect(() => {
+    setFetchedMetadata(undefined);
+    setFetching(false);
+    setFetchError(undefined);
+  }, [paper.doi]);
+
+  const fetchMissingPaper = async () => {
+    if (!onFetchPaper || fetching) return;
+    setFetching(true);
+    setFetchError(undefined);
+    try {
+      const metadata = await onFetchPaper(paper.doi);
+      if (!metadata.pdfUrl) {
+        throw new Error('The paper was fetched without a readable PDF.');
+      }
+      setFetchedMetadata(metadata);
+    } catch (error) {
+      setFetchError(error instanceof Error ? error.message : 'Could not fetch this paper.');
+    } finally {
+      setFetching(false);
+    }
+  };
 
   const focusInsight = (
     insight: InventoryInsightRecord,
@@ -222,13 +244,13 @@ export function PaperDialog({
       className="inventory-detail-dialog--paper inventory-detail-dialog--reader"
       kind="paper"
       eyebrow={`Paper · ${scope.name}`}
-      title={paper.title}
+      title={title}
       onBack={onBack}
       headerActions={(
-        paper.pdfUrl ? (
+        pdfUrl ? (
           <a
             className="inventory-detail-dialog__header-action"
-            href={paper.pdfUrl}
+            href={pdfUrl}
             target="_blank"
             rel="noreferrer"
           >
@@ -241,14 +263,24 @@ export function PaperDialog({
     >
       <div className="inventory-paper-dialog__layout">
         <div className="inventory-paper-dialog__artifact">
-          {paper.pdfUrl ? (
+          {pdfUrl ? (
             <PaperPdfViewer
-              pdfUrl={paper.pdfUrl}
-              title={paper.title}
+              pdfUrl={pdfUrl}
+              title={title}
               focusRequest={focusRequest}
               pdfAssetBaseUrl={pdfAssetBaseUrl ?? ''}
             />
-          ) : <p className="inventory-paper-dialog__unavailable">No PDF source is available for this paper.</p>}
+          ) : (
+            <div className="inventory-paper-dialog__unavailable">
+              <p>This paper is not in your ASTRA paper cache.</p>
+              {onFetchPaper ? (
+                <button type="button" disabled={fetching} onClick={() => void fetchMissingPaper()}>
+                  {fetching ? 'Fetching paper…' : 'Fetch paper'}
+                </button>
+              ) : null}
+              {fetchError ? <p role="alert">{fetchError}</p> : null}
+            </div>
+          )}
         </div>
         <aside className="inventory-paper-dialog__rail" aria-label="Paper insights and decisions">
           <section className="inventory-paper-doi">
@@ -279,7 +311,7 @@ export function PaperDialog({
                         <span>
                           {evidence.length} {evidence.length === 1 ? 'passage' : 'passages'}
                         </span>
-                        {paper.pdfUrl ? (
+                        {pdfUrl ? (
                           <div>
                             {evidence.map((source, index) => (
                               <button

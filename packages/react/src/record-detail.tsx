@@ -80,17 +80,6 @@ export function RecordDetail({
                 Open source
               </Button>
             ) : null}
-            {resolvedHost.insertChatReference ? (
-              <Button
-                onClick={() => void resolvedHost.insertChatReference!({
-                  kind: resolvedRecord.kind,
-                  id: resolvedRecord.id,
-                  canonicalPath: resolvedRecord.canonicalPath,
-                })}
-              >
-                Reference in chat
-              </Button>
-            ) : null}
             {onClose ? (
               <Button onClick={onClose} aria-label="Close record detail">Close</Button>
             ) : null}

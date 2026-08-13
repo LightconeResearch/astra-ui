@@ -1,9 +1,8 @@
 /**
- * The application views layer: the graph and inventory explorers. Imported
- * by application hosts (JupyterLab, VSCode); publication themes should use
- * the `components` entry instead. Pair with the `views.css` entry.
+ * The application views layer: the complete inventory explorer. Imported by
+ * application hosts; publication themes should use the `components` entry
+ * instead. Pair with the `views.css` entry.
  */
-export * from './graph-view.js';
 export {
   InventoryExplorer,
 } from './full-inventory/InventoryOutline.js';
@@ -25,3 +24,4 @@ export {
 export {
   PapersInventory,
 } from './full-inventory/PapersInventory.js';
+export { PriorInsightsInventory } from './full-inventory/PriorInsightsInventory.js';

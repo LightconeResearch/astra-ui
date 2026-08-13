@@ -422,10 +422,42 @@
 
 .astra-ui .inventory-paper-dialog__unavailable {
   align-self: center;
+  display: grid;
+  gap: 0.75rem;
   justify-self: center;
+  justify-items: center;
   color: #FFFFFF;
   font-family: var(--astra-label);
   font-size: 0.8rem;
+  text-align: center;
+}
+
+.astra-ui .inventory-paper-dialog__unavailable p {
+  margin: 0;
+}
+
+.astra-ui .inventory-paper-dialog__unavailable button {
+  border: 1px solid var(--astra-rule-strong);
+  border-radius: 0.3rem;
+  background: var(--astra-raised);
+  color: var(--astra-ink);
+  cursor: pointer;
+  font: 700 0.75rem/1.2 var(--astra-font-ui);
+  padding: 0.55rem 0.85rem;
+}
+
+.astra-ui .inventory-paper-dialog__unavailable button:hover:not(:disabled) {
+  border-color: var(--astra-link);
+  color: var(--astra-link);
+}
+
+.astra-ui .inventory-paper-dialog__unavailable button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.astra-ui .inventory-paper-dialog__unavailable [role="alert"] {
+  color: var(--astra-c-danger);
 }
 
 .astra-ui .inventory-paper-dialog__rail {

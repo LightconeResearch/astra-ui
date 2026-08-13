@@ -54,9 +54,9 @@ export type {
   InventoryPaperMetadata,
   InventoryPaperMetadataMap,
 } from './PapersInventory.js';
+export { PriorInsightsInventory } from './PriorInsightsInventory.js';
 export {
   citationTitleFromHtml,
-  directCitationPdfUrl,
   doiHref,
   normalizeDoi,
 } from './citationMetadata.js';

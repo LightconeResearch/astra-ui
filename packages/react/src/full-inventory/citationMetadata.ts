@@ -69,18 +69,3 @@ export function citationTitleFromHtml(html: unknown): string | undefined {
   const italicTitle = firstItalic ? decodeHtmlText(firstItalic[2] ?? '') : '';
   return italicTitle || undefined;
 }
-
-/** Preserve citation URLs only when they are clearly direct PDF resources. */
-export function directCitationPdfUrl(value: unknown): string | undefined {
-  if (typeof value !== 'string' || !value.trim()) return undefined;
-  const url = value.trim();
-  try {
-    const parsed = new URL(url, 'https://inventory.invalid');
-    const isPdfPath = /\.pdf$/i.test(parsed.pathname);
-    const isArxivPdf = /(^|\.)arxiv\.org$/i.test(parsed.hostname)
-      && /^\/pdf(?:\/|$)/i.test(parsed.pathname);
-    return isPdfPath || isArxivPdf ? url : undefined;
-  } catch {
-    return undefined;
-  }
-}

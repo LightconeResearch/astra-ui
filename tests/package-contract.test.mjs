@@ -18,31 +18,11 @@ test('the unified UI package uses host React and only portable rendering depende
   assert.equal(manifest.peerDependencies.react, '>=18 <20');
   assert.equal(manifest.peerDependencies['react-dom'], '>=18 <20');
   const names = Object.keys(manifest.dependencies ?? {});
-  assert.deepEqual(names, ['@xyflow/react', 'katex']);
+  assert.deepEqual(names, ['katex']);
   assert.equal(names.some((name) => /jupyter|myst|vscode/i.test(name)), false);
   assert.ok(manifest.exports['./core']);
   assert.equal(manifest.exports['./ui.css'], './ui.css');
   assert.ok(manifest.files.includes('ui.css'));
-});
-
-test('graph is portable and contains no host or provider integration', async () => {
-  const entry = await readFile(new URL('../packages/react/src/index.ts', import.meta.url), 'utf8');
-  const css = await readFile(new URL('../packages/react/styles.css', import.meta.url), 'utf8');
-  const views = await readFile(new URL('../packages/react/views.css', import.meta.url), 'utf8');
-  const graph = await readFile(new URL('../packages/react/src/graph-view.tsx', import.meta.url), 'utf8');
-  const flow = await readFile(new URL('../packages/react/src/graph-flow.tsx', import.meta.url), 'utf8');
-  assert.match(entry, /graph-view/);
-  assert.match(css, /views\.css/);
-  assert.match(views, /graph\.css/);
-  assert.match(graph, /astra-graph__record-popover/);
-  assert.match(graph, /Open full details:/);
-  assert.match(graph, /onOpenScope/);
-  assert.match(graph, />\s*↗\s*</);
-  assert.doesNotMatch(graph, /jupyter|myst|vscode|claude|codex|opencode/i);
-  assert.doesNotMatch(flow, /dagre/i);
-  assert.match(flow, /function nodeRanks/);
-  assert.match(flow, /from '@xyflow\/react'/);
-  assert.doesNotMatch(graph, /setPointerCapture|scrollLeft|onPointerMove|astra-graph__scrollplane/);
 });
 
 test('components layer never imports the application views layer', async () => {
@@ -57,6 +37,10 @@ test('components layer never imports the application views layer', async () => {
 });
 
 test('detail and preview behavior use native and canonical signals', async () => {
+  const viewerTypes = await readFile(
+    new URL('../packages/react/src/viewer-types.ts', import.meta.url),
+    'utf8',
+  );
   const primitives = await readFile(
     new URL('../packages/react/src/full-inventory/InventoryPrimitives.tsx', import.meta.url),
     'utf8',
@@ -85,6 +69,8 @@ test('detail and preview behavior use native and canonical signals', async () =>
   assert.match(primitives, /\.showModal\(\)/);
   assert.doesNotMatch(primitives, /document\.body|addEventListener\(['"]keydown/);
   assert.doesNotMatch(recordDetail, /capabilities\.(?:openSource|chatReference)/);
+  assert.doesNotMatch(recordDetail, /insertChatReference|Reference in chat/);
+  assert.doesNotMatch(viewerTypes, /chatReference|insertChatReference/);
   assert.match(artifactPreview, /export function useResourcePreview/);
   assert.match(artifactPreview, /export function ArtifactPreview/);
   assert.match(artifactPreview, /missing_expected_result/);

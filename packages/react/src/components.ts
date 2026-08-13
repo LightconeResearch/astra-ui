@@ -57,7 +57,6 @@ export type {
 } from './full-inventory/PapersInventory.js';
 export {
   citationTitleFromHtml,
-  directCitationPdfUrl,
   doiHref,
   normalizeDoi,
 } from './full-inventory/citationMetadata.js';

@@ -9,7 +9,6 @@
     "./components.css",
     "./views.css",
     "./inventory.css",
-    "./graph.css",
     "./ui.css"
   ],
   "main": "./dist/index.js",
@@ -39,9 +38,7 @@
     "./components.css": "./components.css",
     "./views.css": "./views.css",
     "./inventory.css": "./inventory.css",
-    "./graph.css": "./graph.css",
-    "./ui.css": "./ui.css",
-    "./graph-organization.schema.json": "./graph-organization.schema.json"
+    "./ui.css": "./ui.css"
   },
   "files": [
     "dist",
@@ -49,9 +46,7 @@
     "components.css",
     "views.css",
     "inventory.css",
-    "graph.css",
     "ui.css",
-    "graph-organization.schema.json",
     "README.md"
   ],
   "scripts": {
@@ -67,7 +62,6 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@xyflow/react": "^12.11.2",
     "katex": "^0.16.47"
   }
 }

@@ -8,7 +8,6 @@ import {
   createInventoryModel,
   DecisionDialog,
   FindingDialog,
-  GraphExplorer,
   InputDialog,
   InsightDetailDialog,
   InventoryDetailDialog,
@@ -38,7 +37,9 @@ test('inventory renders the canonical model without a host dependency', () => {
   assert.match(html, /heading-text">Decisions</);
   assert.match(html, /heading-text">Inputs</);
   assert.match(html, /heading-text">Findings</);
+  assert.match(html, /heading-text">Prior Insights</);
   assert.match(html, /heading-text">Papers</);
+  assert.ok(html.indexOf('heading-text">Prior Insights') < html.indexOf('heading-text">Papers'));
   assert.match(html, /inventory-page-layout/);
   assert.match(html, /On this page/);
   assert.match(html, /inventory-page-outline/);
@@ -536,6 +537,45 @@ test('paper details use compact insight and informed-decision lists', () => {
   assert.doesNotMatch(html, /Full screen/);
 });
 
+test('a missing cited paper offers an explicit cache fetch without an arXiv PDF fallback', () => {
+  const paperSource = readFileSync(
+    new URL('../packages/react/src/full-inventory/PapersInventory.tsx', import.meta.url),
+    'utf8',
+  );
+  const citationSource = readFileSync(
+    new URL('../packages/react/src/full-inventory/citationMetadata.ts', import.meta.url),
+    'utf8',
+  );
+  const html = renderToStaticMarkup(
+    React.createElement(PaperDialog, {
+      paper: {
+        doi: '10.48550/arXiv.2401.12345',
+        title: 'Cached only paper',
+        insights: [],
+        decisions: [],
+      },
+      scope: {
+        id: 'root',
+        canonicalPath: 'root',
+        name: 'Example',
+        childIds: [],
+        recordIds: [],
+      },
+      onFetchPaper: async () => ({
+        title: 'Cached only paper',
+        pdfUrl: '/astra/papers/10.48550%2FarXiv.2401.12345/pdf',
+      }),
+      onOpenInsight: () => {},
+      onOpenDecision: () => {},
+      onClose: () => {},
+    }),
+  );
+
+  assert.match(html, />Fetch paper</);
+  assert.match(html, /not in your ASTRA paper cache/);
+  assert.doesNotMatch(`${paperSource}\n${citationSource}`, /arxiv\.org\/pdf|directCitationPdfUrl/);
+});
+
 test('decision rationale and input description use section-heading typography', () => {
   const inventory = createInventoryModel(fixtureModel());
   const scope = inventory.scopeById.get('root');
@@ -640,104 +680,4 @@ test('insight details use the same compact informed-decision relationship', () =
     css,
     /inventory-insight-trigger__claim\s*\{[\s\S]*?font:\s*400 0\.8125rem\/1\.35/,
   );
-});
-
-test('graph shows the structural ASTRA projection behind an explicit first-run choice', () => {
-  const model = fixtureModel({ analysisRevision: 'analysis-graph-react' });
-  const html = renderToStaticMarkup(
-    React.createElement('div', { className: 'astra-ui' },
-      React.createElement(GraphExplorer, {
-        model,
-        onOrganize: () => {},
-      }),
-    ),
-  );
-
-  assert.match(html, /astra-project-view-header astra-graph__toolbar/);
-  assert.match(html, /astra-project-view-header__title/);
-  assert.match(html, /How would you like to begin/);
-  assert.match(html, /Structural ASTRA graph/);
-  assert.match(html, /Organize graph with AI/);
-  assert.match(html, /View ungrouped graph/);
-  assert.match(html, /DESI demo/);
-  assert.match(html, /Clustering ASTRA sub-analysis; click to inspect/);
-  assert.match(html, /xi: clustering\.outputs\.xi/);
-  assert.match(html, />From Clustering<\/small>/);
-  assert.doesNotMatch(html, />Sub-analysis · Clustering<\/small>/);
-  assert.doesNotMatch(html, /astra-graph-node__detail[^>]*>Input<\/small>/);
-  assert.match(html, /data-node-type="scope"/);
-  assert.doesNotMatch(html, /visible nodes|canonical links/);
-  assert.match(html, /headline/);
-  assert.match(html, /Graph grammar/);
-  assert.match(html, /aria-haspopup="true"/);
-  assert.doesNotMatch(html, /astra-graph__legend-menu/);
-  assert.match(html, /astra-graph__decision-panel/);
-  assert.match(html, /data-open="false"/);
-  assert.match(html, /aria-label="Expand decisions"/);
-  assert.match(html, /aria-expanded="false"/);
-  assert.match(html, />1<\/strong>/);
-  assert.match(html, /Interactive ASTRA graph canvas/);
-  assert.match(html, /react-flow__controls/);
-  assert.doesNotMatch(html, /astra-graph__decision-row/);
-  assert.doesNotMatch(html, /react-flow__edge[^>]*astra-graph-edge--decision/);
-  assert.doesNotMatch(html, /astra-graph__inspector/);
-  assert.doesNotMatch(html, /data-kind="prior_insight"/);
-  assert.doesNotMatch(html, /data-kind="finding"/);
-  assert.doesNotMatch(html, /class="astra-graph-node"[^>]*data-kind="decision"/);
-  assert.match(html, /react-flow__arrowhead/);
-});
-
-test('grouped records use a stacked kind icon without expanding the graph', () => {
-  const model = fixtureModel({ analysisRevision: 'analysis-react-groups' });
-  for (const localId of ['chart_a', 'chart_b']) {
-    model.records.push({
-      id: `root:output:${localId}`,
-      localId,
-      canonicalPath: `outputs.${localId}`,
-      scopeId: 'root',
-      kind: 'output',
-      relations: [
-        { kind: 'depends_on', targetRecordId: 'root:input:catalog', direct: true },
-        { kind: 'parameterized_by', targetRecordId: 'root:decision:method', direct: true },
-      ],
-      outputType: 'figure',
-      resourceIds: [],
-      provenance: {
-        inputs: [
-          { reference: 'catalog', recordId: 'root:input:catalog', direct: true },
-        ],
-        decisions: [
-          { reference: 'method', recordId: 'root:decision:method', direct: true },
-        ],
-      },
-    });
-    model.scopes[0].recordIds.push(`root:output:${localId}`);
-  }
-  const organization = {
-    schema_version: 'graph-organization.v1',
-    source: {
-      entrypoint: 'astra.yaml',
-      organization_input_digest: 'analysis-react-groups',
-    },
-    groups: [{
-      id: 'headline_figures',
-      label: 'Headline figures',
-      scope: 'root',
-      kind: 'output',
-      members: ['chart_a', 'chart_b'],
-    }],
-  };
-  const html = renderToStaticMarkup(
-    React.createElement('div', { className: 'astra-ui' },
-      React.createElement(GraphExplorer, { model, organization }),
-    ),
-  );
-
-  assert.match(html, /Headline figures: 2 grouped records/);
-  assert.match(html, /astra-graph-node__group-mark/);
-  assert.match(html, /astra-graph-node__mark--group-back/);
-  assert.match(html, /astra-graph-node__mark--group-front/);
-  assert.doesNotMatch(html, />2 output records<\/text>/);
-  assert.doesNotMatch(html, /Group ·/);
-  assert.doesNotMatch(html, /Collapse groups/);
 });

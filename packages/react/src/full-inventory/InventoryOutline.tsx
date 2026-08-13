@@ -14,11 +14,13 @@ import {
   type InventoryDetailMode,
 } from './InventoryPrimitives.js';
 import { OutputDialog, OutputsInventory } from './OutputsInventory.js';
+import { PriorInsightsInventory } from './PriorInsightsInventory.js';
 import {
   PaperDialog,
   PapersInventory,
   paperRecords,
   type InventoryPaper,
+  type InventoryPaperMetadata,
   type InventoryPaperMetadataMap,
 } from './PapersInventory.js';
 import {
@@ -66,6 +68,7 @@ interface InventoryRecordDetailProps {
   model: InventoryModel;
   paperMetadata: InventoryPaperMetadataMap;
   paperPdfAssetBaseUrl?: string | undefined;
+  onFetchPaper?: ((doi: string) => Promise<InventoryPaperMetadata>) | undefined;
   onPush: (entry: InventoryModalEntry) => void;
   onBack?: (() => void) | undefined;
   onClose: () => void;
@@ -78,6 +81,7 @@ function InventoryRecordDetail({
   model,
   paperMetadata,
   paperPdfAssetBaseUrl,
+  onFetchPaper,
   onPush,
   onBack,
   onClose,
@@ -94,6 +98,7 @@ function InventoryRecordDetail({
         scope={scope}
         initialFocusInsight={entry.focusInsight}
         pdfAssetBaseUrl={paperPdfAssetBaseUrl}
+        onFetchPaper={onFetchPaper}
         onOpenInsight={(insight) => openRecord(insight)}
         onOpenDecision={(decision) => openRecord(decision)}
         onBack={onBack}
@@ -188,6 +193,8 @@ export interface InventoryOutlineProps {
   paperMetadata?: InventoryPaperMetadataMap | undefined;
   /** Host-specific directory containing the PDF.js runtime assets. */
   paperPdfAssetBaseUrl?: string | undefined;
+  /** Fetch one missing cited paper into the host's user cache. */
+  onFetchPaper?: ((doi: string) => Promise<InventoryPaperMetadata>) | undefined;
   decisionTagLabels?: Readonly<Record<string, string>> | undefined;
   /** Render record details as a modal or as a host-owned full detail page. */
   detailMode?: InventoryDetailMode | undefined;
@@ -216,6 +223,7 @@ function InventoryExplorerView({
   scopeId = 'root',
   paperMetadata = EMPTY_PAPER_METADATA,
   paperPdfAssetBaseUrl,
+  onFetchPaper,
   decisionTagLabels = {},
   detailMode = 'modal',
   dialogsOnly = false,
@@ -305,6 +313,7 @@ function InventoryExplorerView({
         model={model}
         paperMetadata={paperMetadata}
         paperPdfAssetBaseUrl={paperPdfAssetBaseUrl}
+        onFetchPaper={onFetchPaper}
         onPush={pushModal}
         onBack={backAction}
         onClose={closeAll}
@@ -319,6 +328,7 @@ function InventoryExplorerView({
   const decisions = scope ? inventoryRecordsOfKind(scope, 'decision', model) : [];
   const inputs = scope ? inventoryRecordsOfKind(scope, 'input', model) : [];
   const findings = scope ? inventoryRecordsOfKind(scope, 'finding', model) : [];
+  const priorInsights = scope ? inventoryRecordsOfKind(scope, 'prior_insight', model) : [];
   const papers = scope ? paperRecords(model, scope, paperMetadata) : [];
 
   const sections = [
@@ -382,6 +392,22 @@ function InventoryExplorerView({
           model={model}
           scopeId={scopeId}
           onOpenFinding={(record, scope) => openFromOverview(
+            recordModalEntry(record, scope.id),
+          )}
+        />
+      ) : null,
+    },
+    {
+      id: 'prior-insights',
+      label: 'Prior Insights',
+      count: priorInsights.length,
+      countLabel: `${priorInsights.length} prior ${priorInsights.length === 1 ? 'insight' : 'insights'}`,
+      glyph: '◈',
+      content: model ? (
+        <PriorInsightsInventory
+          model={model}
+          scopeId={scopeId}
+          onOpenInsight={(record, scope) => openFromOverview(
             recordModalEntry(record, scope.id),
           )}
         />

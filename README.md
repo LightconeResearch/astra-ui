@@ -1,57 +1,53 @@
 # `@lightcone-research/astra-ui`
 
-`@lightcone-research/astra-ui` is the host-neutral viewing layer for ASTRA projects. It gives
-JupyterLab, a future VS Code extension, and other hosts one serializable model,
-one set of inventory/result components, and one scoped design-token contract.
+`@lightcone-research/astra-ui` is the host-neutral viewing layer for ASTRA
+projects. It gives JupyterLab and other hosts one serializable project model,
+one read-only inventory, reusable record dialogs, result previews, and a scoped
+design-token contract.
 
-It is deliberately not a JupyterLab extension, a MyST theme, an execution
-engine, or a claim that an analysis is scientifically correct.
+It is not an ASTRA parser, execution engine, JupyterLab extension, paper theme,
+or claim that an analysis is scientifically correct.
 
 ## Packages
 
 | Package | Owns | Does not own |
 | --- | --- | --- |
-| `@astra-spec/sdk/view-model` | Canonical `ProjectViewModelV1` contract, indexing, and validation | React, host APIs, artifact bytes |
-| `@lightcone-research/astra-ui/core` | Runtime overlays, host capabilities, and graph projection | React components, JupyterLab, MyST, VS Code |
-| `@lightcone-research/astra-ui/components` | Portable record detail and result previews | Application views and host APIs |
-| `@lightcone-research/astra-ui/views` | Inventory and graph application views | JupyterLab, MyST, VS Code APIs |
-| `@lightcone-research/lightcone-brand` | Canonical ASTRA component palette with light/dark host detection | Paper layout, inventory layout, application chrome |
+| `@astra-spec/sdk/view-model` | Canonical `ProjectViewModelV1` projection, indexing, and validation | React, host APIs, artifact bytes |
+| `@lightcone-research/astra-ui/core` | Runtime overlays and host capability contracts | React components or host integrations |
+| `@lightcone-research/astra-ui/components` | Portable record details and result previews | Application views and host APIs |
+| `@lightcone-research/astra-ui/views` | The full ASTRA inventory and its record dialogs | JupyterLab or editor APIs |
+| `@lightcone-research/lightcone-brand` | Canonical ASTRA component palette with light/dark host detection | Inventory layout or application chrome |
 
-The graph view is a structural projection of inputs, decisions, outputs, and
-sub-analyses; prior insights and findings remain available in inventory and
-record-detail surfaces. Every relation between displayed records is preserved.
-Each real ASTRA child scope is projected mechanically as one sub-analysis node
-in its parent graph and opens into its own scoped graph. Declared child outputs
-that are consumed outside that child scope are mechanically exposed beside the
-sub-analysis node; internal-only outputs stay in the scoped graph. Decisions
-sit at the top of a dedicated left rail and expose direct parameterization
-links on hover or focus; indirect influence stays in record details. An optional
-`astra.graph.yaml` can contract validated peer records,
-including repeated boundary outputs, into presentation groups; it cannot create
-scopes, dependencies, or stages. The
-same model and React surface can be used by an interactive host or a static
-exporter.
+## Viewer behavior
+
+The inventory presents outputs, decisions, inputs, findings, prior insights,
+and cited papers for each ASTRA scope. Selecting a row opens a dialog inside the
+inventory, so hosts do not need separate result or record tabs.
+
+Output dialogs can preview declared metrics and materialized resources supplied
+by the host. Missing outputs remain visible with the expected result path; the
+viewer does not execute an analysis or write into its project directory.
+
+Cited papers are cache-first. A host may provide `onFetchPaper` to handle an
+explicit **Fetch paper** action and return cache-backed metadata and a PDF URL.
+The shared UI does not fetch directly from arXiv or write to disk itself.
 
 ## Host flow
 
 1. A trusted host adapter reads `astra.yaml`, resolved child analyses, the
-   selected universe, and result metadata.
+   active universe, and result metadata.
 2. It projects those sources into `ProjectViewModelV1` plus an optional
-   `RuntimeOverlayV1`. The serializable model contains resource descriptors,
-   never local paths or bytes.
-3. The host implements `ViewerHost` for preview, download, source navigation,
-   universe changes, execution, or chat references that it supports.
-4. React surfaces render the same model everywhere. Resource previews are
-   requested lazily by stable resource ID.
-5. Hosts publish analysis, selection, materialization, and resource changes
-   through revisions. A changed artifact revision invalidates its preview
-   without pretending that `astra.yaml` itself changed.
+   `RuntimeOverlayV1`. The model contains resource descriptors, never local
+   paths or artifact bytes.
+3. The host implements only the `ViewerHost` preview, download, source, or
+   external-navigation methods it supports.
+4. React renders the same inventory everywhere and requests previews lazily by
+   stable resource ID.
+5. Hosts publish source, selection, materialization, and resource revisions so
+   the inventory can refresh without reparsing ASTRA independently.
 
-Hosts obtain the canonical model from the shared projector in
-`@astra-spec/sdk` (`buildProjectViewModel` over a pluggable file-access
-interface), so host implementations never become independent ASTRA parsers:
-JupyterLab runs it in the browser over the contents API, VSCode and the MyST
-build run it over Node fs.
+The shared projector lives in `@astra-spec/sdk` (`buildProjectViewModel` over a
+pluggable file-access interface).
 
 ## Styling
 
@@ -62,12 +58,8 @@ Portable viewers import:
 @import '@lightcone-research/astra-ui/styles.css';
 ```
 
-The `.astra-ui` scope keeps the complete ASTRA component palette in every
-host, selecting its accessible light or dark variant from the host colour
-scheme. MyST paper themes import only `brand.css` and opt in with
-`.astra-brand`; they do not import inventory/result application layout. A host
-theme may style surrounding application chrome, but is not required for the
-React components.
+The `.astra-ui` scope supplies the ASTRA component palette in light and dark
+hosts. A host theme may style surrounding application chrome separately.
 
 ## Development
 
