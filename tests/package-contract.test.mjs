@@ -30,7 +30,10 @@ test('components layer never imports the application views layer', async () => {
   assert.ok(manifest.exports['./components']);
   assert.ok(manifest.exports['./views']);
   const components = await readFile(new URL('../packages/react/src/components.ts', import.meta.url), 'utf8');
-  assert.doesNotMatch(components, /graph-view|InventoryOutline|OverviewInventory|(Outputs|Decisions|Inputs|Findings|Papers)Inventory\b(?!\.js)/);
+  // PapersInventory is deliberately a components-layer surface: the MyST
+  // publication renders the cited-papers list in place of a bibliography.
+  // The other per-kind sections remain application views.
+  assert.doesNotMatch(components, /graph-view|InventoryOutline|OverviewInventory|(Outputs|Decisions|Inputs|Findings)Inventory\b(?!\.js)/);
   const componentsCss = await readFile(new URL('../packages/react/components.css', import.meta.url), 'utf8');
   assert.doesNotMatch(componentsCss, /@import "\.\/(inventory|graph|views|styles)\.css"/);
   assert.match(componentsCss, /@import "\.\/ui\.css"/);

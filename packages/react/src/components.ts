@@ -47,6 +47,7 @@ export type {
 } from './full-inventory/PaperPdfViewer.js';
 export {
   PaperDialog,
+  PapersInventory,
   paperMetadataFromCitations,
   paperRecords,
 } from './full-inventory/PapersInventory.js';
