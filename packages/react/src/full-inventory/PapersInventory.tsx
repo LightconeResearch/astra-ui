@@ -272,12 +272,18 @@ export function PaperDialog({
             />
           ) : (
             <div className="inventory-paper-dialog__unavailable">
-              <p>This paper is not in your ASTRA paper cache.</p>
               {onFetchPaper ? (
-                <button type="button" disabled={fetching} onClick={() => void fetchMissingPaper()}>
-                  {fetching ? 'Fetching paper…' : 'Fetch paper'}
-                </button>
-              ) : null}
+                <>
+                  <p>This paper is not in your ASTRA paper cache.</p>
+                  <button type="button" disabled={fetching} onClick={() => void fetchMissingPaper()}>
+                    {fetching ? 'Fetching paper…' : 'Fetch paper'}
+                  </button>
+                </>
+              ) : (
+                // Hosts without a paper cache (the static publication):
+                // point at the published record instead.
+                <p>No PDF is attached here — follow the DOI for the published version.</p>
+              )}
               {fetchError ? <p role="alert">{fetchError}</p> : null}
             </div>
           )}
