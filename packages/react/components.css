@@ -1571,7 +1571,7 @@
 }
 
 /* Keep transparent artifact thumbnails legible in the scoped brand dark mode. */
-.astra-brand[data-astra-color-scheme="dark"] .astra-evidence__thumb img,
+.lightcone-brand[data-astra-color-scheme="dark"] .astra-evidence__thumb img,
 .astra-ui[data-astra-theme="brand-dark"] .astra-evidence__thumb img {
   background: var(--astra-artifact-paper);
   border-radius: 3px;
