@@ -1,0 +1,204 @@
+/* Graph view: the mechanical provenance graph. Application hosts import this
+   entry alongside views.css; no other stylesheet pulls it in. All selectors
+   are scoped under .astra-ui.
+
+   The visual language follows the inventory, not the archived dashboard:
+   parchment canvas, hairline rules, radius 0, no shadows, kind colour carried
+   by glyph and kicker rather than by fills, and restrained step-routed
+   hairline edges. */
+
+@import "@xyflow/react/dist/style.css";
+
+.astra-ui .astra-graph-view {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  min-height: 28rem;
+  overflow: hidden;
+  border: 1px solid var(--astra-rule);
+  border-radius: 0;
+  background: var(--astra-canvas);
+  color: var(--astra-ink);
+  font-family: var(--astra-font-ui);
+}
+
+.astra-ui .astra-graph-view .react-flow {
+  background: var(--astra-canvas);
+  color: var(--astra-ink);
+  font-family: var(--astra-font-ui);
+}
+
+/* ------------------------------------------------------------------ nodes */
+
+.astra-ui .astra-graph-node[data-kind="input"] {
+  --astra-kind: var(--astra-c-input);
+  --astra-kind-ink: var(--astra-c-input);
+}
+
+.astra-ui .astra-graph-node[data-kind="decision"] {
+  --astra-kind: var(--astra-c-decision);
+  --astra-kind-ink: var(--astra-c-decision-ink);
+}
+
+.astra-ui .astra-graph-node[data-kind="output"] {
+  --astra-kind: var(--astra-c-output);
+  --astra-kind-ink: var(--astra-c-output);
+}
+
+.astra-ui .astra-graph-node[data-kind="finding"] {
+  --astra-kind: var(--astra-c-finding);
+  --astra-kind-ink: var(--astra-c-finding);
+}
+
+.astra-ui .astra-graph-node[data-kind="prior_insight"] {
+  --astra-kind: var(--astra-c-insight);
+  --astra-kind-ink: var(--astra-c-insight-ink);
+}
+
+.astra-ui .astra-graph-node[data-kind="analysis"] {
+  --astra-kind: var(--astra-c-analysis);
+  --astra-kind-ink: var(--astra-c-analysis);
+}
+
+/* A flat chip echoing the inventory's record rows: hairline border, raised
+   surface, kind colour on the glyph and kicker only. */
+.astra-ui .astra-graph-node {
+  display: flex;
+  box-sizing: border-box;
+  width: 216px;
+  height: 52px;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0 0.75rem;
+  border: 1px solid var(--astra-rule);
+  border-radius: 0;
+  background: var(--astra-raised);
+  color: var(--astra-ink);
+  cursor: pointer;
+  font-family: var(--astra-font-ui);
+  text-align: left;
+}
+
+.astra-ui .astra-graph-node:hover {
+  border-color: var(--astra-kind, var(--astra-rule-strong));
+}
+
+.astra-ui .astra-graph-node:focus-visible {
+  outline: 2px solid var(--astra-focus);
+  outline-offset: 1px;
+}
+
+/* Collapsed child analyses read as a doorway, not a record. */
+.astra-ui .astra-graph-node[data-node-type="scope"] {
+  border-color: color-mix(in srgb, var(--astra-c-analysis) 34%, var(--astra-rule));
+  background: color-mix(in srgb, var(--astra-c-analysis) 4%, var(--astra-raised));
+}
+
+.astra-ui .astra-graph-node__glyph {
+  flex: 0 0 auto;
+  width: 1rem;
+  color: var(--astra-kind, var(--astra-muted));
+  font-size: 0.6875rem;
+  text-align: center;
+}
+
+.astra-ui .astra-graph-node__copy {
+  display: grid;
+  min-width: 0;
+  gap: 0.1rem;
+}
+
+.astra-ui .astra-graph-node__kind {
+  overflow: hidden;
+  color: var(--astra-kind-ink, var(--astra-muted));
+  font: 700 0.5625rem/1.2 var(--astra-font-ui);
+  letter-spacing: 0.08em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.astra-ui .astra-graph-node__label {
+  overflow: hidden;
+  font: 600 0.8125rem/1.25 var(--astra-font-ui);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Connection handles are layout anchors only. */
+.astra-ui .astra-graph-view .react-flow__handle.astra-graph-node__handle {
+  width: 1px;
+  height: 1px;
+  min-width: 0;
+  min-height: 0;
+  border: 0;
+  background: transparent;
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------------------ edges */
+
+/* Restrained provenance lines: hairline weight, quiet step routing. Relation
+   families vary by dash, not by loud colour. */
+.astra-ui .astra-graph-view .react-flow__edge-path {
+  stroke: var(--astra-rule-strong);
+  stroke-width: 1;
+}
+
+.astra-ui .astra-graph-edge--decision .react-flow__edge-path {
+  stroke: color-mix(in srgb, var(--astra-c-decision) 55%, var(--astra-rule-strong));
+}
+
+.astra-ui .astra-graph-edge--evidence .react-flow__edge-path {
+  stroke-dasharray: 3 3;
+}
+
+.astra-ui .astra-graph-edge--reference .react-flow__edge-path {
+  stroke-dasharray: 1.5 3.5;
+}
+
+/* ----------------------------------------------------------------- chrome */
+
+.astra-ui .astra-graph-view .react-flow__controls {
+  overflow: hidden;
+  border: 1px solid var(--astra-rule-strong);
+  border-radius: 0;
+  background: var(--astra-raised);
+  box-shadow: none;
+}
+
+.astra-ui .astra-graph-view .react-flow__controls-button {
+  border-bottom: 1px solid var(--astra-rule);
+  background: var(--astra-raised);
+  color: var(--astra-muted);
+  fill: currentcolor;
+}
+
+.astra-ui .astra-graph-view .react-flow__controls-button:last-child {
+  border-bottom: 0;
+}
+
+.astra-ui .astra-graph-view .react-flow__controls-button:hover {
+  background: var(--astra-hover);
+  color: var(--astra-ink);
+}
+
+.astra-ui .astra-graph-view .react-flow__attribution {
+  background: color-mix(in srgb, var(--astra-canvas) 88%, transparent);
+  color: var(--astra-faint);
+  font-size: 8px;
+}
+
+/* The optional host-supplied pointer to the authoring-time organizer. */
+.astra-ui .astra-graph-view__hint {
+  position: absolute;
+  bottom: 0.5rem;
+  left: 0.75rem;
+  z-index: 5;
+  margin: 0;
+  padding: 0.2rem 0.45rem;
+  background: color-mix(in srgb, var(--astra-canvas) 86%, transparent);
+  color: var(--astra-muted);
+  font: 400 0.71875rem/1.4 var(--astra-font-ui);
+}

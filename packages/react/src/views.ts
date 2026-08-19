@@ -25,6 +25,8 @@ export {
   PapersInventory,
 } from './full-inventory/PapersInventory.js';
 export { PriorInsightsInventory } from './full-inventory/PriorInsightsInventory.js';
+export { GraphView } from './graph/GraphView.js';
+export type { GraphViewProps } from './graph/GraphView.js';
 export {
   deriveProjectGraph,
   graphRecordNodeId,

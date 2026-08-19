@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import React from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { createInventoryModel } from '../packages/react/dist/index.js';
 import {
+  GraphView,
   deriveProjectGraph,
   graphRecordNodeId,
   graphScopeNodeId,
@@ -141,4 +144,35 @@ test('the layered layout is deterministic and layers sources above products', ()
       assert.ok(xs[i] - xs[i - 1] >= 216, 'layer neighbors keep a full node width apart');
     }
   }
+});
+
+test('GraphView renders flat kind chips, the collapsed sub-analysis, and the host hint', () => {
+  const html = renderToStaticMarkup(
+    React.createElement('div', { className: 'astra-ui' },
+      React.createElement(GraphView, {
+        model: createInventoryModel(fixtureModel()),
+        organizeHint: 'Run /organize-graph to group repeated records.',
+      })),
+  );
+
+  assert.match(html, /astra-graph-view/);
+  assert.match(html, /astra-graph-node[^_]/);
+  assert.match(html, /data-kind="input"/);
+  assert.match(html, /data-kind="decision"/);
+  assert.match(html, /data-kind="prior_insight"/);
+  assert.match(html, /data-kind="analysis"/);
+  assert.match(html, /Sub-analysis · 4 records/);
+  assert.match(html, /astra-graph-view__hint/);
+  assert.match(html, /organize-graph/);
+  // The viewer is mechanical-only: no AI chrome, no staleness banners.
+  assert.doesNotMatch(html, /Refresh with AI|View ungrouped graph|Graph grammar|stale/i);
+});
+
+test('GraphView without a hint renders no hint element', () => {
+  const html = renderToStaticMarkup(
+    React.createElement(GraphView, {
+      model: createInventoryModel(fixtureModel()),
+    }),
+  );
+  assert.doesNotMatch(html, /astra-graph-view__hint/);
 });

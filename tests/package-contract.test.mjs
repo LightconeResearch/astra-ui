@@ -18,7 +18,9 @@ test('the unified UI package uses host React and only portable rendering depende
   assert.equal(manifest.peerDependencies.react, '>=18 <20');
   assert.equal(manifest.peerDependencies['react-dom'], '>=18 <20');
   const names = Object.keys(manifest.dependencies ?? {});
-  assert.deepEqual(names, ['katex']);
+  // @xyflow/react renders the graph view's canvas. Like katex it is a
+  // portable, host-neutral rendering dependency (no IDE or notebook APIs).
+  assert.deepEqual(names, ['@xyflow/react', 'katex']);
   assert.equal(names.some((name) => /jupyter|myst|vscode/i.test(name)), false);
   assert.ok(manifest.exports['./core']);
   assert.equal(manifest.exports['./ui.css'], './ui.css');
