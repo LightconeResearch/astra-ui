@@ -176,3 +176,82 @@ test('GraphView without a hint renders no hint element', () => {
   );
   assert.doesNotMatch(html, /astra-graph-view__hint/);
 });
+
+test('the organization overlay clusters known members and counts the rest', () => {
+  const organization = {
+    basedOn: 'fixture-analysis',
+    groups: [
+      {
+        label: 'Method setup',
+        members: [
+          'decisions.method',
+          'inputs.catalog',
+          // Unknown members are silently ignored.
+          'inputs.does_not_exist',
+          // Records collapsed inside a child analysis are not visible nodes
+          // here, so they are ignored too.
+          'clustering.outputs.xi',
+        ],
+      },
+      // A group with no resolvable members disappears entirely.
+      { label: 'Ghost group', members: ['outputs.nope'] },
+    ],
+  };
+  const graph = deriveProjectGraph(createInventoryModel(fixtureModel()), {
+    organization,
+  });
+
+  assert.deepEqual(graph.groups, [{
+    label: 'Method setup',
+    nodeIds: [
+      graphRecordNodeId('root:decision:method'),
+      graphRecordNodeId('root:input:catalog'),
+    ],
+  }]);
+  // headline and the prior insight stay with the mechanical layout; the
+  // collapsed clustering scope node is not a record and never counts.
+  assert.equal(graph.unorganizedCount, 2);
+
+  // The overlay never changes the mechanical nodes or edges.
+  const mechanical = deriveProjectGraph(createInventoryModel(fixtureModel()));
+  assert.deepEqual(graph.nodes, mechanical.nodes);
+  assert.deepEqual(graph.edges, mechanical.edges);
+
+  // Members cluster inside the labelled frame; everything else stays outside.
+  const layout = layoutProjectGraph(graph);
+  assert.equal(layout.groups.length, 1);
+  const frame = layout.groups[0];
+  assert.equal(frame.label, 'Method setup');
+  const inside = (id) => {
+    const position = layout.positions.get(id);
+    return position.x >= frame.x
+      && position.y >= frame.y
+      && position.x + 216 <= frame.x + frame.width
+      && position.y + 52 <= frame.y + frame.height;
+  };
+  assert.ok(inside(graphRecordNodeId('root:decision:method')));
+  assert.ok(inside(graphRecordNodeId('root:input:catalog')));
+  assert.ok(!inside(graphRecordNodeId('root:output:headline')));
+  assert.ok(!inside(graphScopeNodeId('clustering')));
+
+  // Without an organization there is nothing to count.
+  assert.equal(mechanical.unorganizedCount, 0);
+  assert.deepEqual(mechanical.groups, []);
+});
+
+test('GraphView renders group frames and suppresses the hint once organized', () => {
+  const organization = {
+    groups: [{ label: 'Method setup', members: ['decisions.method', 'inputs.catalog'] }],
+  };
+  const html = renderToStaticMarkup(
+    React.createElement('div', { className: 'astra-ui' },
+      React.createElement(GraphView, {
+        model: createInventoryModel(fixtureModel()),
+        organization,
+        organizeHint: 'Run /organize-graph to group repeated records.',
+      })),
+  );
+
+  assert.match(html, /astra-graph-group__label">Method setup</);
+  assert.doesNotMatch(html, /astra-graph-view__hint/);
+});

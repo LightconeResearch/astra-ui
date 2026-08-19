@@ -22,7 +22,12 @@ import type { ReactNode } from 'react';
 import type { InventoryModel } from '../full-inventory/model.js';
 import type { InventoryKind, InventoryRecord, InventoryScope } from '../types.js';
 import { deriveProjectGraph } from './model.js';
-import type { GraphDerivation, GraphEdge, GraphNode } from './model.js';
+import type {
+  GraphDerivation,
+  GraphEdge,
+  GraphNode,
+  GraphOrganization,
+} from './model.js';
 import {
   GRAPH_NODE_HEIGHT,
   GRAPH_NODE_WIDTH,
@@ -34,9 +39,16 @@ export interface GraphViewProps {
   /** Scope to project; defaults to the root scope. */
   scopeId?: string;
   /**
+   * Optional presentation overlay. When present, member nodes cluster under
+   * their group labels; unknown members are silently ignored and everything
+   * ungrouped keeps its mechanical position. Hosts wanting a quiet coverage
+   * note can call `deriveProjectGraph` for `unorganizedCount`.
+   */
+  organization?: GraphOrganization;
+  /**
    * Quiet, host-supplied pointer to the authoring-time organizer (for
-   * example "run /organize-graph"). Workbench hosts pass one; publications
-   * pass nothing.
+   * example "run /organize-graph"), shown only while no organization is
+   * applied. Workbench hosts pass one; publications pass nothing.
    */
   organizeHint?: ReactNode;
   onOpenRecord?: (record: InventoryRecord, scope: InventoryScope) => void;
@@ -70,7 +82,13 @@ interface FlowNodeData extends Record<string, unknown> {
   title: string;
 }
 
-type FlowNode = Node<FlowNodeData, 'astra'>;
+interface GroupFrameData extends Record<string, unknown> {
+  label: string;
+}
+
+type ChipFlowNode = Node<FlowNodeData, 'astra'>;
+type GroupFlowNode = Node<GroupFrameData, 'astra-group'>;
+type FlowNode = ChipFlowNode | GroupFlowNode;
 type FlowEdge = Edge<Record<string, unknown>>;
 
 function edgeFamily(edge: GraphEdge): EdgeFamily {
@@ -101,7 +119,7 @@ function nodeTitle(node: GraphNode): string {
   return `${node.label}: ${node.record.canonicalPath}`;
 }
 
-function GraphNodeChip({ data }: NodeProps<FlowNode>) {
+function GraphNodeChip({ data }: NodeProps<ChipFlowNode>) {
   const node = data.graphNode;
   return (
     <>
@@ -137,11 +155,32 @@ function GraphNodeChip({ data }: NodeProps<FlowNode>) {
   );
 }
 
-const nodeTypes = { astra: GraphNodeChip };
+/** Group frames sit behind the chips as quiet, non-interactive regions. */
+function GraphGroupFrame({ data }: NodeProps<GroupFlowNode>) {
+  return (
+    <div className="astra-graph-group">
+      <span className="astra-graph-group__label">{data.label}</span>
+    </div>
+  );
+}
+
+const nodeTypes = { astra: GraphNodeChip, 'astra-group': GraphGroupFrame };
 
 function flowNodes(derivation: GraphDerivation): FlowNode[] {
   const layout = layoutProjectGraph(derivation);
-  return derivation.nodes.map((graphNode) => {
+  const frames = layout.groups.map((frame, index): GroupFlowNode => ({
+    id: `group:${index}`,
+    type: 'astra-group' as const,
+    position: { x: frame.x, y: frame.y },
+    width: frame.width,
+    height: frame.height,
+    zIndex: -1,
+    draggable: false,
+    selectable: false,
+    focusable: false,
+    data: { label: frame.label },
+  }));
+  const chips = derivation.nodes.map((graphNode): ChipFlowNode => {
     const position = layout.positions.get(graphNode.id) ?? { x: 0, y: 0 };
     return {
       id: graphNode.id,
@@ -158,6 +197,7 @@ function flowNodes(derivation: GraphDerivation): FlowNode[] {
       },
     };
   });
+  return [...frames, ...chips];
 }
 
 function flowEdges(derivation: GraphDerivation): FlowEdge[] {
@@ -186,20 +226,25 @@ function flowEdges(derivation: GraphDerivation): FlowEdge[] {
 export function GraphView({
   model,
   scopeId,
+  organization,
   organizeHint,
   onOpenRecord,
   onOpenScope,
   className,
 }: GraphViewProps) {
   const derivation = useMemo(
-    () => deriveProjectGraph(model, scopeId === undefined ? {} : { scopeId }),
-    [model, scopeId],
+    () => deriveProjectGraph(model, {
+      ...(scopeId === undefined ? {} : { scopeId }),
+      ...(organization === undefined ? {} : { organization }),
+    }),
+    [model, scopeId, organization],
   );
   const nodes = useMemo(() => flowNodes(derivation), [derivation]);
   const edges = useMemo(() => flowEdges(derivation), [derivation]);
 
   const handleNodeClick = useCallback<NodeMouseHandler<FlowNode>>(
     (_event, node) => {
+      if (node.type !== 'astra') return;
       const graphNode = node.data.graphNode;
       if (graphNode.nodeType === 'record') {
         onOpenRecord?.(graphNode.record, graphNode.scope);
@@ -236,7 +281,7 @@ export function GraphView({
           fitViewOptions={{ padding: 0.12, maxZoom: 1 }}
         />
       </ReactFlow>
-      {organizeHint != null ? (
+      {organization == null && organizeHint != null ? (
         <p className="astra-graph-view__hint">{organizeHint}</p>
       ) : null}
     </div>

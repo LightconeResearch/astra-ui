@@ -37,12 +37,19 @@ export type {
   GraphDerivation,
   GraphEdge,
   GraphNode,
+  GraphOrganization,
+  GraphOrganizationGroup,
   GraphRecordNode,
   GraphScopeNode,
+  ResolvedGraphGroup,
 } from './graph/model.js';
 export {
   GRAPH_NODE_HEIGHT,
   GRAPH_NODE_WIDTH,
   layoutProjectGraph,
 } from './graph/layout.js';
-export type { GraphLayout, GraphNodePosition } from './graph/layout.js';
+export type {
+  GraphGroupFrame,
+  GraphLayout,
+  GraphNodePosition,
+} from './graph/layout.js';

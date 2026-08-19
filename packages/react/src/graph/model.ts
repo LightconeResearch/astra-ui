@@ -43,15 +43,47 @@ export interface GraphEdge {
   relationKinds: RecordRelationKind[];
 }
 
+export interface GraphOrganizationGroup {
+  label: string;
+  /** Canonical record paths (for example `outputs.headline`). */
+  members: string[];
+}
+
+/**
+ * Optional presentation overlay, authored outside the viewer (an agent skill
+ * at authoring time, a file the host chooses to read). It only ever groups
+ * records the mechanical graph already shows: unknown members are silently
+ * ignored and it can never add, remove, or rewire ASTRA relations.
+ */
+export interface GraphOrganization {
+  /** Free-form provenance note, e.g. the analysis revision it was written for. */
+  basedOn?: string;
+  groups: GraphOrganizationGroup[];
+}
+
+export interface ResolvedGraphGroup {
+  label: string;
+  /** Record-node ids present in this projection, in stable member order. */
+  nodeIds: string[];
+}
+
 export interface GraphDerivation {
   scope: ProjectScopeView;
   nodes: GraphNode[];
   edges: GraphEdge[];
+  /** Organization groups that resolved to at least one visible record node. */
+  groups: ResolvedGraphGroup[];
+  /**
+   * Record nodes the overlay left to the mechanical layout. Zero without an
+   * organization; hosts use it to render a quiet note.
+   */
+  unorganizedCount: number;
 }
 
 export interface DeriveProjectGraphOptions {
   /** Scope to project; defaults to the root scope. */
   scopeId?: string;
+  organization?: GraphOrganization;
 }
 
 /** Relations that read as flow between records. `contains` is structural. */
@@ -107,7 +139,15 @@ export function deriveProjectGraph(
   const focus = options.scopeId
     ? model.scopeById.get(options.scopeId) ?? rootScope(model)
     : rootScope(model);
-  if (!focus) return { scope: emptyScope(), nodes: [], edges: [] };
+  if (!focus) {
+    return {
+      scope: emptyScope(),
+      nodes: [],
+      edges: [],
+      groups: [],
+      unorganizedCount: 0,
+    };
+  }
 
   const nodes: GraphNode[] = [];
   const nodeIdByRecordId = new Map<string, string>();
@@ -179,7 +219,46 @@ export function deriveProjectGraph(
     })
     .sort((left, right) => left.id.localeCompare(right.id));
 
-  return { scope: focus, nodes, edges };
+  const { groups, unorganizedCount } = resolveOrganization(
+    model,
+    nodes,
+    options.organization,
+  );
+
+  return { scope: focus, nodes, edges, groups, unorganizedCount };
+}
+
+/**
+ * Resolve overlay members (canonical record paths) against the record nodes
+ * this projection actually shows. Unknown members, members collapsed inside a
+ * child analysis, and members already claimed by an earlier group are all
+ * silently ignored — the overlay may only regroup what is already there.
+ */
+function resolveOrganization(
+  model: InventoryModel,
+  nodes: readonly GraphNode[],
+  organization: GraphOrganization | undefined,
+): { groups: ResolvedGraphGroup[]; unorganizedCount: number } {
+  const recordNodeIds = new Set(
+    nodes.filter((node) => node.nodeType === 'record').map((node) => node.id),
+  );
+  if (!organization) return { groups: [], unorganizedCount: 0 };
+
+  const claimed = new Set<string>();
+  const groups: ResolvedGraphGroup[] = [];
+  for (const group of organization.groups) {
+    const nodeIds: string[] = [];
+    for (const member of group.members) {
+      const located = model.recordByPath.get(member.trim());
+      if (!located) continue;
+      const nodeId = graphRecordNodeId(located.record.id);
+      if (!recordNodeIds.has(nodeId) || claimed.has(nodeId)) continue;
+      claimed.add(nodeId);
+      nodeIds.push(nodeId);
+    }
+    if (nodeIds.length) groups.push({ label: group.label, nodeIds });
+  }
+  return { groups, unorganizedCount: recordNodeIds.size - claimed.size };
 }
 
 function emptyScope(): ProjectScopeView {
