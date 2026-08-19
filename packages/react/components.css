@@ -263,6 +263,24 @@
 .astra-ui .inventory-detail-dialog__actions > button:hover { border-color: var(--astra-action); }
 .astra-ui .inventory-detail-dialog__actions > button:focus-visible { outline: 2px solid var(--astra-action); outline-offset: 2px; }
 
+/* Labelled header actions (e.g. "⛶ Full screen") are pills, not the circular
+   icon buttons the base rule above provides for close/back. */
+.astra-ui .inventory-detail-dialog__actions > .inventory-detail-dialog__header-action {
+  display: inline-flex;
+  width: auto;
+  height: auto;
+  min-height: 2rem;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid var(--astra-rule);
+  border-radius: 0.375rem;
+  background: var(--astra-canvas);
+  color: var(--astra-link);
+  padding: 0.375rem 0.625rem;
+  font-size: 0.8125rem;
+  line-height: 1.2;
+}
+
 .astra-ui .inventory-detail-dialog__body {
   display: flex;
   max-height: min(44rem, calc(100vh - 8rem));
@@ -1122,14 +1140,14 @@
   min-width: 0;
 }
 
-.astra-ui .inventory-output-artifact__toolbar {
-  display: flex;
+/* The full-screen chrome renders in the markup at all times but only shows
+   while the artifact is expanded (`.is-expanded` below). */
+.astra-ui .inventory-artifact-fullscreen__header {
+  display: none;
   min-height: 2.25rem;
   align-items: center;
   gap: 0.75rem;
   justify-content: space-between;
-  border: 1px solid var(--astra-rule);
-  border-bottom: 0;
   background: var(--astra-header);
   padding: 0.35rem 0.5rem 0.35rem 0.75rem;
   color: var(--astra-muted);
@@ -1137,14 +1155,21 @@
   font-size: 0.68rem;
 }
 
-.astra-ui .inventory-output-artifact__toolbar > span:first-child {
+.astra-ui .inventory-artifact-fullscreen__header > span:first-child {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: 0.6rem;
+}
+
+.astra-ui .inventory-artifact-fullscreen__header small {
   font-weight: 700;
+  font-size: inherit;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
-.astra-ui .inventory-output-artifact__toolbar > strong {
-  display: none;
+.astra-ui .inventory-artifact-fullscreen__header strong {
   min-width: 0;
   overflow: hidden;
   color: var(--astra-ink);
@@ -1154,7 +1179,7 @@
   white-space: nowrap;
 }
 
-.astra-ui .inventory-output-artifact__toolbar button {
+.astra-ui .inventory-artifact-fullscreen__header button {
   display: inline-flex;
   min-height: 1.5rem;
   align-items: center;
@@ -1166,9 +1191,10 @@
   color: var(--astra-action);
   padding: 0.18rem 0.45rem;
   font: inherit;
+  font-size: 0.75rem;
 }
 
-.astra-ui .inventory-output-artifact__toolbar button:hover {
+.astra-ui .inventory-artifact-fullscreen__header button:hover {
   border-color: var(--astra-action);
   background: var(--astra-hover);
 }
@@ -1186,16 +1212,11 @@
   background: var(--astra-canvas);
 }
 
-.astra-ui .inventory-output-artifact.is-expanded .inventory-output-artifact__toolbar {
+.astra-ui .inventory-output-artifact.is-expanded .inventory-artifact-fullscreen__header {
+  display: flex;
   min-height: 3.25rem;
-  border: 0;
   border-bottom: 1px solid var(--astra-rule);
   padding-inline: 1rem;
-}
-
-.astra-ui .inventory-output-artifact.is-expanded .inventory-output-artifact__toolbar > strong {
-  display: block;
-  flex: 1 1 auto;
 }
 
 .astra-ui .inventory-output-artifact.is-expanded .inventory-output-dialog__preview {
