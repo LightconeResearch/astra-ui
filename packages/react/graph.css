@@ -12,6 +12,7 @@
 .astra-ui .astra-graph-view {
   position: relative;
   box-sizing: border-box;
+  display: flex;
   width: 100%;
   height: 100%;
   min-height: 28rem;
@@ -204,6 +205,12 @@
   box-shadow: 2px 2px 0 0 var(--astra-panel), 3px 3px 0 0 var(--astra-rule);
 }
 
+.astra-ui .astra-graph-view > .react-flow {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+}
+
 /* ----------------------------------------------------------------- chrome */
 
 .astra-ui .astra-graph-view .react-flow__controls {
@@ -254,12 +261,8 @@
    restyled to the inventory language: flat panel, hairlines, small caps. */
 
 .astra-ui .astra-graph-rail {
-  position: absolute;
-  z-index: 5;
-  top: 0;
-  left: 0;
-  bottom: 0;
   display: flex;
+  flex: 0 0 auto;
   flex-direction: column;
   border-right: 1px solid var(--astra-rule);
   background: var(--astra-header);
