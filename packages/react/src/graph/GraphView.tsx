@@ -257,7 +257,10 @@ export function GraphView({
 
   return (
     <div className={`astra-graph-view${className ? ` ${className}` : ''}`}>
+      {/* Remount on scope change so fitView re-frames the new derivation
+          instead of keeping the previous scope's viewport transform. */}
       <ReactFlow<FlowNode, FlowEdge>
+        key={scopeId ?? 'root'}
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
