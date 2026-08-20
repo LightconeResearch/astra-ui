@@ -62,7 +62,9 @@ function nodeSortKey(node: GraphNode): string {
   const kindOrder = ['input', 'prior_insight', 'decision', 'analysis', 'output', 'finding'];
   const canonicalPath = node.nodeType === 'record'
     ? node.record.canonicalPath
-    : node.scope.canonicalPath;
+    : node.nodeType === 'group'
+      ? node.anchorPath
+      : node.scope.canonicalPath;
   return `${kindOrder.indexOf(node.kind)}:${canonicalPath}`;
 }
 

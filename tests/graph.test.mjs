@@ -23,26 +23,31 @@ test('derives record nodes and collapsed child-analysis nodes for a nested scope
       targetRecordId: 'root:prior_insight:published_method',
       direct: true,
     });
-  const graph = deriveProjectGraph(createInventoryModel(model));
+  const inventory = createInventoryModel(model);
+  const graph = deriveProjectGraph(inventory);
 
   assert.equal(graph.scope.id, 'root');
+  // Decisions rail beside the flow by default.
   assert.deepEqual(
     graph.nodes.map((node) => [node.id, node.nodeType, node.kind]),
     [
       ['record:root:input:catalog', 'record', 'input'],
-      ['record:root:decision:method', 'record', 'decision'],
       ['record:root:prior_insight:published_method', 'record', 'prior_insight'],
       ['record:root:output:headline', 'record', 'output'],
       ['scope:clustering', 'scope', 'analysis'],
     ],
+  );
+  assert.deepEqual(
+    graph.railDecisions.map((node) => node.id),
+    ['record:root:decision:method'],
   );
 
   const scopeNode = graph.nodes.find((node) => node.nodeType === 'scope');
   assert.equal(scopeNode.label, 'Clustering');
   assert.equal(scopeNode.recordCount, 4);
 
-  // Edges come only from direct typed relations; records inside the child
-  // analysis collapse onto its scope node.
+  // Railed decisions draw no edges; everything else keeps its direct
+  // relations, with child-analysis records collapsed onto the scope node.
   assert.deepEqual(
     graph.edges.map(({ sourceId, targetId, relationKinds }) => [
       sourceId,
@@ -50,17 +55,27 @@ test('derives record nodes and collapsed child-analysis nodes for a nested scope
       relationKinds,
     ]),
     [
-      // method parameterizes headline directly.
-      ['record:root:decision:method', 'record:root:output:headline', ['parameterized_by']],
-      // clustering's method_alias aliases the root decision.
-      ['record:root:decision:method', 'scope:clustering', ['aliases']],
-      // catalog feeds clustering.xi (collapsed to the scope node).
       ['record:root:input:catalog', 'scope:clustering', ['depends_on']],
-      // headline is aliased inside clustering (input alias and xi's alias).
       ['record:root:output:headline', 'scope:clustering', ['aliases']],
-      // the insight informs the method decision.
+      ['scope:clustering', 'record:root:output:headline', ['depends_on']],
+    ],
+  );
+
+  // Opting decisions into the flow restores their nodes and edges.
+  const inFlow = deriveProjectGraph(inventory, { decisionsInFlow: true });
+  assert.deepEqual(inFlow.railDecisions, []);
+  assert.deepEqual(
+    inFlow.edges.map(({ sourceId, targetId, relationKinds }) => [
+      sourceId,
+      targetId,
+      relationKinds,
+    ]),
+    [
+      ['record:root:decision:method', 'record:root:output:headline', ['parameterized_by']],
+      ['record:root:decision:method', 'scope:clustering', ['aliases']],
+      ['record:root:input:catalog', 'scope:clustering', ['depends_on']],
+      ['record:root:output:headline', 'scope:clustering', ['aliases']],
       ['record:root:prior_insight:published_method', 'record:root:decision:method', ['informed_by']],
-      // clustering.xi feeds headline.
       ['scope:clustering', 'record:root:output:headline', ['depends_on']],
     ],
   );
@@ -81,20 +96,19 @@ test('a sub-analysis scope projects only its own records', () => {
     graph.nodes.map((node) => node.id),
     [
       'record:clustering:input:headline_alias',
-      'record:clustering:decision:method_alias',
-      'record:clustering:decision:weighting',
       'record:clustering:output:xi',
     ],
   );
-  // Relations to records outside this scope resolve to no node here, so they
-  // make no edge; the in-scope parameterization remains.
   assert.deepEqual(
-    graph.edges.map(({ sourceId, targetId }) => [sourceId, targetId]),
-    [[
-      graphRecordNodeId('clustering:decision:weighting'),
-      graphRecordNodeId('clustering:output:xi'),
-    ]],
+    graph.railDecisions.map((node) => node.id),
+    [
+      'record:clustering:decision:method_alias',
+      'record:clustering:decision:weighting',
+    ],
   );
+  // Relations to records outside this scope resolve to no node here, and the
+  // in-scope parameterization follows its decision into the rail.
+  assert.deepEqual(graph.edges, []);
 });
 
 test('unresolved references never produce dangling edges', () => {
@@ -158,10 +172,13 @@ test('GraphView renders flat kind chips, the collapsed sub-analysis, and the hos
   assert.match(html, /astra-graph-view/);
   assert.match(html, /astra-graph-node[^_]/);
   assert.match(html, /data-kind="input"/);
-  assert.match(html, /data-kind="decision"/);
   assert.match(html, /data-kind="prior_insight"/);
   assert.match(html, /data-kind="analysis"/);
   assert.match(html, /Sub-analysis · 4 records/);
+  // Decisions sit in the rail, not the flow.
+  assert.doesNotMatch(html, /data-kind="decision"/);
+  assert.match(html, /astra-graph-rail/);
+  assert.match(html, /Decisions/);
   assert.match(html, /astra-graph-view__hint/);
   assert.match(html, /organize-graph/);
   // The viewer is mechanical-only: no AI chrome, no staleness banners.
@@ -197,23 +214,37 @@ test('the organization overlay clusters known members and counts the rest', () =
       { label: 'Ghost group', members: ['outputs.nope'] },
     ],
   };
-  const graph = deriveProjectGraph(createInventoryModel(fixtureModel()), {
-    organization,
-  });
+  const inventory = createInventoryModel(fixtureModel());
 
-  assert.deepEqual(graph.groups, [{
-    label: 'Method setup',
-    nodeIds: [
-      graphRecordNodeId('root:decision:method'),
-      graphRecordNodeId('root:input:catalog'),
-    ],
-  }]);
+  // Collapsed by default: the group is one node standing for its members
+  // (the railed decision member never resolves), and edges re-route to it.
+  const collapsed = deriveProjectGraph(inventory, { organization });
+  assert.deepEqual(collapsed.groups, []);
+  const groupNode = collapsed.nodes.find((node) => node.nodeType === 'group');
+  assert.equal(groupNode.label, 'Method setup');
+  assert.deepEqual(groupNode.memberRecords.map((record) => record.id), [
+    'root:input:catalog',
+  ]);
+  assert.ok(!collapsed.nodes.some((node) => node.id === graphRecordNodeId('root:input:catalog')));
+  assert.ok(collapsed.edges.some(({ sourceId, targetId }) => (
+    sourceId === groupNode.id && targetId === graphScopeNodeId('clustering')
+  )));
   // headline and the prior insight stay with the mechanical layout; the
   // collapsed clustering scope node is not a record and never counts.
-  assert.equal(graph.unorganizedCount, 2);
+  assert.equal(collapsed.unorganizedCount, 2);
 
-  // The overlay never changes the mechanical nodes or edges.
-  const mechanical = deriveProjectGraph(createInventoryModel(fixtureModel()));
+  // Expanding restores the member chips inside a labelled frame.
+  const graph = deriveProjectGraph(inventory, {
+    organization,
+    expandedGroups: new Set(['Method setup']),
+  });
+  assert.equal(graph.groups.length, 1);
+  assert.deepEqual(graph.groups[0].nodeIds, [
+    graphRecordNodeId('root:input:catalog'),
+  ]);
+
+  // Expanded, the overlay never changes the mechanical nodes or edges.
+  const mechanical = deriveProjectGraph(inventory);
   assert.deepEqual(graph.nodes, mechanical.nodes);
   assert.deepEqual(graph.edges, mechanical.edges);
 
@@ -229,7 +260,6 @@ test('the organization overlay clusters known members and counts the rest', () =
       && position.x + 216 <= frame.x + frame.width
       && position.y + 52 <= frame.y + frame.height;
   };
-  assert.ok(inside(graphRecordNodeId('root:decision:method')));
   assert.ok(inside(graphRecordNodeId('root:input:catalog')));
   assert.ok(!inside(graphRecordNodeId('root:output:headline')));
   assert.ok(!inside(graphScopeNodeId('clustering')));
@@ -252,6 +282,10 @@ test('GraphView renders group frames and suppresses the hint once organized', ()
       })),
   );
 
-  assert.match(html, /astra-graph-group__label">Method setup</);
+  // Groups read collapsed: one chip stands for the members.
+  assert.match(html, /data-node-type="group"/);
+  assert.match(html, /Method setup/);
+  assert.match(html, /Group · 1 record/);
+  assert.doesNotMatch(html, /astra-graph-group__label/);
   assert.doesNotMatch(html, /astra-graph-view__hint/);
 });

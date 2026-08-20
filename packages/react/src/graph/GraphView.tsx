@@ -17,7 +17,7 @@ import type {
   NodeMouseHandler,
   NodeProps,
 } from '@xyflow/react';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { InventoryModel } from '../full-inventory/model.js';
 import type { InventoryKind, InventoryRecord, InventoryScope } from '../types.js';
@@ -84,6 +84,7 @@ interface FlowNodeData extends Record<string, unknown> {
 
 interface GroupFrameData extends Record<string, unknown> {
   label: string;
+  onCollapse?: (label: string) => void;
 }
 
 type ChipFlowNode = Node<FlowNodeData, 'astra'>;
@@ -109,12 +110,21 @@ function nodeKicker(node: GraphNode): string {
     const count = node.recordCount === 1 ? '1 record' : `${node.recordCount} records`;
     return `${KIND_LABELS.analysis} · ${count}`;
   }
+  if (node.nodeType === 'group') {
+    const count = node.memberRecords.length === 1
+      ? '1 record'
+      : `${node.memberRecords.length} records`;
+    return `Group · ${count}`;
+  }
   return KIND_LABELS[node.kind];
 }
 
 function nodeTitle(node: GraphNode): string {
   if (node.nodeType === 'scope') {
     return `${node.label}: sub-analysis with ${node.recordCount} records`;
+  }
+  if (node.nodeType === 'group') {
+    return `${node.label}: group of ${node.memberRecords.length} records — click to expand`;
   }
   return `${node.label}: ${node.record.canonicalPath}`;
 }
@@ -155,18 +165,96 @@ function GraphNodeChip({ data }: NodeProps<ChipFlowNode>) {
   );
 }
 
-/** Group frames sit behind the chips as quiet, non-interactive regions. */
+/** Expanded group frames sit behind the chips; the label collapses them. */
 function GraphGroupFrame({ data }: NodeProps<GroupFlowNode>) {
   return (
     <div className="astra-graph-group">
-      <span className="astra-graph-group__label">{data.label}</span>
+      <button
+        type="button"
+        className="astra-graph-group__label nodrag"
+        title={`Collapse ${data.label}`}
+        onClick={() => data.onCollapse?.(data.label)}
+      >
+        {data.label}
+      </button>
     </div>
   );
 }
 
 const nodeTypes = { astra: GraphNodeChip, 'astra-group': GraphGroupFrame };
 
-function flowNodes(derivation: GraphDerivation): FlowNode[] {
+function decisionSelectionLabel(node: GraphNode): string | undefined {
+  if (node.nodeType !== 'record' || node.record.kind !== 'decision') {
+    return undefined;
+  }
+  const record = node.record;
+  const selected = record.options.find(
+    (option) => option.id === record.selectedOptionId,
+  );
+  return selected?.label ?? record.selectedOptionId;
+}
+
+/**
+ * The scope's decisions beside the flow (ported from the archived viewer):
+ * a collapsible rail so methodological choices stay one glance away without
+ * knotting the dataflow reading.
+ */
+function DecisionsRail({
+  decisions,
+  open,
+  onToggle,
+  onOpenRecord,
+}: {
+  decisions: readonly GraphNode[];
+  open: boolean;
+  onToggle: () => void;
+  onOpenRecord: ((record: InventoryRecord, scope: InventoryScope) => void) | undefined;
+}) {
+  if (!decisions.length) return null;
+  return (
+    <aside
+      className="astra-graph-rail"
+      aria-label="Analysis decisions"
+      data-open={open ? 'true' : 'false'}
+    >
+      <button
+        type="button"
+        className="astra-graph-rail__toggle"
+        aria-expanded={open}
+        onClick={onToggle}
+      >
+        <span>Decisions</span>
+        <strong>{decisions.length}</strong>
+        <small aria-hidden="true">{open ? '‹' : '›'}</small>
+      </button>
+      {open ? (
+        <div className="astra-graph-rail__list">
+          {decisions.map((decision) => {
+            if (decision.nodeType !== 'record') return null;
+            const selection = decisionSelectionLabel(decision);
+            return (
+              <button
+                type="button"
+                key={decision.id}
+                className="astra-graph-rail__row"
+                title={`${decision.label}${selection ? ` — ${selection}` : ''}`}
+                onClick={() => onOpenRecord?.(decision.record, decision.scope)}
+              >
+                <span>{decision.label}</span>
+                {selection ? <small>{selection}</small> : null}
+              </button>
+            );
+          })}
+        </div>
+      ) : null}
+    </aside>
+  );
+}
+
+function flowNodes(
+  derivation: GraphDerivation,
+  onCollapseGroup: (label: string) => void,
+): FlowNode[] {
   const layout = layoutProjectGraph(derivation);
   const frames = layout.groups.map((frame, index): GroupFlowNode => ({
     id: `group:${index}`,
@@ -178,7 +266,7 @@ function flowNodes(derivation: GraphDerivation): FlowNode[] {
     draggable: false,
     selectable: false,
     focusable: false,
-    data: { label: frame.label },
+    data: { label: frame.label, onCollapse: onCollapseGroup },
   }));
   const chips = derivation.nodes.map((graphNode): ChipFlowNode => {
     const position = layout.positions.get(graphNode.id) ?? { x: 0, y: 0 };
@@ -232,14 +320,33 @@ export function GraphView({
   onOpenScope,
   className,
 }: GraphViewProps) {
+  // Groups read collapsed by default; expansion is per-view interaction
+  // state, reset when the scope changes.
+  const [expandedGroups, setExpandedGroups] = useState<ReadonlySet<string>>(
+    () => new Set(),
+  );
+  const [railOpen, setRailOpen] = useState(true);
+  useEffect(() => setExpandedGroups(new Set()), [scopeId, organization]);
+  const collapseGroup = useCallback((label: string) => {
+    setExpandedGroups((current) => {
+      const next = new Set(current);
+      next.delete(label);
+      return next;
+    });
+  }, []);
+
   const derivation = useMemo(
     () => deriveProjectGraph(model, {
       ...(scopeId === undefined ? {} : { scopeId }),
       ...(organization === undefined ? {} : { organization }),
+      expandedGroups,
     }),
-    [model, scopeId, organization],
+    [model, scopeId, organization, expandedGroups],
   );
-  const nodes = useMemo(() => flowNodes(derivation), [derivation]);
+  const nodes = useMemo(
+    () => flowNodes(derivation, collapseGroup),
+    [derivation, collapseGroup],
+  );
   const edges = useMemo(() => flowEdges(derivation), [derivation]);
 
   const handleNodeClick = useCallback<NodeMouseHandler<FlowNode>>(
@@ -248,6 +355,8 @@ export function GraphView({
       const graphNode = node.data.graphNode;
       if (graphNode.nodeType === 'record') {
         onOpenRecord?.(graphNode.record, graphNode.scope);
+      } else if (graphNode.nodeType === 'group') {
+        setExpandedGroups((current) => new Set(current).add(graphNode.label));
       } else {
         onOpenScope?.(graphNode.scope);
       }
@@ -257,6 +366,12 @@ export function GraphView({
 
   return (
     <div className={`astra-graph-view${className ? ` ${className}` : ''}`}>
+      <DecisionsRail
+        decisions={derivation.railDecisions}
+        open={railOpen}
+        onToggle={() => setRailOpen((current) => !current)}
+        onOpenRecord={onOpenRecord}
+      />
       {/* Remount on scope change so fitView re-frames the new derivation
           instead of keeping the previous scope's viewport transform. */}
       <ReactFlow<FlowNode, FlowEdge>

@@ -180,13 +180,28 @@
 .astra-ui .astra-graph-group__label {
   display: block;
   overflow: hidden;
+  width: 100%;
+  border: 0;
+  background: none;
+  cursor: pointer;
   padding: 0.5rem 0.875rem 0;
+  pointer-events: auto;
   color: var(--astra-muted);
   font: 600 0.6875rem/1.2 var(--astra-font-ui);
   letter-spacing: 0.09em;
+  text-align: left;
   text-overflow: ellipsis;
   text-transform: uppercase;
   white-space: nowrap;
+}
+
+.astra-ui .astra-graph-group__label:hover { color: var(--astra-ink); }
+
+/* Collapsed organization groups: one chip standing for its members, with a
+   stacked-paper cue. */
+.astra-ui .astra-graph-node[data-node-type="group"] {
+  border-color: var(--astra-rule-strong);
+  box-shadow: 2px 2px 0 0 var(--astra-panel), 3px 3px 0 0 var(--astra-rule);
 }
 
 /* ----------------------------------------------------------------- chrome */
@@ -232,4 +247,84 @@
   background: color-mix(in srgb, var(--astra-canvas) 86%, transparent);
   color: var(--astra-muted);
   font: 400 0.71875rem/1.4 var(--astra-font-ui);
+}
+
+/* ------------------------------------------------------------ decisions rail
+   The scope's decisions beside the flow (ported from the archived viewer),
+   restyled to the inventory language: flat panel, hairlines, small caps. */
+
+.astra-ui .astra-graph-rail {
+  position: absolute;
+  z-index: 5;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--astra-rule);
+  background: var(--astra-header);
+}
+
+.astra-ui .astra-graph-rail[data-open="false"] { width: 2.75rem; }
+.astra-ui .astra-graph-rail[data-open="true"] { width: 16.5rem; }
+
+.astra-ui .astra-graph-rail__toggle {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.5rem;
+  border: 0;
+  border-bottom: 1px solid var(--astra-rule);
+  background: none;
+  cursor: pointer;
+  padding: 0.65rem 0.75rem;
+  color: var(--astra-muted);
+  font: 600 0.6875rem/1 var(--astra-font-ui);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.astra-ui .astra-graph-rail[data-open="false"] .astra-graph-rail__toggle {
+  height: 100%;
+  border-bottom: 0;
+  writing-mode: vertical-rl;
+}
+
+.astra-ui .astra-graph-rail__toggle:hover { color: var(--astra-ink); }
+.astra-ui .astra-graph-rail__toggle strong { color: var(--astra-c-decision-ink); }
+
+.astra-ui .astra-graph-rail__list {
+  overflow-y: auto;
+  flex: 1 1 auto;
+  overscroll-behavior: contain;
+}
+
+.astra-ui .astra-graph-rail__row {
+  display: grid;
+  width: 100%;
+  gap: 0.15rem;
+  border: 0;
+  border-bottom: 1px solid var(--astra-rule-subtle);
+  background: none;
+  cursor: pointer;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+
+.astra-ui .astra-graph-rail__row:hover { background: var(--astra-hover); }
+
+.astra-ui .astra-graph-rail__row > span {
+  overflow: hidden;
+  color: var(--astra-ink);
+  font: 500 0.8125rem/1.3 var(--astra-font-ui);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.astra-ui .astra-graph-rail__row > small {
+  overflow: hidden;
+  color: var(--astra-c-decision-ink);
+  font: 400 0.71875rem/1.2 var(--astra-font-ui);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

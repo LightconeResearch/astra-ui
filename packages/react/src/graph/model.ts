@@ -33,7 +33,24 @@ export interface GraphScopeNode {
   recordCount: number;
 }
 
-export type GraphNode = GraphRecordNode | GraphScopeNode;
+/**
+ * One collapsed organization group. Groups collapse by default — the graph
+ * reads at the organization's altitude — and expand (into a frame of member
+ * chips) per interaction. Edges to members re-route to the group node.
+ */
+export interface GraphGroupNode {
+  id: string;
+  nodeType: 'group';
+  /** Dominant member kind: carries the glyph, colour, and rank seed. */
+  kind: AstraRecordKind;
+  label: string;
+  memberRecords: ProjectRecordView[];
+  scope: ProjectScopeView;
+  /** First member's canonical path — anchors within-layer ordering. */
+  anchorPath: string;
+}
+
+export type GraphNode = GraphRecordNode | GraphScopeNode | GraphGroupNode;
 
 export interface GraphEdge {
   id: string;
@@ -65,12 +82,15 @@ export interface ResolvedGraphGroup {
   label: string;
   /** Record-node ids present in this projection, in stable member order. */
   nodeIds: string[];
+  records: ProjectRecordView[];
 }
 
 export interface GraphDerivation {
   scope: ProjectScopeView;
   nodes: GraphNode[];
   edges: GraphEdge[];
+  /** The scope's decisions when they are railed (the default). */
+  railDecisions: GraphRecordNode[];
   /** Organization groups that resolved to at least one visible record node. */
   groups: ResolvedGraphGroup[];
   /**
@@ -84,6 +104,17 @@ export interface DeriveProjectGraphOptions {
   /** Scope to project; defaults to the root scope. */
   scopeId?: string;
   organization?: GraphOrganization;
+  /**
+   * Labels of organization groups to expand into member frames. Everything
+   * not listed collapses to a single group node.
+   */
+  expandedGroups?: ReadonlySet<string>;
+  /**
+   * Decisions read best beside the flow, not inside it (the archived viewer's
+   * rail). By default the scope's decisions are excluded from nodes/edges and
+   * returned in `railDecisions`; set true to keep them in the flow.
+   */
+  decisionsInFlow?: boolean;
 }
 
 /** Relations that read as flow between records. `contains` is structural. */
@@ -102,6 +133,29 @@ export function graphRecordNodeId(recordId: string): string {
 
 export function graphScopeNodeId(scopeId: string): string {
   return `scope:${scopeId}`;
+}
+
+export function graphGroupNodeId(label: string): string {
+  return `group-node:${label}`;
+}
+
+/** Reading-order weight shared with the layout's rank seeding. */
+const KIND_ORDER: AstraRecordKind[] = [
+  'input',
+  'prior_insight',
+  'decision',
+  'output',
+  'finding',
+];
+
+function dominantKind(records: readonly ProjectRecordView[]): AstraRecordKind {
+  let kind: AstraRecordKind = records[0]?.kind ?? 'output';
+  for (const record of records) {
+    if (KIND_ORDER.indexOf(record.kind) > KIND_ORDER.indexOf(kind)) {
+      kind = record.kind;
+    }
+  }
+  return kind;
 }
 
 function rootScope(model: InventoryModel): ProjectScopeView | undefined {
@@ -144,27 +198,33 @@ export function deriveProjectGraph(
       scope: emptyScope(),
       nodes: [],
       edges: [],
+      railDecisions: [],
       groups: [],
       unorganizedCount: 0,
     };
   }
 
   const nodes: GraphNode[] = [];
+  const railDecisions: GraphRecordNode[] = [];
   const nodeIdByRecordId = new Map<string, string>();
 
   for (const recordId of focus.recordIds) {
     const record = model.recordById.get(recordId);
     if (!record) continue;
-    const nodeId = graphRecordNodeId(record.id);
-    nodeIdByRecordId.set(record.id, nodeId);
-    nodes.push({
-      id: nodeId,
+    const node: GraphRecordNode = {
+      id: graphRecordNodeId(record.id),
       nodeType: 'record',
       kind: record.kind,
       label: inventoryRecordTitle(record),
       record,
       scope: focus,
-    });
+    };
+    if (record.kind === 'decision' && !options.decisionsInFlow) {
+      railDecisions.push(node);
+      continue;
+    }
+    nodeIdByRecordId.set(record.id, node.id);
+    nodes.push(node);
   }
 
   for (const childId of focus.childIds) {
@@ -187,6 +247,42 @@ export function deriveProjectGraph(
     const child = childScopeWithinFocus(model, record.scopeId, focus.id);
     if (child) nodeIdByRecordId.set(record.id, graphScopeNodeId(child.id));
   }
+
+  const { groups: resolvedGroups, unorganizedCount } = resolveOrganization(
+    model,
+    nodes,
+    options.organization,
+  );
+
+  // Collapse every group the host has not expanded: one node per group, its
+  // member chips removed and their record ids remapped so relations re-route
+  // to the group node (intra-group relations vanish as self-edges).
+  const expanded = options.expandedGroups ?? new Set<string>();
+  const frames: ResolvedGraphGroup[] = [];
+  const collapsedNodeIds = new Set<string>();
+  for (const group of resolvedGroups) {
+    if (expanded.has(group.label)) {
+      frames.push(group);
+      continue;
+    }
+    const nodeId = graphGroupNodeId(group.label);
+    for (const member of group.records) {
+      collapsedNodeIds.add(graphRecordNodeId(member.id));
+      nodeIdByRecordId.set(member.id, nodeId);
+    }
+    nodes.push({
+      id: nodeId,
+      nodeType: 'group',
+      kind: dominantKind(group.records),
+      label: group.label,
+      memberRecords: group.records,
+      scope: focus,
+      anchorPath: group.records[0]?.canonicalPath ?? group.label,
+    });
+  }
+  const visibleNodes = collapsedNodeIds.size
+    ? nodes.filter((node) => !collapsedNodeIds.has(node.id))
+    : nodes;
 
   const byEndpoints = new Map<string, Set<RecordRelationKind>>();
   for (const record of model.model.records) {
@@ -219,13 +315,14 @@ export function deriveProjectGraph(
     })
     .sort((left, right) => left.id.localeCompare(right.id));
 
-  const { groups, unorganizedCount } = resolveOrganization(
-    model,
-    nodes,
-    options.organization,
-  );
-
-  return { scope: focus, nodes, edges, groups, unorganizedCount };
+  return {
+    scope: focus,
+    nodes: visibleNodes,
+    edges,
+    railDecisions,
+    groups: frames,
+    unorganizedCount,
+  };
 }
 
 /**
@@ -248,6 +345,7 @@ function resolveOrganization(
   const groups: ResolvedGraphGroup[] = [];
   for (const group of organization.groups) {
     const nodeIds: string[] = [];
+    const records: ProjectRecordView[] = [];
     for (const member of group.members) {
       const located = model.recordByPath.get(member.trim());
       if (!located) continue;
@@ -255,8 +353,9 @@ function resolveOrganization(
       if (!recordNodeIds.has(nodeId) || claimed.has(nodeId)) continue;
       claimed.add(nodeId);
       nodeIds.push(nodeId);
+      records.push(located.record);
     }
-    if (nodeIds.length) groups.push({ label: group.label, nodeIds });
+    if (nodeIds.length) groups.push({ label: group.label, nodeIds, records });
   }
   return { groups, unorganizedCount: recordNodeIds.size - claimed.size };
 }
