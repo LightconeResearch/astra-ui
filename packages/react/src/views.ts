@@ -25,3 +25,31 @@ export {
   PapersInventory,
 } from './full-inventory/PapersInventory.js';
 export { PriorInsightsInventory } from './full-inventory/PriorInsightsInventory.js';
+export { GraphView } from './graph/GraphView.js';
+export type { GraphViewProps } from './graph/GraphView.js';
+export {
+  deriveProjectGraph,
+  graphRecordNodeId,
+  graphScopeNodeId,
+} from './graph/model.js';
+export type {
+  DeriveProjectGraphOptions,
+  GraphDerivation,
+  GraphEdge,
+  GraphNode,
+  GraphOrganization,
+  GraphOrganizationGroup,
+  GraphRecordNode,
+  GraphScopeNode,
+  ResolvedGraphGroup,
+} from './graph/model.js';
+export {
+  GRAPH_NODE_HEIGHT,
+  GRAPH_NODE_WIDTH,
+  layoutProjectGraph,
+} from './graph/layout.js';
+export type {
+  GraphGroupFrame,
+  GraphLayout,
+  GraphNodePosition,
+} from './graph/layout.js';
