@@ -1,6 +1,6 @@
 // Capture every Ladle story in light and dark brand themes.
 //
-//   node scripts/screenshot.mjs <outDir> [--filter substring]
+//   node scripts/screenshot.mjs <outDir> [--filter substring] [--width px]
 //
 // Starts `ladle serve` on the configured port, reads /meta.json, and writes
 // <outDir>/<storyId>--<theme>.png at a fixed 1280x900 viewport. Compare two
@@ -13,11 +13,17 @@ import { chromium } from 'playwright';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const args = process.argv.slice(2);
-const filterIndex = args.indexOf('--filter');
-const filter = filterIndex >= 0 ? args[filterIndex + 1] : undefined;
-if (filterIndex >= 0 && !filter) throw new Error('--filter needs a substring');
-const positional = filterIndex >= 0 ? args.filter((value, index) => index !== filterIndex && index !== filterIndex + 1) : args;
-const outDir = resolve(positional[0] ?? join(here, '../screenshots/run'));
+const option = (name) => {
+  const index = args.indexOf(name);
+  if (index < 0) return undefined;
+  const value = args[index + 1];
+  if (!value) throw new Error(`${name} needs a value`);
+  args.splice(index, 2);
+  return value;
+};
+const filter = option('--filter');
+const width = Number(option('--width') ?? 1280);
+const outDir = resolve(args[0] ?? join(here, '../screenshots/run'));
 const port = 61000;
 const base = `http://localhost:${port}`;
 
@@ -46,7 +52,7 @@ try {
   const meta = await waitForServer();
   const ids = Object.keys(meta.stories).filter((id) => !filter || id.includes(filter));
   const browser = await chromium.launch();
-  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
+  const context = await browser.newContext({ viewport: { width, height: 900 }, deviceScaleFactor: 1 });
   const page = await context.newPage();
   page.on('pageerror', (error) => console.error(`[${page.url()}] ${error.message}`));
   for (const id of ids) {
