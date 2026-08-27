@@ -1,10 +1,15 @@
 import type { ResolvedInsight } from '@astra-spec/sdk';
-import { forwardRef, type ButtonHTMLAttributes, type HTMLAttributes, type Ref } from 'react';
+import { forwardRef, type ButtonHTMLAttributes, type HTMLAttributes, type MouseEvent as ReactMouseEvent, type Ref } from 'react';
 import { recordTitle } from '../data/records.js';
 import { cn } from '../lib/cn.js';
 import { Prose, type TextRenderer } from '../ui/prose.js';
 
-export function InsightEvidenceTitle({ name, tag }: { name: string; tag?: string | undefined }) {
+export interface InsightEvidenceTitleProps {
+  name: string;
+  tag?: string | undefined;
+}
+
+export function InsightEvidenceTitle({ name, tag }: InsightEvidenceTitleProps) {
   return (
     <span className="astra-evidence__title">
       <span className="astra-evidence__glyph--insight" aria-hidden="true">◈</span>
@@ -32,9 +37,14 @@ export const InsightTrigger = forwardRef<HTMLElement, InsightTriggerProps>(funct
   variant = 'title',
   renderText,
   className,
+  onClick,
   ...props
 }, ref) {
   const title = recordTitle(insight);
+  const open = (event: ReactMouseEvent<HTMLElement>) => {
+    onClick?.(event as never);
+    onOpen();
+  };
   if (variant === 'claim') {
     // A div rather than a <button>: block prose inside a button would inherit
     // UA control fonts and shift the layout.
@@ -47,8 +57,8 @@ export const InsightTrigger = forwardRef<HTMLElement, InsightTriggerProps>(funct
         data-variant="claim"
         role="button"
         tabIndex={0}
-        aria-label={`Open insight details: ${title}`}
-        onClick={onOpen}
+        aria-label={props['aria-label'] ?? `Open insight details: ${title}`}
+        onClick={open}
         onKeyDown={(event) => {
           if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault();
@@ -71,8 +81,8 @@ export const InsightTrigger = forwardRef<HTMLElement, InsightTriggerProps>(funct
       data-slot="insight-trigger"
       className={cn('astra-insight-trigger', className)}
       data-variant="title"
-      aria-label={`Open insight details: ${title}`}
-      onClick={onOpen}
+      aria-label={props['aria-label'] ?? `Open insight details: ${title}`}
+      onClick={open}
     >
       <InsightEvidenceTitle name={title} tag={tag ?? undefined} />
     </button>

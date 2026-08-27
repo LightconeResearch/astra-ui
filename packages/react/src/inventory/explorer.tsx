@@ -1,7 +1,8 @@
 import type { ResolvedAnalysisDocument, ResolvedAnalysisNode, ResolvedOutput, ResolvedRecord } from '@astra-spec/sdk';
-import { forwardRef, useMemo, useState, type HTMLAttributes, type ReactNode } from 'react';
+import { forwardRef, useEffect, useMemo, useRef, type HTMLAttributes, type ReactNode } from 'react';
 import { createInventoryIndex, type InventoryIndex } from '../data/inventory-index.js';
 import { collectInventoryPapers, findPaper, type InventoryPaper, type InventoryPaperMetadataMap } from '../data/papers.js';
+import { locateRecord } from '../data/inventory-index.js';
 import { cn } from '../lib/cn.js';
 import { LabelsProvider, useLabels, type AstraLabelOverrides } from '../lib/labels.js';
 import type { DetailEntry } from '../records/detail-entry.js';
@@ -102,12 +103,23 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryExplorerProps, 'la
   );
   const stack = useDetailStack({ value: detail, defaultValue: defaultDetail, onChange: onDetailChange });
 
-  // Switching analysis closes any open detail, unless the host owns the stack.
-  const [lastAnalysis, setLastAnalysis] = useState(analysis.canonicalPath);
-  if (lastAnalysis !== analysis.canonicalPath) {
-    setLastAnalysis(analysis.canonicalPath);
-    if (detail === undefined) stack.close();
-  }
+  // Switching analysis closes any open detail (uncontrolled stacks only), and
+  // entries that stopped resolving after a document refresh are pruned so the
+  // host's view of the stack stays truthful. Both run after render, never
+  // inside it, because they notify the host.
+  const lastAnalysis = useRef(analysis.canonicalPath);
+  useEffect(() => {
+    if (lastAnalysis.current === analysis.canonicalPath) return;
+    lastAnalysis.current = analysis.canonicalPath;
+    if (detail === undefined && stack.stack.length) stack.close();
+  }, [analysis.canonicalPath, detail, stack]);
+  useEffect(() => {
+    const resolves = (entry: DetailEntry) => (entry.kind === 'paper'
+      ? Boolean(findPaper(papers, entry.doi))
+      : Boolean(locateRecord(index, entry.canonicalPath))) && index.analysisByPath.has(entry.analysisPath);
+    const next = stack.stack.filter(resolves);
+    if (next.length !== stack.stack.length) stack.set(next);
+  }, [index, papers, stack]);
 
   const openRecord = (record: ResolvedRecord, owner: ResolvedAnalysisNode) => { stack.openRecord(record, owner); };
   const activeAnalysis = stack.active ? index.analysisByPath.get(stack.active.analysisPath) : undefined;

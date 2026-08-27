@@ -6,7 +6,7 @@ import type {
   ResolvedOutput,
   ResolvedRecord,
 } from '@astra-spec/sdk';
-import { walkAnalyses, type ResolvedAnalysisDocument } from '@astra-spec/sdk';
+import { walkAnalyses, type AnalysisIndex, type ResolvedAnalysisDocument } from '@astra-spec/sdk';
 import { locateRecord, type InventoryIndex } from './inventory-index.js';
 import { isInsight } from './records.js';
 
@@ -73,7 +73,7 @@ export function decisionInsightPaths(decision: ResolvedDecision): string[] {
   ])];
 }
 
-export function decisionInsights(index: InventoryIndex, decision: ResolvedDecision): ResolvedInsight[] {
+export function decisionInsights(index: Pick<AnalysisIndex, 'recordByPath'>, decision: ResolvedDecision): ResolvedInsight[] {
   return decisionInsightPaths(decision)
     .map((path) => index.recordByPath.get(path))
     .filter(isInsight);

@@ -1,8 +1,9 @@
 /* dialog — emitted by src/ui/dialog.tsx */
+@layer astra.tokens, astra.base, astra.components, astra.views;
 @layer astra.components {
   :where(.astra-ui) .astra-dialog {
     position: fixed;
-    z-index: 1000;
+    z-index: var(--astra-z-dialog);
     inset: 0;
     box-sizing: border-box;
     display: grid;

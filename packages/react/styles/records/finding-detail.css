@@ -1,4 +1,5 @@
 /* finding-detail — emitted by src/records/finding-detail.tsx */
+@layer astra.tokens, astra.base, astra.components, astra.views;
 @layer astra.components {
   :where(.astra-ui) .astra-finding-detail__notes h4 {
     margin: 0 0 0.55rem;
@@ -7,12 +8,6 @@
     font-size: 0.82rem;
   }
 
-  :where(.astra-ui) .astra-finding-detail__claim > div {
-    color: var(--astra-color-text);
-    font-size: clamp(1.05rem, 2vw, 1.3rem);
-    font-weight: 500;
-    line-height: 1.45;
-  }
 
   :where(.astra-ui) .astra-finding-detail__notes > div > :first-child {
     margin-top: 0;

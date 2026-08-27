@@ -233,5 +233,7 @@ test('the record dialog derives relations and evidence from the index', () => {
     onClose: () => {},
     fallback: React.createElement('p', null, 'gone'),
   }));
-  assert.equal(missing, '<div class="astra-ui"><p>gone</p></div>');
+  assert.match(missing, /<dialog[^>]*data-kind="analysis"/);
+  assert.match(missing, /no longer available/);
+  assert.match(missing, /<p>gone<\/p>/);
 });

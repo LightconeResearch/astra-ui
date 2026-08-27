@@ -1,4 +1,5 @@
 /* count-heading — emitted by src/ui/detail-layout.tsx */
+@layer astra.tokens, astra.base, astra.components, astra.views;
 @layer astra.components {
   :where(.astra-ui) .astra-relation-list__header .astra-count-heading {
     min-width: 0;

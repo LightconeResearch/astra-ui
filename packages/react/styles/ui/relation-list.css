@@ -1,4 +1,5 @@
 /* relation-list — emitted by src/ui/relation-list.tsx */
+@layer astra.tokens, astra.base, astra.components, astra.views;
 @layer astra.components {
   :where(.astra-ui) .astra-relation-list__header {
     display: flex;

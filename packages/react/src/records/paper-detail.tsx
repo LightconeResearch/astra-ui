@@ -155,7 +155,11 @@ export const PaperDetail = forwardRef<HTMLDivElement, PaperDetailProps>(function
 export interface PaperDialogProps extends Pick<DetailDialogProps, 'mode' | 'backText' | 'className' | 'onBack' | 'onClose'>, Omit<PaperDetailProps, 'className'> {}
 
 /** Header action linking to the paper's hosted content, when there is one. */
-export function PaperDialogActions({ record: paper }: { record: InventoryPaper }) {
+export interface PaperDialogActionsProps {
+  record: InventoryPaper;
+}
+
+export function PaperDialogActions({ record: paper }: PaperDialogActionsProps) {
   const labels = useLabels();
   if (!paper.pdfUrl) return null;
   return (

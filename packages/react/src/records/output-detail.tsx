@@ -52,10 +52,7 @@ export const OutputDetail = forwardRef<HTMLDivElement, OutputDetailProps>(functi
   useEffect(() => {
     if (!expanded) return undefined;
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        event.preventDefault();
-        onExpandedChange?.(false);
-      }
+      if (event.key === 'Escape') onExpandedChange?.(false);
     };
     document.addEventListener('keydown', onKeyDown);
     return () => { document.removeEventListener('keydown', onKeyDown); };

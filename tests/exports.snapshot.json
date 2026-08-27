@@ -15,6 +15,7 @@
     "DialogAction",
     "DialogBack",
     "DialogBody",
+    "DialogClose",
     "DialogContent",
     "DialogHeader",
     "DialogProvider",

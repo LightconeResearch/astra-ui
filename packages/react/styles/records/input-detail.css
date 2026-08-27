@@ -1,4 +1,5 @@
 /* input-detail — emitted by src/records/input-detail.tsx */
+@layer astra.tokens, astra.base, astra.components, astra.views;
 @layer astra.components {
   :where(.astra-ui) .astra-input-source h4 {
     margin: 0 0 0.55rem;

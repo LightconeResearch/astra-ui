@@ -1,4 +1,5 @@
 /* empty-state — emitted by src/ui/record-list.tsx */
+@layer astra.tokens, astra.base, astra.components, astra.views;
 @layer astra.components {
   :where(.astra-ui) .astra-empty-state,
   :where(.astra-ui) .astra-empty-state {

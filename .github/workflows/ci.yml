@@ -15,12 +15,10 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm run lint
-      - run: npm run typecheck
-      - run: npm test
+      - run: npm run check
       - name: Package hygiene
         run: |
           npx --yes publint packages/react
-          npx --yes @arethetypeswrong/cli --pack packages/react --ignore-rules cjs-resolves-to-esm
+          npx --yes @arethetypeswrong/cli --pack packages/react --profile esm-only --entrypoints ./components ./views ./ui ./data ./records ./inventory
       - name: Type-check against React 19 typings
         run: npm run typecheck:react19

@@ -39,7 +39,6 @@ Every token is declared on `:where(.astra-ui)` at zero specificity, so a theme r
 | Token | Light default | Dark default |
 | --- | --- | --- |
 | `--astra-color-accent` | `#4e5a70` | `#aeb8ca` |
-| `--astra-color-accent-soft` | `rgb(78 90 112 / 0.1)` | `rgb(174 184 202 / 0.16)` |
 | `--astra-color-accent-contrast` | `#ffffff` | — |
 | `--astra-color-link` | `var(--astra-color-accent)` | — |
 | `--astra-color-focus` | `#3f7280` | `#86adb7` |
@@ -86,13 +85,9 @@ Every token is declared on `:where(.astra-ui)` at zero specificity, so a theme r
 | Token | Light default | Dark default |
 | --- | --- | --- |
 | `--astra-radius-control` | `0` | — |
-| `--astra-radius-panel` | `0` | — |
 | `--astra-shadow-raised` | `none` | `0 5px 18px rgb(0 0 0 / 0.38)` |
-| `--astra-shadow-panel` | `var(--astra-shadow-raised` | — |
-| `--astra-space-1` | `0.25rem` | — |
 | `--astra-space-2` | `0.5rem` | — |
 | `--astra-space-3` | `0.75rem` | — |
-| `--astra-space-4` | `1rem` | — |
 | `--astra-z-dialog` | `1000` | — |
 | `--astra-z-fullscreen` | `10000` | — |
 

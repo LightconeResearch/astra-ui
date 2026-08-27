@@ -39,7 +39,6 @@
 
     /* Interaction */
     --astra-color-accent: var(--astra-action, #4e5a70);
-    --astra-color-accent-soft: var(--astra-accent-soft, rgb(78 90 112 / 0.1));
     --astra-color-accent-contrast: #ffffff;
     --astra-color-link: var(--astra-link, var(--astra-color-accent));
     --astra-color-focus: var(--astra-focus, #3f7280);
@@ -76,13 +75,9 @@
 
     /* Geometry */
     --astra-radius-control: var(--astra-radius, 0);
-    --astra-radius-panel: 0;
     --astra-shadow-raised: var(--astra-shadow, none);
-    --astra-shadow-panel: var(--astra-shadow-raised);
-    --astra-space-1: 0.25rem;
     --astra-space-2: 0.5rem;
     --astra-space-3: 0.75rem;
-    --astra-space-4: 1rem;
     --astra-z-dialog: 1000;
     --astra-z-fullscreen: 10000;
   }
@@ -106,7 +101,6 @@
     --astra-color-border: var(--astra-rule, #3b3731);
     --astra-color-border-strong: var(--astra-rule-strong, #514b42);
     --astra-color-accent: var(--astra-action, #aeb8ca);
-    --astra-color-accent-soft: var(--astra-accent-soft, rgb(174 184 202 / 0.16));
     --astra-color-focus: var(--astra-focus, #86adb7);
     --astra-color-danger: var(--astra-c-danger, #d6927d);
     --astra-color-danger-soft: var(--astra-c-danger-soft, rgb(214 146 125 / 0.13));

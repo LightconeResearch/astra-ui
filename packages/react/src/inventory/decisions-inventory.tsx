@@ -1,5 +1,5 @@
 import type { ResolvedAnalysisNode, ResolvedDecision } from '@astra-spec/sdk';
-import { forwardRef, useState, type HTMLAttributes } from 'react';
+import { forwardRef, useState, type HTMLAttributes, type Ref } from 'react';
 import { countLabel, recordTitle, selectedOptionLabel } from '../data/records.js';
 import { useLabels } from '../lib/labels.js';
 import { EmptyState, RecordIdentity, RecordList } from '../ui/record-list.js';
@@ -56,7 +56,7 @@ export const DecisionsInventory = forwardRef<HTMLDivElement, DecisionsInventoryP
     : records.filter((record) => record.tags?.includes(tagFilter));
 
   if (!records.length) {
-    return <EmptyState className={className}>{labels.empty.decisions}</EmptyState>;
+    return <EmptyState {...(props as HTMLAttributes<HTMLParagraphElement>)} ref={ref as Ref<HTMLParagraphElement>} data-slot="decisions-inventory" className={className}>{labels.empty.decisions}</EmptyState>;
   }
 
   return (

@@ -1,16 +1,16 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ResolvedAnalysisNode, ResolvedRecord } from '@astra-spec/sdk';
 import { paperEntry, recordEntry, type DetailEntry } from './detail-entry.js';
 
 export interface DetailStackOptions {
   /** Controlled stack; pair with `onChange`. */
-  value?: DetailEntry[] | undefined;
-  defaultValue?: DetailEntry[] | undefined;
+  value?: readonly DetailEntry[] | undefined;
+  defaultValue?: readonly DetailEntry[] | undefined;
   onChange?: ((next: DetailEntry[]) => void) | undefined;
 }
 
 export interface DetailStack {
-  stack: DetailEntry[];
+  stack: readonly DetailEntry[];
   active: DetailEntry | undefined;
   previous: DetailEntry | undefined;
   /** Replaces the stack with a single entry. */
@@ -23,7 +23,7 @@ export interface DetailStack {
   pushPaper: (doi: string, analysis: ResolvedAnalysisNode, focusInsightPath?: string) => void;
   back: () => void;
   close: () => void;
-  set: (next: DetailEntry[]) => void;
+  set: (next: readonly DetailEntry[]) => void;
 }
 
 const EMPTY: DetailEntry[] = [];
@@ -34,18 +34,28 @@ const EMPTY: DetailEntry[] = [];
  * uncontrolled (`defaultValue`), like a React input.
  */
 export function useDetailStack({ value, defaultValue, onChange }: DetailStackOptions = {}): DetailStack {
-  const [internal, setInternal] = useState<DetailEntry[]>(defaultValue ?? EMPTY);
+  const [internal, setInternal] = useState<readonly DetailEntry[]>(defaultValue ?? EMPTY);
   const controlled = value !== undefined;
   const stack = controlled ? value : internal;
+  const latest = useRef(stack);
+  useEffect(() => { latest.current = stack; });
 
-  const set = useCallback((next: DetailEntry[]) => {
+  const onChangeRef = useRef(onChange);
+  useEffect(() => { onChangeRef.current = onChange; });
+
+  // Updates read the latest stack (not the render-time one) so two calls in
+  // the same tick compose, and only notify the host once per change.
+  const update = useCallback((compute: (current: readonly DetailEntry[]) => readonly DetailEntry[]) => {
+    const next = [...compute(latest.current)];
+    latest.current = next;
     if (!controlled) setInternal(next);
-    onChange?.(next);
-  }, [controlled, onChange]);
+    onChangeRef.current?.(next);
+  }, [controlled]);
+  const set = useCallback((next: readonly DetailEntry[]) => { update(() => next); }, [update]);
 
   return useMemo<DetailStack>(() => {
-    const open = (entry: DetailEntry) => { set([entry]); };
-    const push = (entry: DetailEntry) => { set([...stack, entry]); };
+    const open = (entry: DetailEntry) => { update(() => [entry]); };
+    const push = (entry: DetailEntry) => { update((current) => [...current, entry]); };
     return {
       stack,
       active: stack.at(-1),
@@ -56,9 +66,9 @@ export function useDetailStack({ value, defaultValue, onChange }: DetailStackOpt
       push,
       pushRecord: (record, analysis) => { push(recordEntry(record.canonicalPath, analysis.canonicalPath)); },
       pushPaper: (doi, analysis, focusInsightPath) => { push(paperEntry(doi, analysis.canonicalPath, focusInsightPath)); },
-      back: () => { set(stack.slice(0, -1)); },
-      close: () => { set(EMPTY); },
+      back: () => { update((current) => current.slice(0, -1)); },
+      close: () => { update(() => EMPTY); },
       set,
     };
-  }, [stack, set]);
+  }, [stack, set, update]);
 }

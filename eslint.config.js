@@ -1,11 +1,12 @@
 import js from '@eslint/js';
 import jsxA11y from 'eslint-plugin-jsx-a11y';
 import reactHooks from 'eslint-plugin-react-hooks';
+import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   {
-    ignores: ['**/dist/**', '**/node_modules/**', '**/.cache/**', 'packages/playground/build/**'],
+    ignores: ['**/dist/**', '**/node_modules/**', '**/.cache/**', 'packages/playground/build/**', 'packages/playground/screenshots/**'],
   },
   js.configs.recommended,
   ...tseslint.configs.strictTypeChecked,
@@ -32,7 +33,14 @@ export default tseslint.config(
     },
   },
   {
-    files: ['**/*.mjs', '**/*.js', 'packages/playground/**/*.{ts,tsx}', 'tests/**/*.{ts,tsx}'],
+    // Node scripts, tests, playground, and config files: plain JS/TS rules with the right globals.
+    files: ['**/*.mjs', '**/*.js', '**/*.config.ts', 'packages/playground/**/*.{ts,tsx}', 'tests/**/*.{ts,tsx}'],
     ...tseslint.configs.disableTypeChecked,
+    languageOptions: {
+      globals: { ...globals.node, ...globals.browser },
+    },
+    rules: {
+      '@typescript-eslint/no-empty-function': 'off',
+    },
   },
 );

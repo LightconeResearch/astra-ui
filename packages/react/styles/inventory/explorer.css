@@ -1,4 +1,5 @@
 /* explorer — emitted by src/inventory/explorer.tsx + inventory/section.tsx */
+@layer astra.tokens, astra.base, astra.components, astra.views;
 @layer astra.views {
   @media (max-width: 640px) {
     :where(.astra-ui) .astra-inventory__section:where([data-section="decisions"]) {

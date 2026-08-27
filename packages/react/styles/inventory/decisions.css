@@ -1,4 +1,5 @@
 /* decisions — emitted by src/inventory/decisions-inventory.tsx */
+@layer astra.tokens, astra.base, astra.components, astra.views;
 @layer astra.views {
   :where(.astra-ui) .astra-inventory-filter > span {
     color: var(--astra-color-text-subtle);

@@ -3,7 +3,7 @@ export { cn } from '../lib/cn.js';
 export { Slot } from '../lib/slot.js';
 export type { SlotProps } from '../lib/slot.js';
 export { LabelsProvider, defaultLabels, mergeLabels, useLabels } from '../lib/labels.js';
-export type { AstraLabelOverrides, AstraLabels } from '../lib/labels.js';
+export type { AstraLabelOverrides, AstraLabels, LabelsProviderProps } from '../lib/labels.js';
 export { surfaceGlyph } from './kind.js';
 export type { SurfaceKind } from './kind.js';
 export { Button, IconButton } from './button.js';
@@ -18,6 +18,7 @@ export {
   DialogAction,
   DialogBack,
   DialogBody,
+  DialogClose,
   DialogContent,
   DialogHeader,
   DialogProvider,
@@ -26,7 +27,11 @@ export {
 } from './dialog.js';
 export type {
   DetailDialogProps,
+  DialogActionProps,
+  DialogBackProps,
+  DialogCloseProps,
   DialogContentProps,
+  DialogContextValue,
   DialogHeaderProps,
   DialogLayout,
   DialogMode,

@@ -5,6 +5,7 @@ import {
   useContext,
   useEffect,
   useId,
+  useLayoutEffect,
   useMemo,
   useRef,
   type HTMLAttributes,
@@ -15,13 +16,15 @@ import {
 } from 'react';
 import { cn } from '../lib/cn.js';
 import { useLabels } from '../lib/labels.js';
-import { IconButton } from './button.js';
 import { Slot } from '../lib/slot.js';
+import { IconButton } from './button.js';
 import type { SurfaceKind } from './kind.js';
 import { SurfaceHeader, type SurfaceHeadingLevel } from './surface-header.js';
 
 export type DialogMode = 'modal' | 'embedded';
 export type DialogLayout = 'single' | 'reader';
+
+const useIsomorphicLayoutEffect = typeof document === 'undefined' ? useEffect : useLayoutEffect;
 
 /* ------------------------------------------------------------------ */
 /* Presentation defaults shared by a subtree (mode, back trail)         */
@@ -41,10 +44,16 @@ export interface DialogProviderProps extends DialogPresentation {
 
 /**
  * Sets the default mode (modal or embedded) and back-trail text for every
- * Dialog below it. Explicit props on a Dialog still win.
+ * Dialog below it. Nested providers inherit what they do not set; explicit
+ * props on a Dialog still win.
  */
 export function DialogProvider({ mode, backLabel, backText, children }: DialogProviderProps) {
-  const value = useMemo(() => ({ mode, backLabel, backText }), [mode, backLabel, backText]);
+  const parent = useContext(PresentationContext);
+  const value = useMemo<DialogPresentation>(() => ({
+    mode: mode ?? parent.mode,
+    backLabel: backLabel ?? parent.backLabel,
+    backText: backText ?? parent.backText,
+  }), [mode, backLabel, backText, parent]);
   return <PresentationContext.Provider value={value}>{children}</PresentationContext.Provider>;
 }
 
@@ -52,7 +61,7 @@ export function DialogProvider({ mode, backLabel, backText, children }: DialogPr
 /* Dialog root                                                          */
 /* ------------------------------------------------------------------ */
 
-interface DialogContextValue {
+export interface DialogContextValue {
   open: boolean;
   mode: DialogMode;
   kind: SurfaceKind | undefined;
@@ -60,11 +69,16 @@ interface DialogContextValue {
   titleId: string;
   backLabel: string;
   backText: string | undefined;
+  /** Dismisses the dialog: runs the native close (modal), which then notifies `onOpenChange(false)`. */
   requestClose: () => void;
+  /** Reports a state change to the host; DialogContent calls it from the native `close` event. */
+  notifyOpenChange: (open: boolean) => void;
   /** Registers a dismissal guard; returns the release function. */
   addGuard: () => () => void;
   isGuarded: () => boolean;
-  closeRef: Ref<HTMLButtonElement>;
+  /** Set by DialogContent so `requestClose` can run the native close steps. */
+  nativeClose: { current: (() => boolean) | null };
+  closeRef: { current: HTMLButtonElement | null };
 }
 
 const DialogContext = createContext<DialogContextValue | null>(null);
@@ -102,13 +116,24 @@ export function Dialog({
   const labels = useLabels();
   const titleId = useId();
   const guards = useRef(0);
-  const closeRef = useRef<HTMLButtonElement>(null);
-  const requestClose = useCallback(() => onOpenChange?.(false), [onOpenChange]);
+  const nativeClose = useRef<(() => boolean) | null>(null);
+  const closeRef = useRef<HTMLButtonElement | null>(null);
+  const onOpenChangeRef = useRef(onOpenChange);
+  onOpenChangeRef.current = onOpenChange;
+
+  const notifyOpenChange = useCallback((next: boolean) => { onOpenChangeRef.current?.(next); }, []);
+  // The native close steps restore focus to the opener and fire `close`,
+  // which relays the change; fall back to the callback when there is no
+  // open <dialog> (embedded mode, or already closed).
+  const requestClose = useCallback(() => {
+    if (!nativeClose.current?.()) notifyOpenChange(false);
+  }, [notifyOpenChange]);
   const addGuard = useCallback(() => {
     guards.current += 1;
     return () => { guards.current -= 1; };
   }, []);
   const isGuarded = useCallback(() => guards.current > 0, []);
+
   const value = useMemo<DialogContextValue>(() => ({
     open,
     mode: mode ?? presentation.mode ?? 'modal',
@@ -118,10 +143,12 @@ export function Dialog({
     backLabel: backLabel ?? presentation.backLabel ?? labels.backTo,
     backText: backText ?? presentation.backText,
     requestClose,
+    notifyOpenChange,
     addGuard,
     isGuarded,
+    nativeClose,
     closeRef,
-  }), [open, mode, presentation, kind, layout, titleId, backLabel, backText, labels.backTo, requestClose, addGuard, isGuarded]);
+  }), [open, mode, presentation, kind, layout, titleId, backLabel, backText, labels.backTo, requestClose, notifyOpenChange, addGuard, isGuarded]);
   return <DialogContext.Provider value={value}>{children}</DialogContext.Provider>;
 }
 
@@ -147,7 +174,7 @@ export interface DialogContentProps extends HTMLAttributes<HTMLElement> {
   /** Class name for the inner panel; the root receives `className`. */
   panelClassName?: string | undefined;
   /** Element focused when the dialog opens; defaults to the close button. */
-  initialFocusRef?: Ref<HTMLElement> | undefined;
+  initialFocusRef?: { current: HTMLElement | null } | undefined;
 }
 
 export const DialogContent = forwardRef<HTMLElement, DialogContentProps>(function DialogContent({
@@ -158,35 +185,75 @@ export const DialogContent = forwardRef<HTMLElement, DialogContentProps>(functio
   onMouseDown,
   ...props
 }, ref) {
-  const { open, mode, kind, layout, titleId, requestClose, isGuarded, closeRef } = useDialog();
+  const { open, mode, kind, layout, titleId, requestClose, notifyOpenChange, isGuarded, nativeClose, closeRef } = useDialog();
   const dialogRef = useRef<HTMLDialogElement | null>(null);
+  // The element that had focus when the dialog opened; focus returns to it on
+  // close (browsers do this for showModal() too, but not every environment).
+  const openerRef = useRef<HTMLElement | null>(null);
+  const restoreFocus = useCallback(() => {
+    const opener = openerRef.current;
+    openerRef.current = null;
+    const active = document.activeElement;
+    if (opener?.isConnected && (!active || active === document.body || dialogRef.current?.contains(active))) opener.focus();
+  }, []);
   const setRefs = useCallback((node: HTMLDialogElement | null) => {
     dialogRef.current = node;
     if (typeof ref === 'function') ref(node);
     else if (ref) ref.current = node;
   }, [ref]);
 
-  useEffect(() => {
+  // Let the root's requestClose run the native close steps.
+  useIsomorphicLayoutEffect(() => {
+    nativeClose.current = () => {
+      const dialog = dialogRef.current;
+      if (mode !== 'modal' || !dialog?.open) return false;
+      dialog.close();
+      return true;
+    };
+    return () => { nativeClose.current = null; };
+  }, [mode, nativeClose]);
+
+  // Open/close the native dialog to match `open`.
+  useIsomorphicLayoutEffect(() => {
     if (mode !== 'modal') return;
     const dialog = dialogRef.current;
     if (!dialog) return;
     if (open && !dialog.open) {
+      openerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
       dialog.showModal();
-      const target = initialFocusRef && typeof initialFocusRef !== 'function'
-        ? initialFocusRef.current
-        : null;
-      (target ?? (closeRef as { current: HTMLButtonElement | null }).current)?.focus();
+      (initialFocusRef?.current ?? closeRef.current)?.focus();
     } else if (!open && dialog.open) {
       dialog.close();
     }
   }, [open, mode, initialFocusRef, closeRef]);
 
+  // Closing on unmount keeps the browser's focus restoration: close()
+  // returns focus to the element that opened the dialog, removal does not.
+  useIsomorphicLayoutEffect(() => () => {
+    const dialog = dialogRef.current;
+    if (dialog?.open) dialog.close();
+    restoreFocus();
+  }, [restoreFocus]);
+
+  // When the body swaps (drill-down/back) and the focused element went away,
+  // keep focus inside the dialog rather than letting it fall to <body>.
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (mode !== 'modal' || !dialog?.open) return;
+    const active = document.activeElement;
+    if (!active || active === document.body || !dialog.contains(active)) closeRef.current?.focus();
+  });
+
   const handleCancel = (event: SyntheticEvent<HTMLDialogElement>) => {
+    // Guarded: an inner layer owns Escape. Otherwise close explicitly, which
+    // is deterministic across browsers (Chromium makes a repeated Escape
+    // non-cancelable) and test environments.
     event.preventDefault();
     if (!isGuarded()) requestClose();
   };
   const handleClose = () => {
-    if (open) requestClose();
+    restoreFocus();
+    if (open) notifyOpenChange(false);
   };
   const handleMouseDown = (event: MouseEvent<HTMLElement>) => {
     onMouseDown?.(event);
@@ -212,8 +279,9 @@ export const DialogContent = forwardRef<HTMLElement, DialogContentProps>(functio
   );
 
   if (mode === 'embedded') {
+    if (!open) return null;
     return (
-      <div {...props} {...data} ref={ref as Ref<HTMLDivElement>} className={cn('astra-dialog', className)}>
+      <div {...props} {...data} ref={ref as Ref<HTMLDivElement>} className={cn('astra-dialog', className)} onMouseDown={onMouseDown}>
         {panel}
       </div>
     );
@@ -266,8 +334,7 @@ export function DialogHeader({
   showCloseButton = true,
   className,
 }: DialogHeaderProps) {
-  const { kind, titleId, backText, requestClose, closeRef } = useDialog();
-  const labels = useLabels();
+  const { kind, titleId, backText } = useDialog();
   return (
     <SurfaceHeader
       data-slot="dialog-header"
@@ -294,24 +361,43 @@ export function DialogHeader({
       actions={(
         <>
           {actions}
-          {showCloseButton ? (
-            <IconButton
-              ref={closeRef}
-              data-slot="dialog-close"
-              label={closeLabel ?? labels.close}
-              onClick={requestClose}
-              title={labels.close}
-            >
-              ×
-            </IconButton>
-          ) : null}
+          {showCloseButton ? <DialogClose label={closeLabel} /> : null}
         </>
       )}
     />
   );
 }
 
-export function DialogBack({ onClick, className }: { onClick: () => void; className?: string | undefined }) {
+export interface DialogCloseProps {
+  /** Accessible name; defaults to the labels' close text. */
+  label?: string | undefined;
+  className?: string | undefined;
+}
+
+/** The dialog's close control; dismisses through the Dialog root. */
+export function DialogClose({ label, className }: DialogCloseProps) {
+  const { requestClose, closeRef } = useDialog();
+  const labels = useLabels();
+  return (
+    <IconButton
+      ref={closeRef}
+      data-slot="dialog-close"
+      className={className}
+      label={label ?? labels.close}
+      onClick={requestClose}
+      title={labels.close}
+    >
+      ×
+    </IconButton>
+  );
+}
+
+export interface DialogBackProps {
+  onClick: () => void;
+  className?: string | undefined;
+}
+
+export function DialogBack({ onClick, className }: DialogBackProps) {
   const { backLabel } = useDialog();
   const labels = useLabels();
   return (
@@ -354,7 +440,7 @@ export const DialogBody = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivEleme
 /* Preset: the record detail shell                                      */
 /* ------------------------------------------------------------------ */
 
-export interface DetailDialogProps extends Omit<DialogProps, 'children' | 'onOpenChange' | 'open'> {
+export interface DetailDialogProps extends Omit<DialogProps, 'children' | 'onOpenChange'> {
   kindLabel?: ReactNode | undefined;
   title: ReactNode;
   titleAs?: SurfaceHeadingLevel | undefined;
@@ -387,8 +473,11 @@ export function DetailDialog({
   children,
   ...dialog
 }: DetailDialogProps) {
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+  const onOpenChange = useCallback((open: boolean) => { if (!open) onCloseRef.current(); }, []);
   return (
-    <Dialog {...dialog} onOpenChange={(open) => { if (!open) onClose(); }}>
+    <Dialog {...dialog} onOpenChange={onOpenChange}>
       <DialogContent className={className} panelClassName={panelClassName}>
         <DialogHeader
           kindLabel={kindLabel}

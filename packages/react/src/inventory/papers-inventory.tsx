@@ -1,5 +1,5 @@
 import type { ResolvedAnalysisNode } from '@astra-spec/sdk';
-import { forwardRef, type HTMLAttributes } from 'react';
+import { forwardRef, type HTMLAttributes, type Ref } from 'react';
 import type { InventoryPaper } from '../data/papers.js';
 import { countLabel } from '../data/records.js';
 import { cn } from '../lib/cn.js';
@@ -55,7 +55,7 @@ export const PapersInventory = forwardRef<HTMLDivElement, PapersInventoryProps>(
 }, ref) {
   const labels = useLabels();
   if (!papers.length) {
-    return <EmptyState className={className}>{labels.empty.papers}</EmptyState>;
+    return <EmptyState {...(props as HTMLAttributes<HTMLParagraphElement>)} ref={ref as Ref<HTMLParagraphElement>} data-slot="papers-inventory" className={className}>{labels.empty.papers}</EmptyState>;
   }
   return (
     <InventoryRecords {...props} ref={ref} kind="paper" className={className}>

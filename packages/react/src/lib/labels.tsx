@@ -15,6 +15,7 @@ export interface AstraLabels {
   back: string;
   backTo: string;
   close: string;
+  notFound: string;
   closeRecord: (kindLabel: string) => string;
   kinds: {
     analysis: string;
@@ -58,6 +59,7 @@ export const defaultLabels: AstraLabels = {
   backTo: 'Back to previous record',
   close: 'Close all details',
   closeRecord: (kindLabel) => `Close ${kindLabel.toLowerCase()} details`,
+  notFound: 'This record is no longer available.',
   kinds: {
     analysis: 'Analysis',
     input: 'Input',
@@ -87,40 +89,42 @@ export const defaultLabels: AstraLabels = {
 
 /** Deep partial of the label set, for host overrides. */
 export type AstraLabelOverrides = {
-  [K in keyof AstraLabels]?: AstraLabels[K] extends object
+  [K in keyof AstraLabels]?: (AstraLabels[K] extends object
     ? AstraLabels[K] extends (...args: never[]) => unknown
       ? AstraLabels[K]
-      : Partial<AstraLabels[K]>
-    : AstraLabels[K];
+      : { [P in keyof AstraLabels[K]]?: AstraLabels[K][P] | undefined }
+    : AstraLabels[K]) | undefined;
 };
+
+function defined<T extends object>(value: T): Partial<T> {
+  return Object.fromEntries(Object.entries(value).filter(([, member]) => member !== undefined)) as Partial<T>;
+}
 
 const LabelsContext = createContext<AstraLabels>(defaultLabels);
 
-export function mergeLabels(overrides: AstraLabelOverrides | undefined): AstraLabels {
-  if (!overrides) return defaultLabels;
+function merge(base: AstraLabels, overrides: AstraLabelOverrides): AstraLabels {
   return {
-    ...defaultLabels,
-    ...overrides,
-    sections: { ...defaultLabels.sections, ...overrides.sections },
-    kinds: { ...defaultLabels.kinds, ...overrides.kinds },
-    empty: { ...defaultLabels.empty, ...overrides.empty },
-    actions: { ...defaultLabels.actions, ...overrides.actions },
-  };
+    ...base,
+    ...defined(overrides),
+    sections: { ...base.sections, ...defined(overrides.sections ?? {}) },
+    kinds: { ...base.kinds, ...defined(overrides.kinds ?? {}) },
+    empty: { ...base.empty, ...defined(overrides.empty ?? {}) },
+    actions: { ...base.actions, ...defined(overrides.actions ?? {}) },
+  } as AstraLabels;
 }
 
-export function LabelsProvider({ labels, children }: { labels?: AstraLabelOverrides | undefined; children: ReactNode }) {
+export function mergeLabels(overrides: AstraLabelOverrides | undefined): AstraLabels {
+  return overrides ? merge(defaultLabels, overrides) : defaultLabels;
+}
+
+export interface LabelsProviderProps {
+  labels?: AstraLabelOverrides | undefined;
+  children: ReactNode;
+}
+
+export function LabelsProvider({ labels, children }: LabelsProviderProps) {
   const parent = useContext(LabelsContext);
-  const value = useMemo(() => {
-    if (!labels) return parent;
-    return {
-      ...parent,
-      ...labels,
-      sections: { ...parent.sections, ...labels.sections },
-      kinds: { ...parent.kinds, ...labels.kinds },
-      empty: { ...parent.empty, ...labels.empty },
-      actions: { ...parent.actions, ...labels.actions },
-    };
-  }, [labels, parent]);
+  const value = useMemo(() => (labels ? merge(parent, labels) : parent), [labels, parent]);
   return <LabelsContext.Provider value={value}>{children}</LabelsContext.Provider>;
 }
 

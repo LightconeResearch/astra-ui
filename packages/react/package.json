@@ -6,7 +6,7 @@
   "homepage": "https://github.com/LightconeResearch/astra-ui#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/LightconeResearch/astra-ui.git",
+    "url": "git+https://github.com/LightconeResearch/astra-ui.git",
     "directory": "packages/react"
   },
   "bugs": {
@@ -91,6 +91,7 @@
     "components.css",
     "ui.css",
     "README.md",
+    "TOKENS.md",
     "CHANGELOG.md",
     "LICENSE"
   ],
@@ -98,7 +99,7 @@
     "clean": "node --input-type=module -e \"import { rmSync } from 'node:fs'; rmSync('dist', { recursive: true, force: true })\" && tsc -b tsconfig.json --clean",
     "build": "npm run clean && tsc -p tsconfig.json",
     "prepack": "npm run build",
-    "prepublishOnly": "npm test --prefix ../..",
+    "prepublishOnly": "npm run check --prefix ../..",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "peerDependencies": {
@@ -113,6 +114,10 @@
     "node": ">=18"
   },
   "browserslist": [
-    "defaults and fully supports css-container-queries"
+    "chrome >= 111",
+    "edge >= 111",
+    "firefox >= 113",
+    "safari >= 16.2",
+    "ios_saf >= 16.2"
   ]
 }

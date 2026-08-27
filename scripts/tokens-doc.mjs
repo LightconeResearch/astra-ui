@@ -6,7 +6,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 
 const css = readFileSync(new URL('../packages/react/styles/tokens.css', import.meta.url), 'utf8');
-const blocks = [...css.matchAll(/:where\(([^{]+)\)[^{]*\{([\s\S]*?)\n  \}/g)];
+const blocks = [...css.matchAll(/:where\(([^{]+)\)[^{]*\{([\s\S]*?)\n {2}\}/g)];
 const parse = (body) => Object.fromEntries([...body.matchAll(/^\s*(--astra-[a-z0-9-]+):\s*([^;]+);/gm)].map(([, name, value]) => [name, value.trim()]));
 const light = parse(blocks[0][2]);
 const dark = parse(blocks.slice(1).map((b) => b[2]).join('\n'));

@@ -1,4 +1,5 @@
 /* insight-detail — emitted by src/records/insight-detail.tsx */
+@layer astra.tokens, astra.base, astra.components, astra.views;
 @layer astra.components {
   :where(.astra-ui) .astra-insight-detail__source-quote,
   :where(.astra-ui) .astra-insight-detail__notes {

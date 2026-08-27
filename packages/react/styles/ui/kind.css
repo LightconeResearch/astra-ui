@@ -1,4 +1,5 @@
 /* Record-kind colour hook. Any element under the scope opts in with data-kind. */
+@layer astra.tokens, astra.base, astra.components, astra.views;
 @layer astra.components {
   :where(.astra-ui) [data-kind="analysis"] {
     --astra-kind: var(--astra-color-kind-analysis);

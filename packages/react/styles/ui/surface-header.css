@@ -1,4 +1,5 @@
 /* surface-header — emitted by src/ui/surface-header.tsx */
+@layer astra.tokens, astra.base, astra.components, astra.views;
 @layer astra.components {
   :where(.astra-ui) .astra-surface-header[data-kind="analysis"] {
     --astra-kind: var(--astra-color-kind-analysis);

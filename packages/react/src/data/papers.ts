@@ -8,8 +8,7 @@ import {
   type ResolvedEvidence,
   type ResolvedInsight,
 } from '@astra-spec/sdk';
-import { decisionInsightPaths } from './relations.js';
-import { isInsight } from './records.js';
+import { decisionInsights } from './relations.js';
 
 export interface InventoryPaper {
   doi: string;
@@ -38,9 +37,13 @@ export interface PaperFocusEvidence {
   evidence: ResolvedEvidence;
 }
 
-/** Looks up metadata by canonical or raw DOI. */
+/** Looks up metadata by DOI, whichever spelling the host used as the key. */
 export function paperMetadataFor(doi: string, metadata: InventoryPaperMetadataMap): InventoryPaperMetadata | undefined {
-  return metadata[normalizeDoi(doi)] ?? metadata[doi];
+  const direct = metadata[normalizeDoi(doi)] ?? metadata[doi];
+  if (direct) return direct;
+  const key = normalizeDoi(doi);
+  const match = Object.keys(metadata).find((candidate) => normalizeDoi(candidate) === key);
+  return match === undefined ? undefined : metadata[match];
 }
 
 function paperFromDoi(doi: string, paperMetadata: InventoryPaperMetadataMap): InventoryPaper {
@@ -95,13 +98,9 @@ export function collectInventoryPapers(
     for (const record of [...candidate.prior_insights, ...candidate.findings]) insights.set(record.canonicalPath, record);
   }
 
-  const insightsOf = (decision: ResolvedDecision) => decisionInsightPaths(decision)
-    .map((path) => index.recordByPath.get(path))
-    .filter(isInsight);
-
   if (analysis.canonicalPath !== '$') {
     for (const decision of decisions.values()) {
-      for (const insight of insightsOf(decision)) insights.set(insight.canonicalPath, insight);
+      for (const insight of decisionInsights(index, decision)) insights.set(insight.canonicalPath, insight);
     }
   }
 
@@ -118,7 +117,7 @@ export function collectInventoryPapers(
   }
 
   for (const decision of decisions.values()) {
-    const dois = new Set(insightsOf(decision).flatMap(insightDois).map(normalizeDoi));
+    const dois = new Set(decisionInsights(index, decision).flatMap(insightDois).map(normalizeDoi));
     for (const key of dois) {
       papers.get(key)?.decisions.push(decision);
     }

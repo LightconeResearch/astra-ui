@@ -156,13 +156,14 @@ Styling hooks for hosts:
 
 - Every component accepts `className`, forwards its ref, and spreads extra
   attributes onto its root.
-- Every part carries a `data-slot` attribute (`data-slot="dialog-title"`), and
+- Every part carries a `data-slot` attribute (`data-slot="surface-header-title"`), and
   variants are data attributes (`data-kind`, `data-mode`, `data-layout`,
   `data-density`, `data-variant`, `data-selected`, `data-expanded`).
 - All rules live in `@layer astra.tokens, astra.base, astra.components,
   astra.views` and are scoped with `:where(.astra-ui)`, so unlayered host CSS
-  overrides any component rule at any specificity. Variant attributes are
-  wrapped in `:where()` so they add no specificity.
+  overrides any component rule at any specificity. Standalone variant
+  selectors (`.astra-dialog:where([data-mode="embedded"])`) add no
+  specificity, like the modifier classes they replace.
 - `[data-kind="decision"]` on any element sets `--astra-kind`,
   `--astra-kind-ink` and `--astra-kind-soft` for that subtree.
 
@@ -183,7 +184,11 @@ npm run check:consumers  # type-check ../jupyterlab-astra and ../astra-theme
 ```
 
 The playground fixture is regenerated with
-`npm run fixture --workspace astra-ui-playground [projectRoot]`.
+`npm run fixture --workspace astra-ui-playground [projectRoot]`; it copies
+the previewable artifacts (png, csv, ...) into `packages/playground/public`,
+which is gitignored. Screenshots need `npx playwright install chromium` once
+and ImageMagick's `compare` for `screenshots:compare`; the baseline set in
+`packages/playground/screenshots/baseline` is the pre-refactor rendering.
 
 ## License
 

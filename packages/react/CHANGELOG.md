@@ -42,11 +42,13 @@ the token contract are new.
 
 ### Added
 
-- `Dialog` compound with a native `<dialog>`, `useDialogDismissGuard`, and a
-  dismissal guard so a nested full-screen artifact no longer closes the whole
-  dialog on Escape.
-- `RecordDialog` keeps one dialog element mounted across drill-downs, so focus
-  returns to the opener when the stack closes.
+- `Dialog` compound with a native `<dialog>`, `DialogClose`,
+  `useDialogDismissGuard`, and a dismissal guard so a nested full-screen
+  artifact no longer closes the whole dialog on Escape. Dismissal runs the
+  native `close()`, and focus returns to the element that opened the dialog.
+- `RecordDialog` keeps one dialog element mounted across drill-downs and
+  renders `fallback` inside the shell when an entry stops resolving;
+  `InventoryExplorer` prunes such entries from the stack.
 - Controlled state everywhere it existed locally: detail stack, decision tag
   filter, output full-screen.
 - `InventoryExplorer { sections, idPrefix, showOutline, labels, index }`,

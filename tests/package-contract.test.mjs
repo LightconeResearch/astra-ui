@@ -66,6 +66,10 @@ test('every JS subpath resolves to a built module', async () => {
     await readFile(new URL(target.import, packageRoot));
     await readFile(new URL(target.types, packageRoot));
   }
+  for (const subpath of ['ui/button', 'ui/dialog', 'data/relations', 'records/output-dialog', 'records/use-detail-stack', 'inventory/explorer']) {
+    const target = manifest.exports[`./${subpath.split('/')[0]}/*`].import.replace('*', subpath.split('/')[1]);
+    await readFile(new URL(target, packageRoot));
+  }
   const components = await import('../packages/react/dist/components.js');
   const views = await import('../packages/react/dist/views.js');
   for (const name of ['Button', 'Dialog', 'DetailDialog', 'ArtifactPreview', 'RecordDialog', 'useDetailStack', 'createInventoryIndex', 'PaperDialog']) {
@@ -113,10 +117,18 @@ test('every token the styles consume is declared with a default', async () => {
   const tokens = await readFile(new URL('tokens.css', stylesDirectory), 'utf8');
   const declared = new Set([...tokens.matchAll(/^\s*(--astra-[a-z0-9-]+):/gm)].map(([, name]) => name));
   const css = await stylesText({ includeTokens: false });
-  const local = new Set(['--astra-kind', '--astra-kind-ink', '--astra-kind-soft', '--astra-record-columns', '--astra-table-preview-max-height']);
+  const source = await sourceText();
+  // Element-local tokens: declared inside a component sheet or set from TSX.
+  const local = new Set([
+    ...[...css.matchAll(/^\s*(--astra-[a-z0-9-]+):/gm)].map(([, name]) => name),
+    ...[...source.matchAll(/'(--astra-[a-z0-9-]+)'/g)].map(([, name]) => name),
+  ]);
   const consumed = new Set([...css.matchAll(/var\((--astra-[a-z0-9-]+)/g)].map(([, name]) => name));
   const missing = [...consumed].filter((name) => !declared.has(name) && !local.has(name));
   assert.deepEqual(missing, [], 'consumed tokens without a default in tokens.css');
+  const consumedByTokens = new Set([...tokens.matchAll(/var\((--astra-[a-z0-9-]+)/g)].map(([, name]) => name));
+  const unused = [...declared].filter((name) => !consumed.has(name) && !consumedByTokens.has(name) && !source.includes(`'${name}'`));
+  assert.deepEqual(unused, [], 'tokens declared in tokens.css that nothing consumes');
   assert.doesNotMatch(css, /--astra-(ink|canvas|panel|raised|rule|muted|label|serif)\b/, 'components consume role names only');
 });
 
@@ -124,7 +136,9 @@ test('styles are layered, scoped with :where, and free of theme or host selector
   const files = await filesUnder(stylesDirectory, /\.css$/);
   for (const url of files) {
     const css = stripComments(await readFile(url, 'utf8'));
-    assert.match(css, /^@layer astra\.(tokens|base|components|views)/m, `${url.pathname} declares its layer`);
+    assert.match(css, /^@layer astra\.tokens, astra\.base, astra\.components, astra\.views;/m, `${url.pathname} declares the layer order first`);
+    assert.match(css, /^@layer astra\.(tokens|base|components|views) \{/m, `${url.pathname} wraps its rules in a layer`);
+    assert.doesNotMatch(css, /__DEAD__/, `${url.pathname} has no placeholder selectors`);
     assert.doesNotMatch(css, /^\s*\.astra-ui[\s.]/m, `${url.pathname} scopes with :where(.astra-ui)`);
     assert.doesNotMatch(css, /lightcone-brand|data-astra-theme|inventory-detail-dialog|astra-record-detail|astra-result-viewer/, `${url.pathname} has no legacy or theme selectors`);
   }
@@ -132,6 +146,11 @@ test('styles are layered, scoped with :where, and free of theme or host selector
     const css = await readFile(new URL(bundle, packageRoot), 'utf8');
     assert.match(css, /@import/, `${bundle} is an import bundle`);
   }
+  // Within a layer, later sheets override earlier ones at equal specificity;
+  // ui.css follows the legacy source order (surface-header before dialog, ...).
+  const ui = await readFile(new URL('ui.css', packageRoot), 'utf8');
+  const imports = [...ui.matchAll(/@import "\.\/styles\/ui\/([a-z-]+)\.css"/g)].map(([, name]) => name);
+  assert.deepEqual(imports, ['kind', 'surface-header', 'badge', 'button', 'artifact-preview', 'dialog', 'detail-layout', 'relation-list', 'count-heading', 'record-list', 'empty-state'], 'ui.css import order is part of the cascade');
 });
 
 test('every class the components emit has a rule, and every styled block is emitted', async () => {
@@ -145,9 +164,10 @@ test('every class the components emit has a rule, and every styled block is emit
   // A block root may exist only to scope its parts (e.g. astra-finding-detail__notes).
   const unstyled = [...emitted].filter((name) => !styled.has(name) && !name.startsWith('astra-ui') && !(name === name.replace(/(__|--).*/, '') && styledBlocks.has(name)));
   assert.deepEqual(unstyled, [], 'classes emitted by TSX with no CSS rule');
-  const blocks = new Set([...styled].map((name) => name.replace(/(__|--).*/, '')));
-  const orphanBlocks = [...blocks].filter((block) => block !== 'astra-ui' && ![...emitted].some((name) => name === block || name.startsWith(`${block}__`)));
-  assert.deepEqual(orphanBlocks, [], 'CSS blocks no component emits');
+  // Template-literal class prefixes (e.g. `astra-evidence__glyph--${kind}`) count as emitting every variant.
+  const templates = [...source.matchAll(/`([^`$]*\bastra-[a-z0-9_-]+(?:__|--))\$\{/g)].map(([, prefix]) => prefix.split(/\s+/).at(-1));
+  const orphans = [...styled].filter((name) => name !== 'astra-ui' && !emitted.has(name) && !templates.some((prefix) => name.startsWith(prefix)));
+  assert.deepEqual(orphans, [], 'CSS classes no component emits');
 });
 
 test('no temporary specification is included in the package workspace', async () => {

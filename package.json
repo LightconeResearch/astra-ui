@@ -13,7 +13,7 @@
   "scripts": {
     "clean": "npm run clean --workspace @lightcone-research/astra-ui",
     "build": "npm run build --workspace @lightcone-research/astra-ui",
-    "typecheck": "npm run typecheck --workspace @lightcone-research/astra-ui && tsc -p packages/playground/tsconfig.json",
+    "typecheck": "npm run typecheck --workspace @lightcone-research/astra-ui && tsc -p packages/playground/tsconfig.json && tsc -p tsconfig.tests.json",
     "typecheck:react19": "tsc -p tsconfig.react19.json",
     "lint": "eslint .",
     "test": "npm run build && node --test tests/*.test.mjs && vitest run",
@@ -22,7 +22,8 @@
     "check:consumers": "node scripts/check-consumers.mjs",
     "playground": "npm run dev --workspace astra-ui-playground",
     "screenshots": "npm run build && node packages/playground/scripts/screenshot.mjs packages/playground/screenshots/current",
-    "screenshots:compare": "node packages/playground/scripts/compare.mjs packages/playground/screenshots/baseline packages/playground/screenshots/current"
+    "screenshots:compare": "node packages/playground/scripts/compare.mjs packages/playground/screenshots/baseline packages/playground/screenshots/current",
+    "check": "npm run lint && npm run typecheck && npm run typecheck:react19 && npm test"
   },
   "devDependencies": {
     "@astra-spec/sdk": "^0.0.8",
@@ -40,7 +41,8 @@
     "typescript": "^5.7.0",
     "typescript-eslint": "^8.68.0",
     "vitest": "^4.1.11",
-    "@types/react-19": "npm:@types/react@^19"
+    "@types/react-19": "npm:@types/react@^19",
+    "globals": "^16.0.0"
   },
   "allowScripts": {
     "esbuild@0.25.12": true

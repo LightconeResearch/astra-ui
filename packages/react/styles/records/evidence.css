@@ -1,4 +1,5 @@
 /* evidence — emitted by src/records/insight-trigger.tsx + records/paper-detail.tsx */
+@layer astra.tokens, astra.base, astra.components, astra.views;
 @layer astra.components {
   :where(.astra-ui) .astra-paper-detail__insights .astra-evidence__title {
     display: grid;
@@ -41,10 +42,6 @@
     font-size: 0.85em;
   }
 
-  :where(.astra-ui) .astra-evidence__glyph--output {
-    color: var(--astra-color-kind-output);
-    font-size: 0.85em;
-  }
 
   :where(.astra-ui) .astra-evidence__tag {
     font-family: var(--astra-font-ui);

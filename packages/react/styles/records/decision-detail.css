@@ -1,4 +1,5 @@
 /* decision-detail — emitted by src/records/decision-detail.tsx */
+@layer astra.tokens, astra.base, astra.components, astra.views;
 @layer astra.components {
   :where(.astra-ui) .astra-decision-insights {
     display: grid;

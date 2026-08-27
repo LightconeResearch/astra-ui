@@ -1,4 +1,5 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { useState } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   Button,
@@ -9,8 +10,13 @@ import {
   DialogProvider,
   useDialogDismissGuard,
 } from '../../packages/react/src/components.js';
+import { OutputDetail, useDetailStack } from '../../packages/react/src/components.js';
 import { InventoryExplorer } from '../../packages/react/src/views.js';
-import { fixtureDocument } from '../fixture.mjs';
+import { renderHook, act } from '@testing-library/react';
+import type { ResolvedAnalysisDocument, ResolvedOutput } from '@astra-spec/sdk';
+import { fixtureDocument as untypedFixture } from '../fixture.mjs';
+
+const fixtureDocument = untypedFixture as unknown as ResolvedAnalysisDocument;
 
 afterEach(cleanup);
 
@@ -28,6 +34,58 @@ describe('Dialog', () => {
     expect(document.activeElement).toBe(close);
     fireEvent.click(close);
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('returns focus to the opener when the dialog closes', () => {
+    function Host() {
+      const [open, setOpen] = useState(false);
+      return (
+        <>
+          <button type="button" onClick={() => { setOpen(true); }}>Open</button>
+          {open ? (
+            <DetailDialog title="T" closeLabel="Close" onClose={() => { setOpen(false); }}>
+              <p>Body</p>
+            </DetailDialog>
+          ) : null}
+        </>
+      );
+    }
+    render(<Host />);
+    const opener = screen.getByRole('button', { name: 'Open' });
+    opener.focus();
+    fireEvent.click(opener);
+    expect(screen.getByRole('dialog', { hidden: true })).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Close' }));
+    expect(screen.queryByRole('dialog', { hidden: true })).toBeNull();
+    expect(document.activeElement).toBe(opener);
+  });
+
+  it('dismisses on backdrop mousedown but not on clicks inside the panel', () => {
+    const onClose = vi.fn();
+    render(<DetailDialog title="T" onClose={onClose}><p>Body</p></DetailDialog>);
+    const dialog = screen.getByRole('dialog', { hidden: true });
+    fireEvent.mouseDown(screen.getByText('Body'));
+    expect(onClose).not.toHaveBeenCalled();
+    fireEvent.mouseDown(dialog);
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps an expanded artifact from closing the dialog on Escape', () => {
+    const onClose = vi.fn();
+    const onExpandedChange = vi.fn();
+    const output = fixtureDocument.analysis.outputs[0] as ResolvedOutput;
+    render(
+      <DetailDialog title="T" onClose={onClose}>
+        <OutputDetail record={output} relations={{ inputs: [], decisions: [] }} expanded onExpandedChange={onExpandedChange} />
+      </DetailDialog>,
+    );
+    const dialog = screen.getByRole('dialog', { hidden: true });
+    const cancel = new Event('cancel', { cancelable: true });
+    fireEvent(dialog, cancel);
+    expect(cancel.defaultPrevented).toBe(true);
+    expect(onClose).not.toHaveBeenCalled();
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(onExpandedChange).toHaveBeenCalledWith(false);
   });
 
   it('treats Escape (cancel) as a dismissal unless a guard is active', () => {
@@ -112,6 +170,19 @@ describe('InventoryExplorer detail stack', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Close output details' }));
     expect(screen.queryByRole('dialog', { hidden: true })).toBeNull();
+  });
+
+  it('composes two updates in one tick and notifies once per change', () => {
+    const onChange = vi.fn();
+    const { result } = renderHook(() => useDetailStack({ onChange }));
+    act(() => {
+      result.current.open({ kind: 'record', canonicalPath: 'a', analysisPath: '$' });
+      result.current.push({ kind: 'record', canonicalPath: 'b', analysisPath: '$' });
+    });
+    expect(result.current.stack.map((entry) => entry.kind === 'record' && entry.canonicalPath)).toEqual(['a', 'b']);
+    expect(onChange).toHaveBeenCalledTimes(2);
+    act(() => { result.current.back(); });
+    expect(result.current.active).toEqual({ kind: 'record', canonicalPath: 'a', analysisPath: '$' });
   });
 
   it('is controllable from the host', () => {

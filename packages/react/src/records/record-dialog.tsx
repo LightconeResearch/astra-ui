@@ -39,7 +39,7 @@ export interface RecordDialogProps extends Pick<DetailDialogProps, 'mode' | 'bac
   /** Navigation to another record from within the detail (drill-down). */
   onOpenRecord?: ((record: ResolvedRecord, analysis: ResolvedAnalysisNode) => void) | undefined;
   onOpenPaper?: ((doi: string, analysis: ResolvedAnalysisNode, focusInsightPath?: string) => void) | undefined;
-  /** Rendered when the entry no longer resolves (e.g. after a document refresh). */
+  /** Body rendered (inside the dialog shell) when the entry no longer resolves, e.g. after a document refresh; nothing renders without it. */
   fallback?: ReactNode | undefined;
 }
 
@@ -196,7 +196,14 @@ export function RecordDialog({
     }
   }
 
-  if (!chrome) return <>{fallback}</>;
+  if (!chrome) {
+    if (fallback == null) return null;
+    return (
+      <DetailDialog {...dialog} kind="analysis" title={labels.notFound} closeLabel={labels.close}>
+        {fallback}
+      </DetailDialog>
+    );
+  }
   return (
     <DetailDialog
       {...dialog}

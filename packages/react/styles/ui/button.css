@@ -1,10 +1,10 @@
 /* button — emitted by src/ui/button.tsx */
+@layer astra.tokens, astra.base, astra.components, astra.views;
 @layer astra.components {
   :where(.astra-ui) .astra-button {
     min-height: 2rem;
     padding: 0.35rem 0.65rem;
     border: 1px solid var(--astra-color-border-strong);
-    border-radius: var(--astra-radius-control);
     background: var(--astra-color-surface-raised);
     color: var(--astra-color-text-muted);
     cursor: pointer;
@@ -57,7 +57,7 @@
   :where(.astra-ui) .astra-button {
     min-height: 2rem;
     border-color: var(--astra-color-border-strong);
-    border-radius: 0;
+    border-radius: var(--astra-radius-control);
     background: transparent;
     color: var(--astra-color-text);
     font: 600 0.8125rem/1.2 var(--astra-font-ui);

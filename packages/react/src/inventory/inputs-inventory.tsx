@@ -1,5 +1,5 @@
 import type { ResolvedAnalysisNode, ResolvedInput } from '@astra-spec/sdk';
-import { forwardRef, type HTMLAttributes } from 'react';
+import { forwardRef, type HTMLAttributes, type Ref } from 'react';
 import { recordTitle } from '../data/records.js';
 import { useLabels } from '../lib/labels.js';
 import { inputSourceLabel } from '../records/input-detail.js';
@@ -21,7 +21,7 @@ export const InputsInventory = forwardRef<HTMLDivElement, InputsInventoryProps>(
   const labels = useLabels();
   const records = analysis.inputs;
   if (!records.length) {
-    return <EmptyState className={className}>{labels.empty.inputs}</EmptyState>;
+    return <EmptyState {...(props as HTMLAttributes<HTMLParagraphElement>)} ref={ref as Ref<HTMLParagraphElement>} data-slot="inputs-inventory" className={className}>{labels.empty.inputs}</EmptyState>;
   }
   return (
     <InventoryRecords {...props} ref={ref} kind="input" className={className}>

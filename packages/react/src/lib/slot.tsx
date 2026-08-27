@@ -47,7 +47,7 @@ export const Slot = forwardRef<HTMLElement, SlotProps>(function Slot({ children,
       };
     } else merged[key] = value;
   }
-  const childRef = (element as { ref?: Ref<HTMLElement> }).ref ?? childProps.ref;
+  const childRef = 'ref' in childProps ? childProps.ref : (element as { ref?: Ref<HTMLElement> }).ref;
   merged.ref = mergeRefs(ref, childRef);
   return cloneElement(element, merged);
 });

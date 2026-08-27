@@ -3,6 +3,8 @@
  * typography, focus ring, motion and print. Themes never need to repeat any
  * of this; they only redefine tokens.
  */
+@layer astra.tokens, astra.base, astra.components, astra.views;
+
 @layer astra.base {
   :where(.astra-ui) {
     box-sizing: border-box;

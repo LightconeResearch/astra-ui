@@ -7,7 +7,7 @@ import {
   type ResolvedRecord,
 } from '@astra-spec/sdk';
 
-/** The SDK index plus a record-to-owning-analysis map, built in one walk. */
+/** The SDK index plus a record-to-owning-analysis map (one extra walk over the document). */
 export interface InventoryIndex extends AnalysisIndex {
   ownerByRecordPath: ReadonlyMap<string, ResolvedAnalysisNode>;
 }

@@ -1,4 +1,5 @@
 /* outputs — emitted by src/inventory/outputs-inventory.tsx */
+@layer astra.tokens, astra.base, astra.components, astra.views;
 @layer astra.views {
   @media (max-width: 880px) {
     :where(.astra-ui) .astra-inventory-outputs__gallery {
