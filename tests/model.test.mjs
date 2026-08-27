@@ -8,7 +8,7 @@ import {
   informedDecisions,
   locateRecord,
   outputRelations,
-} from '../packages/react/dist/data/index.js';
+} from '../packages/react/dist/model/index.js';
 import { fixtureDocument } from './fixture.mjs';
 
 test('paper presentation data is derived from the SDK document and index', () => {

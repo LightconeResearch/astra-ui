@@ -2,18 +2,11 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import {
-  ArtifactPreview,
-  DetailDialog,
-  DialogProvider,
-  PaperDialog,
-  Prose,
-  RecordDialog,
-  collectInventoryPapers,
-  createInventoryIndex,
-  recordEntry,
-} from '../packages/react/dist/components.js';
-import { AnalysisTree, InventoryExplorer } from '../packages/react/dist/views.js';
+import { DetailDialog, DialogProvider, Prose } from '../packages/react/dist/primitives/index.js';
+import { ArtifactPreview, PaperDialog, RecordDialog, recordEntry } from '../packages/react/dist/components/index.js';
+import { collectInventoryPapers, createInventoryIndex } from '../packages/react/dist/model/index.js';
+import { AnalysisTree } from '../packages/react/dist/blocks/index.js';
+import { Inventory } from '../packages/react/dist/views/index.js';
 import { fixtureDocument } from './fixture.mjs';
 
 function withinUi(component) {
@@ -24,7 +17,7 @@ function withinUi(component) {
 
 test('the composed inventory consumes ResolvedAnalysisDocument directly', () => {
   const renderedOutputs = [];
-  const html = withinUi(React.createElement(InventoryExplorer, {
+  const html = withinUi(React.createElement(Inventory, {
     document: fixtureDocument,
     paperMetadata: {
       '10.1234/example': { title: 'A useful paper' },
@@ -50,7 +43,7 @@ test('the composed inventory consumes ResolvedAnalysisDocument directly', () => 
 });
 
 test('sections, labels, and anchors are configurable', () => {
-  const html = withinUi(React.createElement(InventoryExplorer, {
+  const html = withinUi(React.createElement(Inventory, {
     document: fixtureDocument,
     sections: ['findings', 'outputs'],
     idPrefix: 'demo-',

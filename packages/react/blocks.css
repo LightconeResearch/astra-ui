@@ -1,0 +1,7 @@
+/* Components plus the inventory blocks (lists, sections, outline, tree). */
+@import "./components.css";
+@import "./styles/blocks/outputs-list.css";
+@import "./styles/blocks/records.css";
+@import "./styles/blocks/papers-list.css";
+@import "./styles/blocks/analysis-tree.css";
+@import "./styles/blocks/decisions-list.css";

@@ -46,7 +46,7 @@ test('the package depends on the SDK model and host React only', async () => {
   assert.equal(manifest.publishConfig.access, 'public');
   assert.equal(manifest.exports['.'], undefined, 'no root entry: import a layer');
   assert.equal(manifest.exports['./core'], undefined);
-  for (const subpath of ['./components', './views', './ui', './ui/*', './data', './data/*', './records', './records/*', './inventory', './inventory/*', './styles/*', './package.json']) {
+  for (const subpath of ['./primitives', './primitives/*', './components', './components/*', './blocks', './blocks/*', './views', './views/*', './model', './model/*', './styles/*', './package.json']) {
     assert.ok(manifest.exports[subpath], `${subpath} is exported`);
   }
 });
@@ -66,34 +66,41 @@ test('every JS subpath resolves to a built module', async () => {
     await readFile(new URL(target.import, packageRoot));
     await readFile(new URL(target.types, packageRoot));
   }
-  for (const subpath of ['ui/button', 'ui/dialog', 'data/relations', 'records/output-dialog', 'records/use-detail-stack', 'inventory/explorer']) {
+  for (const subpath of ['primitives/button', 'primitives/dialog', 'model/relations', 'components/output-dialog', 'components/use-detail-stack', 'blocks/outputs-list', 'views/inventory']) {
     const target = manifest.exports[`./${subpath.split('/')[0]}/*`].import.replace('*', subpath.split('/')[1]);
     await readFile(new URL(target, packageRoot));
   }
-  const components = await import('../packages/react/dist/components.js');
-  const views = await import('../packages/react/dist/views.js');
-  for (const name of ['Button', 'Dialog', 'DetailDialog', 'ArtifactPreview', 'RecordDialog', 'useDetailStack', 'createInventoryIndex', 'PaperDialog']) {
-    assert.ok(['function', 'object'].includes(typeof components[name]) && components[name], `${name} is a components export`);
+  const layers = Object.fromEntries(await Promise.all(['primitives', 'components', 'blocks', 'views', 'model'].map(async (layer) => [layer, await import(`../packages/react/dist/${layer}/index.js`)])));
+  const expected = {
+    primitives: ['Button', 'Dialog', 'DetailDialog', 'RecordList', 'cn'],
+    components: ['ArtifactPreview', 'OutputDialog', 'OutputDetail', 'RecordDialog', 'useDetailStack'],
+    blocks: ['OutputsList', 'InventorySection', 'InventoryOutline', 'AnalysisTree'],
+    views: ['Inventory'],
+    model: ['createInventoryIndex', 'outputRelations', 'collectInventoryPapers'],
+  };
+  for (const [layer, names] of Object.entries(expected)) {
+    for (const name of names) assert.ok(['function', 'object'].includes(typeof layers[layer][name]) && layers[layer][name], `${name} is a ${layer} export`);
   }
-  for (const name of ['InventoryExplorer', 'AnalysisTree', 'OutputsInventory', 'InventorySection']) {
-    assert.ok(['function', 'object'].includes(typeof views[name]) && views[name], `${name} is a views export`);
-  }
-  assert.equal('InventoryExplorer' in components, false);
-  assert.equal('Dialog' in views, false);
+  assert.equal('Inventory' in layers.components, false);
+  assert.equal('Dialog' in layers.views, false);
 });
 
 test('the public export lists are explicit and stable', async () => {
   const snapshot = await parse(new URL('exports.snapshot.json', import.meta.url));
-  const components = Object.keys(await import('../packages/react/dist/components.js')).sort();
-  const views = Object.keys(await import('../packages/react/dist/views.js')).sort();
-  assert.deepEqual({ components, views }, snapshot, 'update tests/exports.snapshot.json deliberately when the public API changes');
+  const actual = {};
+  for (const layer of ['primitives', 'components', 'blocks', 'views', 'model']) {
+    actual[layer] = Object.keys(await import(`../packages/react/dist/${layer}/index.js`)).sort();
+  }
+  assert.deepEqual(actual, snapshot, 'update tests/exports.snapshot.json deliberately when the public API changes');
 });
 
-test('layers only depend downwards: ui <- data <- records <- inventory', async () => {
+test('layers only depend downwards: lib <- primitives <- model <- components <- blocks <- views', async () => {
   const rules = [
-    ['ui', /from '\.\.\/(data|records|inventory)\//],
-    ['data', /from '\.\.\/(ui|records|inventory|lib)\//],
-    ['records', /from '\.\.\/inventory\//],
+    ['lib', /from '\.\.\/(primitives|model|components|blocks|views)\//],
+    ['primitives', /from '\.\.\/(model|components|blocks|views)\//],
+    ['model', /from '\.\.\/(lib|primitives|components|blocks|views)\//],
+    ['components', /from '\.\.\/(blocks|views)\//],
+    ['blocks', /from '\.\.\/views\//],
   ];
   for (const [layer, forbidden] of rules) {
     const text = await sourceText(new URL(`${layer}/`, sourceDirectory));
@@ -142,15 +149,15 @@ test('styles are layered, scoped with :where, and free of theme or host selector
     assert.doesNotMatch(css, /^\s*\.astra-ui[\s.]/m, `${url.pathname} scopes with :where(.astra-ui)`);
     assert.doesNotMatch(css, /lightcone-brand|data-astra-theme|inventory-detail-dialog|astra-record-detail|astra-result-viewer/, `${url.pathname} has no legacy or theme selectors`);
   }
-  for (const bundle of ['ui.css', 'components.css', 'views.css', 'styles.css']) {
+  for (const bundle of ['primitives.css', 'components.css', 'blocks.css', 'views.css', 'styles.css']) {
     const css = await readFile(new URL(bundle, packageRoot), 'utf8');
     assert.match(css, /@import/, `${bundle} is an import bundle`);
   }
   // Within a layer, later sheets override earlier ones at equal specificity;
-  // ui.css follows the legacy source order (surface-header before dialog, ...).
-  const ui = await readFile(new URL('ui.css', packageRoot), 'utf8');
-  const imports = [...ui.matchAll(/@import "\.\/styles\/ui\/([a-z-]+)\.css"/g)].map(([, name]) => name);
-  assert.deepEqual(imports, ['kind', 'surface-header', 'badge', 'button', 'artifact-preview', 'dialog', 'detail-layout', 'relation-list', 'count-heading', 'record-list', 'empty-state'], 'ui.css import order is part of the cascade');
+  // primitives.css follows the legacy source order (surface-header before dialog, ...).
+  const primitives = await readFile(new URL('primitives.css', packageRoot), 'utf8');
+  const imports = [...primitives.matchAll(/@import "\.\/styles\/primitives\/([a-z-]+)\.css"/g)].map(([, name]) => name);
+  assert.deepEqual(imports, ['kind', 'surface-header', 'badge', 'button', 'dialog', 'detail-layout', 'relation-list', 'count-heading', 'record-list', 'empty-state'], 'primitives.css import order is part of the cascade');
 });
 
 test('every class the components emit has a rule, and every styled block is emitted', async () => {

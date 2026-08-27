@@ -9,9 +9,9 @@ import {
   DialogHeader,
   DialogProvider,
   useDialogDismissGuard,
-} from '../../packages/react/src/components.js';
-import { OutputDetail, useDetailStack } from '../../packages/react/src/components.js';
-import { InventoryExplorer } from '../../packages/react/src/views.js';
+} from '../../packages/react/src/primitives/index.js';
+import { OutputDetail, useDetailStack } from '../../packages/react/src/components/index.js';
+import { Inventory } from '../../packages/react/src/views/index.js';
 import { renderHook, act } from '@testing-library/react';
 import type { ResolvedAnalysisDocument, ResolvedOutput } from '@astra-spec/sdk';
 import { fixtureDocument as untypedFixture } from '../fixture.mjs';
@@ -147,10 +147,10 @@ describe('Dialog', () => {
   });
 });
 
-describe('InventoryExplorer detail stack', () => {
+describe('Inventory detail stack', () => {
   it('opens a record from the list, drills into a dependency, goes back, and closes', () => {
     const onDetailChange = vi.fn();
-    render(<InventoryExplorer document={fixtureDocument} onDetailChange={onDetailChange} />);
+    render(<Inventory document={fixtureDocument} onDetailChange={onDetailChange} />);
     fireEvent.click(screen.getByRole('button', { name: /Headline result/ }));
     expect(onDetailChange).toHaveBeenLastCalledWith([{ kind: 'record', canonicalPath: 'outputs.headline', analysisPath: '$' }]);
     expect(screen.getByRole('dialog', { hidden: true }).getAttribute('data-kind')).toBe('output');
@@ -187,11 +187,11 @@ describe('InventoryExplorer detail stack', () => {
 
   it('is controllable from the host', () => {
     const { rerender } = render(
-      <InventoryExplorer document={fixtureDocument} detail={[]} />,
+      <Inventory document={fixtureDocument} detail={[]} />,
     );
     expect(screen.queryByRole('dialog', { hidden: true })).toBeNull();
     rerender(
-      <InventoryExplorer
+      <Inventory
         document={fixtureDocument}
         detail={[{ kind: 'record', canonicalPath: 'inputs.catalog', analysisPath: '$' }]}
       />,

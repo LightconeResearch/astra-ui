@@ -30,12 +30,7 @@ for (const { name, dir, include } of consumers) {
       noEmit: true,
       baseUrl: dir,
       paths: {
-        '@lightcone-research/astra-ui/components': [join(dist, 'components.d.ts')],
-        '@lightcone-research/astra-ui/views': [join(dist, 'views.d.ts')],
-        '@lightcone-research/astra-ui/ui': [join(dist, 'ui/index.d.ts')],
-        '@lightcone-research/astra-ui/data': [join(dist, 'data/index.d.ts')],
-        '@lightcone-research/astra-ui/records': [join(dist, 'records/index.d.ts')],
-        '@lightcone-research/astra-ui/inventory': [join(dist, 'inventory/index.d.ts')],
+        ...Object.fromEntries(['primitives', 'components', 'blocks', 'views', 'model'].map((layer) => [`@lightcone-research/astra-ui/${layer}`, [join(dist, layer, 'index.d.ts')]])),
         '@lightcone-research/astra-ui/*': [join(dist, '*')],
       },
     },

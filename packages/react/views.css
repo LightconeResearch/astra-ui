@@ -1,8 +1,3 @@
-/* Everything: primitives, records, and the inventory views (inventory/). */
-@import "./components.css";
-@import "./styles/inventory/outputs.css";
-@import "./styles/inventory/explorer.css";
-@import "./styles/inventory/records.css";
-@import "./styles/inventory/papers.css";
-@import "./styles/inventory/analysis-tree.css";
-@import "./styles/inventory/decisions.css";
+/* Everything: blocks plus the full views. */
+@import "./blocks.css";
+@import "./styles/views/inventory.css";

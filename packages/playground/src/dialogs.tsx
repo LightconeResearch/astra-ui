@@ -1,19 +1,21 @@
 import type { ResolvedDecision, ResolvedInput, ResolvedInsight, ResolvedOutput } from '@astra-spec/sdk';
+import { DialogProvider } from '@lightcone-research/astra-ui/primitives';
 import {
   DecisionDialog,
-  DialogProvider,
   FindingDialog,
   InputDialog,
   InsightDialog,
   OutputDialog,
   PaperDialog,
+} from '@lightcone-research/astra-ui/components';
+import {
   collectInventoryPapers,
   createInventoryIndex,
   decisionInsights,
   findingEvidence,
   informedDecisions,
   outputRelations,
-} from '@lightcone-research/astra-ui/components';
+} from '@lightcone-research/astra-ui/model';
 import type { ReactNode } from 'react';
 import { byPath } from './derive';
 import { analysisDocument, paperMetadata, renderArtifact, renderPaper } from './host';

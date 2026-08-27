@@ -1,5 +1,6 @@
 import type { Story } from '@ladle/react';
-import { InventoryExplorer, AnalysisTree } from '@lightcone-research/astra-ui/views';
+import { AnalysisTree } from '@lightcone-research/astra-ui/blocks';
+import { Inventory } from '@lightcone-research/astra-ui/views';
 import { useState } from 'react';
 import { analysisDocument, paperMetadata, renderArtifact, renderPaper } from './host';
 
@@ -8,7 +9,7 @@ export default { title: 'Explorer' };
 const noop = () => undefined;
 
 export const Root: Story = () => (
-  <InventoryExplorer
+  <Inventory
     document={analysisDocument}
     renderArtifact={renderArtifact}
     renderPaper={renderPaper}
@@ -18,15 +19,15 @@ export const Root: Story = () => (
 );
 
 export const Clustering: Story = () => (
-  <InventoryExplorer document={analysisDocument} analysisPath="clustering" renderArtifact={renderArtifact} />
+  <Inventory document={analysisDocument} analysisPath="clustering" renderArtifact={renderArtifact} />
 );
 
 export const Reconstruction: Story = () => (
-  <InventoryExplorer document={analysisDocument} analysisPath="reconstruction" renderArtifact={renderArtifact} />
+  <Inventory document={analysisDocument} analysisPath="reconstruction" renderArtifact={renderArtifact} />
 );
 
 export const EmbeddedDetail: Story = () => (
-  <InventoryExplorer
+  <Inventory
     document={analysisDocument}
     detailMode="embedded"
     renderArtifact={renderArtifact}

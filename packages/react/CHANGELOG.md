@@ -9,18 +9,20 @@ the token contract are new.
 
 ### Package layout
 
-- No root entry. Import `./ui`, `./data`, `./records`, `./components`
-  (= ui + data + records), `./views` (= `./inventory`), or any single file
-  (`./records/output-dialog`, `./ui/dialog`, ...).
-- Stylesheets: `ui.css` ⊂ `components.css` ⊂ `views.css` = `styles.css`, or
-  per-component sheets under `styles/`. `inventory.css` is gone.
+- No root entry. Import `./primitives`, `./components`, `./blocks`,
+  `./views`, `./model`, or any single file (`./components/output-dialog`,
+  `./primitives/dialog`, ...).
+- Stylesheets: `primitives.css` ⊂ `components.css` ⊂ `blocks.css` ⊂
+  `views.css` = `styles.css`, or per-component sheets under `styles/`.
+  `ui.css` and `inventory.css` are gone.
 - `src` ships with the package; declaration maps resolve to it.
 
 ### Migration from 0.2.0
 
 | 0.2.0 | 0.3.0 |
 | --- | --- |
-| `import … from '@lightcone-research/astra-ui'` | import a layer: `/components` or `/views` |
+| `import … from '@lightcone-research/astra-ui'` | import a layer: `/primitives`, `/components`, `/blocks`, `/views`, `/model` |
+| `/components` (primitives + dialogs), `/views` (lists + explorer) | primitives → `/primitives`; dialogs → `/components`; lists, sections, tree → `/blocks`; the page → `/views`; derivations → `/model` |
 | `InventoryDetailDialog`, `InventoryDetailSurface`, `InventoryDetailPresentation` | `DetailDialog` (preset) or the `Dialog` compound; `DialogProvider` for mode/back text |
 | `eyebrow="Decision · Analysis"` | `kindLabel="Decision"` (no more string parsing) |
 | `analysis` prop on every dialog | dropped; dialogs take the record and its derived data only |
@@ -32,10 +34,12 @@ the token contract are new.
 | `InventoryRelationList` (className replaced the default) | `RelationList` (className merges; pass `astra-detail__relations` yourself) |
 | `InventoryDetailLayout { className: '…--single' }`, `InventoryDetailMain`, `InventoryDetailRail`, `InventoryDetailProse`, `InventoryCountHeading` | `DetailLayout { layout: 'single' }`, `DetailMain`, `DetailRail`, `DetailSection { heading: 'section' }`, `CountHeading` |
 | `InventoryProse`, `TextRenderer = (text) => …` | `Prose`, `TextRenderer = (text, { field }) => …` |
-| `OverviewInventory` | `AnalysisTree` |
+| `OverviewInventory` | `AnalysisTree` (in `/blocks`) |
+| `OutputsInventory`, `DecisionsInventory`, `InputsInventory`, `FindingsInventory`, `PriorInsightsInventory`, `PapersInventory` | `OutputsList`, `DecisionsList`, `InputsList`, `FindingsList`, `PriorInsightsList`, `PapersList` |
+| `InventoryExplorer` | `Inventory` |
 | `collectInventoryPapers(document, index, …)` | unchanged; `index` may be an `InventoryIndex` |
 | private `InventoryRecordDetail`, relation/evidence derivations | `RecordDialog`, `outputRelations`, `findingEvidence`, `decisionInsights`, `informedDecisions`, `locateRecord`, `createInventoryIndex` |
-| local dialog stack in `InventoryExplorer` | `useDetailStack`; `InventoryExplorer { detail, defaultDetail, onDetailChange }` |
+| local dialog stack in `InventoryExplorer` | `useDetailStack`; `Inventory { detail, defaultDetail, onDetailChange }` |
 | `inventory-*` class names | `astra-*` blocks with `data-*` variants; see the styling contract in the README |
 | `--astra-ink`, `--astra-rule`, `--astra-label`, … (brand raw names) | `--astra-color-text`, `--astra-color-border`, `--astra-font-ui`, … (see TOKENS.md) |
 | tokens supplied only by `@lightcone-research/lightcone-brand` | every token has a default in `styles/tokens.css`; the brand is an optional override |
@@ -48,10 +52,10 @@ the token contract are new.
   native `close()`, and focus returns to the element that opened the dialog.
 - `RecordDialog` keeps one dialog element mounted across drill-downs and
   renders `fallback` inside the shell when an entry stops resolving;
-  `InventoryExplorer` prunes such entries from the stack.
+  `Inventory` prunes such entries from the stack.
 - Controlled state everywhere it existed locally: detail stack, decision tag
   filter, output full-screen.
-- `InventoryExplorer { sections, idPrefix, showOutline, labels, index }`,
+- `Inventory { sections, idPrefix, showOutline, labels, index }`,
   `InventorySection`, `InventoryOutline`, `InventoryRecords`.
 - `ArtifactPreviewData` gains `{ kind: 'loading' }`; `InventoryPaperMetadata`
   gains `status` / `error`.

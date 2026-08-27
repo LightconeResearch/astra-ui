@@ -1,8 +1,0 @@
-/* analysis-tree — emitted by src/inventory/analysis-tree.tsx */
-@layer astra.tokens, astra.base, astra.components, astra.views;
-@layer astra.views {
-  :where(.astra-ui) .astra-analysis-tree {
-    overflow: visible;
-  }
-
-}

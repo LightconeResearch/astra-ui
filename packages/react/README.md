@@ -4,20 +4,20 @@ Composable, themable React components for `ResolvedAnalysisDocument` from
 `@astra-spec/sdk`.
 
 ```tsx
-import { InventoryExplorer } from '@lightcone-research/astra-ui/views';
+import { Inventory } from '@lightcone-research/astra-ui/views';
 import '@lightcone-research/astra-ui/styles.css';
 
 <div className="astra-ui">
-  <InventoryExplorer document={bundle.document} renderArtifact={renderArtifact} />
+  <Inventory document={bundle.document} renderArtifact={renderArtifact} />
 </div>
 ```
 
-Entry points: `./ui` (primitives), `./data` (pure derivations), `./records`
-(record details and dialogs), `./components` (all three), `./views` (inventory
-views and the composed explorer), plus every file individually
-(`./records/output-dialog`, `./ui/button`, ...). Stylesheets: `ui.css`,
-`components.css`, `views.css` (= `styles.css`), or one sheet per component
-under `styles/`.
+Entry points: `./primitives` (generic UI), `./components` (one record or
+paper at a time: dialogs and detail bodies), `./blocks` (sections of the
+inventory page), `./views` (full surfaces), `./model` (pure derivations), plus
+every file individually (`./components/output-dialog`, `./primitives/button`,
+...). Stylesheets: `primitives.css` ⊂ `components.css` ⊂ `blocks.css` ⊂
+`views.css` (= `styles.css`), or one sheet per component under `styles/`.
 
 The package owns presentation only. The host resolves ASTRA with the SDK and
 owns files, artifact bytes and URLs, cache invalidation, paper fetching, and

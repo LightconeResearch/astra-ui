@@ -1,7 +1,7 @@
 import type { Story } from '@ladle/react';
 import type { ResolvedOutput } from '@astra-spec/sdk';
+import { ArtifactPreview } from '@lightcone-research/astra-ui/components';
 import {
-  ArtifactPreview,
   Badge,
   Button,
   IconButton,
@@ -11,7 +11,7 @@ import {
   RecordList,
   RelationList,
   SurfaceHeader,
-} from '@lightcone-research/astra-ui/components';
+} from '@lightcone-research/astra-ui/primitives';
 import { byPath } from './derive';
 import { artifacts, analysisDocument } from './host';
 

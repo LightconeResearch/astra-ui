@@ -1,5 +1,5 @@
 import type { ResolvedAnalysisDocument, ResolvedRecord } from '@astra-spec/sdk';
-import { createInventoryIndex } from '@lightcone-research/astra-ui/data';
+import { createInventoryIndex } from '@lightcone-research/astra-ui/model';
 
 /** Fetches a fixture record by canonical path, failing loudly when the fixture drifts. */
 export function byPath<T extends ResolvedRecord>(document: ResolvedAnalysisDocument, canonicalPath: string): T {

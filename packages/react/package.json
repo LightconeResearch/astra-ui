@@ -25,60 +25,61 @@
   ],
   "style": "./styles.css",
   "exports": {
+    "./primitives": {
+      "types": "./dist/primitives/index.d.ts",
+      "import": "./dist/primitives/index.js",
+      "default": "./dist/primitives/index.js"
+    },
+    "./primitives/*": {
+      "types": "./dist/primitives/*.d.ts",
+      "import": "./dist/primitives/*.js",
+      "default": "./dist/primitives/*.js"
+    },
     "./components": {
-      "types": "./dist/components.d.ts",
-      "import": "./dist/components.js",
-      "default": "./dist/components.js"
+      "types": "./dist/components/index.d.ts",
+      "import": "./dist/components/index.js",
+      "default": "./dist/components/index.js"
+    },
+    "./components/*": {
+      "types": "./dist/components/*.d.ts",
+      "import": "./dist/components/*.js",
+      "default": "./dist/components/*.js"
+    },
+    "./blocks": {
+      "types": "./dist/blocks/index.d.ts",
+      "import": "./dist/blocks/index.js",
+      "default": "./dist/blocks/index.js"
+    },
+    "./blocks/*": {
+      "types": "./dist/blocks/*.d.ts",
+      "import": "./dist/blocks/*.js",
+      "default": "./dist/blocks/*.js"
     },
     "./views": {
-      "types": "./dist/views.d.ts",
-      "import": "./dist/views.js",
-      "default": "./dist/views.js"
+      "types": "./dist/views/index.d.ts",
+      "import": "./dist/views/index.js",
+      "default": "./dist/views/index.js"
     },
-    "./ui": {
-      "types": "./dist/ui/index.d.ts",
-      "import": "./dist/ui/index.js",
-      "default": "./dist/ui/index.js"
+    "./views/*": {
+      "types": "./dist/views/*.d.ts",
+      "import": "./dist/views/*.js",
+      "default": "./dist/views/*.js"
     },
-    "./ui/*": {
-      "types": "./dist/ui/*.d.ts",
-      "import": "./dist/ui/*.js",
-      "default": "./dist/ui/*.js"
+    "./model": {
+      "types": "./dist/model/index.d.ts",
+      "import": "./dist/model/index.js",
+      "default": "./dist/model/index.js"
     },
-    "./data": {
-      "types": "./dist/data/index.d.ts",
-      "import": "./dist/data/index.js",
-      "default": "./dist/data/index.js"
-    },
-    "./data/*": {
-      "types": "./dist/data/*.d.ts",
-      "import": "./dist/data/*.js",
-      "default": "./dist/data/*.js"
-    },
-    "./records": {
-      "types": "./dist/records/index.d.ts",
-      "import": "./dist/records/index.js",
-      "default": "./dist/records/index.js"
-    },
-    "./records/*": {
-      "types": "./dist/records/*.d.ts",
-      "import": "./dist/records/*.js",
-      "default": "./dist/records/*.js"
-    },
-    "./inventory": {
-      "types": "./dist/inventory/index.d.ts",
-      "import": "./dist/inventory/index.js",
-      "default": "./dist/inventory/index.js"
-    },
-    "./inventory/*": {
-      "types": "./dist/inventory/*.d.ts",
-      "import": "./dist/inventory/*.js",
-      "default": "./dist/inventory/*.js"
+    "./model/*": {
+      "types": "./dist/model/*.d.ts",
+      "import": "./dist/model/*.js",
+      "default": "./dist/model/*.js"
     },
     "./styles.css": "./styles.css",
     "./views.css": "./views.css",
+    "./blocks.css": "./blocks.css",
     "./components.css": "./components.css",
-    "./ui.css": "./ui.css",
+    "./primitives.css": "./primitives.css",
     "./styles/*": "./styles/*",
     "./package.json": "./package.json"
   },
@@ -88,11 +89,12 @@
     "styles",
     "styles.css",
     "views.css",
+    "blocks.css",
     "components.css",
-    "ui.css",
+    "primitives.css",
     "README.md",
-    "TOKENS.md",
     "CHANGELOG.md",
+    "TOKENS.md",
     "LICENSE"
   ],
   "scripts": {

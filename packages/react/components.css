@@ -1,12 +1,13 @@
-/* Primitives plus the record details and dialogs (records/). */
-@import "./ui.css";
-@import "./styles/records/paper-detail.css";
-@import "./styles/records/evidence.css";
-@import "./styles/records/insight-trigger.css";
-@import "./styles/records/decision-detail.css";
-@import "./styles/records/insight-detail.css";
-@import "./styles/records/input-detail.css";
-@import "./styles/records/insight-list.css";
-@import "./styles/records/paper-doi.css";
-@import "./styles/records/finding-detail.css";
-@import "./styles/records/output-detail.css";
+/* Primitives plus the ASTRA-aware components (details and dialogs). */
+@import "./primitives.css";
+@import "./styles/components/artifact-preview.css";
+@import "./styles/components/paper-detail.css";
+@import "./styles/components/evidence.css";
+@import "./styles/components/insight-trigger.css";
+@import "./styles/components/decision-detail.css";
+@import "./styles/components/insight-detail.css";
+@import "./styles/components/input-detail.css";
+@import "./styles/components/insight-list.css";
+@import "./styles/components/paper-doi.css";
+@import "./styles/components/finding-detail.css";
+@import "./styles/components/output-detail.css";

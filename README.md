@@ -28,18 +28,24 @@ Peers: `@astra-spec/sdk@^0.0.8`, React 18 or 19.
 The package has no root entry; import the layer you need. Each layer only
 depends on the ones below it, and every file is also importable on its own.
 
-| Entry | Contents | Stylesheet |
+| Entry | What you import from it | Stylesheet |
 | --- | --- | --- |
-| `./ui` | Presentation primitives: `Button`, `Badge`, `SurfaceHeader`, `Dialog` compound, `RecordList`, `RelationList`, `DetailLayout`, `ArtifactPreview`, `Prose`, `cn`, `Slot`, labels | `ui.css` |
-| `./data` | Pure derivations over the SDK model: `createInventoryIndex`, `locateRecord`, `outputRelations`, `findingEvidence`, `decisionInsights`, `informedDecisions`, `collectInventoryPapers`, `doiHref` | — |
-| `./records` | One `*Detail` body and one `*Dialog` per record kind, `RecordDialog` (kind router), `useDetailStack`, `InsightTrigger` | — |
-| `./components` | `ui` + `data` + `records` | `components.css` |
-| `./views` / `./inventory` | Per-kind inventories, `InventorySection`, `InventoryOutline`, `AnalysisTree`, `InventoryExplorer` | `views.css` |
-| `./ui/*`, `./data/*`, `./records/*`, `./inventory/*` | Individual files, e.g. `@lightcone-research/astra-ui/records/output-dialog` | `styles/<layer>/<name>.css` |
+| `./primitives` | Generic UI with no ASTRA knowledge: `Button`, `Badge`, `SurfaceHeader`, the `Dialog` compound, `RecordList`, `RelationList`, `DetailLayout`, `Prose`, `cn`, `Slot`, labels | `primitives.css` |
+| `./components` | One thing at a time: `OutputDialog` / `OutputDetail`, `DecisionDialog` / `DecisionDetail`, … for every record kind and for papers; `ArtifactPreview`; `InsightTrigger`; `RecordDialog` (any record); `useDetailStack` | `components.css` |
+| `./blocks` | Sections of the inventory page: `OutputsList`, `DecisionsList`, `InputsList`, `FindingsList`, `PriorInsightsList`, `PapersList`, `InventorySection`, `InventoryOutline`, `AnalysisTree` | `blocks.css` |
+| `./views` | Ready-made full surfaces: `Inventory` | `views.css` |
+| `./model` | Pure derivations over the SDK model, for hosts composing their own views: `createInventoryIndex`, `locateRecord`, `outputRelations`, `findingEvidence`, `decisionInsights`, `informedDecisions`, `collectInventoryPapers`, `doiHref` | — |
+| `./<layer>/<file>` | Individual files, e.g. `@lightcone-research/astra-ui/components/output-dialog` | `styles/<layer>/<file>.css` |
 
-`styles.css` is an alias of `views.css`. Import exactly one bundle (they nest),
-or the per-component sheets you need on top of `styles/tokens.css` and
-`styles/base.css`.
+`styles.css` is an alias of `views.css`; the bundles nest
+(`primitives.css` ⊂ `components.css` ⊂ `blocks.css` ⊂ `views.css`), so import
+exactly one, or the per-component sheets you need on top of
+`styles/tokens.css` and `styles/base.css`.
+
+**Vocabulary.** A *record* is anything an ASTRA analysis declares — an input,
+output, decision, finding or prior insight (the SDK's `ResolvedRecord`);
+`RecordDialog`, `RecordList` and `onOpenRecord` are generic over those kinds.
+The *inventory* is the page that lists every record of an analysis.
 
 ## Resolve once, then render
 
@@ -47,7 +53,7 @@ or the per-component sheets you need on top of `styles/tokens.css` and
 import { resolveAnalysis } from '@astra-spec/sdk';
 import { createNodeProjectReader } from '@astra-spec/sdk/node';
 import { ArtifactPreview, type ArtifactRenderer } from '@lightcone-research/astra-ui/components';
-import { InventoryExplorer } from '@lightcone-research/astra-ui/views';
+import { Inventory } from '@lightcone-research/astra-ui/views';
 import '@lightcone-research/astra-ui/styles.css';
 
 const bundle = await resolveAnalysis(createNodeProjectReader(projectRoot), { universeId: 'baseline' });
@@ -63,7 +69,7 @@ const renderArtifact: ArtifactRenderer = (output, { compact }) => {
 export function AnalysisView() {
   return (
     <div className="astra-ui">
-      <InventoryExplorer
+      <Inventory
         document={bundle.document}
         renderArtifact={renderArtifact}
         onOpenArtifact={(output) => openArtifact(bindings.get(output.canonicalPath))}
@@ -91,22 +97,21 @@ style scope.
 
 ### Compose your own surface
 
-`InventoryExplorer` is a ~100-line composition of exported parts. A host that
-owns navigation (a router, a JupyterLab command, a MyST link) uses the same
-parts directly:
+`Inventory` is a ~100-line composition of exported blocks and components. A
+host that owns navigation (a router, a JupyterLab command, a MyST link) uses
+the same parts directly:
 
 ```tsx
-import {
-  RecordDialog, createInventoryIndex, useDetailStack,
-} from '@lightcone-research/astra-ui/components';
-import { OutputsInventory } from '@lightcone-research/astra-ui/views';
+import { RecordDialog, useDetailStack } from '@lightcone-research/astra-ui/components';
+import { OutputsList } from '@lightcone-research/astra-ui/blocks';
+import { createInventoryIndex } from '@lightcone-research/astra-ui/model';
 
 function OutputsPage({ document, detail, onDetailChange }) {
   const index = useMemo(() => createInventoryIndex(document), [document]);
   const stack = useDetailStack({ value: detail, onChange: onDetailChange });
   return (
     <>
-      <OutputsInventory analysis={document.analysis} onOpenRecord={stack.openRecord} />
+      <OutputsList analysis={document.analysis} onOpenRecord={stack.openRecord} />
       {stack.active ? (
         <RecordDialog
           entry={stack.active}
@@ -122,7 +127,7 @@ function OutputsPage({ document, detail, onDetailChange }) {
 }
 ```
 
-`InventoryExplorer` itself accepts `detail` / `onDetailChange` (controlled
+`Inventory` itself accepts `detail` / `onDetailChange` (controlled
 stack), `sections`, `idPrefix`, `showOutline`, `detailMode="embedded"`, and an
 `index` you already built.
 
@@ -160,8 +165,10 @@ Styling hooks for hosts:
   variants are data attributes (`data-kind`, `data-mode`, `data-layout`,
   `data-density`, `data-variant`, `data-selected`, `data-expanded`).
 - All rules live in `@layer astra.tokens, astra.base, astra.components,
-  astra.views` and are scoped with `:where(.astra-ui)`, so unlayered host CSS
-  overrides any component rule at any specificity. Standalone variant
+  astra.views` (the cascade layers are coarser than the folders: primitives and
+  components share `astra.components`, blocks and views share `astra.views`)
+  and are scoped with `:where(.astra-ui)`, so unlayered host CSS overrides any
+  component rule at any specificity. Standalone variant
   selectors (`.astra-dialog:where([data-mode="embedded"])`) add no
   specificity, like the modifier classes they replace.
 - `[data-kind="decision"]` on any element sets `--astra-kind`,

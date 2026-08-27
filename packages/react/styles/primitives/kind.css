@@ -1,0 +1,41 @@
+/* kind — emitted by src/primitives/kind.ts */
+/* Record-kind colour hook. Any element under the scope opts in with data-kind. */
+@layer astra.tokens, astra.base, astra.components, astra.views;
+@layer astra.components {
+  :where(.astra-ui) [data-kind="analysis"] {
+    --astra-kind: var(--astra-color-kind-analysis);
+    --astra-kind-ink: var(--astra-color-kind-analysis);
+    --astra-kind-soft: var(--astra-color-kind-analysis-soft);
+  }
+
+  :where(.astra-ui) [data-kind="input"] {
+    --astra-kind: var(--astra-color-kind-input);
+    --astra-kind-ink: var(--astra-color-kind-input);
+    --astra-kind-soft: var(--astra-color-kind-input-soft);
+  }
+
+  :where(.astra-ui) [data-kind="decision"] {
+    --astra-kind: var(--astra-color-kind-decision);
+    --astra-kind-ink: var(--astra-color-kind-decision-ink);
+    --astra-kind-soft: var(--astra-color-kind-decision-soft);
+  }
+
+  :where(.astra-ui) [data-kind="output"] {
+    --astra-kind: var(--astra-color-kind-output);
+    --astra-kind-ink: var(--astra-color-kind-output);
+    --astra-kind-soft: var(--astra-color-kind-output-soft);
+  }
+
+  :where(.astra-ui) [data-kind="finding"] {
+    --astra-kind: var(--astra-color-kind-finding);
+    --astra-kind-ink: var(--astra-color-kind-finding);
+    --astra-kind-soft: var(--astra-color-kind-finding-soft);
+  }
+
+  :where(.astra-ui) [data-kind="prior_insight"],
+  :where(.astra-ui) [data-kind="paper"] {
+    --astra-kind: var(--astra-color-kind-insight);
+    --astra-kind-ink: var(--astra-color-kind-insight-ink);
+    --astra-kind-soft: var(--astra-color-kind-insight-soft);
+  }
+}
