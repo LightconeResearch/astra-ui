@@ -67,7 +67,7 @@ export const Artifacts: Story = () => {
   const data = byPath<ResolvedOutput>(analysisDocument, 'outputs.xi_pre_recon_bgs');
   return (
     <div className="playground-stack playground-frame">
-      <ArtifactPreview output={figure} preview={{ kind: 'image', url: artifacts[figure.canonicalPath].url }} />
+      <ArtifactPreview output={figure} preview={{ kind: 'image', url: artifacts[figure.canonicalPath]?.url ?? '' }} />
       <ArtifactPreview
         output={table}
         preview={{ kind: 'table', headers: ['tracer', 'z_eff', 'DM/rd', 'DH/rd'], rows: [['BGS', 0.295, '—', '—'], ['LRG1', 0.51, 13.62, 20.98]] }}

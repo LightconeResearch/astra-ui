@@ -22,6 +22,11 @@ const noop = () => undefined;
 const analysis = analysisDocument.analysis;
 const index = createInventoryIndex(analysisDocument);
 const papers = collectInventoryPapers(analysisDocument, index, analysis, paperMetadata);
+function paper(position: number) {
+  const found = papers[position];
+  if (!found) throw new Error(`Fixture has no paper at position ${position}`);
+  return found;
+}
 
 function output(path: string) {
   const record = byPath<ResolvedOutput>(analysisDocument, path);
@@ -37,7 +42,7 @@ function output(path: string) {
   );
 }
 
-const stories: Record<string, () => ReactNode> = {
+const stories = {
   OutputFigure: () => output('outputs.bao_fit_plot'),
   OutputTable: () => output('outputs.bao_distance_table'),
   OutputData: () => output('outputs.xi_pre_recon_bgs'),
@@ -69,10 +74,10 @@ const stories: Record<string, () => ReactNode> = {
     );
   },
   Paper: () => (
-    <PaperDialog record={papers[0]} renderPaper={renderPaper} onFetchPaper={noop} onOpenInsight={noop} onOpenDecision={noop} onClose={noop} />
+    <PaperDialog record={paper(0)} renderPaper={renderPaper} onFetchPaper={noop} onOpenInsight={noop} onOpenDecision={noop} onClose={noop} />
   ),
   PaperWithoutContent: () => (
-    <PaperDialog record={{ ...papers[1], pdfUrl: undefined }} onFetchPaper={noop} onOpenInsight={noop} onOpenDecision={noop} onClose={noop} />
+    <PaperDialog record={{ ...paper(1), pdfUrl: undefined }} onFetchPaper={noop} onOpenInsight={noop} onOpenDecision={noop} onClose={noop} />
   ),
   WithBackTrail: () => {
     const record = byPath<ResolvedDecision>(analysisDocument, 'decisions.broadband');
@@ -88,6 +93,6 @@ const stories: Record<string, () => ReactNode> = {
       </DialogProvider>
     );
   },
-};
+} satisfies Record<string, () => ReactNode>;
 
 export const dialogStories = stories;

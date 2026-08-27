@@ -1,0 +1,74 @@
+# Changelog
+
+## 0.3.0
+
+Rebuilt as a layered, themable component library. Rendering is unchanged:
+every surface is pixel-identical to 0.2.0 (verified with 62 light/dark
+screenshots of the playground stories), but the API, the class names, and
+the token contract are new.
+
+### Package layout
+
+- No root entry. Import `./ui`, `./data`, `./records`, `./components`
+  (= ui + data + records), `./views` (= `./inventory`), or any single file
+  (`./records/output-dialog`, `./ui/dialog`, ...).
+- Stylesheets: `ui.css` ⊂ `components.css` ⊂ `views.css` = `styles.css`, or
+  per-component sheets under `styles/`. `inventory.css` is gone.
+- `src` ships with the package; declaration maps resolve to it.
+
+### Migration from 0.2.0
+
+| 0.2.0 | 0.3.0 |
+| --- | --- |
+| `import … from '@lightcone-research/astra-ui'` | import a layer: `/components` or `/views` |
+| `InventoryDetailDialog`, `InventoryDetailSurface`, `InventoryDetailPresentation` | `DetailDialog` (preset) or the `Dialog` compound; `DialogProvider` for mode/back text |
+| `eyebrow="Decision · Analysis"` | `kindLabel="Decision"` (no more string parsing) |
+| `analysis` prop on every dialog | dropped; dialogs take the record and its derived data only |
+| `OutputDialog { output }`, `InsightDetailDialog { insight }`, `PaperDialog { paper }` | every dialog and detail takes `record` |
+| `InsightDetailDialog`, `InsightDetailTrigger` | `InsightDialog`, `InsightTrigger` |
+| `onOpenDependency`, `onOpenEvidence` | `onOpenRecord(record, analysis)` |
+| `onOpenOutput`, `onOpenDecision`, … on inventories | `onOpenRecord` |
+| `InventoryRecordList { ariaLabel }`, `InventoryRecordIdentity`, `InventoryEmptyState` | `RecordList { label }`, `RecordIdentity`, `EmptyState` |
+| `InventoryRelationList` (className replaced the default) | `RelationList` (className merges; pass `astra-detail__relations` yourself) |
+| `InventoryDetailLayout { className: '…--single' }`, `InventoryDetailMain`, `InventoryDetailRail`, `InventoryDetailProse`, `InventoryCountHeading` | `DetailLayout { layout: 'single' }`, `DetailMain`, `DetailRail`, `DetailSection { heading: 'section' }`, `CountHeading` |
+| `InventoryProse`, `TextRenderer = (text) => …` | `Prose`, `TextRenderer = (text, { field }) => …` |
+| `OverviewInventory` | `AnalysisTree` |
+| `collectInventoryPapers(document, index, …)` | unchanged; `index` may be an `InventoryIndex` |
+| private `InventoryRecordDetail`, relation/evidence derivations | `RecordDialog`, `outputRelations`, `findingEvidence`, `decisionInsights`, `informedDecisions`, `locateRecord`, `createInventoryIndex` |
+| local dialog stack in `InventoryExplorer` | `useDetailStack`; `InventoryExplorer { detail, defaultDetail, onDetailChange }` |
+| `inventory-*` class names | `astra-*` blocks with `data-*` variants; see the styling contract in the README |
+| `--astra-ink`, `--astra-rule`, `--astra-label`, … (brand raw names) | `--astra-color-text`, `--astra-color-border`, `--astra-font-ui`, … (see TOKENS.md) |
+| tokens supplied only by `@lightcone-research/lightcone-brand` | every token has a default in `styles/tokens.css`; the brand is an optional override |
+
+### Added
+
+- `Dialog` compound with a native `<dialog>`, `useDialogDismissGuard`, and a
+  dismissal guard so a nested full-screen artifact no longer closes the whole
+  dialog on Escape.
+- `RecordDialog` keeps one dialog element mounted across drill-downs, so focus
+  returns to the opener when the stack closes.
+- Controlled state everywhere it existed locally: detail stack, decision tag
+  filter, output full-screen.
+- `InventoryExplorer { sections, idPrefix, showOutline, labels, index }`,
+  `InventorySection`, `InventoryOutline`, `InventoryRecords`.
+- `ArtifactPreviewData` gains `{ kind: 'loading' }`; `InventoryPaperMetadata`
+  gains `status` / `error`.
+- Pure preview builders: `tablePreviewFromDelimited`, `tablePreviewFromRows`,
+  `metricPreviewFromJson`.
+- `Button { asChild }`, `Slot`, `cn`, `LabelsProvider` / `useLabels`.
+- Every component: `className` merge, ref forwarding, rest-prop spread,
+  `data-slot`.
+- Print and reduced-motion rules; `color-scheme` follows the palette.
+
+### Removed
+
+- The generation-layered stylesheets and every dead selector; the duplicated
+  kind-colour map (now one `[data-kind]` rule).
+- `@lightcone-research/lightcone-brand` no longer needs to ship a reset or
+  focus ring; `styles/base.css` owns root paint, box model, focus, motion and
+  print.
+
+## 0.2.0
+
+Consumed resolved analyses directly; removed the `./core` entry and the
+view-model, session, and PDF runtime layers.
