@@ -32,6 +32,8 @@ mkdirSync(outDir, { recursive: true });
 const server = spawn('npx', ['ladle', 'serve', '--port', String(port)], {
   cwd: join(here, '..'),
   stdio: ['ignore', 'pipe', 'pipe'],
+  // npx is a .cmd shim on Windows, which only a shell can start.
+  shell: process.platform === 'win32',
 });
 server.stderr.on('data', (chunk) => process.stderr.write(chunk));
 

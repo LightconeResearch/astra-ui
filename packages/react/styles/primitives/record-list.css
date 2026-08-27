@@ -295,7 +295,10 @@
     }
 
   }
+  /* The list is its own query container: rows collapse on the list's own
+     width, wherever the list is mounted. */
   :where(.astra-ui) .astra-record-list {
+    container-type: inline-size;
     border-top: 0;
   }
 

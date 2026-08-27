@@ -165,6 +165,66 @@ test('styles are layered, scoped with :where, and free of theme or host selector
   assert.deepEqual(imports, ['kind', 'surface-header', 'badge', 'button', 'dialog', 'detail-layout', 'relation-list', 'count-heading', 'record-list', 'empty-state', 'prose'], 'primitives.css import order is part of the cascade');
 });
 
+// Innermost `selector { declarations }` pairs anywhere in a sheet, including
+// inside @layer, @media, and @container blocks.
+const rules = (css) => [...css.matchAll(/([^{};]+)\{([^{}]*)\}/g)].map(([, selector, declarations]) => [selector.trim(), declarations]);
+
+// The body of every `@container ... { ... }` block in a sheet.
+function containerBlocks(css) {
+  const blocks = [];
+  for (const match of css.matchAll(/@container[^{]*\{/g)) {
+    const start = match.index + match[0].length;
+    let depth = 1;
+    let index = start;
+    while (depth && index < css.length) {
+      if (css[index] === '{') depth += 1;
+      else if (css[index] === '}') depth -= 1;
+      index += 1;
+    }
+    blocks.push(css.slice(start, index - 1));
+  }
+  return blocks;
+}
+
+// The `astra-*` class of a selector's subject (its last compound), if any.
+const subjectClass = (selector) => selector.split(/\s*[>+~]\s*|\s+/).filter(Boolean).at(-1)?.match(/\.(astra-[a-z0-9_-]+)/)?.[1];
+
+test('every sheet that queries @container has a query container in the block that owns the rules', async () => {
+  const sheets = new Map();
+  for (const url of await filesUnder(stylesDirectory, /\.css$/)) {
+    sheets.set(url.pathname.slice(stylesDirectory.pathname.length), stripComments(await readFile(url, 'utf8')));
+  }
+  const containersOf = (css) => new Set(rules(css)
+    .filter(([, declarations]) => /container-type\s*:\s*inline-size/.test(declarations))
+    .map(([selector]) => subjectClass(selector)));
+  // Sheets whose @container rules style descendants of a container another
+  // sheet declares; every one of their queried selectors must name that class.
+  const delegated = {
+    'blocks/decisions-list.css': ['blocks/records.css', 'astra-inventory-records'],
+    'components/output-detail.css': ['primitives/dialog.css', 'astra-dialog'],
+    'components/paper-detail.css': ['primitives/dialog.css', 'astra-dialog'],
+  };
+  const queried = [];
+  for (const [sheet, css] of sheets) {
+    const blocks = containerBlocks(css);
+    if (!blocks.length) continue;
+    queried.push(sheet);
+    const [owner, containerClass] = delegated[sheet] ?? [sheet];
+    const containers = containersOf(sheets.get(owner));
+    assert.ok(containers.size, `${sheet} uses @container, so ${owner} must declare container-type: inline-size on the block's root class: a block mounted on its own (outside <Inventory>) has no ancestor container and its rows would never collapse`);
+    if (containerClass) assert.ok(containers.has(containerClass), `${owner} declares .${containerClass} as the container that ${sheet} queries`);
+    for (const selector of blocks.flatMap((block) => rules(block).flatMap(([list]) => list.split(',').map((one) => one.trim())))) {
+      if (containerClass) assert.ok(selector.includes(`.${containerClass}`), `${sheet}: "${selector}" is scoped under .${containerClass}, the container it queries`);
+      assert.ok(!containers.has(subjectClass(selector)), `${sheet}: "${selector}" styles the container itself; a container query only ever matches descendants`);
+    }
+  }
+  assert.deepEqual(queried.sort(), [
+    'blocks/decisions-list.css', 'blocks/outputs-list.css', 'blocks/papers-list.css', 'blocks/records.css',
+    'components/output-detail.css', 'components/paper-detail.css',
+    'primitives/dialog.css', 'primitives/record-list.css', 'views/inventory.css',
+  ], 'the sheets that use @container (extend the list, and this test, deliberately)');
+});
+
 test('every class the components emit has a rule, and every styled block is emitted', async () => {
   const source = await sourceText();
   const css = await stylesText();

@@ -6,9 +6,12 @@
 //
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const here = resolve(new URL('..', import.meta.url).pathname);
+const here = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+// npx is a .cmd shim on Windows, which only a shell can start.
+const shell = process.platform === 'win32';
 const dist = join(here, 'packages/react/dist');
 const consumers = [
   { name: 'jupyterlab-astra', dir: resolve(here, '../jupyterlab-astra'), include: ['src/**/*'] },
@@ -36,7 +39,7 @@ for (const { name, dir, include } of consumers) {
     },
     include: include.map((pattern) => join(dir, pattern)),
   }, null, 2));
-  const result = spawnSync('npx', ['tsc', '-p', config], { stdio: 'inherit', cwd: dir });
+  const result = spawnSync('npx', ['tsc', '-p', config], { stdio: 'inherit', cwd: dir, shell });
   if (result.status === 0) console.log(`ok       ${name}`);
   else { failed = true; console.log(`FAILED   ${name}`); }
 }

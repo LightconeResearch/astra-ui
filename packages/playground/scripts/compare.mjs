@@ -7,8 +7,14 @@ import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
-const [baselineDir, candidateDir, diffDirArg] = process.argv.slice(2).map((value) => resolve(value));
-const diffDir = diffDirArg ?? join(candidateDir, '..', 'diff');
+const [baselineArg, candidateArg, diffDirArg] = process.argv.slice(2);
+if (!baselineArg || !candidateArg) {
+  console.error('usage: node scripts/compare.mjs <baselineDir> <candidateDir> [diffDir]');
+  process.exit(1);
+}
+const baselineDir = resolve(baselineArg);
+const candidateDir = resolve(candidateArg);
+const diffDir = diffDirArg ? resolve(diffDirArg) : join(candidateDir, '..', 'diff');
 mkdirSync(diffDir, { recursive: true });
 
 let failures = 0;
