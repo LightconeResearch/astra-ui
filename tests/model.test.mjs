@@ -7,6 +7,7 @@ import {
   decisionInsights,
   findingEvidence,
   findingLiterature,
+  indirectDecisionPaths,
   informedDecisions,
   locateRecord,
   outputRelations,
@@ -111,4 +112,28 @@ test('delimited previews keep quoted delimiters, quotes, and line breaks inside 
   assert.deepEqual(preview.rows, [['Smith, J', 'says "hi"\nand bye'], ['plain', 'row']]);
   assert.equal(preview.totalRows, 2);
   assert.equal(preview.truncated, false);
+});
+
+test('indirect decisions are reached through upstream outputs and input aliases, direct ones excluded, cycles ignored', () => {
+  const root = fixtureDocument.analysis;
+  const output = (id, provenance, decisions = []) => ({
+    id, kind: 'output', canonicalPath: `outputs.${id}`, type: 'data', format: 'npy', active: true, inputs: [], decisions, provenance,
+  });
+  const upstream = output('upstream', { inputPaths: [], decisionPaths: ['decisions.method'] }, ['method']);
+  const downstream = output('downstream', { inputPaths: ['outputs.upstream'], decisionPaths: [] });
+  const viaAlias = output('via_alias', { inputPaths: ['inputs.alias'], decisionPaths: [] });
+  const alreadyDirect = output('already_direct', { inputPaths: ['outputs.upstream'], decisionPaths: ['decisions.method'] }, ['method']);
+  const loopA = output('loop_a', { inputPaths: ['outputs.loop_b'], decisionPaths: [] });
+  const loopB = output('loop_b', { inputPaths: ['outputs.loop_a', 'outputs.upstream'], decisionPaths: [] });
+  const alias = { id: 'alias', kind: 'input', canonicalPath: 'inputs.alias', type: 'data', resolvedFrom: 'outputs.upstream' };
+  const document = {
+    ...fixtureDocument,
+    analysis: { ...root, inputs: [...root.inputs, alias], outputs: [...root.outputs, upstream, downstream, viaAlias, alreadyDirect, loopA, loopB] },
+  };
+  const index = indexAnalysis(document);
+  assert.deepEqual(indirectDecisionPaths(index, downstream), ['decisions.method']);
+  assert.deepEqual(indirectDecisionPaths(index, viaAlias), ['decisions.method']);
+  assert.deepEqual(indirectDecisionPaths(index, alreadyDirect), []);
+  assert.deepEqual(indirectDecisionPaths(index, loopA), ['decisions.method']);
+  assert.deepEqual(outputRelations(index, downstream).indirectDecisions.map(({ record }) => record.id), ['method']);
 });

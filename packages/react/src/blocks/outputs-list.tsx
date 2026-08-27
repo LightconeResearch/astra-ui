@@ -26,6 +26,7 @@ export const OutputCard = forwardRef<HTMLButtonElement, OutputCardProps>(functio
   onOpen,
   className,
   onClick,
+  'aria-label': hostLabel,
   ...props
 }, ref) {
   return (
@@ -34,6 +35,7 @@ export const OutputCard = forwardRef<HTMLButtonElement, OutputCardProps>(functio
       {...props}
       ref={ref}
       type="button"
+      aria-label={hostLabel ?? `Open ${output.type}: ${recordTitle(output)}`}
       className={cn('astra-output-card', className)}
       onClick={(event) => { onClick?.(event); onOpen(); }}
     >

@@ -63,7 +63,7 @@ export function HostArtifactPreview({ output, compact }: { output: ResolvedOutpu
 }
 
 export const renderArtifact: ArtifactRenderer = (output, { compact }) => (
-  <HostArtifactPreview output={output} compact={compact} />
+  artifacts[output.canonicalPath] ? <HostArtifactPreview output={output} compact={compact} /> : null
 );
 
 export const paperMetadata = {

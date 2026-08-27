@@ -19,7 +19,10 @@ export interface LinkedRecord {
 
 export interface OutputRelations {
   inputs: LinkedRecord[];
+  /** Decisions the output declares directly. */
   decisions: LinkedRecord[];
+  /** Decisions reached through upstream outputs (see `indirectDecisionPaths`); absent when not derived. */
+  indirectDecisions?: LinkedRecord[] | undefined;
   alias?: LinkedRecord | undefined;
 }
 
@@ -37,12 +40,40 @@ export function linkedRecord(index: AnalysisIndex, canonicalPath: string): Linke
   };
 }
 
-/** Inputs, decisions, and alias source an output depends on; a record referenced twice (e.g. through an alias) is listed once. */
+/**
+ * Decisions an output depends on only through its upstream outputs: the
+ * provenance of every input that is (or aliases) an output, followed
+ * recursively, minus the output's own direct decisions. Document order of
+ * discovery; cycles are ignored.
+ */
+export function indirectDecisionPaths(index: AnalysisIndex, output: ResolvedOutput): string[] {
+  const direct = new Set(output.provenance.decisionPaths);
+  const seen = new Set<string>([output.canonicalPath]);
+  const found: string[] = [];
+  const queue = [...output.provenance.inputPaths];
+  // Array iteration sees entries pushed while it runs, so the walk is a BFS.
+  for (const path of queue) {
+    if (seen.has(path)) continue;
+    seen.add(path);
+    let record = index.recordByPath.get(path);
+    if (record?.kind === 'input' && record.resolvedFrom) record = index.recordByPath.get(record.resolvedFrom);
+    if (record?.kind !== 'output') continue;
+    for (const decisionPath of record.provenance.decisionPaths) {
+      if (!direct.has(decisionPath) && !found.includes(decisionPath)) found.push(decisionPath);
+    }
+    queue.push(...record.provenance.inputPaths);
+    if (record.resolvedFrom) queue.push(record.resolvedFrom);
+  }
+  return found;
+}
+
+/** Inputs, direct and indirect decisions, and alias source an output depends on; a record referenced twice (e.g. through an alias) is listed once. */
 export function outputRelations(index: AnalysisIndex, output: ResolvedOutput): OutputRelations {
   const unique = (paths: readonly string[]) => [...new Set(paths)];
   return {
     inputs: unique(output.provenance.inputPaths).map((path) => linkedRecord(index, path)),
     decisions: unique(output.provenance.decisionPaths).map((path) => linkedRecord(index, path)),
+    indirectDecisions: indirectDecisionPaths(index, output).map((path) => linkedRecord(index, path)),
     ...(output.resolvedFrom ? { alias: linkedRecord(index, output.resolvedFrom) } : {}),
   };
 }

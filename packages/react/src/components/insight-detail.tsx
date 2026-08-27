@@ -89,7 +89,7 @@ export const InsightDetail = forwardRef<HTMLDivElement, InsightDetailProps>(func
             undefined,
             { onOpen: onOpenDecision ? () => { onOpenDecision(decision); } : undefined },
           ))}
-          empty="No decisions in this analysis cite this insight."
+          empty="No decisions cite this insight."
         />
       </DetailMain>
     </DetailLayout>

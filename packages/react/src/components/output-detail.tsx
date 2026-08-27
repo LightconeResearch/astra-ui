@@ -1,5 +1,5 @@
 import type { ResolvedOutput } from '@astra-spec/sdk';
-import { forwardRef, useCallback, useEffect, useState, type HTMLAttributes } from 'react';
+import { forwardRef, useCallback, useEffect, useRef, useState, type HTMLAttributes, type ReactNode } from 'react';
 import type { OutputRelations } from '../model/relations.js';
 import { isVisualOutput, recordTitle } from '../model/records.js';
 import { cn } from '../lib/cn.js';
@@ -21,6 +21,16 @@ export function OutputPreview({ output, compact = false, renderArtifact }: Outpu
   return renderArtifact
     ? <>{renderArtifact(output, { compact })}</>
     : <ArtifactPreview output={output} compact={compact} />;
+}
+
+/**
+ * What the detail shows in its artifact box: the host's rendering when it
+ * returns one, the built-in preview for figures and tables, nothing for other
+ * output types (a data file or a metric has no picture to frame).
+ */
+function artifactNode(output: ResolvedOutput, renderArtifact: ArtifactRenderer | undefined): ReactNode {
+  if (renderArtifact) return renderArtifact(output, { compact: false });
+  return isVisualOutput(output) ? <ArtifactPreview output={output} compact={false} /> : null;
 }
 
 export interface OutputDetailProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
@@ -48,6 +58,7 @@ export const OutputDetail = forwardRef<HTMLDivElement, OutputDetailProps>(functi
 }, ref) {
   const labels = useLabels();
   const visual = isVisualOutput(output);
+  const artifact = artifactNode(output, renderArtifact);
   const exitFullScreen = useCallback(() => { onExpandedChange?.(false); }, [onExpandedChange]);
   // Inside a modal dialog, Escape reaches the full-screen layer through the
   // dialog's cancel event (the guard), which fires after any keydown handling
@@ -97,6 +108,15 @@ export const OutputDetail = forwardRef<HTMLDivElement, OutputDetailProps>(functi
         items={relationItemsForLinks(relations.decisions, onOpenRecord)}
         empty="No decision dependencies are declared for this output."
       />
+      {relations.indirectDecisions?.length ? (
+        <RelationList
+          className="astra-detail__relations"
+          title="Indirect decision dependencies"
+          description="Through upstream outputs."
+          items={relationItemsForLinks(relations.indirectDecisions, onOpenRecord)}
+          empty={null}
+        />
+      ) : null}
       <RelationList
         className="astra-detail__relations"
         title="Inputs and upstream outputs"
@@ -115,6 +135,7 @@ export const OutputDetail = forwardRef<HTMLDivElement, OutputDetailProps>(functi
       data-layout={visual ? 'reader' : 'single'}
     >
       <div className="astra-output-detail__result">
+        {artifact != null ? (
         <div
           className="astra-output-detail__artifact"
           data-type={output.type}
@@ -135,9 +156,10 @@ export const OutputDetail = forwardRef<HTMLDivElement, OutputDetailProps>(functi
             </div>
           ) : null}
           <div className="astra-output-detail__preview" data-type={output.type}>
-            <OutputPreview output={output} renderArtifact={renderArtifact} />
+            {artifact}
           </div>
         </div>
+        ) : null}
         {!visual ? supportingDetails : null}
       </div>
       {visual ? <div className="astra-output-detail__provenance-slot">{supportingDetails}</div> : null}
@@ -178,7 +200,7 @@ export function OutputDialogActions({ record: output, onOpenArtifact, expanded, 
   );
 }
 
-/** Full-screen state for an output, reset whenever the output changes. */
+/** Full-screen state for an output, reset whenever the output changes (a controlled host is asked to reset). */
 export function useOutputExpanded(output: ResolvedOutput, controlled?: { expanded?: boolean | undefined; onExpandedChange?: ((next: boolean) => void) | undefined }) {
   const [internal, setInternal] = useState(false);
   const [lastPath, setLastPath] = useState(output.canonicalPath);
@@ -189,6 +211,13 @@ export function useOutputExpanded(output: ResolvedOutput, controlled?: { expande
   const isControlled = controlled?.expanded !== undefined;
   const expanded = isControlled ? Boolean(controlled.expanded) : internal;
   const onChange = controlled?.onExpandedChange;
+  const seenPath = useRef(output.canonicalPath);
+  const controlledExpanded = isControlled && Boolean(controlled.expanded);
+  useEffect(() => {
+    if (seenPath.current === output.canonicalPath) return;
+    seenPath.current = output.canonicalPath;
+    if (controlledExpanded) onChange?.(false);
+  }, [output.canonicalPath, controlledExpanded, onChange]);
   const setExpanded = useCallback((next: boolean) => {
     if (!isControlled) setInternal(next);
     onChange?.(next);

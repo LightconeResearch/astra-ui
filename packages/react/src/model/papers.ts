@@ -33,6 +33,8 @@ export interface InventoryPaperMetadata {
 export type InventoryPaperMetadataMap = Readonly<Record<string, InventoryPaperMetadata>>;
 
 export interface PaperFocusEvidence {
+  /** Changes on every locate request, including a repeat of the same passage, so a host can react to each one. */
+  key: string;
   insight: ResolvedInsight;
   evidence: ResolvedEvidence;
 }
@@ -124,6 +126,17 @@ export function collectInventoryPapers(
   }
 
   return [...papers.values()].sort((left, right) => left.doi.localeCompare(right.doi));
+}
+
+/** The paper a DOI denotes within one analysis' scope (see `collectInventoryPapers`), whether or not the host listed it. */
+export function paperForDoi(
+  document: ResolvedAnalysisDocument,
+  index: AnalysisIndex,
+  analysis: ResolvedAnalysisNode,
+  doi: string,
+  paperMetadata: InventoryPaperMetadataMap = {},
+): InventoryPaper | undefined {
+  return findPaper(collectInventoryPapers(document, index, analysis, paperMetadata), doi);
 }
 
 /** Finds a paper in a collection by DOI, tolerant of formatting differences. */

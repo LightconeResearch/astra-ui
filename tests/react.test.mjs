@@ -3,10 +3,17 @@ import test from 'node:test';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { DetailDialog, DialogProvider, Prose } from '../packages/react/dist/primitives/index.js';
-import { ArtifactPreview, PaperDialog, RecordDialog, recordEntry } from '../packages/react/dist/components/index.js';
+import {
+  ArtifactPreview,
+  OutputDetail,
+  PaperDetail,
+  PaperDialog,
+  RecordDialog,
+  recordEntry,
+} from '../packages/react/dist/components/index.js';
 import { indexAnalysis } from '@astra-spec/sdk';
 import { collectInventoryPapers } from '../packages/react/dist/model/index.js';
-import { AnalysisTree } from '../packages/react/dist/blocks/index.js';
+import { AnalysisTree, OutputCard } from '../packages/react/dist/blocks/index.js';
 import { Inventory } from '../packages/react/dist/views/index.js';
 import { fixtureDocument } from './fixture.mjs';
 
@@ -238,4 +245,59 @@ test('the record dialog derives relations and evidence from the index', () => {
   assert.match(missing, /<dialog[^>]*data-kind="analysis"/);
   assert.match(missing, /no longer available/);
   assert.match(missing, /<p>gone<\/p>/);
+});
+
+test('the artifact box frames figures and tables, or whatever the host returns, and nothing otherwise', () => {
+  const index = indexAnalysis(fixtureDocument);
+  const figure = index.recordByPath.get('outputs.headline');
+  const data = { ...figure, id: 'raw', canonicalPath: 'outputs.raw', type: 'data', format: 'npy' };
+  const relations = { inputs: [], decisions: [] };
+  const box = /astra-output-detail__artifact/;
+  assert.match(withinUi(React.createElement(OutputDetail, { record: figure, relations })), box);
+  assert.doesNotMatch(withinUi(React.createElement(OutputDetail, { record: data, relations })), box);
+  assert.doesNotMatch(withinUi(React.createElement(OutputDetail, { record: data, relations, renderArtifact: () => null })), box);
+  const hosted = withinUi(React.createElement(OutputDetail, { record: data, relations, renderArtifact: () => React.createElement('span', null, 'host preview') }));
+  assert.match(hosted, box);
+  assert.match(hosted, /host preview/);
+});
+
+test('output dialogs list indirect decision dependencies reached through upstream outputs', () => {
+  const index = indexAnalysis(fixtureDocument);
+  const figure = index.recordByPath.get('outputs.headline');
+  const method = index.recordByPath.get('decisions.method');
+  const relations = { inputs: [], decisions: [], indirectDecisions: [{ canonicalPath: method.canonicalPath, record: method, analysis: fixtureDocument.analysis }] };
+  const html = withinUi(React.createElement(OutputDetail, { record: figure, relations }));
+  assert.match(html, /Indirect decision dependencies/);
+  assert.match(html, /Through upstream outputs\./);
+  assert.match(html, /Method choice/);
+});
+
+test('output cards carry an accessible name instead of their preview cells', () => {
+  const index = indexAnalysis(fixtureDocument);
+  const html = withinUi(React.createElement(OutputCard, { output: index.recordByPath.get('outputs.headline'), onOpen: () => undefined }));
+  assert.match(html, /<button[^>]*aria-label="Open figure: Headline result"/);
+});
+
+test('a paper fetch error is announced', () => {
+  const index = indexAnalysis(fixtureDocument);
+  const paper = collectInventoryPapers(fixtureDocument, index, fixtureDocument.analysis)[0];
+  const html = withinUi(React.createElement(PaperDetail, { record: paper, metadata: { status: 'error', error: 'Not in cache' }, onFetchPaper: () => undefined }));
+  assert.match(html, /<p role="alert">Not in cache<\/p>/);
+});
+
+test('an insight opened from another analysis still offers its source paper', () => {
+  const index = indexAnalysis(fixtureDocument);
+  const clustering = fixtureDocument.analysis.analyses[0];
+  const papersOfClustering = collectInventoryPapers(fixtureDocument, index, clustering);
+  assert.equal(papersOfClustering.some(({ doi }) => doi === '10.1234/example'), false, 'the viewed analysis does not list the paper');
+  const html = withinUi(React.createElement(RecordDialog, {
+    entry: recordEntry('prior_insights.published_method', '$'),
+    document: fixtureDocument,
+    index,
+    papers: papersOfClustering,
+    onOpenPaper: () => undefined,
+    onClose: () => undefined,
+  }));
+  assert.match(html, /Locate passage in paper/);
+  assert.match(html, /<button type="button">https:\/\/doi\.org\/10\.1234\/EXAMPLE/);
 });

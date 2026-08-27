@@ -9,7 +9,7 @@ import type {
 } from '@astra-spec/sdk';
 import type { ReactNode } from 'react';
 import { locateRecord } from '../model/locate-record.js';
-import { findPaper, paperMetadataFor, type InventoryPaper, type InventoryPaperMetadataMap } from '../model/papers.js';
+import { findPaper, paperForDoi, paperMetadataFor, type InventoryPaper, type InventoryPaperMetadataMap } from '../model/papers.js';
 import { isInsight, isVisualOutput, recordTitle } from '../model/records.js';
 import { decisionInsights, findingEvidence, informedDecisions, outputRelations } from '../model/relations.js';
 import { useLabels } from '../lib/labels.js';
@@ -77,7 +77,12 @@ export function RecordDialog({
   const labels = useLabels();
   const analysis = index.analysisByPath.get(entry.analysisPath);
   const located = entry.kind === 'record' ? locateRecord(index, entry.canonicalPath) : undefined;
-  const paper = entry.kind === 'paper' ? findPaper(papers, entry.doi) : undefined;
+  // Papers are looked up in the host's list first, then derived for the
+  // entry's own analysis: a record reached by drill-down may cite a paper the
+  // viewed analysis does not list.
+  const paper = entry.kind === 'paper' && analysis
+    ? findPaper(papers, entry.doi) ?? paperForDoi(document, index, analysis, entry.doi, paperMetadata)
+    : undefined;
   const output = located?.record.kind === 'output' ? located.record : undefined;
   const [expanded, setExpanded] = useOutputExpanded(output ?? PLACEHOLDER_OUTPUT);
 
@@ -177,7 +182,9 @@ export function RecordDialog({
         // The same rule InsightDetail displays by, so the passage it shows
         // and the paper this opens come from one evidence entry.
         const sourceDoi = primaryLiteratureEvidence(record)?.doi;
-        const sourcePaper = sourceDoi ? findPaper(papers, sourceDoi) : undefined;
+        const sourcePaper = sourceDoi
+          ? findPaper(papers, sourceDoi) ?? paperForDoi(document, index, located.analysis, sourceDoi, paperMetadata)
+          : undefined;
         chrome = {
           kind: 'prior_insight',
           kindLabel: labels.kinds.prior_insight,

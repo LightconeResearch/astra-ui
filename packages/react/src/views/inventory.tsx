@@ -7,7 +7,7 @@ import {
   type ResolvedRecord,
 } from '@astra-spec/sdk';
 import { forwardRef, useEffect, useMemo, useRef, type HTMLAttributes, type ReactNode } from 'react';
-import { collectInventoryPapers, findPaper, type InventoryPaper, type InventoryPaperMetadataMap } from '../model/papers.js';
+import { collectInventoryPapers, findPaper, paperForDoi, type InventoryPaper, type InventoryPaperMetadataMap } from '../model/papers.js';
 import { locateRecord } from '../model/locate-record.js';
 import { cn } from '../lib/cn.js';
 import { LabelsProvider, useLabels, type AstraLabelOverrides } from '../lib/labels.js';
@@ -123,12 +123,15 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(
       if (stack.stack.length) stack.close();
       return;
     }
-    const resolves = (entry: DetailEntry) => (entry.kind === 'paper'
-      ? Boolean(findPaper(papers, entry.doi))
-      : Boolean(locateRecord(index, entry.canonicalPath))) && index.analysisByPath.has(entry.analysisPath);
+    const resolves = (entry: DetailEntry) => {
+      const owner = index.analysisByPath.get(entry.analysisPath);
+      if (!owner) return false;
+      if (entry.kind === 'paper') return Boolean(findPaper(papers, entry.doi) ?? paperForDoi(document, index, owner, entry.doi, paperMetadata));
+      return Boolean(locateRecord(index, entry.canonicalPath));
+    };
     const next = stack.stack.filter(resolves);
     if (next.length !== stack.stack.length) stack.set(next);
-  }, [analysis.canonicalPath, detail, index, papers, stack]);
+  }, [analysis.canonicalPath, detail, document, index, paperMetadata, papers, stack]);
 
   const openRecord = (record: ResolvedRecord, owner: ResolvedAnalysisNode) => { stack.openRecord(record, owner); };
 

@@ -157,8 +157,8 @@ export const ArtifactPreview = forwardRef<HTMLElement, ArtifactPreviewProps>(fun
     const totalRows = preview.totalRows ?? preview.rows.length;
     const totalColumns = preview.totalColumns ?? preview.headers.length;
     return (
-      // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- scrollable region is keyboard-reachable
-      <div {...shared} ref={ref as never} className={cn(rootClass, 'astra-artifact__table')} tabIndex={0}>
+      // The full-size table scrolls and must be keyboard-reachable; the compact one sits inside a card button.
+      <div {...shared} ref={ref as never} className={cn(rootClass, 'astra-artifact__table')} {...(compact ? {} : { tabIndex: 0 })}>
         <table>
           <thead>
             <tr>{headers.map((header, index) => <th key={`${header}-${index}`}>{header}</th>)}</tr>

@@ -124,6 +124,30 @@ the token contract are new.
   dependency, `primitives.css` imports `katex/dist/katex.css`, and
   `parseProse` / `renderProse` are exported. `renderText` still replaces it.
 
+### Fixed after the second review
+
+- An insight or paper reached by drill-down resolves its paper in its own
+  analysis (`paperForDoi`), so "Locate passage" and the source-paper control
+  no longer disappear when the viewed analysis does not list that paper, and
+  such entries are not pruned from the stack.
+- The artifact box frames figures and tables, or whatever the host's
+  `renderArtifact` returns; data, file and metric outputs get no empty
+  placeholder (as 0.2.0). A renderer may return `null`.
+- Indirect decision dependencies are back: `indirectDecisionPaths()` walks
+  upstream outputs (through input aliases), `outputRelations()` fills
+  `indirectDecisions`, and `OutputDetail` lists them under their own heading.
+- `PaperFocusEvidence` carries a `key` that changes on every locate request
+  (a repeat included) and the object is stable across unrelated re-renders.
+- `useDetailStack` in controlled mode proposes each change from the value the
+  host rendered; `useOutputExpanded` asks a controlled host to leave full
+  screen when the record changes.
+- `Slot`: a child prop set to `undefined` no longer erases the slot's prop;
+  React 19 callback-ref cleanups are honoured.
+- Output cards have an accessible name (`Open figure: …`); the compact table
+  preview is no longer focusable inside a card button; the paper fetch error
+  is a live region again. Empty-state copy no longer claims "in this
+  analysis" where the derivation is document-wide.
+
 ### Removed
 
 - The generation-layered stylesheets and every dead selector; the duplicated
