@@ -1,7 +1,7 @@
 /** Blocks: sections of the inventory page, composable into any layout. */
 export { AnalysisTree } from './analysis-tree.js';
 export type { AnalysisTreeProps } from './analysis-tree.js';
-export { InventoryOutline, InventoryRecords, InventorySection } from './section.js';
+export { InventoryOutline, sectionKind, InventoryRecords, InventorySection } from './section.js';
 export type {
   InventoryOutlineEntry,
   InventoryOutlineProps,

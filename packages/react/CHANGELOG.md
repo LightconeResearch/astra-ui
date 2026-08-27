@@ -101,6 +101,11 @@ the token contract are new.
   literature evidence (DOI, quote) renders as source papers; an alias input
   shows what it resolves from and its own source; delimited previews parse
   quoted delimiters, quotes and line breaks.
+- Layout: the outline's section glyph column is back (`InventoryOutlineEntry.kind`,
+  `sectionKind()`), so labels and counts no longer overlap; the output
+  dialog's "Open artifact" / "Full screen" controls are `DialogAction`s and
+  no longer collide with the close button; the output description flows in
+  the rail instead of clipping under "Recipe".
 - Authored prose renders inline `code`, `$inline$` and `$$display$$` math
   with KaTeX by default again (as 0.2.0 did): `katex` is the package's one
   dependency, `primitives.css` imports `katex/dist/katex.css`, and

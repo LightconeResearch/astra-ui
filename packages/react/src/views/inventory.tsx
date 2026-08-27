@@ -24,7 +24,7 @@ import { InputsList } from '../blocks/inputs-list.js';
 import { OutputsList } from '../blocks/outputs-list.js';
 import { PapersList } from '../blocks/papers-list.js';
 import { PriorInsightsList } from '../blocks/prior-insights-list.js';
-import { InventoryOutline, InventorySection, type InventorySectionId } from '../blocks/section.js';
+import { InventoryOutline, InventorySection, sectionKind, type InventorySectionId } from '../blocks/section.js';
 
 export const DEFAULT_SECTIONS: readonly InventorySectionId[] = ['outputs', 'decisions', 'inputs', 'findings', 'prior_insights', 'papers'];
 
@@ -189,6 +189,7 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(
               id: anchorId(section),
               label: labels.sections[section],
               count: sectionContent[section].count,
+              kind: sectionKind(section),
             }))}
           />
         ) : null}

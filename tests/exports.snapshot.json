@@ -82,7 +82,8 @@
     "PaperRows",
     "PapersList",
     "PriorInsightsList",
-    "decisionTagLabel"
+    "decisionTagLabel",
+    "sectionKind"
   ],
   "views": [
     "DEFAULT_SECTIONS",

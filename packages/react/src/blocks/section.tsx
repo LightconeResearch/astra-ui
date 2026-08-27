@@ -1,5 +1,6 @@
 import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
 import { cn } from '../lib/cn.js';
+import { surfaceGlyph, type SurfaceKind } from '../primitives/kind.js';
 import { useLabels } from '../lib/labels.js';
 
 export type InventorySectionId = 'outputs' | 'decisions' | 'inputs' | 'findings' | 'prior_insights' | 'papers';
@@ -42,10 +43,24 @@ export const InventorySection = forwardRef<HTMLElement, InventorySectionProps>(f
   );
 });
 
+/** The record kind each inventory section lists; drives the outline glyph and colour. */
+export function sectionKind(section: InventorySectionId): SurfaceKind {
+  switch (section) {
+    case 'outputs': return 'output';
+    case 'decisions': return 'decision';
+    case 'inputs': return 'input';
+    case 'findings': return 'finding';
+    case 'prior_insights': return 'prior_insight';
+    case 'papers': return 'paper';
+  }
+}
+
 export interface InventoryOutlineEntry {
   id: string;
   label: ReactNode;
   count?: number | undefined;
+  /** Shows the kind's glyph in the kind's colour before the label. */
+  kind?: SurfaceKind | undefined;
 }
 
 export interface InventoryOutlineProps extends Omit<HTMLAttributes<HTMLElement>, 'title'> {
@@ -73,6 +88,9 @@ export const InventoryOutline = forwardRef<HTMLElement, InventoryOutlineProps>(f
       <nav>
         {entries.map((entry) => (
           <a key={entry.id} href={`#${entry.id}`}>
+            <span className="astra-inventory-outline__glyph" {...(entry.kind ? { 'data-kind': entry.kind } : {})} aria-hidden="true">
+              {entry.kind ? surfaceGlyph(entry.kind) : null}
+            </span>
             <span>{entry.label}</span>
             {entry.count !== undefined ? <span>{entry.count}</span> : null}
           </a>

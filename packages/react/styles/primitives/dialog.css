@@ -61,7 +61,7 @@
     font-size: 0.68rem;
   }
 
-  :where(.astra-ui) .astra-dialog__actions > button {
+  :where(.astra-ui) .astra-dialog__actions > button:where(:not(.astra-dialog__action)) {
     display: grid;
     width: 2rem;
     height: 2rem;
@@ -266,7 +266,7 @@
     font: 400 0.6875rem/1.25 var(--astra-font-mono);
   }
 
-  :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-dialog__actions > button {
+  :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-dialog__actions > button:where(:not(.astra-dialog__action)) {
     width: 2rem;
     height: 2rem;
     border: 1px solid var(--astra-color-border-strong);
@@ -589,8 +589,8 @@
     white-space: nowrap;
   }
 
-  :where(.astra-ui) .astra-dialog__actions > button,
-  :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-dialog__actions > button {
+  :where(.astra-ui) .astra-dialog__actions > button:where(:not(.astra-dialog__action)),
+  :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-dialog__actions > button:where(:not(.astra-dialog__action)) {
     width: 1.875rem;
     height: 1.875rem;
     border: 0;

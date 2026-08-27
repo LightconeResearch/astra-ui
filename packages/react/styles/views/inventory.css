@@ -177,6 +177,12 @@
     border-bottom: 0;
   }
 
+  :where(.astra-ui) .astra-inventory-outline__glyph {
+    color: var(--astra-kind, var(--astra-color-text-subtle));
+    font-size: 0.625rem;
+    text-align: center;
+  }
+
   :where(.astra-ui) .astra-inventory-outline a:hover,
   :where(.astra-ui) .astra-inventory-outline a:focus-visible {
     color: var(--astra-color-text);

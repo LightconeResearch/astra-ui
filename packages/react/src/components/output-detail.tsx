@@ -5,7 +5,7 @@ import { isVisualOutput, recordTitle } from '../model/records.js';
 import { cn } from '../lib/cn.js';
 import { useLabels } from '../lib/labels.js';
 import { ArtifactPreview, type ArtifactRenderer } from './artifact-preview.js';
-import { useDialogDismissGuard, useOptionalDialog } from '../primitives/dialog.js';
+import { DialogAction, useDialogDismissGuard, useOptionalDialog } from '../primitives/dialog.js';
 import { Prose, type TextRenderer } from '../primitives/prose.js';
 import { RelationList } from '../primitives/relation-list.js';
 import { relationItemsForLinks, type OpenRecordHandler } from './relation-items.js';
@@ -153,17 +153,16 @@ export function OutputDialogActions({ record: output, onOpenArtifact, expanded, 
   return (
     <>
       {onOpenArtifact && output.artifact ? (
-        <button type="button" onClick={() => { void onOpenArtifact(output); }}>{labels.actions.openArtifact}</button>
+        <DialogAction onClick={() => { void onOpenArtifact(output); }}>{labels.actions.openArtifact}</DialogAction>
       ) : null}
       {visual ? (
-        <button
-          type="button"
+        <DialogAction
           aria-label={`View ${output.type} full screen`}
           aria-expanded={expanded}
           onClick={() => { onExpandedChange(true); }}
         >
           {labels.actions.fullScreen}
-        </button>
+        </DialogAction>
       ) : null}
     </>
   );

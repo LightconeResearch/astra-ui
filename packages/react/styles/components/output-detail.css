@@ -466,10 +466,10 @@
   }
 
   :where(.astra-ui) .astra-output-detail__description {
-    max-height: 36%;
+    max-height: none;
     flex: 0 0 auto;
     margin: 0;
-    overflow-y: auto;
+    overflow: visible;
     border: 0;
     border-top: 1px solid var(--astra-color-border);
     background: var(--astra-color-canvas);
