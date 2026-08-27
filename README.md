@@ -178,6 +178,57 @@ Styling hooks for hosts:
 Browser floor: Chrome 111, Safari 16.2, Firefox 113 (`color-mix`,
 `@container`, `@layer`).
 
+## Playground
+
+`packages/playground` is a [Ladle](https://ladle.dev) workspace that renders
+every layer of the package over a real analysis — the resolved
+`desi-myst-proto` project, committed as `fixtures/desi.json`. It is the
+fastest way to see what a component looks like, to try a change while
+developing, and it is the source of the parity screenshots.
+
+```bash
+npm run playground       # http://localhost:61000
+```
+
+Stories, one file per layer of interest (`packages/playground/src/*.stories.tsx`):
+
+| Group | Stories | Shows |
+| --- | --- | --- |
+| Explorer | Root, Clustering, Reconstruction, EmbeddedDetail, Tree | the `Inventory` view on the root and on child analyses, with the detail dialog inline, and the `AnalysisTree` block |
+| Dialogs / Modal | OutputFigure, OutputTable, OutputData, Decision, Finding, Input, Insight, Paper, PaperWithoutContent, WithBackTrail | every record and paper dialog as a modal `<dialog>`, including the back-trail state |
+| Dialogs / Embedded | the same ten | the same dialogs in `mode="embedded"` (a panel inside the page, as a JupyterLab host renders them) |
+| Primitives | Buttons, Badges, Headers, Artifacts, RecordLists, Relations | the `./primitives` layer and `ArtifactPreview`, every variant side by side |
+| Theme | Colors, Typography | the token contract: each `--astra-*` token with its resolved value |
+
+The Ladle toolbar toggles light/dark (`data-astra-color-scheme`) and the
+viewport width. The host side of the stories — artifact URLs, paper metadata,
+`renderArtifact` / `renderPaper` — lives in `src/host.tsx`, so it doubles as
+a minimal example of what an integration provides.
+
+The playground applies `@lightcone-research/lightcone-brand` on top of
+`styles.css` (linked from `../lightcone-brand`), so it shows the Lightcone
+look rather than the package defaults; remove the import in
+`.ladle/components.tsx` to see the unthemed rendering.
+
+Regenerate the fixture from any ASTRA project with
+`npm run fixture --workspace astra-ui-playground [projectRoot] [universeId]`;
+it writes `fixtures/desi.json` and copies the previewable artifacts (png,
+csv, ...) into `packages/playground/public`, which is gitignored.
+
+### Screenshots and parity
+
+```bash
+npm run screenshots      # every story, light and dark, 1280×900, into screenshots/current
+npm run screenshots:compare
+```
+
+`screenshots` builds the package, starts Ladle, and captures each story
+with Playwright; `screenshots:compare` diffs the run against
+`packages/playground/screenshots/baseline` with ImageMagick's `compare` and
+fails on any pixel difference. The baseline is the pre-refactor rendering of
+`main`, which is how "renders exactly as before" is verified. Needs
+`npx playwright install chromium` once and ImageMagick on the path.
+
 ## Development
 
 ```bash
@@ -185,18 +236,9 @@ npm install
 npm run typecheck        # package, playground, and React 19 typings
 npm run lint
 npm test                 # build, SSR + contract tests, DOM tests
-npm run playground       # Ladle stories over the resolved desi-myst-proto analysis
-npm run screenshots      # capture every story (light + dark) with Playwright
-npm run screenshots:compare
+npm run check            # all of the above
 npm run check:consumers  # type-check ../jupyterlab-astra and ../astra-theme
 ```
-
-The playground fixture is regenerated with
-`npm run fixture --workspace astra-ui-playground [projectRoot]`; it copies
-the previewable artifacts (png, csv, ...) into `packages/playground/public`,
-which is gitignored. Screenshots need `npx playwright install chromium` once
-and ImageMagick's `compare` for `screenshots:compare`; the baseline set in
-`packages/playground/screenshots/baseline` is the pre-refactor rendering.
 
 ## License
 
