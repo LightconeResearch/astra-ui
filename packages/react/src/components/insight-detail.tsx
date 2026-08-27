@@ -10,9 +10,13 @@ import { Prose, type TextRenderer } from '../primitives/prose.js';
 import { RelationList } from '../primitives/relation-list.js';
 import { relationItemForRecord } from './relation-items.js';
 
-/** The first piece of literature evidence (DOI or quote) an insight cites. */
+/**
+ * The literature evidence an insight is presented against: the first entry
+ * with a DOI. A quote without a DOI names no paper to open, so it is skipped;
+ * the passage shown and the paper opened always belong to this one entry.
+ */
 export function primaryLiteratureEvidence(insight: ResolvedInsight) {
-  return insight.evidence.find((evidence) => Boolean(evidence.doi) || Boolean(evidence.quote));
+  return insight.evidence.find((evidence) => Boolean(evidence.doi));
 }
 
 export interface InsightDetailProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {

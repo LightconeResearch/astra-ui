@@ -21,7 +21,7 @@ import { DecisionDetail } from './decision-detail.js';
 import type { DetailEntry } from './detail-entry.js';
 import { FindingDetail } from './finding-detail.js';
 import { InputDetail } from './input-detail.js';
-import { InsightDetail } from './insight-detail.js';
+import { InsightDetail, primaryLiteratureEvidence } from './insight-detail.js';
 import { OutputDetail, OutputDialogActions, useOutputExpanded } from './output-detail.js';
 import { PaperDetail, PaperDialogActions, type PaperRenderer } from './paper-detail.js';
 
@@ -174,7 +174,9 @@ export function RecordDialog({
         };
         break;
       case 'prior_insight': {
-        const sourceDoi = record.evidence.find(({ doi }) => doi)?.doi;
+        // The same rule InsightDetail displays by, so the passage it shows
+        // and the paper this opens come from one evidence entry.
+        const sourceDoi = primaryLiteratureEvidence(record)?.doi;
         const sourcePaper = sourceDoi ? findPaper(papers, sourceDoi) : undefined;
         chrome = {
           kind: 'prior_insight',

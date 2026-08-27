@@ -1,5 +1,5 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
-import { useState } from 'react';
+import { StrictMode, useState } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   Button,
@@ -60,32 +60,112 @@ describe('Dialog', () => {
     expect(document.activeElement).toBe(opener);
   });
 
-  it('dismisses on backdrop mousedown but not on clicks inside the panel', () => {
+  it('dismisses on primary-button backdrop mousedown but not on other buttons or clicks inside the panel', () => {
     const onClose = vi.fn();
     render(<DetailDialog title="T" onClose={onClose}><p>Body</p></DetailDialog>);
     const dialog = screen.getByRole('dialog', { hidden: true });
     fireEvent.mouseDown(screen.getByText('Body'));
+    fireEvent.mouseDown(dialog, { button: 2 });
+    fireEvent.mouseDown(dialog, { button: 1 });
     expect(onClose).not.toHaveBeenCalled();
-    fireEvent.mouseDown(dialog);
+    fireEvent.mouseDown(dialog, { button: 0 });
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it('keeps an expanded artifact from closing the dialog on Escape', () => {
+  it('lets Escape exit a full-screen artifact, and only the next Escape closes the dialog', () => {
     const onClose = vi.fn();
+    const output = fixtureDocument.analysis.outputs[0] as ResolvedOutput;
+    function Host() {
+      const [expanded, setExpanded] = useState(true);
+      return (
+        <DetailDialog title="T" onClose={onClose}>
+          <OutputDetail record={output} relations={{ inputs: [], decisions: [] }} expanded={expanded} onExpandedChange={setExpanded} />
+        </DetailDialog>
+      );
+    }
+    render(<Host />);
+    const dialog = document.querySelector('dialog') as HTMLDialogElement;
+    const layer = () => document.querySelector('[data-expanded]');
+    expect(layer()?.getAttribute('role')).toBe('dialog');
+    // Browser order: document keydown listeners run first, then the <dialog>
+    // receives cancel. Inside a modal the keydown alone must not release the
+    // guard, or the cancel that follows would close the dialog.
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(layer()).toBeTruthy();
+    const first = new Event('cancel', { cancelable: true });
+    fireEvent(dialog, first);
+    expect(first.defaultPrevented).toBe(true);
+    expect(layer()).toBeNull();
+    expect(onClose).not.toHaveBeenCalled();
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+    fireEvent(dialog, new Event('cancel', { cancelable: true }));
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('exits a full-screen artifact on Escape when no modal dialog owns the key', () => {
     const onExpandedChange = vi.fn();
     const output = fixtureDocument.analysis.outputs[0] as ResolvedOutput;
-    render(
-      <DetailDialog title="T" onClose={onClose}>
-        <OutputDetail record={output} relations={{ inputs: [], decisions: [] }} expanded onExpandedChange={onExpandedChange} />
-      </DetailDialog>,
-    );
-    const dialog = screen.getByRole('dialog', { hidden: true });
-    const cancel = new Event('cancel', { cancelable: true });
-    fireEvent(dialog, cancel);
-    expect(cancel.defaultPrevented).toBe(true);
-    expect(onClose).not.toHaveBeenCalled();
+    render(<OutputDetail record={output} relations={{ inputs: [], decisions: [] }} expanded onExpandedChange={onExpandedChange} />);
     fireEvent.keyDown(document, { key: 'Escape' });
     expect(onExpandedChange).toHaveBeenCalledWith(false);
+  });
+
+  it('does not report a dismissal for StrictMode\'s simulated unmount', () => {
+    const onClose = vi.fn();
+    render(
+      <StrictMode>
+        <DetailDialog title="T" closeLabel="Close" onClose={onClose}><p>Body</p></DetailDialog>
+      </StrictMode>,
+    );
+    const dialog = document.querySelector('dialog') as HTMLDialogElement;
+    expect(dialog.open).toBe(true);
+    expect(onClose).not.toHaveBeenCalled();
+    const close = screen.getByRole('button', { name: 'Close' });
+    expect(document.activeElement).toBe(close);
+    fireEvent.click(close);
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('leaves focus where the user put it across unrelated re-renders', () => {
+    function Host({ title }: { title: string }) {
+      return (
+        <>
+          <input aria-label="Outside" />
+          <DetailDialog title={title} onClose={() => undefined}><p>Body</p></DetailDialog>
+        </>
+      );
+    }
+    const { rerender } = render(<Host title="One" />);
+    const outside = screen.getByLabelText('Outside');
+    outside.focus();
+    expect(document.activeElement).toBe(outside);
+    rerender(<Host title="Two" />);
+    expect(document.activeElement).toBe(outside);
+  });
+
+  it('moves focus to the close control only when a body swap removed the focused element', () => {
+    function Host({ step }: { step: number }) {
+      return (
+        <DetailDialog title="T" closeLabel="Close" onClose={() => undefined}>
+          {step === 1 ? <button type="button">Inner</button> : <p>Swapped</p>}
+        </DetailDialog>
+      );
+    }
+    const { rerender } = render(<Host step={1} />);
+    const inner = screen.getByRole('button', { name: 'Inner' });
+    inner.focus();
+    expect(document.activeElement).toBe(inner);
+    rerender(<Host step={2} />);
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Close' }));
+  });
+
+  it('forwards HTML attributes on DetailDialog to the dialog root', () => {
+    render(<DetailDialog title="T" onClose={() => undefined} id="host-id" data-testid="host-dialog" style={{ color: 'red' }}><p>Body</p></DetailDialog>);
+    const dialog = screen.getByTestId('host-dialog');
+    expect(dialog.tagName).toBe('DIALOG');
+    expect(dialog.id).toBe('host-id');
+    expect(dialog.style.color).toBe('red');
   });
 
   it('treats Escape (cancel) as a dismissal unless a guard is active', () => {

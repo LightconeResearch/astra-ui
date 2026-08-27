@@ -32,7 +32,7 @@ export interface InventoryProps extends Omit<HTMLAttributes<HTMLDivElement>, 'ch
   document: ResolvedAnalysisDocument;
   /** Pass a prebuilt index to share it with the host; otherwise one is derived from `document`. */
   index?: AnalysisIndex | undefined;
-  /** Canonical analysis path; `$` selects the project root. */
+  /** Canonical analysis path; `$` selects the project root. A path the document does not contain shows the root. */
   analysisPath?: string | undefined;
   /** Which sections to show, in order. */
   sections?: readonly InventorySectionId[] | undefined;
@@ -111,24 +111,26 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(
 
   // Switching analysis closes any open detail (uncontrolled stacks only), and
   // entries that stopped resolving after a document refresh are pruned so the
-  // host's view of the stack stays truthful. Both run after render, never
-  // inside it, because they notify the host.
+  // host's view of the stack stays truthful. One effect, so a single commit
+  // makes at most one change: closing must not be followed by a prune of the
+  // stack it just replaced. It runs after render, never inside it, because it
+  // notifies the host.
   const lastAnalysis = useRef(analysis.canonicalPath);
   useEffect(() => {
-    if (lastAnalysis.current === analysis.canonicalPath) return;
+    const analysisChanged = lastAnalysis.current !== analysis.canonicalPath;
     lastAnalysis.current = analysis.canonicalPath;
-    if (detail === undefined && stack.stack.length) stack.close();
-  }, [analysis.canonicalPath, detail, stack]);
-  useEffect(() => {
+    if (analysisChanged && detail === undefined) {
+      if (stack.stack.length) stack.close();
+      return;
+    }
     const resolves = (entry: DetailEntry) => (entry.kind === 'paper'
       ? Boolean(findPaper(papers, entry.doi))
       : Boolean(locateRecord(index, entry.canonicalPath))) && index.analysisByPath.has(entry.analysisPath);
     const next = stack.stack.filter(resolves);
     if (next.length !== stack.stack.length) stack.set(next);
-  }, [index, papers, stack]);
+  }, [analysis.canonicalPath, detail, index, papers, stack]);
 
   const openRecord = (record: ResolvedRecord, owner: ResolvedAnalysisNode) => { stack.openRecord(record, owner); };
-  const activeAnalysis = stack.active ? index.analysisByPath.get(stack.active.analysisPath) : undefined;
 
   const sectionContent: Record<InventorySectionId, { count: number; content: ReactNode }> = {
     outputs: {
@@ -191,10 +193,11 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(
           />
         ) : null}
       </div>
-      {stack.active && activeAnalysis ? (
+      {stack.active ? (
         <DialogProvider mode={detailMode} backText={stack.previous ? entryLabel(stack.previous, papers) : undefined}>
           <RecordDialog
             entry={stack.active}
+            fallback={<p>{labels.notFound}</p>}
             document={document}
             index={index}
             papers={papers}

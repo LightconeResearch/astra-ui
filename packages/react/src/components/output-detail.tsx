@@ -5,7 +5,7 @@ import { isVisualOutput, recordTitle } from '../model/records.js';
 import { cn } from '../lib/cn.js';
 import { useLabels } from '../lib/labels.js';
 import { ArtifactPreview, type ArtifactRenderer } from './artifact-preview.js';
-import { useDialogDismissGuard } from '../primitives/dialog.js';
+import { useDialogDismissGuard, useOptionalDialog } from '../primitives/dialog.js';
 import { Prose, type TextRenderer } from '../primitives/prose.js';
 import { RelationList } from '../primitives/relation-list.js';
 import { relationItemsForLinks, type OpenRecordHandler } from './relation-items.js';
@@ -48,15 +48,21 @@ export const OutputDetail = forwardRef<HTMLDivElement, OutputDetailProps>(functi
 }, ref) {
   const labels = useLabels();
   const visual = isVisualOutput(output);
-  useDialogDismissGuard(expanded);
+  const exitFullScreen = useCallback(() => { onExpandedChange?.(false); }, [onExpandedChange]);
+  // Inside a modal dialog, Escape reaches the full-screen layer through the
+  // dialog's cancel event (the guard), which fires after any keydown handling
+  // and cannot close the dialog underneath. Elsewhere the layer listens itself.
+  const dialog = useOptionalDialog();
+  const inModalDialog = dialog?.mode === 'modal';
+  useDialogDismissGuard(expanded, exitFullScreen);
   useEffect(() => {
-    if (!expanded) return undefined;
+    if (!expanded || inModalDialog) return undefined;
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onExpandedChange?.(false);
+      if (event.key === 'Escape') exitFullScreen();
     };
     document.addEventListener('keydown', onKeyDown);
     return () => { document.removeEventListener('keydown', onKeyDown); };
-  }, [expanded, onExpandedChange]);
+  }, [expanded, inModalDialog, exitFullScreen]);
 
   const supportingDetails = (
     <aside className="astra-output-detail__provenance" aria-label="Output provenance and dependencies">
@@ -112,7 +118,9 @@ export const OutputDetail = forwardRef<HTMLDivElement, OutputDetailProps>(functi
         <div
           className="astra-output-detail__artifact"
           data-type={output.type}
-          {...(expanded ? { 'data-expanded': '', 'aria-label': `Full-screen ${output.type}: ${recordTitle(output)}` } : {})}
+          {...(expanded
+            ? { 'data-expanded': '', role: 'dialog', 'aria-modal': 'true', 'aria-label': `Full-screen ${output.type}: ${recordTitle(output)}` }
+            : {})}
         >
           {expanded ? (
             <div className="astra-output-detail__fullscreen-header">

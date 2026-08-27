@@ -8,6 +8,7 @@ import {
   useLayoutEffect,
   useMemo,
   useRef,
+  type FocusEvent,
   type HTMLAttributes,
   type MouseEvent,
   type ReactNode,
@@ -71,10 +72,15 @@ export interface DialogContextValue {
   backText: string | undefined;
   /** Dismisses the dialog: runs the native close (modal), which then notifies `onOpenChange(false)`. */
   requestClose: () => void;
+  /**
+   * What Escape does: the innermost dismissal guard handles it when one is
+   * registered (an inner layer exits), otherwise the dialog closes.
+   */
+  requestDismiss: () => void;
   /** Reports a state change to the host; DialogContent calls it from the native `close` event. */
   notifyOpenChange: (open: boolean) => void;
-  /** Registers a dismissal guard; returns the release function. */
-  addGuard: () => () => void;
+  /** Registers a dismissal guard with its Escape handler; returns the release function. */
+  addGuard: (onDismiss?: () => void) => () => void;
   isGuarded: () => boolean;
   /** DialogContent registers the native close steps here so `requestClose` can run them. */
   registerNativeClose: (close: (() => boolean) | null) => void;
@@ -87,6 +93,11 @@ export function useDialog(): DialogContextValue {
   const value = useContext(DialogContext);
   if (!value) throw new Error('Dialog parts must be rendered inside <Dialog>.');
   return value;
+}
+
+/** The enclosing Dialog, or null outside one. */
+export function useOptionalDialog(): DialogContextValue | null {
+  return useContext(DialogContext);
 }
 
 export interface DialogProps {
@@ -115,7 +126,7 @@ export function Dialog({
   const presentation = useContext(PresentationContext);
   const labels = useLabels();
   const titleId = useId();
-  const guards = useRef(0);
+  const guards = useRef<(() => void)[]>([]);
   const nativeClose = useRef<(() => boolean) | null>(null);
   const closeRef = useRef<HTMLButtonElement | null>(null);
   const onOpenChangeRef = useRef(onOpenChange);
@@ -128,11 +139,21 @@ export function Dialog({
   const requestClose = useCallback(() => {
     if (!nativeClose.current?.()) notifyOpenChange(false);
   }, [notifyOpenChange]);
-  const addGuard = useCallback(() => {
-    guards.current += 1;
-    return () => { guards.current -= 1; };
+  const addGuard = useCallback((onDismiss?: () => void) => {
+    const guard = { onDismiss };
+    const entry = () => guard.onDismiss?.();
+    guards.current = [...guards.current, entry];
+    return () => { guards.current = guards.current.filter((candidate) => candidate !== entry); };
   }, []);
-  const isGuarded = useCallback(() => guards.current > 0, []);
+  const isGuarded = useCallback(() => guards.current.length > 0, []);
+  // Decided when Escape arrives, not when a keydown listener saw it earlier:
+  // a guard released by that keydown would otherwise let the same Escape
+  // close the dialog too.
+  const requestDismiss = useCallback(() => {
+    const guard = guards.current.at(-1);
+    if (guard) guard();
+    else requestClose();
+  }, [requestClose]);
   const registerNativeClose = useCallback((close: (() => boolean) | null) => { nativeClose.current = close; }, []);
 
   const value = useMemo<DialogContextValue>(() => ({
@@ -144,26 +165,31 @@ export function Dialog({
     backLabel: backLabel ?? presentation.backLabel ?? labels.backTo,
     backText: backText ?? presentation.backText,
     requestClose,
+    requestDismiss,
     notifyOpenChange,
     addGuard,
     isGuarded,
     registerNativeClose,
     closeRef,
-  }), [open, mode, presentation, kind, layout, titleId, backLabel, backText, labels.backTo, requestClose, notifyOpenChange, addGuard, isGuarded, registerNativeClose]);
+  }), [open, mode, presentation, kind, layout, titleId, backLabel, backText, labels.backTo, requestClose, requestDismiss, notifyOpenChange, addGuard, isGuarded, registerNativeClose]);
   return <DialogContext.Provider value={value}>{children}</DialogContext.Provider>;
 }
 
 /**
- * Registers a dismissal guard while `active`: Escape and backdrop clicks are
- * ignored so an inner layer (e.g. a full-screen artifact) can consume them.
- * Safe to call outside a Dialog.
+ * Registers a dismissal guard while `active`: backdrop clicks are ignored and
+ * Escape calls `onDismiss` (the inner layer exits) instead of closing the
+ * dialog. Inside a modal Dialog the inner layer must not listen for Escape
+ * itself; the `<dialog>`'s cancel event is the one signal that arrives after
+ * any host keydown handling. Safe to call outside a Dialog.
  */
-export function useDialogDismissGuard(active: boolean): void {
+export function useDialogDismissGuard(active: boolean, onDismiss?: () => void): void {
   const context = useContext(DialogContext);
   const addGuard = context?.addGuard;
+  const onDismissRef = useRef(onDismiss);
+  useEffect(() => { onDismissRef.current = onDismiss; });
   useEffect(() => {
     if (!active || !addGuard) return undefined;
-    return addGuard();
+    return addGuard(() => onDismissRef.current?.());
   }, [active, addGuard]);
 }
 
@@ -184,13 +210,22 @@ export const DialogContent = forwardRef<HTMLElement, DialogContentProps>(functio
   initialFocusRef,
   children,
   onMouseDown,
+  onFocus,
   ...props
 }, ref) {
-  const { open, mode, kind, layout, titleId, requestClose, notifyOpenChange, isGuarded, registerNativeClose, closeRef } = useDialog();
+  const { open, mode, kind, layout, titleId, requestClose, requestDismiss, notifyOpenChange, isGuarded, registerNativeClose, closeRef } = useDialog();
   const dialogRef = useRef<HTMLDialogElement | null>(null);
   // The element that had focus when the dialog opened; focus returns to it on
   // close (browsers do this for showModal() too, but not every environment).
   const openerRef = useRef<HTMLElement | null>(null);
+  // Set while this component closes the <dialog> itself (host set `open`
+  // to false, or unmount), so the resulting `close` event is not reported
+  // back as a user dismissal. React StrictMode's simulated unmount would
+  // otherwise close every dialog right after it opened in development.
+  const closingSilently = useRef(false);
+  // The last element focused inside the dialog; when a render removes it
+  // (drill-down/back swaps the body), focus is kept inside the dialog.
+  const lastFocused = useRef<Element | null>(null);
   const restoreFocus = useCallback(() => {
     const opener = openerRef.current;
     openerRef.current = null;
@@ -224,42 +259,58 @@ export const DialogContent = forwardRef<HTMLElement, DialogContentProps>(functio
       dialog.showModal();
       (initialFocusRef?.current ?? closeRef.current)?.focus();
     } else if (!open && dialog.open) {
+      closingSilently.current = true;
       dialog.close();
+      restoreFocus();
     }
-  }, [open, mode, initialFocusRef, closeRef]);
+  }, [open, mode, initialFocusRef, closeRef, restoreFocus]);
 
   // Closing on unmount keeps the browser's focus restoration: close()
   // returns focus to the element that opened the dialog, removal does not.
   useIsomorphicLayoutEffect(() => () => {
     const dialog = dialogRef.current;
-    if (dialog?.open) dialog.close();
+    if (dialog?.open) {
+      closingSilently.current = true;
+      dialog.close();
+    }
     restoreFocus();
   }, [restoreFocus]);
 
-  // When the body swaps (drill-down/back) and the focused element went away,
-  // keep focus inside the dialog rather than letting it fall to <body>.
+  // When the body swaps (drill-down/back) and the element that had focus was
+  // removed, keep focus inside the dialog rather than letting it fall to
+  // <body>. Focus that the user moved elsewhere (a host portal, a click on
+  // plain text) is left alone.
   useEffect(() => {
     const dialog = dialogRef.current;
-    if (mode !== 'modal' || !dialog?.open) return;
-    const active = document.activeElement;
-    if (!active || active === document.body || !dialog.contains(active)) closeRef.current?.focus();
+    const last = lastFocused.current;
+    if (mode !== 'modal' || !dialog?.open || !last || last.isConnected) return;
+    lastFocused.current = null;
+    closeRef.current?.focus();
   });
 
   const handleCancel = (event: SyntheticEvent<HTMLDialogElement>) => {
-    // Guarded: an inner layer owns Escape. Otherwise close explicitly, which
-    // is deterministic across browsers (Chromium makes a repeated Escape
-    // non-cancelable) and test environments.
+    // Escape. Close (or let the guard handle it) explicitly rather than via
+    // the browser's default, which is deterministic across browsers
+    // (Chromium makes a repeated Escape non-cancelable) and test environments.
     event.preventDefault();
-    if (!isGuarded()) requestClose();
+    requestDismiss();
   };
   const handleClose = () => {
+    if (closingSilently.current) {
+      closingSilently.current = false;
+      return;
+    }
     restoreFocus();
     if (open) notifyOpenChange(false);
+  };
+  const handleFocus = (event: FocusEvent<HTMLElement>) => {
+    onFocus?.(event);
+    lastFocused.current = event.target;
   };
   const handleMouseDown = (event: MouseEvent<HTMLElement>) => {
     onMouseDown?.(event);
     if (event.defaultPrevented) return;
-    if (event.target === event.currentTarget && !isGuarded()) requestClose();
+    if (event.target === event.currentTarget && event.button === 0 && !isGuarded()) requestClose();
   };
 
   const data = {
@@ -283,7 +334,7 @@ export const DialogContent = forwardRef<HTMLElement, DialogContentProps>(functio
     if (!open) return null;
     return (
       // eslint-disable-next-line jsx-a11y/no-static-element-interactions -- host handler passthrough only
-      <div {...props} {...data} ref={ref as Ref<HTMLDivElement>} className={cn('astra-dialog', className)} onMouseDown={onMouseDown}>
+      <div {...props} {...data} ref={ref as Ref<HTMLDivElement>} className={cn('astra-dialog', className)} onMouseDown={onMouseDown} onFocus={onFocus}>
         {panel}
       </div>
     );
@@ -299,6 +350,7 @@ export const DialogContent = forwardRef<HTMLElement, DialogContentProps>(functio
       aria-labelledby={titleId}
       onCancel={handleCancel}
       onClose={handleClose}
+      onFocus={handleFocus}
       onMouseDown={handleMouseDown}
     >
       {panel}
@@ -442,7 +494,8 @@ export const DialogBody = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivEleme
 /* Preset: the record detail shell                                      */
 /* ------------------------------------------------------------------ */
 
-export interface DetailDialogProps extends Omit<DialogProps, 'children' | 'onOpenChange'> {
+export interface DetailDialogProps
+  extends Omit<DialogProps, 'children' | 'onOpenChange'>, Omit<HTMLAttributes<HTMLElement>, 'title' | 'children' | 'onClose'> {
   kindLabel?: ReactNode | undefined;
   title: ReactNode;
   titleAs?: SurfaceHeadingLevel | undefined;
@@ -451,7 +504,6 @@ export interface DetailDialogProps extends Omit<DialogProps, 'children' | 'onOpe
   actions?: ReactNode | undefined;
   closeLabel?: string | undefined;
   onClose: () => void;
-  className?: string | undefined;
   panelClassName?: string | undefined;
   children: ReactNode;
 }
@@ -459,9 +511,16 @@ export interface DetailDialogProps extends Omit<DialogProps, 'children' | 'onOpe
 /**
  * Dialog + DialogContent + DialogHeader + DialogBody with the record-detail
  * chrome. Every kind dialog and the inventory explorer build on this; hosts
- * that need a different header compose the parts directly.
+ * that need a different header compose the parts directly. HTML attributes
+ * land on the dialog root.
  */
 export function DetailDialog({
+  open,
+  mode,
+  kind,
+  layout,
+  backLabel,
+  backText,
   kindLabel,
   title,
   titleAs,
@@ -470,17 +529,16 @@ export function DetailDialog({
   actions,
   closeLabel,
   onClose,
-  className,
   panelClassName,
   children,
-  ...dialog
+  ...content
 }: DetailDialogProps) {
   const onCloseRef = useRef(onClose);
   useEffect(() => { onCloseRef.current = onClose; });
-  const onOpenChange = useCallback((open: boolean) => { if (!open) onCloseRef.current(); }, []);
+  const onOpenChange = useCallback((next: boolean) => { if (!next) onCloseRef.current(); }, []);
   return (
-    <Dialog {...dialog} onOpenChange={onOpenChange}>
-      <DialogContent className={className} panelClassName={panelClassName}>
+    <Dialog open={open} mode={mode} kind={kind} layout={layout} backLabel={backLabel} backText={backText} onOpenChange={onOpenChange}>
+      <DialogContent {...content} panelClassName={panelClassName}>
         <DialogHeader
           kindLabel={kindLabel}
           title={title}
