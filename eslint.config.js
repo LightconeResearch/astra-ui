@@ -37,9 +37,11 @@ export default tseslint.config(
     files: ['**/*.mjs', '**/*.js', '**/*.config.ts', 'packages/playground/**/*.{ts,tsx}', 'tests/**/*.{ts,tsx}'],
     ...tseslint.configs.disableTypeChecked,
     languageOptions: {
+      ...tseslint.configs.disableTypeChecked.languageOptions,
       globals: { ...globals.node, ...globals.browser },
     },
     rules: {
+      ...tseslint.configs.disableTypeChecked.rules,
       '@typescript-eslint/no-empty-function': 'off',
     },
   },

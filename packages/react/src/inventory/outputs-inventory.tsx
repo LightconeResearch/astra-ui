@@ -1,5 +1,5 @@
 import type { ResolvedAnalysisNode, ResolvedOutput } from '@astra-spec/sdk';
-import { forwardRef, useId, type HTMLAttributes, type Ref } from 'react';
+import { forwardRef, useId, type HTMLAttributes } from 'react';
 import { recordTitle } from '../data/records.js';
 import { cn } from '../lib/cn.js';
 import { useLabels } from '../lib/labels.js';
@@ -128,7 +128,7 @@ export const OutputsInventory = forwardRef<HTMLDivElement, OutputsInventoryProps
   const tables = analysis.outputs.filter(({ type }) => type === 'table');
   const files = analysis.outputs.filter(({ type }) => type !== 'figure' && type !== 'table');
   if (!analysis.outputs.length) {
-    return <EmptyState {...(props as HTMLAttributes<HTMLParagraphElement>)} ref={ref as Ref<HTMLParagraphElement>} data-slot="outputs-inventory" className={className}>{labels.empty.outputs}</EmptyState>;
+    return <EmptyState {...props} ref={ref} data-slot="outputs-inventory" className={className}>{labels.empty.outputs}</EmptyState>;
   }
   const open = (output: ResolvedOutput) => { onOpenRecord(output, analysis); };
   return (

@@ -60,7 +60,7 @@ the token contract are new.
 - `Button { asChild }`, `Slot`, `cn`, `LabelsProvider` / `useLabels`.
 - Every component: `className` merge, ref forwarding, rest-prop spread,
   `data-slot`.
-- Print and reduced-motion rules; `color-scheme` follows the palette.
+- Print and reduced-motion rules.
 
 ### Removed
 

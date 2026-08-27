@@ -76,8 +76,8 @@ export interface DialogContextValue {
   /** Registers a dismissal guard; returns the release function. */
   addGuard: () => () => void;
   isGuarded: () => boolean;
-  /** Set by DialogContent so `requestClose` can run the native close steps. */
-  nativeClose: { current: (() => boolean) | null };
+  /** DialogContent registers the native close steps here so `requestClose` can run them. */
+  registerNativeClose: (close: (() => boolean) | null) => void;
   closeRef: { current: HTMLButtonElement | null };
 }
 
@@ -119,7 +119,7 @@ export function Dialog({
   const nativeClose = useRef<(() => boolean) | null>(null);
   const closeRef = useRef<HTMLButtonElement | null>(null);
   const onOpenChangeRef = useRef(onOpenChange);
-  onOpenChangeRef.current = onOpenChange;
+  useEffect(() => { onOpenChangeRef.current = onOpenChange; });
 
   const notifyOpenChange = useCallback((next: boolean) => { onOpenChangeRef.current?.(next); }, []);
   // The native close steps restore focus to the opener and fire `close`,
@@ -133,6 +133,7 @@ export function Dialog({
     return () => { guards.current -= 1; };
   }, []);
   const isGuarded = useCallback(() => guards.current > 0, []);
+  const registerNativeClose = useCallback((close: (() => boolean) | null) => { nativeClose.current = close; }, []);
 
   const value = useMemo<DialogContextValue>(() => ({
     open,
@@ -146,9 +147,9 @@ export function Dialog({
     notifyOpenChange,
     addGuard,
     isGuarded,
-    nativeClose,
+    registerNativeClose,
     closeRef,
-  }), [open, mode, presentation, kind, layout, titleId, backLabel, backText, labels.backTo, requestClose, notifyOpenChange, addGuard, isGuarded]);
+  }), [open, mode, presentation, kind, layout, titleId, backLabel, backText, labels.backTo, requestClose, notifyOpenChange, addGuard, isGuarded, registerNativeClose]);
   return <DialogContext.Provider value={value}>{children}</DialogContext.Provider>;
 }
 
@@ -185,7 +186,7 @@ export const DialogContent = forwardRef<HTMLElement, DialogContentProps>(functio
   onMouseDown,
   ...props
 }, ref) {
-  const { open, mode, kind, layout, titleId, requestClose, notifyOpenChange, isGuarded, nativeClose, closeRef } = useDialog();
+  const { open, mode, kind, layout, titleId, requestClose, notifyOpenChange, isGuarded, registerNativeClose, closeRef } = useDialog();
   const dialogRef = useRef<HTMLDialogElement | null>(null);
   // The element that had focus when the dialog opened; focus returns to it on
   // close (browsers do this for showModal() too, but not every environment).
@@ -204,14 +205,14 @@ export const DialogContent = forwardRef<HTMLElement, DialogContentProps>(functio
 
   // Let the root's requestClose run the native close steps.
   useIsomorphicLayoutEffect(() => {
-    nativeClose.current = () => {
+    registerNativeClose(() => {
       const dialog = dialogRef.current;
       if (mode !== 'modal' || !dialog?.open) return false;
       dialog.close();
       return true;
-    };
-    return () => { nativeClose.current = null; };
-  }, [mode, nativeClose]);
+    });
+    return () => { registerNativeClose(null); };
+  }, [mode, registerNativeClose]);
 
   // Open/close the native dialog to match `open`.
   useIsomorphicLayoutEffect(() => {
@@ -281,6 +282,7 @@ export const DialogContent = forwardRef<HTMLElement, DialogContentProps>(functio
   if (mode === 'embedded') {
     if (!open) return null;
     return (
+      // eslint-disable-next-line jsx-a11y/no-static-element-interactions -- host handler passthrough only
       <div {...props} {...data} ref={ref as Ref<HTMLDivElement>} className={cn('astra-dialog', className)} onMouseDown={onMouseDown}>
         {panel}
       </div>
@@ -474,7 +476,7 @@ export function DetailDialog({
   ...dialog
 }: DetailDialogProps) {
   const onCloseRef = useRef(onClose);
-  onCloseRef.current = onClose;
+  useEffect(() => { onCloseRef.current = onClose; });
   const onOpenChange = useCallback((open: boolean) => { if (!open) onCloseRef.current(); }, []);
   return (
     <Dialog {...dialog} onOpenChange={onOpenChange}>

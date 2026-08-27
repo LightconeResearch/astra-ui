@@ -1,5 +1,5 @@
 import type { ResolvedAnalysisNode, ResolvedInsight } from '@astra-spec/sdk';
-import { forwardRef, type HTMLAttributes, type Ref } from 'react';
+import { forwardRef, type HTMLAttributes } from 'react';
 import { recordTitle } from '../data/records.js';
 import { useLabels } from '../lib/labels.js';
 import { EmptyState, RecordList } from '../ui/record-list.js';
@@ -24,7 +24,7 @@ export const FindingsInventory = forwardRef<HTMLDivElement, FindingsInventoryPro
   const labels = useLabels();
   const records = analysis.findings;
   if (!records.length) {
-    return <EmptyState {...(props as HTMLAttributes<HTMLParagraphElement>)} ref={ref as Ref<HTMLParagraphElement>} data-slot="findings-inventory" className={className}>{labels.empty.findings}</EmptyState>;
+    return <EmptyState {...props} ref={ref} data-slot="findings-inventory" className={className}>{labels.empty.findings}</EmptyState>;
   }
   return (
     <InventoryRecords {...props} ref={ref} kind="finding" className={className}>
