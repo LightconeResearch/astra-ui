@@ -124,8 +124,14 @@ export const OutputDetail = forwardRef<HTMLDivElement, OutputDetailProps>(functi
         >
           {expanded ? (
             <div className="astra-output-detail__fullscreen-header">
-              <strong>{recordTitle(output)}</strong>
-              <button type="button" onClick={() => onExpandedChange?.(false)}>{labels.actions.exitFullScreen}</button>
+              <span>
+                <small>{labels.actions.fullScreen}</small>
+                <strong>{recordTitle(output)}</strong>
+              </span>
+              <button type="button" onClick={() => onExpandedChange?.(false)}>
+                <span aria-hidden="true">×</span>
+                <span>{labels.actions.exitFullScreen}</span>
+              </button>
             </div>
           ) : null}
           <div className="astra-output-detail__preview" data-type={output.type}>
@@ -153,7 +159,10 @@ export function OutputDialogActions({ record: output, onOpenArtifact, expanded, 
   return (
     <>
       {onOpenArtifact && output.artifact ? (
-        <DialogAction onClick={() => { void onOpenArtifact(output); }}>{labels.actions.openArtifact}</DialogAction>
+        <DialogAction onClick={() => { void onOpenArtifact(output); }}>
+          <span aria-hidden="true">↗</span>
+          <span>{labels.actions.openArtifact}</span>
+        </DialogAction>
       ) : null}
       {visual ? (
         <DialogAction
@@ -161,7 +170,8 @@ export function OutputDialogActions({ record: output, onOpenArtifact, expanded, 
           aria-expanded={expanded}
           onClick={() => { onExpandedChange(true); }}
         >
-          {labels.actions.fullScreen}
+          <span aria-hidden="true">⛶</span>
+          <span>{labels.actions.fullScreen}</span>
         </DialogAction>
       ) : null}
     </>

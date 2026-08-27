@@ -177,6 +177,7 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(
               section={section}
               title={labels.sections[section]}
               count={sectionContent[section].count}
+              countLabel={labels.sectionCount(section, sectionContent[section].count)}
             >
               {sectionContent[section].content}
             </InventorySection>

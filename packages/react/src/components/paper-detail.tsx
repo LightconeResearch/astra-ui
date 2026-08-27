@@ -164,7 +164,10 @@ export function PaperDialogActions({ record: paper }: PaperDialogActionsProps) {
   if (!paper.pdfUrl) return null;
   return (
     <DialogAction asChild>
-      <a href={paper.pdfUrl} target="_blank" rel="noreferrer">{labels.actions.openPaper}</a>
+      <a href={paper.pdfUrl} target="_blank" rel="noreferrer">
+        <span aria-hidden="true">↗</span>
+        <span>{labels.actions.openPaper}</span>
+      </a>
     </DialogAction>
   );
 }

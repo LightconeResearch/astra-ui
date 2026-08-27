@@ -3,6 +3,7 @@
 @layer astra.components {
   :where(.astra-ui) .astra-artifact:where([data-type="image"]) {
     margin: 0;
+    color: var(--astra-color-artifact-ink);
     text-align: center;
   }
 
@@ -17,7 +18,7 @@
 
   :where(.astra-ui) .astra-artifact:where([data-type="image"]) figcaption {
     margin-block-start: var(--astra-space-2);
-    color: var(--astra-color-text-muted);
+    color: color-mix(in srgb, var(--astra-color-artifact-ink) 76%, var(--astra-color-artifact-paper));
   }
 
   :where(.astra-ui) .astra-artifact:where([data-type="table"]) {
@@ -71,6 +72,7 @@
   :where(.astra-ui) .astra-artifact:where([data-type="text"]) pre {
     border: 1px solid var(--astra-color-border);
     background: var(--astra-color-artifact-paper);
+    color: var(--astra-color-artifact-ink);
   }
 
   :where(.astra-ui) .astra-artifact:where([data-type="image"]) img {
@@ -221,8 +223,20 @@
     font-size: 0.8rem;
   }
 
+  /* Inside a dialog the table sits on the canvas, so its text follows the
+     page colours rather than the artifact ink (which is dark in both schemes). */
   :where(.astra-ui) .astra-dialog :is( .astra-artifact__table, .astra-artifact__table table, .astra-artifact__table th, .astra-artifact__table td, .astra-artifact__table tbody tr:hover td ) {
     background: var(--astra-color-canvas);
+    color: var(--astra-color-text);
+  }
+
+  :where(.astra-ui) .astra-dialog .astra-artifact__table th {
+    background: var(--astra-color-surface-muted);
+    color: var(--astra-color-text-muted);
+  }
+
+  :where(.astra-ui) .astra-dialog :is( .astra-artifact__table th, .astra-artifact__table td ) {
+    border-bottom-color: var(--astra-color-border);
   }
 
 }

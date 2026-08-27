@@ -45,7 +45,8 @@
 
   }
   @container (max-width: 38rem) {
-    :where(.astra-ui) .astra-inventory-records:where([data-kind="decision"]) .astra-record-list__body > button {
+    :where(.astra-ui) .astra-inventory-records:where([data-kind="decision"]) .astra-record-list__body > button,
+    :where(.astra-ui) .astra-inventory-records:where([data-kind="input"]) .astra-record-list__body > button {
       grid-template-columns: minmax(0, 1fr) 1.25rem;
       row-gap: 0.25rem;
     }

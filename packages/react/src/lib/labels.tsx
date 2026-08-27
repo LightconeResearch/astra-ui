@@ -17,6 +17,8 @@ export interface AstraLabels {
   close: string;
   notFound: string;
   closeRecord: (kindLabel: string) => string;
+  /** The count shown beside a section heading, e.g. "65 outputs". */
+  sectionCount: (section: keyof AstraLabels['sections'], count: number) => string;
   kinds: {
     analysis: string;
     input: string;
@@ -44,6 +46,15 @@ export interface AstraLabels {
   };
 }
 
+const SECTION_NOUNS: Record<keyof AstraLabels['sections'], [string, string]> = {
+  outputs: ['output', 'outputs'],
+  decisions: ['decision', 'decisions'],
+  inputs: ['input', 'inputs'],
+  findings: ['finding', 'findings'],
+  prior_insights: ['prior insight', 'prior insights'],
+  papers: ['paper', 'papers'],
+};
+
 export const defaultLabels: AstraLabels = {
   sections: {
     outputs: 'Outputs',
@@ -59,6 +70,7 @@ export const defaultLabels: AstraLabels = {
   backTo: 'Back to previous record',
   close: 'Close all details',
   closeRecord: (kindLabel) => `Close ${kindLabel.toLowerCase()} details`,
+  sectionCount: (section, count) => `${count} ${count === 1 ? SECTION_NOUNS[section][0] : SECTION_NOUNS[section][1]}`,
   notFound: 'This record is no longer available.',
   kinds: {
     analysis: 'Analysis',
@@ -78,11 +90,11 @@ export const defaultLabels: AstraLabels = {
     papers: 'No supporting papers are linked to this analysis.',
   },
   actions: {
-    openArtifact: 'Open artifact ↗',
+    openArtifact: 'Open artifact',
     fullScreen: 'Full screen',
     exitFullScreen: 'Exit full screen',
     fetchPaper: 'Fetch paper',
-    openPaper: 'Open ↗',
+    openPaper: 'Open',
     locate: 'Locate',
   },
 };

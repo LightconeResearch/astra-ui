@@ -12,6 +12,8 @@ export interface InventorySectionProps extends Omit<HTMLAttributes<HTMLElement>,
   section?: InventorySectionId | undefined;
   title: ReactNode;
   count?: number | undefined;
+  /** Text shown for the count, e.g. "65 outputs"; defaults to the bare number. */
+  countLabel?: ReactNode | undefined;
 }
 
 /** A titled, counted block of the inventory page. */
@@ -20,6 +22,7 @@ export const InventorySection = forwardRef<HTMLElement, InventorySectionProps>(f
   section,
   title,
   count,
+  countLabel,
   className,
   children,
   ...props
@@ -36,7 +39,7 @@ export const InventorySection = forwardRef<HTMLElement, InventorySectionProps>(f
         <h2 id={id} tabIndex={-1}>
           <span>{title}</span>
         </h2>
-        {count !== undefined ? <span>{count}</span> : null}
+        {count !== undefined ? <span>{countLabel ?? count}</span> : null}
       </div>
       {children}
     </section>

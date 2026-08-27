@@ -106,6 +106,19 @@ the token contract are new.
   dialog's "Open artifact" / "Full screen" controls are `DialogAction`s and
   no longer collide with the close button; the output description flows in
   the rail instead of clipping under "Recipe".
+- Layout audit (CSS written for main's markup vs. what the components render):
+  image artifacts fill the preview box instead of being centred and clipped
+  (legend and caption were cut) and gallery thumbnails fit again; in-dialog
+  tables and text artifacts use colours that contrast with their background
+  in dark mode; figure captions use the artifact ink; the "Recipe" block no
+  longer clips its last line; description and recipe are spaced in the
+  single-column output dialog; static and interactive relation rows share
+  one column template; `AnalysisTree` ships its own styles; header actions
+  render an icon + label so the narrow-viewport rule collapses them to the
+  icon; the full-screen header has its eyebrow and × glyph back; section
+  headings count with their noun again ("65 outputs", `labels.sectionCount`,
+  `InventorySection { countLabel }`); input rows keep the two-column layout
+  down to 34rem containers.
 - Authored prose renders inline `code`, `$inline$` and `$$display$$` math
   with KaTeX by default again (as 0.2.0 did): `katex` is the package's one
   dependency, `primitives.css` imports `katex/dist/katex.css`, and

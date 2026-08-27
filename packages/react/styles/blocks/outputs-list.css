@@ -180,12 +180,23 @@
     background: var(--astra-color-surface-raised);
   }
 
-  :where(.astra-ui) .astra-output-card__preview > img {
+  :where(.astra-ui) .astra-output-card__preview > img,
+  :where(.astra-ui) .astra-output-card__preview > .astra-artifact:where([data-type="image"]) > img {
     width: 100%;
     height: 100%;
     box-sizing: border-box;
     object-fit: contain;
+    max-height: none;
+    margin: 0;
     padding: 0.45rem;
+  }
+
+  :where(.astra-ui) .astra-output-card__preview > .astra-artifact:where([data-type="image"]) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    border: 0;
   }
 
   :where(.astra-ui) .astra-output-card__open {
