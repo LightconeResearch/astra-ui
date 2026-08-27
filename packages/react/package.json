@@ -1,24 +1,30 @@
 {
   "name": "@lightcone-research/astra-ui",
-  "version": "0.2.0",
-  "description": "Composable React components for resolved ASTRA analyses.",
+  "version": "0.3.0",
+  "description": "Composable, themable React components for resolved ASTRA analyses.",
   "license": "BSD-3-Clause",
+  "homepage": "https://github.com/LightconeResearch/astra-ui#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LightconeResearch/astra-ui.git",
+    "directory": "packages/react"
+  },
+  "bugs": {
+    "url": "https://github.com/LightconeResearch/astra-ui/issues"
+  },
+  "keywords": [
+    "astra",
+    "react",
+    "components",
+    "design-system",
+    "reproducible-research"
+  ],
   "type": "module",
   "sideEffects": [
-    "./styles.css",
-    "./components.css",
-    "./views.css",
-    "./inventory.css",
-    "./ui.css"
+    "*.css"
   ],
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "style": "./styles.css",
   "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "default": "./dist/index.js"
-    },
     "./components": {
       "types": "./dist/components.d.ts",
       "import": "./dist/components.js",
@@ -29,26 +35,70 @@
       "import": "./dist/views.js",
       "default": "./dist/views.js"
     },
+    "./ui": {
+      "types": "./dist/ui/index.d.ts",
+      "import": "./dist/ui/index.js",
+      "default": "./dist/ui/index.js"
+    },
+    "./ui/*": {
+      "types": "./dist/ui/*.d.ts",
+      "import": "./dist/ui/*.js",
+      "default": "./dist/ui/*.js"
+    },
+    "./data": {
+      "types": "./dist/data/index.d.ts",
+      "import": "./dist/data/index.js",
+      "default": "./dist/data/index.js"
+    },
+    "./data/*": {
+      "types": "./dist/data/*.d.ts",
+      "import": "./dist/data/*.js",
+      "default": "./dist/data/*.js"
+    },
+    "./records": {
+      "types": "./dist/records/index.d.ts",
+      "import": "./dist/records/index.js",
+      "default": "./dist/records/index.js"
+    },
+    "./records/*": {
+      "types": "./dist/records/*.d.ts",
+      "import": "./dist/records/*.js",
+      "default": "./dist/records/*.js"
+    },
+    "./inventory": {
+      "types": "./dist/inventory/index.d.ts",
+      "import": "./dist/inventory/index.js",
+      "default": "./dist/inventory/index.js"
+    },
+    "./inventory/*": {
+      "types": "./dist/inventory/*.d.ts",
+      "import": "./dist/inventory/*.js",
+      "default": "./dist/inventory/*.js"
+    },
     "./styles.css": "./styles.css",
-    "./components.css": "./components.css",
     "./views.css": "./views.css",
-    "./inventory.css": "./inventory.css",
-    "./ui.css": "./ui.css"
+    "./components.css": "./components.css",
+    "./ui.css": "./ui.css",
+    "./styles/*": "./styles/*",
+    "./package.json": "./package.json"
   },
   "files": [
     "dist",
+    "src",
+    "styles",
     "styles.css",
-    "components.css",
     "views.css",
-    "inventory.css",
+    "components.css",
     "ui.css",
     "README.md",
+    "CHANGELOG.md",
     "LICENSE"
   ],
   "scripts": {
     "clean": "node --input-type=module -e \"import { rmSync } from 'node:fs'; rmSync('dist', { recursive: true, force: true })\" && tsc -b tsconfig.json --clean",
     "build": "npm run clean && tsc -p tsconfig.json",
     "prepack": "npm run build",
+    "prepublishOnly": "npm test --prefix ../..",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "peerDependencies": {
@@ -56,7 +106,13 @@
     "react": ">=18 <20",
     "react-dom": ">=18 <20"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
     "node": ">=18"
-  }
+  },
+  "browserslist": [
+    "defaults and fully supports css-container-queries"
+  ]
 }

@@ -1,4 +1,8 @@
-/* Complete composed inventory view. */
-
+/* Everything: primitives, records, and the inventory views (inventory/). */
 @import "./components.css";
-@import "./inventory.css";
+@import "./styles/inventory/outputs.css";
+@import "./styles/inventory/explorer.css";
+@import "./styles/inventory/records.css";
+@import "./styles/inventory/papers.css";
+@import "./styles/inventory/analysis-tree.css";
+@import "./styles/inventory/decisions.css";

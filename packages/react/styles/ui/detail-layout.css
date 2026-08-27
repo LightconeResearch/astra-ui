@@ -1,0 +1,231 @@
+/* detail-layout — emitted by src/ui/detail-layout.tsx */
+@layer astra.components {
+  :where(.astra-ui) .astra-detail__layout {
+    display: grid;
+    width: 100%;
+    height: auto;
+    max-height: min(44rem, calc(100vh - 8rem));
+    min-height: 0;
+    overflow: hidden;
+    grid-template-columns: minmax(0, 1.55fr) minmax(18rem, 0.85fr);
+  }
+
+  :where(.astra-ui) .astra-detail__layout:where([data-layout="single"]) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  :where(.astra-ui) .astra-detail__main {
+    min-width: 0;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+    padding: clamp(1rem, 2.6vw, 2rem);
+  }
+
+  :where(.astra-ui) .astra-detail__aside {
+    min-width: 0;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+    border-left: 1px solid var(--astra-color-border);
+    background: var(--astra-color-surface-raised);
+    padding: 1.35rem 1.2rem;
+  }
+
+  :where(.astra-ui) .astra-detail__section > span {
+    color: var(--astra-color-accent);
+    font-family: var(--astra-font-ui);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  :where(.astra-ui) .astra-detail__section > div {
+    width: 100%;
+    max-width: none;
+    margin-top: 0.45rem;
+    color: var(--astra-color-text-muted);
+    font-size: 0.92rem;
+  }
+
+  :where(.astra-ui) .astra-detail__relations h4 {
+    margin: 0 0 0.55rem;
+    color: var(--astra-color-text);
+    font-family: var(--astra-font-ui);
+    font-size: 0.82rem;
+  }
+
+  @media (max-width: 640px) {
+    :where(.astra-ui) .astra-detail__aside {
+      border-top: 1px solid var(--astra-color-border);
+      border-left: 0;
+    }
+
+    :where(.astra-ui) .astra-detail__layout {
+      grid-template-columns: 1fr;
+      height: auto;
+      max-height: none;
+      overflow: visible;
+    }
+
+    :where(.astra-ui) .astra-detail__main,
+    :where(.astra-ui) .astra-detail__aside {
+      overflow: visible;
+    }
+
+  }
+  :where(.astra-ui) .astra-detail__main {
+    background: var(--astra-color-canvas);
+  }
+
+  :where(.astra-ui) .astra-detail__main {
+    padding: clamp(1.5rem, 3.2vw, 2.75rem);
+  }
+
+  :where(.astra-ui) .astra-detail__section > div {
+    color: var(--astra-color-text);
+    font-family: var(--astra-font-body);
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  :where(.astra-ui) .astra-detail__aside {
+    border-color: var(--astra-color-border);
+    background: var(--astra-color-surface-raised);
+  }
+
+  :where(.astra-ui) .astra-detail__label {
+    margin: 0 0 0.875rem;
+    color: var(--astra-color-text-subtle);
+    font: 700 0.6875rem/1.2 var(--astra-font-ui);
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+  }
+
+  :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-detail__layout {
+    height: auto;
+    max-height: none;
+    overflow: visible;
+  }
+
+  :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-detail__main {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: none;
+    min-height: 18rem;
+    overflow: visible;
+    padding: 1.25rem 1.625rem 2rem;
+    background: var(--astra-color-canvas);
+  }
+
+  :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-detail__section {
+    padding-block: 0.875rem;
+    border-block-start: 1px solid var(--astra-color-border);
+  }
+
+  :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-detail__section > span,
+  :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-detail__relations h4 {
+    color: var(--astra-color-text);
+    font: 700 0.8125rem/1.25 var(--astra-font-ui);
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-detail__section > div {
+    color: var(--astra-color-text-muted);
+    font: 400 0.84375rem/1.55 var(--astra-font-body);
+  }
+
+  :where(.astra-ui) .astra-dialog:where([data-kind="input"]) .astra-detail__layout:where([data-layout="single"]),
+  :where(.astra-ui) .astra-dialog:where([data-kind="finding"]) .astra-detail__layout:where([data-layout="single"]) {
+    height: auto;
+  }
+
+  :where(.astra-ui) .astra-detail__layout {
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  :where(.astra-ui) .astra-detail__layout:where([data-layout="single"]) {
+    display: block;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+  }
+
+  :where(.astra-ui) .astra-detail__main {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+    overflow: visible;
+    background: var(--astra-color-canvas);
+    padding: 1.5rem 1.625rem 1.875rem;
+  }
+
+  :where(.astra-ui) .astra-detail__section > span {
+    color: var(--astra-color-text-subtle);
+    font: 700 0.75rem/1 var(--astra-font-ui);
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+  }
+
+  :where(.astra-ui) .astra-detail__section > div {
+    width: 100%;
+    max-width: none;
+    margin-top: 0.5rem;
+    color: var(--astra-color-text-muted);
+    font: 1rem/1.55 var(--astra-font-body);
+  }
+
+  :where(.astra-ui) .astra-detail__relations {
+    margin-top: 1.625rem;
+  }
+
+  :where(.astra-ui) .astra-detail__relations h4 {
+    margin: 0 0 0.5rem;
+    color: var(--astra-color-text);
+    font: 700 0.875rem/1.2 var(--astra-font-ui);
+  }
+
+  :where(.astra-ui) .astra-detail__section.astra-detail__section:where([data-heading="section"]) > span {
+    color: var(--astra-color-text);
+    font: 700 0.875rem/1.2 var(--astra-font-ui);
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  :where(.astra-ui) .astra-paper-detail__rail .astra-detail__relations {
+    margin-top: 1.375rem;
+  }
+
+  :where(.astra-ui) .astra-detail__main {
+    background: var(--astra-color-surface-raised);
+  }
+
+  :where(.astra-ui) .astra-detail__aside {
+    border-color: var(--astra-color-border);
+    background: var(--astra-color-header);
+  }
+
+  :where(.astra-ui) .astra-detail__section > span {
+    color: var(--astra-kind-ink, var(--astra-color-eyebrow));
+  }
+
+  :where(.astra-ui) .astra-detail__section > div {
+    color: var(--astra-color-text-muted);
+    font-family: var(--astra-font-ui);
+  }
+
+  :where(.astra-ui) .astra-detail__section > div {
+    color: var(--astra-color-text-muted);
+    font-family: var(--astra-font-body);
+  }
+
+}

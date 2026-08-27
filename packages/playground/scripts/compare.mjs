@@ -3,7 +3,7 @@
 //
 //   node scripts/compare.mjs <baselineDir> <candidateDir> [diffDir]
 //
-import { execFileSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
@@ -19,16 +19,10 @@ for (const file of readdirSync(baselineDir).filter((name) => name.endsWith('.png
     failures += 1;
     continue;
   }
-  let pixels = '0';
-  try {
-    pixels = execFileSync('compare', ['-metric', 'AE', join(baselineDir, file), candidate, join(diffDir, file)], {
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'pipe'],
-    }).trim();
-  } catch (error) {
-    // `compare` exits 1 when images differ and 2 on size mismatch; stderr carries the metric.
-    pixels = String(error.stderr ?? '').trim() || 'size-mismatch';
-  }
+  // `compare` always prints the metric to stderr; it exits 1 when images
+  // differ and 2 on size mismatch.
+  const result = spawnSync('compare', ['-metric', 'AE', join(baselineDir, file), candidate, join(diffDir, file)], { encoding: 'utf8' });
+  const pixels = result.status === 2 ? 'size-mismatch' : String(result.stderr).trim();
   const count = Number.parseFloat(pixels);
   if (Number.isNaN(count) || count > 0) {
     failures += 1;

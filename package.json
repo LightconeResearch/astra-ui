@@ -1,6 +1,5 @@
 {
   "name": "astra-ui-workspace",
-  "version": "0.1.0",
   "private": true,
   "description": "Composable React components for resolved ASTRA analyses.",
   "license": "BSD-3-Clause",
@@ -14,9 +13,16 @@
   "scripts": {
     "clean": "npm run clean --workspace @lightcone-research/astra-ui",
     "build": "npm run build --workspace @lightcone-research/astra-ui",
-    "typecheck": "npm run typecheck --workspace @lightcone-research/astra-ui",
-    "test": "npm run build && node --test tests/*.test.mjs",
-    "test:packages": "node --test tests/package-contract.test.mjs"
+    "typecheck": "npm run typecheck --workspace @lightcone-research/astra-ui && tsc -p packages/playground/tsconfig.json",
+    "typecheck:react19": "tsc -p tsconfig.react19.json",
+    "lint": "eslint .",
+    "test": "npm run build && node --test tests/*.test.mjs && vitest run",
+    "test:packages": "npm run build && node --test tests/package-contract.test.mjs",
+    "test:dom": "vitest run",
+    "check:consumers": "node scripts/check-consumers.mjs",
+    "playground": "npm run dev --workspace astra-ui-playground",
+    "screenshots": "npm run build && node packages/playground/scripts/screenshot.mjs packages/playground/screenshots/current",
+    "screenshots:compare": "node packages/playground/scripts/compare.mjs packages/playground/screenshots/baseline packages/playground/screenshots/current"
   },
   "devDependencies": {
     "@astra-spec/sdk": "^0.0.8",
@@ -33,7 +39,8 @@
     "react-dom": "^18.3.1",
     "typescript": "^5.7.0",
     "typescript-eslint": "^8.68.0",
-    "vitest": "^4.1.11"
+    "vitest": "^4.1.11",
+    "@types/react-19": "npm:@types/react@^19"
   },
   "allowScripts": {
     "esbuild@0.25.12": true

@@ -1,11 +1,18 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { indexAnalysis } from '@astra-spec/sdk';
-import { collectInventoryPapers } from '../packages/react/dist/index.js';
+import {
+  collectInventoryPapers,
+  createInventoryIndex,
+  decisionInsights,
+  findingEvidence,
+  informedDecisions,
+  locateRecord,
+  outputRelations,
+} from '../packages/react/dist/data/index.js';
 import { fixtureDocument } from './fixture.mjs';
 
 test('paper presentation data is derived from the SDK document and index', () => {
-  const index = indexAnalysis(fixtureDocument);
+  const index = createInventoryIndex(fixtureDocument);
   const papers = collectInventoryPapers(
     fixtureDocument,
     index,
@@ -40,7 +47,7 @@ test('paper presentation data is derived from the SDK document and index', () =>
 });
 
 test('a child paper inventory remains local to the selected analysis', () => {
-  const index = indexAnalysis(fixtureDocument);
+  const index = createInventoryIndex(fixtureDocument);
   const papers = collectInventoryPapers(
     fixtureDocument,
     index,
@@ -48,4 +55,31 @@ test('a child paper inventory remains local to the selected analysis', () => {
   );
 
   assert.deepEqual(papers.map(({ doi }) => doi), ['10.5678/nested']);
+});
+
+test('the inventory index locates records with their owning analysis', () => {
+  const index = createInventoryIndex(fixtureDocument);
+  assert.equal(locateRecord(index, 'outputs.headline').analysis.canonicalPath, '$');
+  assert.equal(locateRecord(index, 'clustering.outputs.correlation').analysis.canonicalPath, 'clustering');
+  assert.equal(locateRecord(index, 'outputs.missing'), undefined);
+});
+
+test('relations, evidence, and insight derivations follow provenance', () => {
+  const index = createInventoryIndex(fixtureDocument);
+  const headline = index.recordByPath.get('outputs.headline');
+  const relations = outputRelations(index, headline);
+  assert.deepEqual(relations.inputs.map(({ record }) => record.id), ['catalog']);
+  assert.deepEqual(relations.decisions.map(({ record }) => record.id), ['method']);
+  assert.equal(relations.alias, undefined);
+
+  const finding = index.recordByPath.get('findings.headline_finding');
+  const evidence = findingEvidence(index, finding);
+  assert.equal(evidence.length, 1);
+  assert.equal(evidence[0].output.canonicalPath, 'outputs.headline');
+
+  const decision = index.recordByPath.get('decisions.method');
+  assert.deepEqual(decisionInsights(index, decision).map(({ id }) => id), ['published_method']);
+
+  const insight = index.recordByPath.get('prior_insights.published_method');
+  assert.deepEqual(informedDecisions(fixtureDocument, insight).map(({ id }) => id), ['method']);
 });

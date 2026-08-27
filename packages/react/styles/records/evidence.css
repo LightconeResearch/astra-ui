@@ -1,0 +1,82 @@
+/* evidence — emitted by src/records/insight-trigger.tsx + records/paper-detail.tsx */
+@layer astra.components {
+  :where(.astra-ui) .astra-paper-detail__insights .astra-evidence__title {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    width: 100%;
+    min-width: 0;
+  }
+
+  :where(.astra-ui) .astra-paper-detail__insights .astra-evidence__name {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  :where(.astra-ui) .astra-insight-trigger:where([data-variant="claim"]) .astra-evidence__glyph--insight {
+    margin-top: 0.22rem;
+  }
+
+  :where(.astra-ui) .astra-evidence {
+    list-style: none;
+    margin: 0.15rem 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  :where(.astra-ui) .astra-evidence__title {
+    font-family: var(--astra-font-ui);
+    font-weight: 500;
+    font-size: 14px;
+    color: var(--astra-color-text);
+    display: flex;
+    align-items: baseline;
+    gap: 0.5em;
+  }
+
+  :where(.astra-ui) .astra-evidence__glyph--insight {
+    color: var(--astra-color-kind-insight);
+    font-size: 0.85em;
+  }
+
+  :where(.astra-ui) .astra-evidence__glyph--output {
+    color: var(--astra-color-kind-output);
+    font-size: 0.85em;
+  }
+
+  :where(.astra-ui) .astra-evidence__tag {
+    font-family: var(--astra-font-ui);
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--astra-color-text-subtle);
+  }
+
+  :where(.astra-ui) .astra-insight-trigger .astra-evidence__name {
+    color: var(--astra-color-link);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-decoration-color: color-mix(in srgb, var(--astra-color-link) 45%, transparent);
+    text-underline-offset: 2px;
+    cursor: pointer;
+  }
+
+  :where(.astra-ui) .astra-evidence__item {
+    border-radius: var(--astra-radius-control);
+    padding: 8px 12px;
+    border: 1px solid color-mix(in srgb, var(--astra-color-kind-insight) 20%, var(--astra-color-border));
+    background: var(--astra-color-kind-insight-soft);
+  }
+
+  :where(.astra-ui) .astra-insight-trigger .astra-evidence__name {
+    color: var(--astra-color-kind-insight-ink);
+  }
+
+  :where(.astra-ui) .astra-insight-trigger:hover .astra-evidence__name,
+  :where(.astra-ui) .astra-insight-trigger:focus-visible .astra-evidence__name {
+    background: var(--astra-color-kind-insight-soft);
+    text-decoration-color: var(--astra-color-kind-insight-ink);
+  }
+
+}

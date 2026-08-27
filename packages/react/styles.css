@@ -1,2 +1,2 @@
-/* Umbrella entry retained for hosts that prefer the package-wide stylesheet. */
+/* Complete stylesheet; alias of views.css. */
 @import "./views.css";

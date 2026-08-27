@@ -1,0 +1,129 @@
+/*
+ * astra-ui token contract.
+ *
+ * Every custom property the components consume is declared here with a
+ * default, at zero specificity, so a host or theme that redefines the same
+ * name on `.astra-ui` (or any ancestor) always wins. Themes only set values;
+ * they never need to know component internals.
+ *
+ * Transitional: each colour and font default falls back to the raw
+ * lightcone-brand name (`--astra-ink`, `--astra-label`, ...) so brand
+ * stylesheets that predate the role-name contract still apply. Those
+ * fallbacks disappear once @lightcone-research/lightcone-brand defines the
+ * role names directly.
+ */
+@layer astra.tokens, astra.base, astra.components, astra.views;
+
+@layer astra.tokens {
+  :where(.astra-ui) {
+    /* Surfaces */
+    --astra-color-canvas: var(--astra-canvas, #f8f7f3);
+    --astra-color-surface: var(--astra-panel, #ffffff);
+    --astra-color-surface-raised: var(--astra-raised, #ffffff);
+    --astra-color-surface-muted: var(--astra-hover, #f1efe9);
+    --astra-color-header: var(--astra-header, #f8f7f3);
+    --astra-color-artifact-paper: var(--astra-artifact-paper, #ffffff);
+    --astra-color-artifact-ink: var(--astra-artifact-ink, #221f20);
+
+    /* Text */
+    --astra-color-text: var(--astra-ink, #221f20);
+    --astra-color-text-muted: var(--astra-ink-soft, #4e5a70);
+    --astra-color-text-subtle: var(--astra-muted, #8b7d70);
+    --astra-color-text-faint: var(--astra-faint, #b8b0a8);
+    --astra-color-eyebrow: var(--astra-kicker, #3f7280);
+
+    /* Borders */
+    --astra-color-border-subtle: var(--astra-rule-subtle, color-mix(in srgb, #8b7d70 10%, #f8f7f3));
+    --astra-color-border: var(--astra-rule, color-mix(in srgb, #8b7d70 18%, #f8f7f3));
+    --astra-color-border-strong: var(--astra-rule-strong, color-mix(in srgb, #8b7d70 38%, #f8f7f3));
+
+    /* Interaction */
+    --astra-color-accent: var(--astra-action, #4e5a70);
+    --astra-color-accent-soft: var(--astra-accent-soft, rgb(78 90 112 / 0.1));
+    --astra-color-accent-contrast: #ffffff;
+    --astra-color-link: var(--astra-link, var(--astra-color-accent));
+    --astra-color-focus: var(--astra-focus, #3f7280);
+    --astra-color-danger: var(--astra-c-danger, #a45a43);
+    --astra-color-danger-soft: var(--astra-c-danger-soft, rgb(164 90 67 / 0.09));
+
+    /* Record kinds. These are ASTRA semantics, not host branding. */
+    --astra-color-kind-input: var(--astra-c-input, #4e5a70);
+    --astra-color-kind-analysis: var(--astra-c-analysis, #3f7280);
+    --astra-color-kind-output: var(--astra-c-output, #3b7a73);
+    --astra-color-kind-decision: var(--astra-c-decision, #a67c3c);
+    --astra-color-kind-decision-ink: var(--astra-c-decision-ink, #765a2f);
+    --astra-color-kind-finding: var(--astra-c-finding, #a45a43);
+    --astra-color-kind-insight: var(--astra-c-insight, #8b7d70);
+    --astra-color-kind-insight-ink: var(--astra-c-insight-ink, #4e5a70);
+    --astra-color-kind-input-soft: var(--astra-c-input-soft, rgb(78 90 112 / 0.1));
+    --astra-color-kind-analysis-soft: var(--astra-c-analysis-soft, rgb(63 114 128 / 0.1));
+    --astra-color-kind-output-soft: var(--astra-c-output-soft, rgb(59 122 115 / 0.1));
+    --astra-color-kind-decision-soft: var(--astra-c-decision-soft, rgb(166 124 60 / 0.11));
+    --astra-color-kind-finding-soft: var(--astra-c-finding-soft, rgb(164 90 67 / 0.1));
+    --astra-color-kind-insight-soft: var(--astra-c-insight-soft, rgb(139 125 112 / 0.11));
+
+    /* Element-local kind colour; kind.css sets --astra-kind, --astra-kind-ink
+       and --astra-kind-soft per [data-kind]. Only the base is defaulted so
+       `var(--astra-kind-ink, ...)` fallbacks keep working outside a kind. */
+    --astra-kind: var(--astra-color-accent);
+
+    /* Typography */
+    --astra-font-ui: var(--astra-label, Georgia, "Times New Roman", serif);
+    --astra-font-body: var(--astra-serif, Georgia, "Times New Roman", serif);
+    --astra-font-heading: var(--astra-heading, Georgia, "Times New Roman", serif);
+    --astra-font-mono: var(--astra-mono, ui-monospace, "SF Mono", Menlo, Consolas, monospace);
+    --astra-font-size: 0.875rem;
+
+    /* Geometry */
+    --astra-radius-control: var(--astra-radius, 0);
+    --astra-radius-panel: 0;
+    --astra-shadow-raised: var(--astra-shadow, none);
+    --astra-shadow-panel: var(--astra-shadow-raised);
+    --astra-space-1: 0.25rem;
+    --astra-space-2: 0.5rem;
+    --astra-space-3: 0.75rem;
+    --astra-space-4: 1rem;
+    --astra-z-dialog: 1000;
+    --astra-z-fullscreen: 10000;
+  }
+
+  /* Dark palette: explicit opt-in, or the host reports darkness. */
+  :where(.astra-ui[data-astra-color-scheme="dark"]),
+  :where([data-jp-theme-light="false"], .vscode-dark, .vscode-high-contrast) :where(.astra-ui:not([data-astra-color-scheme="light"])) {
+    --astra-color-canvas: var(--astra-canvas, #171614);
+    --astra-color-surface: var(--astra-panel, #1e1d1a);
+    --astra-color-surface-raised: var(--astra-raised, #272520);
+    --astra-color-surface-muted: var(--astra-hover, #302d27);
+    --astra-color-header: var(--astra-header, #302d27);
+    --astra-color-artifact-paper: var(--astra-artifact-paper, #f8f7f3);
+    --astra-color-artifact-ink: var(--astra-artifact-ink, #221f20);
+    --astra-color-text: var(--astra-ink, #f2eee7);
+    --astra-color-text-muted: var(--astra-ink-soft, #c4bdb2);
+    --astra-color-text-subtle: var(--astra-muted, #a39b90);
+    --astra-color-text-faint: var(--astra-faint, #777168);
+    --astra-color-eyebrow: var(--astra-kicker, #86adb7);
+    --astra-color-border-subtle: var(--astra-rule-subtle, #302d28);
+    --astra-color-border: var(--astra-rule, #3b3731);
+    --astra-color-border-strong: var(--astra-rule-strong, #514b42);
+    --astra-color-accent: var(--astra-action, #aeb8ca);
+    --astra-color-accent-soft: var(--astra-accent-soft, rgb(174 184 202 / 0.16));
+    --astra-color-focus: var(--astra-focus, #86adb7);
+    --astra-color-danger: var(--astra-c-danger, #d6927d);
+    --astra-color-danger-soft: var(--astra-c-danger-soft, rgb(214 146 125 / 0.13));
+    --astra-color-kind-input: var(--astra-c-input, #aeb8ca);
+    --astra-color-kind-analysis: var(--astra-c-analysis, #86adb7);
+    --astra-color-kind-output: var(--astra-c-output, #79b6ae);
+    --astra-color-kind-decision: var(--astra-c-decision, #d8b477);
+    --astra-color-kind-decision-ink: var(--astra-c-decision-ink, #d8b477);
+    --astra-color-kind-finding: var(--astra-c-finding, #d6927d);
+    --astra-color-kind-insight: var(--astra-c-insight, #c2b5a9);
+    --astra-color-kind-insight-ink: var(--astra-c-insight-ink, #c2b5a9);
+    --astra-color-kind-input-soft: var(--astra-c-input-soft, rgb(174 184 202 / 0.15));
+    --astra-color-kind-analysis-soft: var(--astra-c-analysis-soft, rgb(134 173 183 / 0.15));
+    --astra-color-kind-output-soft: var(--astra-c-output-soft, rgb(121 182 174 / 0.14));
+    --astra-color-kind-decision-soft: var(--astra-c-decision-soft, rgb(216 180 119 / 0.14));
+    --astra-color-kind-finding-soft: var(--astra-c-finding-soft, rgb(214 146 125 / 0.15));
+    --astra-color-kind-insight-soft: var(--astra-c-insight-soft, rgb(194 181 169 / 0.15));
+    --astra-shadow-raised: var(--astra-shadow, 0 5px 18px rgb(0 0 0 / 0.38));
+  }
+}

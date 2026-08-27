@@ -1,0 +1,53 @@
+/* insight-trigger — emitted by src/records/insight-trigger.tsx */
+@layer astra.components {
+  :where(.astra-ui) .astra-insight-trigger {
+    display: block;
+    width: 100%;
+    cursor: pointer;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    color: inherit;
+    text-align: left;
+  }
+
+  :where(.astra-ui) .astra-insight-trigger:focus-visible {
+    border-radius: 0.18rem;
+    outline: 2px solid var(--astra-color-accent);
+    outline-offset: 2px;
+  }
+
+  :where(.astra-ui) .astra-insight-trigger:where([data-variant="claim"]) {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.55rem;
+    align-items: start;
+    color: var(--astra-color-text-muted);
+  }
+
+  :where(.astra-ui) .astra-insight-trigger:where([data-variant="claim"]):hover {
+    color: var(--astra-color-text);
+  }
+
+  :where(.astra-ui) .astra-insight-trigger__claim > :first-child {
+    margin-top: 0;
+  }
+
+  :where(.astra-ui) .astra-insight-trigger__claim > :last-child {
+    margin-bottom: 0;
+  }
+
+  :where(.astra-ui) .astra-insight-trigger:where([data-variant="claim"]) {
+    grid-template-columns: 1.375rem minmax(0, 1fr);
+    padding: 0.625rem 0.25rem;
+  }
+
+  :where(.astra-ui) .astra-insight-trigger__claim {
+    font-family: var(--astra-font-body);
+    font-size: 0.84rem;
+    line-height: 1.5;
+    color: var(--astra-color-text);
+    font: 400 0.8125rem/1.35 var(--astra-font-ui);
+  }
+
+}

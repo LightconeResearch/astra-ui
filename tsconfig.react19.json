@@ -1,0 +1,23 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "noEmit": true,
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "rootDir": "packages/react/src",
+    "paths": {
+      "react": [
+        "./node_modules/@types/react-19"
+      ],
+      "react/*": [
+        "./node_modules/@types/react-19/*"
+      ]
+    }
+  },
+  "include": [
+    "packages/react/src/**/*.ts",
+    "packages/react/src/**/*.tsx"
+  ]
+}

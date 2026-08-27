@@ -2,17 +2,18 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { indexAnalysis } from '@astra-spec/sdk';
 import {
   ArtifactPreview,
-  InventoryDetailDialog,
-  InventoryDetailPresentation,
-  InventoryExplorer,
-  InventoryProse,
-  OverviewInventory,
+  DetailDialog,
+  DialogProvider,
   PaperDialog,
+  Prose,
+  RecordDialog,
   collectInventoryPapers,
-} from '../packages/react/dist/index.js';
+  createInventoryIndex,
+  recordEntry,
+} from '../packages/react/dist/components.js';
+import { AnalysisTree, InventoryExplorer } from '../packages/react/dist/views.js';
 import { fixtureDocument } from './fixture.mjs';
 
 function withinUi(component) {
@@ -34,12 +35,9 @@ test('the composed inventory consumes ResolvedAnalysisDocument directly', () => 
     },
   }));
 
-  assert.match(html, /heading-text">Outputs/);
-  assert.match(html, /heading-text">Decisions/);
-  assert.match(html, /heading-text">Inputs/);
-  assert.match(html, /heading-text">Findings/);
-  assert.match(html, /heading-text">Prior Insights/);
-  assert.match(html, /heading-text">Papers/);
+  for (const label of ['Outputs', 'Decisions', 'Inputs', 'Findings', 'Prior Insights', 'Papers']) {
+    assert.match(html, new RegExp(`<h2 id="[a-z-]+" tabindex="-1"><span>${label}</span></h2>`));
+  }
   assert.match(html, /Headline result/);
   assert.match(html, /Fiducial/);
   assert.match(html, /A useful paper/);
@@ -47,10 +45,26 @@ test('the composed inventory consumes ResolvedAnalysisDocument directly', () => 
   assert.match(html, /Host preview/);
   assert.deepEqual(renderedOutputs, [['outputs.headline', true]]);
   assert.doesNotMatch(html, /results\//);
+  assert.match(html, /class="astra-inventory"/);
+  assert.doesNotMatch(html, /class="inventory-/);
+});
+
+test('sections, labels, and anchors are configurable', () => {
+  const html = withinUi(React.createElement(InventoryExplorer, {
+    document: fixtureDocument,
+    sections: ['findings', 'outputs'],
+    idPrefix: 'demo-',
+    showOutline: false,
+    labels: { sections: { outputs: 'Results' } },
+  }));
+  assert.match(html, /<h2 id="demo-findings"/);
+  assert.match(html, /<h2 id="demo-outputs" tabindex="-1"><span>Results<\/span>/);
+  assert.doesNotMatch(html, /Decisions/);
+  assert.doesNotMatch(html, /On this page/);
 });
 
 test('the analysis picker follows the SDK recursive analysis tree', () => {
-  const html = withinUi(React.createElement(OverviewInventory, {
+  const html = withinUi(React.createElement(AnalysisTree, {
     document: fixtureDocument,
     analysisPath: 'clustering',
     onSelectAnalysis: () => {},
@@ -76,30 +90,40 @@ test('artifact previews render only host-safe values', () => {
 
   assert.match(html, /tracer/);
   assert.match(html, /1\.002/);
+  assert.match(html, /data-type="table"/);
   assert.doesNotMatch(html, /results\//);
 
   const inactive = withinUi(React.createElement(ArtifactPreview, {
     output: fixtureDocument.analysis.outputs[1],
   }));
   assert.match(inactive, /not active in the selected universe/);
+
+  const loading = withinUi(React.createElement(ArtifactPreview, {
+    output,
+    preview: { kind: 'loading' },
+  }));
+  assert.match(loading, /aria-busy="true"/);
 });
 
 test('authored prose is plain by default and host-renderable by slot', () => {
-  const plain = withinUi(React.createElement(InventoryProse, {
+  const plain = withinUi(React.createElement(Prose, {
     text: 'Use $x$ and **strong** literally.',
   }));
   assert.match(plain, /Use \$x\$ and \*\*strong\*\* literally\./);
   assert.doesNotMatch(plain, /katex|<strong>/);
 
-  const custom = withinUi(React.createElement(InventoryProse, {
+  let seenField;
+  const custom = withinUi(React.createElement(Prose, {
     text: 'Host prose',
-    renderText: (text) => React.createElement('em', null, text),
+    field: 'rationale',
+    renderText: (text, { field }) => { seenField = field; return React.createElement('em', null, text); },
   }));
   assert.match(custom, /<em>Host prose<\/em>/);
+  assert.equal(seenField, 'rationale');
 });
 
 test('paper content and source focus are delegated to a host renderer', () => {
-  const index = indexAnalysis(fixtureDocument);
+  const index = createInventoryIndex(fixtureDocument);
   const paper = collectInventoryPapers(
     fixtureDocument,
     index,
@@ -113,20 +137,18 @@ test('paper content and source focus are delegated to a host renderer', () => {
   )[0];
   let renderOptions;
   const html = withinUi(React.createElement(PaperDialog, {
-    paper,
-    analysis: fixtureDocument.analysis,
-    initialFocusInsight: paper.insights[0],
+    record: paper,
+    focusInsight: paper.insights[0],
     renderPaper: (_paper, options) => {
       renderOptions = options;
       return React.createElement('div', { 'data-paper-renderer': true }, 'Host paper renderer');
     },
-    onOpenInsight: () => {},
-    onOpenDecision: () => {},
     onClose: () => {},
   }));
 
   assert.match(html, /Host paper renderer/);
   assert.match(html, /Locate/);
+  assert.match(html, /class="astra-dialog__action"/);
   assert.equal(
     renderOptions.focusEvidence.evidence.quote.exact,
     'The fiducial method performs well.',
@@ -141,22 +163,28 @@ test('missing paper content exposes only a host fetch event', () => {
     decisions: [],
   };
   const html = withinUi(React.createElement(PaperDialog, {
-    paper,
-    analysis: fixtureDocument.analysis,
+    record: paper,
     onFetchPaper: () => {},
-    onOpenInsight: () => {},
-    onOpenDecision: () => {},
     onClose: () => {},
   }));
 
   assert.match(html, /Fetch paper/);
   assert.doesNotMatch(html, /Loading|Fetching|pdf\.mjs/);
+
+  const fetching = withinUi(React.createElement(PaperDialog, {
+    record: paper,
+    metadata: { status: 'fetching' },
+    onFetchPaper: () => {},
+    onClose: () => {},
+  }));
+  assert.match(fetching, /aria-busy="true"/);
+  assert.match(fetching, /<button type="button" disabled=""/);
 });
 
 test('detail presentation preserves accessible modal and embedded shells', () => {
-  const detail = React.createElement(InventoryDetailDialog, {
+  const detail = React.createElement(DetailDialog, {
     kind: 'decision',
-    eyebrow: 'Decision · Analysis',
+    kindLabel: 'Decision',
     title: 'Method choice',
     closeLabel: 'Close decision details',
     onClose: () => {},
@@ -166,11 +194,44 @@ test('detail presentation preserves accessible modal and embedded shells', () =>
   assert.match(modal, /<dialog/);
   assert.match(modal, /aria-modal="true"/);
   assert.match(modal, /aria-label="Close decision details"/);
+  assert.match(modal, /class="astra-dialog__panel" data-kind="decision"/);
 
-  const embedded = withinUi(React.createElement(InventoryDetailPresentation, {
+  const embedded = withinUi(React.createElement(DialogProvider, {
     mode: 'embedded',
     children: detail,
   }));
-  assert.match(embedded, /inventory-detail-dialog--embedded/);
+  assert.match(embedded, /data-mode="embedded"[^>]*class="astra-dialog"/);
   assert.doesNotMatch(embedded, /<dialog/);
+});
+
+test('the record dialog derives relations and evidence from the index', () => {
+  const index = createInventoryIndex(fixtureDocument);
+  const output = withinUi(React.createElement(RecordDialog, {
+    entry: recordEntry('outputs.headline', '$'),
+    document: fixtureDocument,
+    index,
+    onClose: () => {},
+  }));
+  assert.match(output, /Headline result/);
+  assert.match(output, /Input catalogue/);
+  assert.match(output, /Method choice/);
+
+  const finding = withinUi(React.createElement(RecordDialog, {
+    entry: recordEntry('findings.headline_finding', '$'),
+    document: fixtureDocument,
+    index,
+    onOpenRecord: () => {},
+    onClose: () => {},
+  }));
+  assert.match(finding, /Supporting results/);
+  assert.match(finding, /View supporting result: Headline result/);
+
+  const missing = withinUi(React.createElement(RecordDialog, {
+    entry: recordEntry('outputs.gone', '$'),
+    document: fixtureDocument,
+    index,
+    onClose: () => {},
+    fallback: React.createElement('p', null, 'gone'),
+  }));
+  assert.equal(missing, '<div class="astra-ui"><p>gone</p></div>');
 });

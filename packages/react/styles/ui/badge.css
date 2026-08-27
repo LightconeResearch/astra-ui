@@ -1,0 +1,107 @@
+/* badge — emitted by src/ui/badge.tsx */
+@layer astra.components {
+  :where(.astra-ui) .astra-badge[data-kind="analysis"] {
+    --astra-kind: var(--astra-color-kind-analysis);
+    --astra-kind-ink: var(--astra-color-kind-analysis);
+    --astra-kind-soft: var(--astra-color-kind-analysis-soft);
+  }
+
+  :where(.astra-ui) .astra-badge[data-kind="input"] {
+    --astra-kind: var(--astra-color-kind-input);
+    --astra-kind-ink: var(--astra-color-kind-input);
+    --astra-kind-soft: var(--astra-color-kind-input-soft);
+  }
+
+  :where(.astra-ui) .astra-badge[data-kind="decision"] {
+    --astra-kind: var(--astra-color-kind-decision);
+    --astra-kind-ink: var(--astra-color-kind-decision-ink);
+    --astra-kind-soft: var(--astra-color-kind-decision-soft);
+  }
+
+  :where(.astra-ui) .astra-badge[data-kind="output"] {
+    --astra-kind: var(--astra-color-kind-output);
+    --astra-kind-ink: var(--astra-color-kind-output);
+    --astra-kind-soft: var(--astra-color-kind-output-soft);
+  }
+
+  :where(.astra-ui) .astra-badge[data-kind="finding"] {
+    --astra-kind: var(--astra-color-kind-finding);
+    --astra-kind-ink: var(--astra-color-kind-finding);
+    --astra-kind-soft: var(--astra-color-kind-finding-soft);
+  }
+
+  :where(.astra-ui) .astra-badge[data-kind="prior_insight"],
+  :where(.astra-ui) .astra-badge[data-kind="paper"] {
+    --astra-kind: var(--astra-color-kind-insight);
+    --astra-kind-ink: var(--astra-color-kind-insight-ink);
+    --astra-kind-soft: var(--astra-color-kind-insight-soft);
+  }
+
+  :where(.astra-ui) .astra-badge {
+    display: inline-flex;
+    width: max-content;
+    max-width: 100%;
+    align-items: center;
+    border: 1px solid var(--astra-color-border-strong);
+    border-radius: var(--astra-radius-control);
+    background: var(--astra-color-surface-raised);
+    color: var(--astra-color-text-muted);
+    padding: 0.15rem 0.4rem;
+    font: 700 0.62rem/1.4 var(--astra-font-ui);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  :where(.astra-ui) .astra-badge[data-tone="kind"] {
+    border-color: color-mix(in srgb, var(--astra-kind) 32%, var(--astra-color-border));
+    background: var(--astra-kind-soft);
+    color: var(--astra-kind-ink);
+  }
+
+  :where(.astra-ui) .astra-badge[data-tone="universe"] {
+    border-color: color-mix(in srgb, var(--astra-color-kind-decision) 32%, var(--astra-color-border));
+    background: var(--astra-color-kind-decision-soft);
+    color: var(--astra-color-kind-decision-ink);
+    font-family: var(--astra-font-mono);
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  :where(.astra-ui) .astra-badge[data-tone="status"] {
+    font-family: var(--astra-font-mono);
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  :where(.astra-ui) .astra-badge[data-status="available"],
+  :where(.astra-ui) .astra-badge[data-status="current"],
+  :where(.astra-ui) .astra-badge[data-status="materialized"],
+  :where(.astra-ui) .astra-badge[data-status="ready"] {
+    border-color: color-mix(in srgb, var(--astra-color-kind-output) 32%, var(--astra-color-border));
+    background: var(--astra-color-kind-output-soft);
+    color: var(--astra-color-kind-output);
+  }
+
+  :where(.astra-ui) .astra-badge[data-status="error"],
+  :where(.astra-ui) .astra-badge[data-status="missing"],
+  :where(.astra-ui) .astra-badge[data-status="stale"] {
+    border-color: color-mix(in srgb, var(--astra-color-danger) 32%, var(--astra-color-border));
+    background: var(--astra-color-danger-soft);
+    color: var(--astra-color-danger);
+  }
+
+  :where(.astra-ui) .astra-badge {
+    border-radius: 0;
+    font-family: var(--astra-font-ui);
+  }
+
+  :where(.astra-ui) .astra-badge[data-tone="kind"] {
+    border: 0;
+    background: transparent;
+    padding: 0;
+    letter-spacing: 0.1em;
+  }
+
+}

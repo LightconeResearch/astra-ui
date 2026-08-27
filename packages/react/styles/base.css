@@ -1,0 +1,47 @@
+/*
+ * Root paint and behaviour for the `.astra-ui` scope: box model, base
+ * typography, focus ring, motion and print. Themes never need to repeat any
+ * of this; they only redefine tokens.
+ */
+@layer astra.base {
+  :where(.astra-ui) {
+    box-sizing: border-box;
+    color: var(--astra-color-text);
+    background: var(--astra-color-surface);
+    font-family: var(--astra-font-body);
+    font-size: var(--astra-font-size);
+    line-height: 1.5;
+  }
+
+  :where(.astra-ui) *,
+  :where(.astra-ui) *::before,
+  :where(.astra-ui) *::after {
+    box-sizing: inherit;
+  }
+
+  :where(.astra-ui) :where(button, a, input, select, textarea):focus-visible {
+    outline: 2px solid var(--astra-color-focus);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :where(.astra-ui) *,
+    :where(.astra-ui) *::before,
+    :where(.astra-ui) *::after {
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+    }
+  }
+
+  @media print {
+    :where(.astra-ui) .astra-dialog:not([data-mode="embedded"]),
+    :where(.astra-ui) .astra-inventory-outline {
+      display: none;
+    }
+
+    :where(.astra-ui) .astra-record-list__body > button,
+    :where(.astra-ui) .astra-output-card {
+      break-inside: avoid;
+    }
+  }
+}

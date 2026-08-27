@@ -5,11 +5,11 @@ import {
   Badge,
   Button,
   IconButton,
-  InventoryCountHeading,
-  InventoryEmptyState,
-  InventoryRecordIdentity,
-  InventoryRecordList,
-  InventoryRelationList,
+  CountHeading,
+  EmptyState,
+  RecordIdentity,
+  RecordList,
+  RelationList,
   SurfaceHeader,
 } from '@lightcone-research/astra-ui/components';
 import { byPath } from './derive';
@@ -79,34 +79,35 @@ export const Artifacts: Story = () => {
   );
 };
 
-export const RecordList: Story = () => (
+export const RecordLists: Story = () => (
   <div className="playground-frame">
-    <InventoryRecordList
-      ariaLabel="Outputs"
+    <RecordList
+      label="Outputs"
       columnTemplate="minmax(14rem, 1fr) 6.875rem 1.5rem"
       columns={[
-        { label: 'Output', className: 'inventory-record-list__primary' },
-        { label: 'Type', className: 'inventory-record-list__secondary' },
-        { className: 'inventory-record-list__arrow' },
+        { label: 'Output', className: 'astra-record-list__primary' },
+        { label: 'Type', className: 'astra-record-list__secondary' },
+        { className: 'astra-record-list__arrow' },
       ]}
       rows={analysisDocument.analysis.outputs.slice(0, 5).map((record) => ({
         key: record.canonicalPath,
         accessibleLabel: record.label ?? record.id,
         onOpen: noop,
         cells: [
-          <InventoryRecordIdentity kind="output" title={record.label ?? record.id} subtitle={record.id} />,
-          <span className="inventory-record-list__tag">{record.type}</span>,
+          <RecordIdentity kind="output" title={record.label ?? record.id} subtitle={record.id} />,
+          <span className="astra-record-list__tag">{record.type}</span>,
           <span aria-hidden="true">→</span>,
         ],
       }))}
     />
-    <InventoryEmptyState>No records match this filter.</InventoryEmptyState>
+    <EmptyState>No records match this filter.</EmptyState>
   </div>
 );
 
 export const Relations: Story = () => (
   <div className="playground-frame">
-    <InventoryRelationList
+    <RelationList
+      className="astra-detail__relations"
       title="Decision dependencies"
       empty="None"
       description="Records this output depends on."
@@ -118,7 +119,8 @@ export const Relations: Story = () => (
         onOpen: noop,
       }))}
     />
-    <InventoryRelationList
+    <RelationList
+      className="astra-detail__relations"
       title="Static relations"
       empty="None"
       items={analysisDocument.analysis.inputs.slice(0, 2).map((input) => ({
@@ -128,6 +130,6 @@ export const Relations: Story = () => (
         kind: 'input' as const,
       }))}
     />
-    <InventoryCountHeading title="Count heading" count={12} />
+    <CountHeading title="Count heading" count={12} />
   </div>
 );

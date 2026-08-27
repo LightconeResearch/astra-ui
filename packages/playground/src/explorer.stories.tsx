@@ -1,5 +1,5 @@
 import type { Story } from '@ladle/react';
-import { InventoryExplorer, OverviewInventory } from '@lightcone-research/astra-ui/views';
+import { InventoryExplorer, AnalysisTree } from '@lightcone-research/astra-ui/views';
 import { useState } from 'react';
 import { analysisDocument, paperMetadata, renderArtifact, renderPaper } from './host';
 
@@ -34,11 +34,11 @@ export const EmbeddedDetail: Story = () => (
   />
 );
 
-export const AnalysisTree: Story = () => {
+export const Tree: Story = () => {
   const [path, setPath] = useState('clustering');
   return (
     <div className="playground-frame">
-      <OverviewInventory document={analysisDocument} analysisPath={path} onSelectAnalysis={setPath} />
+      <AnalysisTree document={analysisDocument} analysisPath={path} onSelectAnalysis={setPath} />
     </div>
   );
 };

@@ -1,36 +1,36 @@
 import type { Story } from '@ladle/react';
-import { InventoryDetailPresentation } from '@lightcone-research/astra-ui/components';
+import { DialogProvider } from '@lightcone-research/astra-ui/components';
 import { dialogStories } from './dialogs';
 
 export default { title: 'Dialogs / Embedded' };
 
 export const OutputFigure: Story = () => (
-  <InventoryDetailPresentation mode="embedded">{dialogStories.OutputFigure()}</InventoryDetailPresentation>
+  <DialogProvider mode="embedded">{dialogStories.OutputFigure()}</DialogProvider>
 );
 export const OutputTable: Story = () => (
-  <InventoryDetailPresentation mode="embedded">{dialogStories.OutputTable()}</InventoryDetailPresentation>
+  <DialogProvider mode="embedded">{dialogStories.OutputTable()}</DialogProvider>
 );
 export const OutputData: Story = () => (
-  <InventoryDetailPresentation mode="embedded">{dialogStories.OutputData()}</InventoryDetailPresentation>
+  <DialogProvider mode="embedded">{dialogStories.OutputData()}</DialogProvider>
 );
 export const Decision: Story = () => (
-  <InventoryDetailPresentation mode="embedded">{dialogStories.Decision()}</InventoryDetailPresentation>
+  <DialogProvider mode="embedded">{dialogStories.Decision()}</DialogProvider>
 );
 export const Finding: Story = () => (
-  <InventoryDetailPresentation mode="embedded">{dialogStories.Finding()}</InventoryDetailPresentation>
+  <DialogProvider mode="embedded">{dialogStories.Finding()}</DialogProvider>
 );
 export const Input: Story = () => (
-  <InventoryDetailPresentation mode="embedded">{dialogStories.Input()}</InventoryDetailPresentation>
+  <DialogProvider mode="embedded">{dialogStories.Input()}</DialogProvider>
 );
 export const Insight: Story = () => (
-  <InventoryDetailPresentation mode="embedded">{dialogStories.Insight()}</InventoryDetailPresentation>
+  <DialogProvider mode="embedded">{dialogStories.Insight()}</DialogProvider>
 );
 export const Paper: Story = () => (
-  <InventoryDetailPresentation mode="embedded">{dialogStories.Paper()}</InventoryDetailPresentation>
+  <DialogProvider mode="embedded">{dialogStories.Paper()}</DialogProvider>
 );
 export const PaperWithoutContent: Story = () => (
-  <InventoryDetailPresentation mode="embedded">{dialogStories.PaperWithoutContent()}</InventoryDetailPresentation>
+  <DialogProvider mode="embedded">{dialogStories.PaperWithoutContent()}</DialogProvider>
 );
 export const WithBackTrail: Story = () => (
-  <InventoryDetailPresentation mode="embedded">{dialogStories.WithBackTrail()}</InventoryDetailPresentation>
+  <DialogProvider mode="embedded">{dialogStories.WithBackTrail()}</DialogProvider>
 );
