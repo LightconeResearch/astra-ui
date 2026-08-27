@@ -1,0 +1,7 @@
+/* Playground chrome only. Nothing here styles astra-ui components. */
+html, body, #ladle-root { margin: 0; }
+.playground-root { min-height: 100vh; padding: 1.5rem; }
+.playground-root[data-astra-theme="brand-dark"] { background: var(--astra-canvas, #171614); }
+.playground-stack { display: grid; gap: 1.5rem; align-content: start; }
+.playground-row { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
+.playground-frame { max-width: 60rem; }

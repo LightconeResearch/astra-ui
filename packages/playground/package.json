@@ -1,0 +1,17 @@
+{
+  "name": "astra-ui-playground",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "ladle serve",
+    "build": "ladle build",
+    "fixture": "node scripts/resolve-fixture.mjs"
+  },
+  "devDependencies": {
+    "@ladle/react": "^5.0.0",
+    "@lightcone-research/astra-ui": "file:../react",
+    "@lightcone-research/lightcone-brand": "file:../../../lightcone-brand",
+    "playwright": "^1.62.1"
+  }
+}
