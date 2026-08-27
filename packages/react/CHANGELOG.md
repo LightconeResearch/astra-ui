@@ -16,6 +16,9 @@ the token contract are new.
   `views.css` = `styles.css`, or per-component sheets under `styles/`.
   `ui.css` and `inventory.css` are gone.
 - `src` ships with the package; declaration maps resolve to it.
+- Peer `@astra-spec/sdk` is `^0.1.0` (its resolved data model is unchanged
+  from 0.0.8; the release only removed the pre-resolution helpers this
+  package never used). Node 20 or later, matching the SDK.
 
 ### Migration from 0.2.0
 

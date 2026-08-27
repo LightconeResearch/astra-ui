@@ -36,7 +36,7 @@ test('the package depends on the SDK model and host React only', async () => {
 
   assert.equal(manifest.name, '@lightcone-research/astra-ui');
   assert.match(manifest.version, /^\d+\.\d+\.\d+/);
-  assert.equal(manifest.peerDependencies['@astra-spec/sdk'], '^0.0.8');
+  assert.equal(manifest.peerDependencies['@astra-spec/sdk'], '^0.1.0');
   assert.equal(manifest.peerDependencies.react, '>=18 <20');
   assert.equal(manifest.peerDependencies['react-dom'], '>=18 <20');
   assert.equal(manifest.dependencies, undefined);

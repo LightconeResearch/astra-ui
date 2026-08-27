@@ -5,7 +5,7 @@
   "license": "BSD-3-Clause",
   "type": "module",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "workspaces": [
     "packages/*"
@@ -26,7 +26,7 @@
     "check": "npm run lint && npm run typecheck && npm run typecheck:react19 && node --test tests/*.test.mjs && vitest run"
   },
   "devDependencies": {
-    "@astra-spec/sdk": "^0.0.8",
+    "@astra-spec/sdk": "^0.1.0",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.6",

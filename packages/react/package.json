@@ -105,7 +105,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "peerDependencies": {
-    "@astra-spec/sdk": "^0.0.8",
+    "@astra-spec/sdk": "^0.1.0",
     "react": ">=18 <20",
     "react-dom": ">=18 <20"
   },
@@ -113,7 +113,7 @@
     "access": "public"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "browserslist": [
     "chrome >= 111",

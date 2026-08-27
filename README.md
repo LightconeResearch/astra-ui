@@ -21,7 +21,7 @@ artifacts, fetch papers, or hold application state.
 npm install @lightcone-research/astra-ui @astra-spec/sdk react react-dom
 ```
 
-Peers: `@astra-spec/sdk@^0.0.8`, React 18 or 19.
+Peers: `@astra-spec/sdk@^0.1.0`, React 18 or 19.
 
 ## Entry points
 
