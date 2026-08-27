@@ -1,4 +1,5 @@
 import type {
+  AnalysisIndex,
   ResolvedAnalysisDocument,
   ResolvedAnalysisNode,
   ResolvedDecision,
@@ -7,7 +8,7 @@ import type {
   ResolvedRecord,
 } from '@astra-spec/sdk';
 import type { ReactNode } from 'react';
-import { locateRecord, type InventoryIndex } from '../model/inventory-index.js';
+import { locateRecord } from '../model/locate-record.js';
 import { findPaper, paperMetadataFor, type InventoryPaper, type InventoryPaperMetadataMap } from '../model/papers.js';
 import { isInsight, isVisualOutput, recordTitle } from '../model/records.js';
 import { decisionInsights, findingEvidence, informedDecisions, outputRelations } from '../model/relations.js';
@@ -27,7 +28,7 @@ import { PaperDetail, PaperDialogActions, type PaperRenderer } from './paper-det
 export interface RecordDialogProps extends Pick<DetailDialogProps, 'mode' | 'backText' | 'className' | 'onBack' | 'onClose'> {
   entry: DetailEntry;
   document: ResolvedAnalysisDocument;
-  index: InventoryIndex;
+  index: AnalysisIndex;
   /** Papers in scope, from `collectInventoryPapers()`; needed for paper entries and insight sources. */
   papers?: readonly InventoryPaper[] | undefined;
   paperMetadata?: InventoryPaperMetadataMap | undefined;

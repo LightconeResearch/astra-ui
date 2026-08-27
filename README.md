@@ -21,7 +21,7 @@ artifacts, fetch papers, or hold application state.
 npm install @lightcone-research/astra-ui @astra-spec/sdk react react-dom
 ```
 
-Peers: `@astra-spec/sdk@^0.1.0`, React 18 or 19.
+Peers: `@astra-spec/sdk@^0.1.1`, React 18 or 19.
 
 ## Entry points
 
@@ -34,7 +34,7 @@ depends on the ones below it, and every file is also importable on its own.
 | `./components` | One thing at a time: `OutputDialog` / `OutputDetail`, `DecisionDialog` / `DecisionDetail`, … for every record kind and for papers; `ArtifactPreview`; `InsightTrigger`; `RecordDialog` (any record); `useDetailStack` | `components.css` |
 | `./blocks` | Sections of the inventory page: `OutputsList`, `DecisionsList`, `InputsList`, `FindingsList`, `PriorInsightsList`, `PapersList`, `InventorySection`, `InventoryOutline`, `AnalysisTree` | `blocks.css` |
 | `./views` | Ready-made full surfaces: `Inventory` | `views.css` |
-| `./model` | Pure derivations over the SDK model, for hosts composing their own views: `createInventoryIndex`, `locateRecord`, `outputRelations`, `findingEvidence`, `decisionInsights`, `informedDecisions`, `collectInventoryPapers`, `doiHref` | — |
+| `./model` | Pure derivations over the SDK model, for hosts composing their own views (over the SDK's `indexAnalysis`): `locateRecord`, `outputRelations`, `findingEvidence`, `decisionInsights`, `informedDecisions`, `collectInventoryPapers`, `doiHref` | — |
 | `./<layer>/<file>` | Individual files, e.g. `@lightcone-research/astra-ui/components/output-dialog` | `styles/<layer>/<file>.css` |
 
 `styles.css` is an alias of `views.css`; the bundles nest
@@ -104,10 +104,10 @@ the same parts directly:
 ```tsx
 import { RecordDialog, useDetailStack } from '@lightcone-research/astra-ui/components';
 import { OutputsList } from '@lightcone-research/astra-ui/blocks';
-import { createInventoryIndex } from '@lightcone-research/astra-ui/model';
+import { indexAnalysis } from '@astra-spec/sdk';
 
 function OutputsPage({ document, detail, onDetailChange }) {
-  const index = useMemo(() => createInventoryIndex(document), [document]);
+  const index = useMemo(() => indexAnalysis(document), [document]);
   const stack = useDetailStack({ value: detail, onChange: onDetailChange });
   return (
     <>

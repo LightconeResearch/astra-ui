@@ -7,7 +7,7 @@ import type {
   ResolvedRecord,
 } from '@astra-spec/sdk';
 import { walkAnalyses, type AnalysisIndex, type ResolvedAnalysisDocument } from '@astra-spec/sdk';
-import { locateRecord, type InventoryIndex } from './inventory-index.js';
+import { locateRecord } from './locate-record.js';
 import { isInsight } from './records.js';
 
 /** A referenced record; `record`/`analysis` are absent when the path does not resolve. */
@@ -29,7 +29,7 @@ export interface FindingEvidenceLink {
   analysis?: ResolvedAnalysisNode | undefined;
 }
 
-export function linkedRecord(index: InventoryIndex, canonicalPath: string): LinkedRecord {
+export function linkedRecord(index: AnalysisIndex, canonicalPath: string): LinkedRecord {
   const located = locateRecord(index, canonicalPath);
   return {
     canonicalPath,
@@ -38,7 +38,7 @@ export function linkedRecord(index: InventoryIndex, canonicalPath: string): Link
 }
 
 /** Inputs, decisions, and alias source an output depends on. */
-export function outputRelations(index: InventoryIndex, output: ResolvedOutput): OutputRelations {
+export function outputRelations(index: AnalysisIndex, output: ResolvedOutput): OutputRelations {
   return {
     inputs: output.provenance.inputPaths.map((path) => linkedRecord(index, path)),
     decisions: output.provenance.decisionPaths.map((path) => linkedRecord(index, path)),
@@ -47,7 +47,7 @@ export function outputRelations(index: InventoryIndex, output: ResolvedOutput): 
 }
 
 /** Artifact-backed evidence of a finding, resolved to outputs where possible. */
-export function findingEvidence(index: InventoryIndex, finding: ResolvedInsight): FindingEvidenceLink[] {
+export function findingEvidence(index: AnalysisIndex, finding: ResolvedInsight): FindingEvidenceLink[] {
   return finding.evidence
     .filter((evidence) => Boolean(evidence.artifact) || Boolean(evidence.resolvedOutputPath))
     .map((evidence) => {

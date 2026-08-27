@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { indexAnalysis } from '@astra-spec/sdk';
 import {
   collectInventoryPapers,
-  createInventoryIndex,
   decisionInsights,
   findingEvidence,
   informedDecisions,
@@ -12,7 +12,7 @@ import {
 import { fixtureDocument } from './fixture.mjs';
 
 test('paper presentation data is derived from the SDK document and index', () => {
-  const index = createInventoryIndex(fixtureDocument);
+  const index = indexAnalysis(fixtureDocument);
   const papers = collectInventoryPapers(
     fixtureDocument,
     index,
@@ -47,7 +47,7 @@ test('paper presentation data is derived from the SDK document and index', () =>
 });
 
 test('a child paper inventory remains local to the selected analysis', () => {
-  const index = createInventoryIndex(fixtureDocument);
+  const index = indexAnalysis(fixtureDocument);
   const papers = collectInventoryPapers(
     fixtureDocument,
     index,
@@ -58,14 +58,14 @@ test('a child paper inventory remains local to the selected analysis', () => {
 });
 
 test('the inventory index locates records with their owning analysis', () => {
-  const index = createInventoryIndex(fixtureDocument);
+  const index = indexAnalysis(fixtureDocument);
   assert.equal(locateRecord(index, 'outputs.headline').analysis.canonicalPath, '$');
   assert.equal(locateRecord(index, 'clustering.outputs.correlation').analysis.canonicalPath, 'clustering');
   assert.equal(locateRecord(index, 'outputs.missing'), undefined);
 });
 
 test('relations, evidence, and insight derivations follow provenance', () => {
-  const index = createInventoryIndex(fixtureDocument);
+  const index = indexAnalysis(fixtureDocument);
   const headline = index.recordByPath.get('outputs.headline');
   const relations = outputRelations(index, headline);
   assert.deepEqual(relations.inputs.map(({ record }) => record.id), ['catalog']);

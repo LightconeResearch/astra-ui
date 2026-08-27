@@ -1,4 +1,4 @@
-import type { ResolvedDecision, ResolvedInput, ResolvedInsight, ResolvedOutput } from '@astra-spec/sdk';
+import { indexAnalysis, type ResolvedDecision, type ResolvedInput, type ResolvedInsight, type ResolvedOutput } from '@astra-spec/sdk';
 import { DialogProvider } from '@lightcone-research/astra-ui/primitives';
 import {
   DecisionDialog,
@@ -10,7 +10,6 @@ import {
 } from '@lightcone-research/astra-ui/components';
 import {
   collectInventoryPapers,
-  createInventoryIndex,
   decisionInsights,
   findingEvidence,
   informedDecisions,
@@ -22,7 +21,7 @@ import { analysisDocument, paperMetadata, renderArtifact, renderPaper } from './
 
 const noop = () => undefined;
 const analysis = analysisDocument.analysis;
-const index = createInventoryIndex(analysisDocument);
+const index = indexAnalysis(analysisDocument);
 const papers = collectInventoryPapers(analysisDocument, index, analysis, paperMetadata);
 function paper(position: number) {
   const found = papers[position];

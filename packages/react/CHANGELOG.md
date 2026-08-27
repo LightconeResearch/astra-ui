@@ -16,9 +16,10 @@ the token contract are new.
   `views.css` = `styles.css`, or per-component sheets under `styles/`.
   `ui.css` and `inventory.css` are gone.
 - `src` ships with the package; declaration maps resolve to it.
-- Peer `@astra-spec/sdk` is `^0.1.0` (its resolved data model is unchanged
-  from 0.0.8; the release only removed the pre-resolution helpers this
-  package never used). Node 20 or later, matching the SDK.
+- Peer `@astra-spec/sdk` is `^0.1.1`: the resolved data model is unchanged
+  from 0.0.8, and record lookups use the SDK's `indexAnalysis` (including its
+  `analysisByRecordPath`) instead of a package-local index. Node 20 or
+  later, matching the SDK.
 
 ### Migration from 0.2.0
 
@@ -40,8 +41,8 @@ the token contract are new.
 | `OverviewInventory` | `AnalysisTree` (in `/blocks`) |
 | `OutputsInventory`, `DecisionsInventory`, `InputsInventory`, `FindingsInventory`, `PriorInsightsInventory`, `PapersInventory` | `OutputsList`, `DecisionsList`, `InputsList`, `FindingsList`, `PriorInsightsList`, `PapersList` |
 | `InventoryExplorer` | `Inventory` |
-| `collectInventoryPapers(document, index, …)` | unchanged; `index` may be an `InventoryIndex` |
-| private `InventoryRecordDetail`, relation/evidence derivations | `RecordDialog`, `outputRelations`, `findingEvidence`, `decisionInsights`, `informedDecisions`, `locateRecord`, `createInventoryIndex` |
+| `collectInventoryPapers(document, index, …)` | unchanged; `index` is the SDK's `AnalysisIndex` (`indexAnalysis(document)`) |
+| private `InventoryRecordDetail`, relation/evidence derivations | `RecordDialog`, `outputRelations`, `findingEvidence`, `decisionInsights`, `informedDecisions`, `locateRecord` |
 | local dialog stack in `InventoryExplorer` | `useDetailStack`; `Inventory { detail, defaultDetail, onDetailChange }` |
 | `inventory-*` class names | `astra-*` blocks with `data-*` variants; see the styling contract in the README |
 | `--astra-ink`, `--astra-rule`, `--astra-label`, … (brand raw names) | `--astra-color-text`, `--astra-color-border`, `--astra-font-ui`, … (see TOKENS.md) |

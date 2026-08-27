@@ -36,7 +36,7 @@ test('the package depends on the SDK model and host React only', async () => {
 
   assert.equal(manifest.name, '@lightcone-research/astra-ui');
   assert.match(manifest.version, /^\d+\.\d+\.\d+/);
-  assert.equal(manifest.peerDependencies['@astra-spec/sdk'], '^0.1.0');
+  assert.equal(manifest.peerDependencies['@astra-spec/sdk'], '^0.1.1');
   assert.equal(manifest.peerDependencies.react, '>=18 <20');
   assert.equal(manifest.peerDependencies['react-dom'], '>=18 <20');
   assert.equal(manifest.dependencies, undefined);
@@ -76,7 +76,7 @@ test('every JS subpath resolves to a built module', async () => {
     components: ['ArtifactPreview', 'OutputDialog', 'OutputDetail', 'RecordDialog', 'useDetailStack'],
     blocks: ['OutputsList', 'InventorySection', 'InventoryOutline', 'AnalysisTree'],
     views: ['Inventory'],
-    model: ['createInventoryIndex', 'outputRelations', 'collectInventoryPapers'],
+    model: ['locateRecord', 'outputRelations', 'collectInventoryPapers'],
   };
   for (const [layer, names] of Object.entries(expected)) {
     for (const name of names) assert.ok(['function', 'object'].includes(typeof layers[layer][name]) && layers[layer][name], `${name} is a ${layer} export`);

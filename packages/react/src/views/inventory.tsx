@@ -1,8 +1,14 @@
-import type { ResolvedAnalysisDocument, ResolvedAnalysisNode, ResolvedOutput, ResolvedRecord } from '@astra-spec/sdk';
+import {
+  indexAnalysis,
+  type AnalysisIndex,
+  type ResolvedAnalysisDocument,
+  type ResolvedAnalysisNode,
+  type ResolvedOutput,
+  type ResolvedRecord,
+} from '@astra-spec/sdk';
 import { forwardRef, useEffect, useMemo, useRef, type HTMLAttributes, type ReactNode } from 'react';
-import { createInventoryIndex, type InventoryIndex } from '../model/inventory-index.js';
 import { collectInventoryPapers, findPaper, type InventoryPaper, type InventoryPaperMetadataMap } from '../model/papers.js';
-import { locateRecord } from '../model/inventory-index.js';
+import { locateRecord } from '../model/locate-record.js';
 import { cn } from '../lib/cn.js';
 import { LabelsProvider, useLabels, type AstraLabelOverrides } from '../lib/labels.js';
 import type { DetailEntry } from '../components/detail-entry.js';
@@ -25,7 +31,7 @@ export const DEFAULT_SECTIONS: readonly InventorySectionId[] = ['outputs', 'deci
 export interface InventoryProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
   document: ResolvedAnalysisDocument;
   /** Pass a prebuilt index to share it with the host; otherwise one is derived from `document`. */
-  index?: InventoryIndex | undefined;
+  index?: AnalysisIndex | undefined;
   /** Canonical analysis path; `$` selects the project root. */
   analysisPath?: string | undefined;
   /** Which sections to show, in order. */
@@ -95,7 +101,7 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(
   ...rest
 }, ref) {
   const labels = useLabels();
-  const index = useMemo(() => providedIndex ?? createInventoryIndex(document), [document, providedIndex]);
+  const index = useMemo(() => providedIndex ?? indexAnalysis(document), [document, providedIndex]);
   const analysis = index.analysisByPath.get(analysisPath) ?? document.analysis;
   const papers = useMemo(
     () => collectInventoryPapers(document, index, analysis, paperMetadata),

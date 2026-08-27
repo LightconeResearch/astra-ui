@@ -4,7 +4,8 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { DetailDialog, DialogProvider, Prose } from '../packages/react/dist/primitives/index.js';
 import { ArtifactPreview, PaperDialog, RecordDialog, recordEntry } from '../packages/react/dist/components/index.js';
-import { collectInventoryPapers, createInventoryIndex } from '../packages/react/dist/model/index.js';
+import { indexAnalysis } from '@astra-spec/sdk';
+import { collectInventoryPapers } from '../packages/react/dist/model/index.js';
 import { AnalysisTree } from '../packages/react/dist/blocks/index.js';
 import { Inventory } from '../packages/react/dist/views/index.js';
 import { fixtureDocument } from './fixture.mjs';
@@ -116,7 +117,7 @@ test('authored prose is plain by default and host-renderable by slot', () => {
 });
 
 test('paper content and source focus are delegated to a host renderer', () => {
-  const index = createInventoryIndex(fixtureDocument);
+  const index = indexAnalysis(fixtureDocument);
   const paper = collectInventoryPapers(
     fixtureDocument,
     index,
@@ -198,7 +199,7 @@ test('detail presentation preserves accessible modal and embedded shells', () =>
 });
 
 test('the record dialog derives relations and evidence from the index', () => {
-  const index = createInventoryIndex(fixtureDocument);
+  const index = indexAnalysis(fixtureDocument);
   const output = withinUi(React.createElement(RecordDialog, {
     entry: recordEntry('outputs.headline', '$'),
     document: fixtureDocument,

@@ -1,7 +1,7 @@
 /** Model: pure, React-free derivations over the SDK's resolved analysis. */
 export { analysisTitle, countLabel, isInsight, isVisualOutput, recordTitle, selectedOptionLabel } from './records.js';
-export { createInventoryIndex, locateRecord } from './inventory-index.js';
-export type { InventoryIndex, LocatedRecord } from './inventory-index.js';
+export { locateRecord } from './locate-record.js';
+export type { LocatedRecord } from './locate-record.js';
 export {
   decisionInsightPaths,
   decisionInsights,
