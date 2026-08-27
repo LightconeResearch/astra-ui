@@ -1,84 +1,112 @@
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
 import test from 'node:test';
 
-const parse = async (path) => JSON.parse(await readFile(path, 'utf8'));
+const root = new URL('..', import.meta.url);
+const sourceDirectory = new URL('../packages/react/src/', import.meta.url);
+const parse = async (url) => JSON.parse(await readFile(url, 'utf8'));
 
-test('the SDK is the sole owner of the canonical project model', async () => {
-  const core = await readFile(new URL('../packages/react/src/core.ts', import.meta.url), 'utf8');
-  const viewerTypes = await readFile(new URL('../packages/react/src/viewer-types.ts', import.meta.url), 'utf8');
-  assert.match(core, /export \* from '@astra-spec\/sdk\/view-model'/);
-  assert.doesNotMatch(viewerTypes, /interface ProjectViewModelV1|interface ProjectRecordView/);
-});
+async function sourceText(directory = sourceDirectory) {
+  const entries = await readdir(directory, { withFileTypes: true });
+  const chunks = [];
+  for (const entry of entries) {
+    const url = new URL(entry.name, directory);
+    if (entry.isDirectory()) chunks.push(await sourceText(new URL(`${entry.name}/`, directory)));
+    if (entry.isFile() && /\.[cm]?[jt]sx?$/.test(entry.name)) {
+      chunks.push(await readFile(url, 'utf8'));
+    }
+  }
+  return chunks.join('\n');
+}
 
-test('the unified UI package uses host React and only portable rendering dependencies', async () => {
+test('the package depends on the SDK model and host React only', async () => {
   const manifest = await parse(new URL('../packages/react/package.json', import.meta.url));
+
   assert.equal(manifest.name, '@lightcone-research/astra-ui');
-  assert.equal(manifest.peerDependencies['@astra-spec/sdk'], '^0.0.5');
+  assert.equal(manifest.version, '0.2.0');
+  assert.equal(manifest.peerDependencies['@astra-spec/sdk'], '^0.0.8');
   assert.equal(manifest.peerDependencies.react, '>=18 <20');
   assert.equal(manifest.peerDependencies['react-dom'], '>=18 <20');
-  const names = Object.keys(manifest.dependencies ?? {});
-  assert.deepEqual(names, ['katex']);
-  assert.equal(names.some((name) => /jupyter|myst|vscode/i.test(name)), false);
-  assert.ok(manifest.exports['./core']);
-  assert.equal(manifest.exports['./ui.css'], './ui.css');
-  assert.ok(manifest.files.includes('ui.css'));
-});
-
-test('components layer never imports the application views layer', async () => {
-  const manifest = await parse(new URL('../packages/react/package.json', import.meta.url));
+  assert.equal(manifest.dependencies, undefined);
+  assert.equal(manifest.scripts.prepack, 'npm run build');
+  assert.ok(manifest.files.includes('LICENSE'));
+  assert.equal(manifest.exports['./core'], undefined);
   assert.ok(manifest.exports['./components']);
   assert.ok(manifest.exports['./views']);
-  const components = await readFile(new URL('../packages/react/src/components.ts', import.meta.url), 'utf8');
-  // PapersInventory is deliberately a components-layer surface: the MyST
-  // publication renders the cited-papers list in place of a bibliography.
-  // The other per-kind sections remain application views.
-  assert.doesNotMatch(components, /graph-view|InventoryOutline|OverviewInventory|(Outputs|Decisions|Inputs|Findings)Inventory\b(?!\.js)/);
-  const componentsCss = await readFile(new URL('../packages/react/components.css', import.meta.url), 'utf8');
-  assert.doesNotMatch(componentsCss, /@import "\.\/(inventory|graph|views|styles)\.css"/);
-  assert.match(componentsCss, /@import "\.\/ui\.css"/);
 });
 
-test('detail and preview behavior use native and canonical signals', async () => {
-  const viewerTypes = await readFile(
-    new URL('../packages/react/src/viewer-types.ts', import.meta.url),
-    'utf8',
-  );
-  const primitives = await readFile(
-    new URL('../packages/react/src/full-inventory/InventoryPrimitives.tsx', import.meta.url),
-    'utf8',
-  );
-  const recordDetail = await readFile(
-    new URL('../packages/react/src/record-detail.tsx', import.meta.url),
-    'utf8',
-  );
-  const resultViewer = await readFile(
-    new URL('../packages/react/src/result-viewer.tsx', import.meta.url),
-    'utf8',
-  );
-  const artifactPreview = await readFile(
-    new URL('../packages/react/src/artifact-preview.tsx', import.meta.url),
-    'utf8',
-  );
-  const inventoryPreview = await readFile(
-    new URL('../packages/react/src/full-inventory/InventoryArtifactPreview.tsx', import.meta.url),
-    'utf8',
-  );
-  const inventoryOutline = await readFile(
-    new URL('../packages/react/src/full-inventory/InventoryOutline.tsx', import.meta.url),
-    'utf8',
-  );
-  assert.match(primitives, /<dialog/);
-  assert.match(primitives, /\.showModal\(\)/);
-  assert.doesNotMatch(primitives, /document\.body|addEventListener\(['"]keydown/);
-  assert.doesNotMatch(recordDetail, /capabilities\.(?:openSource|chatReference)/);
-  assert.doesNotMatch(recordDetail, /insertChatReference|Reference in chat/);
-  assert.doesNotMatch(viewerTypes, /chatReference|insertChatReference/);
-  assert.match(artifactPreview, /export function useResourcePreview/);
-  assert.match(artifactPreview, /export function ArtifactPreview/);
-  assert.match(artifactPreview, /missing_expected_result/);
-  assert.doesNotMatch(resultViewer, /useEffect|missing_expected_result/);
-  assert.doesNotMatch(inventoryPreview, /useCanonicalPreview|useEffect|missing_expected_result/);
-  assert.match(inventoryOutline, /function InventoryRecordDetail/);
-  assert.match(inventoryOutline, /switch \(record\.kind\)/);
+test('the published package includes the repository license', async () => {
+  const repositoryLicense = await readFile(new URL('../LICENSE', import.meta.url), 'utf8');
+  const packageLicense = await readFile(new URL('../packages/react/LICENSE', import.meta.url), 'utf8');
+
+  assert.equal(packageLicense, repositoryLicense);
+  assert.match(packageLicense, /^BSD 3-Clause License$/m);
+});
+
+test('public subpaths resolve to built modules and expose the controlled API', async () => {
+  const manifest = await parse(new URL('../packages/react/package.json', import.meta.url));
+  for (const [subpath, target] of Object.entries(manifest.exports)) {
+    if (typeof target === 'string') continue;
+    const modulePath = new URL(`../packages/react/${target.import.replace(/^\.\//, '')}`, import.meta.url);
+    await readFile(modulePath);
+    assert.ok(subpath === '.' || subpath.startsWith('./'));
+  }
+
+  const api = await import('../packages/react/dist/index.js');
+  for (const name of [
+    'ArtifactPreview',
+    'InventoryExplorer',
+    'OverviewInventory',
+    'PaperDialog',
+    'SurfaceHeader',
+  ]) {
+    assert.equal(typeof api[name], 'function', `${name} should be a public component`);
+  }
+  for (const retired of [
+    'AstraViewerProvider',
+    'createInventoryModel',
+    'ProjectViewHeader',
+    'ResultViewer',
+    'useResourcePreview',
+  ]) {
+    assert.equal(retired in api, false, `${retired} should not remain public`);
+  }
+
+  const components = await import('../packages/react/dist/components.js');
+  assert.equal('PapersInventory' in components, false);
+  assert.equal(typeof components.PaperDialog, 'function');
+  assert.equal(typeof components.collectInventoryPapers, 'function');
+});
+
+test('source contains no parallel resolver, session, storage, or integration layer', async () => {
+  const source = await sourceText();
+
+  assert.doesNotMatch(source, /@astra-spec\/sdk\/view-model/);
+  assert.doesNotMatch(source, /RuntimeOverlay|ViewerSession|ViewerHost|ViewerChange/);
+  assert.doesNotMatch(source, /ProjectViewModel|scopeId|recordId|knownRevision/);
+  assert.doesNotMatch(source, /InventoryOpenReference|openReference|dialogsOnly/);
+  assert.doesNotMatch(source, /createNodeFileAccess|createJupyterFileAccess|resolveAnalysis\s*\(/);
+  assert.doesNotMatch(source, /from ['"](?:node:|@jupyter|myst-|katex)/i);
+  assert.doesNotMatch(source, /PaperPdfViewer|pdf\.mjs|pdf\.worker/);
+  assert.match(source, /indexAnalysis\(document\)/);
+});
+
+test('styles contain only the current component and inventory generations', async () => {
+  const cssFiles = ['components.css', 'inventory.css', 'ui.css', 'views.css'];
+  const css = (await Promise.all(cssFiles.map((file) => (
+    readFile(new URL(`../packages/react/${file}`, import.meta.url), 'utf8')
+  )))).join('\n');
+
+  assert.doesNotMatch(css, /astra-record-detail|astra-result-viewer/);
+  assert.doesNotMatch(css, /inventory-paper-pdf|katex|MyST|Jupyter/i);
+  const views = await readFile(new URL('../packages/react/views.css', import.meta.url), 'utf8');
+  assert.match(views, /@import "\.\/components\.css"/);
+  assert.match(views, /@import "\.\/inventory\.css"/);
+});
+
+test('no temporary specification is included in the package workspace', async () => {
+  const entries = await readdir(root);
+  assert.equal(entries.includes('SPEC.md'), false);
+  const packageEntries = await readdir(new URL('../packages/react/', import.meta.url));
+  assert.equal(packageEntries.includes('SPEC.md'), false);
 });

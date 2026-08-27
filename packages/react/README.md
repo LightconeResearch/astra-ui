@@ -1,19 +1,27 @@
 # `@lightcone-research/astra-ui`
 
-Host-neutral React surfaces for the ASTRA project view model. The package owns
-inventory, record detail, and result preview. It has no JupyterLab, MyST,
-VS Code, filesystem, networking, or chat dependency.
+Controlled React components for `ResolvedAnalysisDocument` from
+`@astra-spec/sdk`.
 
-`InventoryExplorer` is the canonical rich inventory surface. Pass it a
-`ProjectViewModelV1` (plus an optional runtime overlay and `ViewerHost`).
+```tsx
+import { InventoryExplorer } from '@lightcone-research/astra-ui/views';
+import '@lightcone-research/astra-ui/views.css';
 
-Hosts provide the `ViewerHost` methods they support; resource IDs are resolved
-into safe previews at that boundary. Import the component CSS separately:
-
-```ts
-import '@lightcone-research/lightcone-brand/theme.css';
-import '@lightcone-research/astra-ui/styles.css';
+<div className="astra-ui">
+  <InventoryExplorer
+    document={bundle.document}
+    renderArtifact={(output, options) => (
+      <HostArtifact output={output} options={options} />
+    )}
+  />
+</div>
 ```
 
-Wrap surfaces in an `.astra-ui` element or use `AstraViewerProvider` inside
-one. The shared CSS is scoped and follows host semantic variables.
+The package owns presentation only. The host resolves ASTRA with the SDK and
+owns files, artifact bytes and URLs, cache invalidation, paper fetching,
+loading state, and navigation. Use `renderArtifact`, `renderPaper`, and
+`renderText` for host-specific content; their inputs remain direct SDK values.
+
+Import `@lightcone-research/astra-ui/components` for individual primitives and
+dialogs, or `@lightcone-research/astra-ui/views` for the optional composed
+inventory. See the repository README for the complete integration contract.

@@ -19,8 +19,7 @@
   --astra-kind-soft: var(--astra-c-decision-soft);
 }
 
-.astra-ui :is(.astra-surface-header, .astra-badge)[data-kind="output"],
-.astra-ui :is(.astra-surface-header, .astra-badge)[data-kind="file"] {
+.astra-ui :is(.astra-surface-header, .astra-badge)[data-kind="output"] {
   --astra-kind: var(--astra-c-output);
   --astra-kind-ink: var(--astra-c-output);
   --astra-kind-soft: var(--astra-c-output-soft);
@@ -122,56 +121,6 @@
   flex: 0 0 auto;
   align-items: center;
   gap: 0.35rem;
-}
-
-.astra-ui .astra-project-view-header {
-  display: flex;
-  min-width: 0;
-  min-height: 2.75rem;
-  flex: 0 0 auto;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--astra-space-2);
-  padding: 0 0.7rem;
-  border-block-end: 1px solid var(--astra-color-border);
-  background: var(--astra-color-header);
-  color: var(--astra-color-text);
-}
-
-.astra-ui .astra-project-view-header__summary,
-.astra-ui .astra-project-view-header__actions {
-  display: flex;
-  min-width: 0;
-  align-items: center;
-  gap: var(--astra-space-2);
-}
-
-.astra-ui .astra-project-view-header__title {
-  min-width: 0;
-  margin: 0;
-  overflow: hidden;
-  color: var(--astra-color-text);
-  font-family: var(--astra-font-ui);
-  font-size: 0.74rem;
-  font-weight: 700;
-  line-height: 1.35;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.astra-ui .astra-project-view-header__context {
-  min-width: 0;
-  overflow: hidden;
-  padding-inline-start: var(--astra-space-2);
-  border-inline-start: 1px solid var(--astra-color-border-strong);
-  color: var(--astra-c-decision-ink);
-  font: 0.64rem/1.45 var(--astra-font-mono);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.astra-ui .astra-project-view-header__actions {
-  flex: 0 0 auto;
 }
 
 .astra-ui .astra-button {
@@ -287,45 +236,12 @@
   color: var(--astra-c-danger);
 }
 
-@media (max-width: 720px) {
-  .astra-ui .astra-project-view-header {
-    min-height: 0;
-    align-items: stretch;
-    padding: 0.35rem 0.45rem;
-    flex-direction: column;
-  }
-
-  .astra-ui .astra-project-view-header__actions {
-    width: 100%;
-  }
-}
-
 /* --------------------------------------------------------------------------
    Lightcone editorial lift
 
    These primitives carry the Claude design's quiet, archival visual language
    while leaving interaction and view state with their owning components.
    -------------------------------------------------------------------------- */
-
-.astra-ui .astra-project-view-header {
-  min-height: 3.25rem;
-  padding-inline: clamp(0.75rem, 2vw, 2rem);
-  border-color: var(--astra-rule);
-  background: color-mix(in srgb, var(--astra-canvas) 94%, transparent);
-  backdrop-filter: blur(10px);
-}
-
-.astra-ui .astra-project-view-header__title {
-  font-family: var(--astra-font-ui);
-  font-size: 0.875rem;
-  font-weight: 600;
-}
-
-.astra-ui .astra-project-view-header__context {
-  color: var(--astra-muted);
-  font-family: var(--astra-font-ui);
-  font-size: 0.75rem;
-}
 
 .astra-ui .astra-surface-header .astra-surface-header__eyebrow {
   letter-spacing: 0.1em;
@@ -359,10 +275,4 @@
   background: transparent;
   padding: 0;
   letter-spacing: 0.1em;
-}
-
-@media (max-width: 720px) {
-  .astra-ui .astra-project-view-header {
-    padding: 0.55rem 0.75rem;
-  }
 }

@@ -2,7 +2,7 @@
   "name": "astra-ui-workspace",
   "version": "0.1.0",
   "private": true,
-  "description": "Host-neutral view models and React components for inspecting ASTRA analyses.",
+  "description": "Composable React components for resolved ASTRA analyses.",
   "license": "BSD-3-Clause",
   "type": "module",
   "engines": {
@@ -12,8 +12,9 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "tsc -b packages/react",
-    "typecheck": "tsc -b packages/react --pretty false --force",
+    "clean": "npm run clean --workspace @lightcone-research/astra-ui",
+    "build": "npm run build --workspace @lightcone-research/astra-ui",
+    "typecheck": "npm run typecheck --workspace @lightcone-research/astra-ui",
     "test": "npm run build && node --test tests/*.test.mjs",
     "test:packages": "node --test tests/package-contract.test.mjs"
   },

@@ -1,5 +1,11 @@
 import { useEffect, useState } from 'react';
+import type {
+  ResolvedAnalysisNode,
+  ResolvedDecision,
+  ResolvedInsight,
+} from '@astra-spec/sdk';
 import { InventoryProse } from './InventoryProse.js';
+import type { TextRenderer } from './InventoryProse.js';
 import { InsightDetailTrigger } from './InsightDetailDialog.js';
 import {
   InventoryCountHeading,
@@ -11,25 +17,12 @@ import {
   InventoryRecordIdentity,
   InventoryRecordList,
 } from './InventoryPrimitives.js';
-import {
-  getInventoryScope,
-  inventoryDecisionInsights,
-  inventoryRecordTitle,
-  inventoryRecordsOfKind,
-  selectedOptionLabel,
-  type InventoryModel,
-} from './model.js';
-import type {
-  InventoryDecisionRecord,
-  InventoryInsightRecord,
-  InventoryScope,
-} from '../types.js';
+import { analysisTitle, recordTitle, selectedOptionLabel } from './inventory-data.js';
 
-interface DecisionsInventoryProps {
-  model: InventoryModel;
-  scopeId: string;
+export interface DecisionsInventoryProps {
+  analysis: ResolvedAnalysisNode;
   tagLabels?: Readonly<Record<string, string>> | undefined;
-  onOpenDecision: (decision: InventoryDecisionRecord, scope: InventoryScope) => void;
+  onOpenDecision: (decision: ResolvedDecision, analysis: ResolvedAnalysisNode) => void;
 }
 
 function tagLabel(tag: string, labels: Readonly<Record<string, string>>): string {
@@ -39,27 +32,20 @@ function tagLabel(tag: string, labels: Readonly<Record<string, string>>): string
 
 export function DecisionDialog({
   record,
-  scope,
-  model,
+  analysis,
+  insights,
+  renderText,
   onOpenInsight,
   onBack,
   onClose,
-}: {
-  record: InventoryDecisionRecord;
-  scope: InventoryScope;
-  model: InventoryModel;
-  onOpenInsight: (insight: InventoryInsightRecord) => void;
-  onBack?: (() => void) | undefined;
-  onClose: () => void;
-}) {
+}: DecisionDialogProps) {
   const options = record.options;
-  const insights = inventoryDecisionInsights(model, scope, record);
   return (
     <InventoryDetailDialog
       kind="decision"
-      eyebrow={`Decision · ${scope.name}`}
-      title={inventoryRecordTitle(record)}
-      identifier={record.id}
+      eyebrow={`Decision · ${analysisTitle(analysis)}`}
+      title={recordTitle(record)}
+      identifier={record.canonicalPath}
       onBack={onBack}
       closeLabel="Close decision details"
       onClose={onClose}
@@ -71,7 +57,7 @@ export function DecisionDialog({
               label="Rationale"
               className="inventory-record-detail__prose--section-heading"
             >
-              <InventoryProse text={record.rationale} />
+              <InventoryProse text={record.rationale} renderText={renderText} />
             </InventoryDetailProse>
           ) : null}
           <section className="inventory-decision-options" aria-labelledby="inventory-decision-options-title">
@@ -85,7 +71,7 @@ export function DecisionDialog({
                       {selected ? '●' : '○'}
                     </span>
                     <span>
-                      <strong>{option.label ?? option.id}</strong>
+                      <strong>{option.label}</strong>
                       <code>{option.id}</code>
                     </span>
                     {selected ? <small>Selected</small> : null}
@@ -99,7 +85,7 @@ export function DecisionDialog({
             {insights.length ? (
               <ul className="inventory-decision-insights">
                 {insights.map((insight) => (
-                  <li key={insight.id}>
+                  <li key={insight.canonicalPath}>
                     <InsightDetailTrigger
                       insight={insight}
                       variant="claim"
@@ -116,26 +102,34 @@ export function DecisionDialog({
   );
 }
 
+export interface DecisionDialogProps {
+  record: ResolvedDecision;
+  analysis: ResolvedAnalysisNode;
+  insights: ResolvedInsight[];
+  renderText?: TextRenderer | undefined;
+  onOpenInsight: (insight: ResolvedInsight) => void;
+  onBack?: (() => void) | undefined;
+  onClose: () => void;
+}
+
 export function DecisionsInventory({
-  model,
-  scopeId,
+  analysis,
   tagLabels = {},
   onOpenDecision,
 }: DecisionsInventoryProps) {
   const [tagFilter, setTagFilter] = useState('all');
-  const scope = getInventoryScope(model, scopeId);
 
   useEffect(() => {
     setTagFilter('all');
-  }, [scopeId]);
+  }, [analysis.canonicalPath]);
 
-  const records = scope ? inventoryRecordsOfKind(scope, 'decision', model) : [];
+  const records = analysis.decisions;
   const tags = [...new Set(records.flatMap((record) => record.tags ?? []))];
   const visibleRecords = tagFilter === 'all'
     ? records
     : records.filter((record) => record.tags?.includes(tagFilter));
 
-  if (!scope || !records.length) {
+  if (!records.length) {
     return <InventoryEmptyState>No decisions are declared in this analysis.</InventoryEmptyState>;
   }
 
@@ -175,11 +169,11 @@ export function DecisionsInventory({
           { className: 'inventory-record-list__arrow' },
         ]}
         rows={visibleRecords.map((record) => ({
-          key: record.id,
-          accessibleLabel: `${inventoryRecordTitle(record)}, selected option ${selectedOptionLabel(record)}`,
-          onOpen: () => onOpenDecision(record, scope),
+          key: record.canonicalPath,
+          accessibleLabel: `${recordTitle(record)}, selected option ${selectedOptionLabel(record)}`,
+          onOpen: () => onOpenDecision(record, analysis),
           cells: [
-            <InventoryRecordIdentity kind="decision" title={inventoryRecordTitle(record)} />,
+            <InventoryRecordIdentity kind="decision" title={recordTitle(record)} />,
             <span className="inventory-record-list__selected">{selectedOptionLabel(record)}</span>,
             <span className="inventory-record-list__tag">
               {record.tags?.[0] ? tagLabel(record.tags[0], tagLabels) : '—'}

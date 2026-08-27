@@ -1,18 +1,13 @@
-import { useMemo } from 'react';
 import type {
-  ProjectViewModelIndex,
-  ProjectViewModelV1,
-} from '@astra-spec/sdk/view-model';
-import type { RuntimeOverlayV1 } from '../viewer-types.js';
-import { createInventoryModel } from './model.js';
-import type { InventoryModel } from './model.js';
-import type { InventoryScope } from '../types.js';
+  ResolvedAnalysisDocument,
+  ResolvedAnalysisNode,
+} from '@astra-spec/sdk';
+import { analysisTitle } from './inventory-data.js';
 
 export interface OverviewInventoryProps {
-  model: ProjectViewModelV1 | ProjectViewModelIndex;
-  runtime?: RuntimeOverlayV1 | undefined;
-  scopeId: string;
-  onSelectScope: (scopeId: string) => void;
+  document: ResolvedAnalysisDocument;
+  analysisPath?: string | undefined;
+  onSelectAnalysis: (canonicalPath: string) => void;
 }
 
 function ProjectDocumentIcon() {
@@ -24,7 +19,6 @@ function ProjectDocumentIcon() {
       strokeWidth={1.5}
       stroke="currentColor"
       aria-hidden="true"
-      className="inline mr-2 shrink-0"
       width="1.25rem"
       height="1.25rem"
     >
@@ -37,101 +31,65 @@ function ProjectDocumentIcon() {
   );
 }
 
-function ScopeNode({
-  scope,
-  model,
-  currentScopeId,
+function AnalysisNode({
+  analysis,
+  selectedPath,
   depth,
-  ancestors,
-  onSelectScope,
+  onSelectAnalysis,
 }: {
-  scope: InventoryScope;
-  model: InventoryModel;
-  currentScopeId: string;
+  analysis: ResolvedAnalysisNode;
+  selectedPath: string;
   depth: number;
-  ancestors: ReadonlySet<string>;
-  onSelectScope: (scopeId: string) => void;
+  onSelectAnalysis: (canonicalPath: string) => void;
 }) {
-  const active = scope.id === currentScopeId;
-  const nextAncestors = new Set(ancestors).add(scope.id);
-  const children = scope.childIds
-    .map((id) => model.scopeById.get(id))
-    .filter(
-      (child): child is InventoryScope => Boolean(child && !nextAncestors.has(child.id)),
-    );
-
+  const active = analysis.canonicalPath === selectedPath;
   return (
-    <>
-      <li>
-        <button
-          type="button"
-          className={[
-            'no-underline flex self-center w-full text-left hover:text-blue-700',
-            active ? 'text-blue-600' : '',
-          ].join(' ')}
-          style={{ paddingInlineStart: `${Math.min(depth, 3) * 1.25}rem` }}
-          aria-current={active ? 'page' : undefined}
-          onClick={() => onSelectScope(scope.id)}
-        >
-          <ProjectDocumentIcon />
-          <span>{scope.name}</span>
-        </button>
-      </li>
-      {children.map((child) => (
-        <ScopeNode
-          key={child.id || 'root'}
-          scope={child}
-          model={model}
-          currentScopeId={currentScopeId}
-          depth={depth + 1}
-          ancestors={nextAncestors}
-          onSelectScope={onSelectScope}
-        />
-      ))}
-    </>
+    <li>
+      <button
+        type="button"
+        style={{ paddingInlineStart: `${Math.min(depth, 4) * 1.25}rem` }}
+        aria-current={active ? 'page' : undefined}
+        onClick={() => onSelectAnalysis(analysis.canonicalPath)}
+      >
+        <ProjectDocumentIcon />
+        <span>{analysisTitle(analysis)}</span>
+      </button>
+      {analysis.analyses.length ? (
+        <ul>
+          {analysis.analyses.map((child) => (
+            <AnalysisNode
+              key={child.canonicalPath}
+              analysis={child}
+              selectedPath={selectedPath}
+              depth={depth + 1}
+              onSelectAnalysis={onSelectAnalysis}
+            />
+          ))}
+        </ul>
+      ) : null}
+    </li>
   );
 }
 
 export function OverviewInventory({
-  model: source,
-  runtime,
-  scopeId,
-  onSelectScope,
+  document,
+  analysisPath = '$',
+  onSelectAnalysis,
 }: OverviewInventoryProps) {
-  const model = useMemo(
-    () => createInventoryModel(source, runtime),
-    [source, runtime],
-  );
-  const roots = model.model.scopes.filter(
-    (scope) => scope.parentId === undefined || !model.scopeById.has(scope.parentId),
-  );
-
   return (
-    <div
+    <nav
       className="inventory-project-structure exclude-from-outline"
       aria-labelledby="inventory-project-structure-title"
     >
-      <div
-        id="inventory-project-structure-title"
-        role="heading"
-        aria-level={2}
-        className="myst-supporting-documents my-4 text-sm leading-6 uppercase text-slate-900 dark:text-slate-100"
-      >
-        Project hierarchy
-      </div>
-      <ul className="flex flex-col gap-2 pl-0 text-sm leading-6 list-none text-slate-700 dark:text-slate-300">
-        {roots.map((scope) => (
-          <ScopeNode
-            key={scope.id || 'root'}
-            scope={scope}
-            model={model}
-            currentScopeId={scopeId}
-            depth={0}
-            ancestors={new Set()}
-            onSelectScope={onSelectScope}
-          />
-        ))}
+      <h2 id="inventory-project-structure-title">Project hierarchy</h2>
+      <ul>
+        <AnalysisNode
+          analysis={document.analysis}
+          selectedPath={analysisPath}
+          depth={0}
+          onSelectAnalysis={onSelectAnalysis}
+        />
       </ul>
-    </div>
+    </nav>
   );
 }

@@ -2,20 +2,9 @@
    Detail/dialog surfaces live in components.css. All selectors are
    scoped under .astra-ui. */
 
-/* The MyST article theme owns the page, grid, header, outline, and typography.
-   This file only gives the empty inventory body enough structure to inspect. */
-
 .astra-ui .inventory-outline {
   min-height: 70vh;
   padding-bottom: 6rem;
-}
-
-/* Standalone fixture prose does not pass through the MyST document transform. */
-.astra-ui .inventory-prose__display-math {
-  max-width: 100%;
-  margin: 0.8rem 0;
-  overflow-x: auto;
-  overflow-y: hidden;
 }
 
 .astra-ui .inventory-outline__sections {
@@ -607,12 +596,6 @@
   --astra-kind: var(--astra-c-insight);
   --astra-kind-ink: var(--astra-c-insight-ink);
   --astra-kind-soft: var(--astra-c-insight-soft);
-}
-
-.astra-ui :is(.inventory-record-list__glyph, .inventory-detail-dialog > section)[data-kind="file"] {
-  --astra-kind: var(--astra-c-output);
-  --astra-kind-ink: var(--astra-c-output);
-  --astra-kind-soft: var(--astra-c-output-soft);
 }
 
 .astra-ui .inventory-record-list__glyph[data-kind] { color: var(--astra-kind); }
@@ -1786,8 +1769,7 @@
   font-size: 0.6875rem;
 }
 
-/* Header-action pill styling moved to components.css so every dialog
-   surface (including the MyST publication) gets it. */
+/* Header actions share the portable detail-surface styling. */
 
 .astra-ui .inventory-detail-dialog__actions > .astra-icon-button,
 .astra-ui .inventory-detail-dialog--embedded .inventory-detail-dialog__actions > .astra-icon-button {
@@ -1808,9 +1790,6 @@
   .inventory-output-provenance,
   .inventory-paper-dialog__artifact,
   .inventory-paper-dialog__rail,
-  .inventory-paper-pdf,
-  .inventory-paper-pdf__scroll,
-  .inventory-paper-pdf__toolbar,
   .inventory-output-artifact,
   .inventory-output-dialog__preview,
   .inventory-output-dialog__preview.is-table,

@@ -7,8 +7,12 @@ import {
   useId,
   useRef,
 } from 'react';
-import { IconButton, SurfaceHeader } from '../ui.js';
-import type { InventoryKind } from '../types.js';
+import {
+  IconButton,
+  SurfaceHeader,
+  surfaceGlyph,
+  type SurfaceKind,
+} from '../ui.js';
 
 export interface InventoryListColumn {
   label?: string | undefined;
@@ -22,24 +26,13 @@ export interface InventoryListRow {
   onOpen: () => void;
 }
 
-const INVENTORY_GLYPHS: Record<InventoryKind | 'paper' | 'file', string> = {
-  analysis: '◐',
-  input: '↳',
-  decision: '◇',
-  output: '◆',
-  finding: '●',
-  prior_insight: '◈',
-  paper: '▧',
-  file: '▱',
-};
-
 export function InventoryRecordIdentity({
   kind,
   title,
   subtitle,
   className,
 }: {
-  kind: InventoryKind | 'paper' | 'file';
+  kind: SurfaceKind;
   title: ReactNode;
   subtitle?: ReactNode | undefined;
   className?: string | undefined;
@@ -47,7 +40,7 @@ export function InventoryRecordIdentity({
   return (
     <span className={`inventory-record-list__name${className ? ` ${className}` : ''}`}>
       <span className="inventory-record-list__glyph" data-kind={kind} aria-hidden="true">
-        {INVENTORY_GLYPHS[kind]}
+        {surfaceGlyph(kind)}
       </span>
       <span>
         <strong>{title}</strong>
@@ -115,7 +108,7 @@ export function InventoryRecordList({
 
 export interface InventoryDetailSurfaceProps {
   className?: string | undefined;
-  kind?: InventoryKind | 'paper' | 'file' | undefined;
+  kind?: SurfaceKind | undefined;
   eyebrow: string;
   title: string;
   identifier?: string | undefined;

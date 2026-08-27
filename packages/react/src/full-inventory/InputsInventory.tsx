@@ -1,4 +1,6 @@
+import type { ResolvedAnalysisNode, ResolvedInput } from '@astra-spec/sdk';
 import { InventoryProse } from './InventoryProse.js';
+import type { TextRenderer } from './InventoryProse.js';
 import {
   InventoryDetailDialog,
   InventoryDetailLayout,
@@ -8,45 +10,33 @@ import {
   InventoryRecordIdentity,
   InventoryRecordList,
 } from './InventoryPrimitives.js';
-import {
-  getInventoryScope,
-  inventoryRecordTitle,
-  inventoryRecordsOfKind,
-  type InventoryModel,
-} from './model.js';
-import type { InventoryInputRecord, InventoryScope } from '../types.js';
+import { analysisTitle, recordTitle } from './inventory-data.js';
 
-interface InputsInventoryProps {
-  model: InventoryModel;
-  scopeId: string;
-  onOpenInput: (input: InventoryInputRecord, scope: InventoryScope) => void;
+export interface InputsInventoryProps {
+  analysis: ResolvedAnalysisNode;
+  onOpenInput: (input: ResolvedInput, analysis: ResolvedAnalysisNode) => void;
 }
 
-function sourceLabel(record: InventoryInputRecord): string {
-  const alias = record.relations.find((relation) => relation.kind === 'aliases');
-  return record.source ?? record.reference ?? alias?.targetRecordId ?? 'Source not declared';
+function sourceLabel(record: ResolvedInput): string {
+  return record.source ?? record.ref ?? record.resolvedFrom ?? 'Source not declared';
 }
 
 export function InputDialog({
   record,
-  scope,
+  analysis,
+  renderText,
   onBack,
   onClose,
-}: {
-  record: InventoryInputRecord;
-  scope: InventoryScope;
-  onBack?: (() => void) | undefined;
-  onClose: () => void;
-}) {
+}: InputDialogProps) {
   const source = sourceLabel(record);
 
   return (
     <InventoryDetailDialog
       className="inventory-detail-dialog--input"
       kind="input"
-      eyebrow={`Input · ${record.inputType ?? 'data'} · ${scope.name}`}
-      title={inventoryRecordTitle(record)}
-      identifier={record.label ? record.localId : undefined}
+      eyebrow={`Input · ${record.type} · ${analysisTitle(analysis)}`}
+      title={recordTitle(record)}
+      identifier={record.label ? record.id : undefined}
       onBack={onBack}
       closeLabel="Close input details"
       onClose={onClose}
@@ -58,11 +48,11 @@ export function InputDialog({
               label="Description"
               className="inventory-record-detail__prose--section-heading"
             >
-              <InventoryProse text={record.description} />
+              <InventoryProse text={record.description} renderText={renderText} />
             </InventoryDetailProse>
           ) : null}
           <section className="inventory-input-source">
-            <h4>{record.relations.some((relation) => relation.kind === 'aliases') ? 'Resolved from' : 'Source'}</h4>
+            <h4>{record.resolvedFrom ? 'Resolved from' : 'Source'}</h4>
             <code tabIndex={0} title={source}>{source}</code>
           </section>
         </InventoryDetailMain>
@@ -71,11 +61,18 @@ export function InputDialog({
   );
 }
 
-export function InputsInventory({ model, scopeId, onOpenInput }: InputsInventoryProps) {
-  const scope = getInventoryScope(model, scopeId);
-  const records = scope ? inventoryRecordsOfKind(scope, 'input', model) : [];
+export interface InputDialogProps {
+  record: ResolvedInput;
+  analysis: ResolvedAnalysisNode;
+  renderText?: TextRenderer | undefined;
+  onBack?: (() => void) | undefined;
+  onClose: () => void;
+}
 
-  if (!scope || !records.length) {
+export function InputsInventory({ analysis, onOpenInput }: InputsInventoryProps) {
+  const records = analysis.inputs;
+
+  if (!records.length) {
     return <InventoryEmptyState>No inputs are declared in this analysis.</InventoryEmptyState>;
   }
 
@@ -91,13 +88,13 @@ export function InputsInventory({ model, scopeId, onOpenInput }: InputsInventory
           { className: 'inventory-record-list__arrow' },
         ]}
         rows={records.map((record) => ({
-          key: record.id,
-          accessibleLabel: inventoryRecordTitle(record),
-          onOpen: () => onOpenInput(record, scope),
+          key: record.canonicalPath,
+          accessibleLabel: recordTitle(record),
+          onOpen: () => onOpenInput(record, analysis),
           cells: [
-            <InventoryRecordIdentity kind="input" title={inventoryRecordTitle(record)} />,
+            <InventoryRecordIdentity kind="input" title={recordTitle(record)} />,
             <code title={sourceLabel(record)}>{sourceLabel(record)}</code>,
-            <span className="inventory-record-list__tag">{record.inputType ?? 'input'}</span>,
+            <span className="inventory-record-list__tag">{record.type}</span>,
             <span aria-hidden="true">→</span>,
           ],
         }))}

@@ -1,74 +1,112 @@
 # `@lightcone-research/astra-ui`
 
-`@lightcone-research/astra-ui` is the host-neutral viewing layer for ASTRA
-projects. It gives JupyterLab and other hosts one serializable project model,
-one read-only inventory, reusable record dialogs, result previews, and a scoped
-design-token contract.
+Composable React components for displaying resolved ASTRA analyses.
 
-It is not an ASTRA parser, execution engine, JupyterLab extension, paper theme,
-or claim that an analysis is scientifically correct.
+The package follows a shadcn/ui-like responsibility boundary: data flows in,
+events flow out, and hosts compose the pieces they need. It does not parse
+ASTRA files, resolve references, read artifacts, fetch papers, cache content,
+or maintain an integration session.
 
-## Packages
+## Responsibility boundary
 
-| Package | Owns | Does not own |
-| --- | --- | --- |
-| `@astra-spec/sdk/view-model` | Canonical `ProjectViewModelV1` projection, indexing, and validation | React, host APIs, artifact bytes |
-| `@lightcone-research/astra-ui/core` | Runtime overlays and host capability contracts | React components or host integrations |
-| `@lightcone-research/astra-ui/components` | Portable record details and result previews | Application views and host APIs |
-| `@lightcone-research/astra-ui/views` | The full ASTRA inventory and its record dialogs | JupyterLab or editor APIs |
-| `@lightcone-research/lightcone-brand` | Canonical ASTRA component palette with light/dark host detection | Inventory layout or application chrome |
+| Layer | Owns |
+| --- | --- |
+| `@astra-spec/sdk` | Validation, recursive project resolution, canonical paths, aliases, selections, provenance, artifact bindings, DOI/path helpers, and optional indexes |
+| `@lightcone-research/astra-ui` | Accessible presentation primitives, record dialogs, artifact/paper render slots, per-kind inventories, and an optional composed explorer |
+| Host integration | `ProjectReader`, loading and refresh, artifact decoding and URLs, paper metadata/cache, navigation, and application state |
 
-## Viewer behavior
+There is one ASTRA data model in downstream applications:
+`ResolvedAnalysisDocument` from `@astra-spec/sdk`. astra-ui types its component
+props directly with the SDK's `Resolved*` values and does not project a second
+view model.
 
-The inventory presents outputs, decisions, inputs, findings, prior insights,
-and cited papers for each ASTRA scope. Selecting a row opens a dialog inside the
-inventory, so hosts do not need separate result or record tabs.
+## Install
 
-Output dialogs can preview declared metrics and materialized resources supplied
-by the host. Missing outputs remain visible with the expected result path; the
-viewer does not execute an analysis or write into its project directory.
-
-Cited papers are cache-first. A host may provide `onFetchPaper` to handle an
-explicit **Fetch paper** action and return cache-backed metadata and a PDF URL.
-The shared UI does not fetch directly from arXiv or write to disk itself.
-
-## Host flow
-
-1. A trusted host adapter reads `astra.yaml`, resolved child analyses, the
-   active universe, and result metadata.
-2. It projects those sources into `ProjectViewModelV1` plus an optional
-   `RuntimeOverlayV1`. The model contains resource descriptors, never local
-   paths or artifact bytes.
-3. The host implements only the `ViewerHost` preview, download, source, or
-   external-navigation methods it supports.
-4. React renders the same inventory everywhere and requests previews lazily by
-   stable resource ID.
-5. Hosts publish source, selection, materialization, and resource revisions so
-   the inventory can refresh without reparsing ASTRA independently.
-
-The shared projector lives in `@astra-spec/sdk` (`buildProjectViewModel` over a
-pluggable file-access interface).
-
-## Styling
-
-Portable viewers import:
-
-```css
-@import '@lightcone-research/lightcone-brand/theme.css';
-@import '@lightcone-research/astra-ui/styles.css';
+```bash
+npm install @astra-spec/sdk @lightcone-research/astra-ui react react-dom
 ```
 
-The `.astra-ui` scope supplies the ASTRA component palette in light and dark
-hosts. A host theme may style surrounding application chrome separately.
+Version 0.2 requires `@astra-spec/sdk` 0.0.8 (peer range `^0.0.8`).
+
+## Resolve once, then render
+
+```tsx
+import { resolveAnalysis } from '@astra-spec/sdk';
+import { createNodeProjectReader } from '@astra-spec/sdk/node';
+import {
+  ArtifactPreview,
+  InventoryExplorer,
+  type ArtifactRenderer,
+} from '@lightcone-research/astra-ui';
+import '@lightcone-research/astra-ui/styles.css';
+
+const bundle = await resolveAnalysis(createNodeProjectReader(projectRoot), {
+  universeId: 'baseline',
+});
+const bindings = new Map(bundle.bindings.map((binding) => [binding.outputPath, binding]));
+
+const renderArtifact: ArtifactRenderer = (output, { compact }) => {
+  const binding = bindings.get(output.canonicalPath);
+  if (!binding) return <ArtifactPreview output={output} compact={compact} />;
+
+  return (
+    <HostArtifactPreview
+      output={output}
+      path={binding.path}
+      cacheToken={binding.cacheToken}
+      compact={compact}
+    />
+  );
+};
+
+export function AnalysisView() {
+  return (
+    <div className="astra-ui">
+      <InventoryExplorer
+        document={bundle.document}
+        renderArtifact={renderArtifact}
+        onOpenArtifact={(output) => openArtifact(bindings.get(output.canonicalPath))}
+      />
+    </div>
+  );
+}
+```
+
+Artifact paths and cache tokens come from `bundle.bindings`; the UI never
+guesses a path from an output id. Missing materializations remain ordinary
+resolved outputs without an artifact descriptor.
+
+## Controlled extension points
+
+- `renderArtifact(output, { compact })` renders host-decoded artifact content.
+- `renderText(text)` renders authored prose; plain text is the default.
+- `renderPaper(paper, { focusEvidence })` renders host-owned paper content.
+- `onFetchPaper(doi)` is an event. The host owns loading/error state and returns
+  new `paperMetadata` props after its cache changes.
+`OverviewInventory` is the recursive analysis picker. Per-kind inventory and
+dialog components are also exported for hosts that prefer to compose their own
+layout or router-owned detail state. `InventoryExplorer` is the optional
+ready-made composition and owns its dialog stack locally.
+
+## Entry points and styles
+
+- `@lightcone-research/astra-ui/components` — primitives, dialogs, and renderers.
+- `@lightcone-research/astra-ui/views` — the composed explorer and inventories.
+- `components.css` — component and detail styles.
+- `views.css` — components plus the complete inventory layout.
+- `styles.css` — alias for the complete stylesheet.
+
+All selectors are scoped below `.astra-ui`. React and the SDK are peer
+dependencies, so a host supplies a single runtime and a single resolved model.
 
 ## Development
 
 ```bash
 npm install
-npm test
 npm run typecheck
+npm test
 ```
 
-React is a peer dependency (`>=18 <20`) so hosts supply one React runtime.
-Published Jupyter wheels bundle the compiled viewer; end users do not install
-Node packages separately.
+## License
+
+BSD-3-Clause. See [LICENSE](./LICENSE).

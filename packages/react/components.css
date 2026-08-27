@@ -3,158 +3,6 @@
    own (with ui.css) so publication themes never pull in the applications. */
 
 @import "./ui.css";
-@import "katex/dist/katex.css";
-
-.astra-ui .astra-record-detail h2 {
-  margin: 0;
-  color: var(--astra-color-text);
-  font-size: 1rem;
-  line-height: 1.35;
-}
-
-.astra-ui :is(.astra-relation-list, .astra-option-list, .astra-evidence-list) {
-  margin: var(--astra-space-3) 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.astra-ui .astra-diagnostics {
-  margin-block-end: var(--astra-space-4);
-  padding: var(--astra-space-3);
-  border: 1px solid var(--astra-color-border);
-  border-radius: var(--astra-radius-sm);
-  background: var(--astra-color-surface-muted);
-}
-
-.astra-ui .astra-diagnostics li[data-severity="error"],
-.astra-ui .astra-error { color: var(--astra-color-danger); }
-.astra-ui .astra-warning { color: var(--astra-color-warning); }
-
-.astra-ui .astra-record-detail__section h3 {
-  margin: 0 0 var(--astra-space-2);
-  color: var(--astra-color-text-muted);
-  font-size: 0.72rem;
-  font-weight: 750;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.astra-ui .astra-record-detail[data-kind="input"] {
-  --astra-kind: var(--astra-c-input);
-  --astra-kind-ink: var(--astra-c-input);
-  --astra-kind-soft: var(--astra-c-input-soft);
-}
-
-.astra-ui .astra-record-detail[data-kind="analysis"] {
-  --astra-kind: var(--astra-c-analysis);
-  --astra-kind-ink: var(--astra-c-analysis);
-  --astra-kind-soft: var(--astra-c-analysis-soft);
-}
-
-.astra-ui .astra-record-detail[data-kind="output"] {
-  --astra-kind: var(--astra-c-output);
-  --astra-kind-ink: var(--astra-c-output);
-  --astra-kind-soft: var(--astra-c-output-soft);
-}
-
-.astra-ui .astra-record-detail[data-kind="decision"] {
-  --astra-kind: var(--astra-c-decision);
-  --astra-kind-ink: var(--astra-c-decision-ink);
-  --astra-kind-soft: var(--astra-c-decision-soft);
-}
-
-.astra-ui .astra-record-detail[data-kind="finding"] {
-  --astra-kind: var(--astra-c-finding);
-  --astra-kind-ink: var(--astra-c-finding);
-  --astra-kind-soft: var(--astra-c-finding-soft);
-}
-
-.astra-ui .astra-record-detail[data-kind="prior_insight"] {
-  --astra-kind: var(--astra-c-insight);
-  --astra-kind-ink: var(--astra-c-insight-ink);
-  --astra-kind-soft: var(--astra-c-insight-soft);
-}
-
-.astra-ui .astra-record-detail__path {
-  overflow-wrap: anywhere;
-  color: var(--astra-color-text-muted);
-  font-size: 0.75rem;
-}
-
-.astra-ui .astra-record-detail {
-  min-width: 0;
-  padding: var(--astra-space-4);
-  border: 1px solid var(--astra-color-border);
-  border-block-start: 3px solid var(--astra-kind, var(--astra-color-border));
-  border-radius: var(--astra-radius-md);
-  background: var(--astra-color-surface-raised);
-}
-
-.astra-ui .astra-record-detail__header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--astra-space-3);
-  padding-block-end: var(--astra-space-3);
-  border-block-end: 1px solid var(--astra-color-border);
-}
-
-.astra-ui .astra-record-detail__header h2 { margin: var(--astra-space-2) 0 0; }
-.astra-ui .astra-record-detail__header-actions { display: flex; flex-wrap: wrap; gap: var(--astra-space-2); }
-
-.astra-ui :is(.astra-record-detail__action, .astra-evidence-list button) {
-  padding: 0.35rem 0.65rem;
-  border: 1px solid var(--astra-color-border);
-  border-radius: var(--astra-radius-sm);
-  background: var(--astra-color-surface);
-}
-
-.astra-ui .astra-relation-list button {
-  cursor: pointer;
-  border: 0;
-  border-bottom: 1px solid color-mix(in srgb, var(--astra-color-accent) 42%, transparent);
-  border-radius: 0;
-  background: transparent;
-  color: var(--astra-color-accent);
-  padding: 0;
-}
-
-.astra-ui .astra-relation-list button:hover {
-  border-bottom-color: var(--astra-color-accent);
-}
-
-.astra-ui .astra-record-detail__section { margin-block-start: var(--astra-space-4); }
-
-.astra-ui :is(.astra-option-list li, .astra-relation-list li) {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--astra-space-3);
-  padding: var(--astra-space-2) 0;
-  border-block-end: 1px solid var(--astra-color-border);
-}
-
-.astra-ui .astra-option-list li[data-selected="true"] {
-  color: var(--astra-c-decision-ink);
-  background: var(--astra-c-decision-soft);
-}
-.astra-ui .astra-evidence-list li + li { margin-block-start: var(--astra-space-2); }
-
-.astra-ui .astra-result-viewer {
-  margin-block-start: var(--astra-space-4);
-  padding: var(--astra-space-3);
-  border: 1px solid var(--astra-color-border);
-  border-radius: var(--astra-radius-sm);
-  background: var(--astra-color-surface);
-}
-
-.astra-ui .astra-result-viewer > header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--astra-space-2);
-  margin-block-end: var(--astra-space-3);
-}
 
 .astra-ui .astra-artifact--image { margin: 0; text-align: center; }
 .astra-ui .astra-artifact--image img { display: block; max-width: 100%; max-height: 70vh; margin: auto; background: var(--astra-artifact-paper); object-fit: contain; }
@@ -164,10 +12,6 @@
 .astra-ui .astra-artifact--table :is(th, td) { padding: var(--astra-space-2); border-block-end: 1px solid color-mix(in srgb, var(--astra-artifact-ink) 13%, var(--astra-artifact-paper)); text-align: start; white-space: nowrap; }
 .astra-ui .astra-artifact--metric strong { color: var(--astra-c-output); font-size: 2rem; }
 .astra-ui .astra-artifact--text pre { overflow: auto; max-height: 65vh; padding: var(--astra-space-3); background: var(--astra-color-surface-muted); }
-
-@media (max-width: 720px) {
-  .astra-ui .astra-record-detail__header { flex-direction: column; }
-}
 
 /* The detail surface distinguishes declared ASTRA lineage from the optional
    materialized artifact path. It does not present either as proof of validity. */
@@ -313,138 +157,13 @@
   overflow: hidden;
 }
 
-.astra-ui .inventory-paper-pdf {
-  display: grid;
-  min-width: 0;
-  min-height: 0;
-  grid-template-rows: auto minmax(0, 1fr);
-  background: #3d3d3d;
-}
-
-.astra-ui .inventory-paper-pdf__toolbar {
-  display: flex;
-  min-height: 2.05rem;
-  gap: 0.5rem;
-  align-items: center;
-  background: var(--astra-header);
-  padding: 0.3rem 0.5rem;
-  font-family: var(--astra-label);
-  font-size: 0.66rem;
-}
-
-.astra-ui .inventory-paper-pdf__toolbar > div {
-  display: flex;
-  min-width: 0;
-  gap: 0.28rem;
-  align-items: center;
-}
-
-.astra-ui .inventory-paper-pdf__page-controls { flex: 1 1 auto; }
-.astra-ui .inventory-paper-pdf__page-controls > span {
-  min-width: 0;
-  overflow: hidden;
-  color: var(--astra-muted);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.astra-ui .inventory-paper-pdf__zoom-controls { flex: 0 0 auto; }
-
-.astra-ui .inventory-paper-pdf__toolbar button {
-  display: grid;
-  width: 1.42rem;
-  height: 1.42rem;
-  cursor: pointer;
-  place-items: center;
-  border: 1px solid var(--astra-rule-strong);
-  border-radius: 0.22rem;
-  background: var(--astra-panel);
-  color: var(--astra-ink);
-  font: inherit;
-}
-
-.astra-ui .inventory-paper-pdf__toolbar button:disabled { cursor: default; opacity: 0.4; }
-.astra-ui .inventory-paper-pdf__toolbar a { color: var(--astra-link); white-space: nowrap; }
-
-.astra-ui .inventory-paper-pdf__scroll {
-  min-width: 0;
-  min-height: 0;
-  overflow: auto;
-  overscroll-behavior: contain;
-  scrollbar-gutter: stable;
-  padding: 1rem;
-}
-
-.astra-ui .inventory-paper-pdf__page {
-  position: relative;
-  margin: 0 auto;
-  background: var(--astra-artifact-paper);
-  box-shadow: 0 0.8rem 2rem rgba(0, 0, 0, 0.3);
-}
-
-.astra-ui .inventory-paper-pdf__page canvas { display: block; }
-
-.astra-ui .inventory-paper-pdf__text-layer {
-  --min-font-size: 1;
-  --text-scale-factor: calc(var(--total-scale-factor) * var(--min-font-size));
-  --min-font-size-inv: calc(1 / var(--min-font-size));
-  position: absolute;
-  z-index: 1;
-  inset: 0;
-  overflow: clip;
-  color-scheme: only light;
-  caret-color: CanvasText;
-  forced-color-adjust: none;
-  line-height: 1;
-  opacity: 1;
-  text-align: initial;
-  text-size-adjust: none;
-  transform-origin: 0 0;
-}
-
-.astra-ui .inventory-paper-pdf__text-layer :is(span, br) {
-  position: absolute;
-  color: transparent;
-  cursor: text;
-  transform-origin: 0% 0%;
-  white-space: pre;
-}
-
-.astra-ui .inventory-paper-pdf__text-layer > :not(.markedContent),
-.astra-ui .inventory-paper-pdf__text-layer .markedContent span:not(.markedContent) {
-  --font-height: 0;
-  --scale-x: 1;
-  --rotate: 0deg;
-  z-index: 1;
-  font-size: calc(var(--text-scale-factor) * var(--font-height));
-  transform: rotate(var(--rotate)) scaleX(var(--scale-x)) scale(var(--min-font-size-inv));
-}
-
-.astra-ui .inventory-paper-pdf__text-layer .markedContent { display: contents; }
-
-.astra-ui .inventory-paper-pdf__text-layer span[role="img"] {
-  cursor: default;
-  user-select: none;
-}
-
-.astra-ui .inventory-paper-pdf__text-layer ::selection {
-  background: rgba(25, 103, 210, 0.3);
-}
-
-.astra-ui .inventory-paper-pdf__match {
-  border-radius: 0.08em;
-  background: rgba(255, 205, 61, 0.58);
-  color: transparent;
-  box-shadow: 0 0 0 1px rgba(184, 128, 0, 0.28);
-}
-
 .astra-ui .inventory-paper-dialog__unavailable {
   align-self: center;
   display: grid;
   gap: 0.75rem;
   justify-self: center;
   justify-items: center;
-  color: #FFFFFF;
+  color: var(--astra-muted);
   font-family: var(--astra-label);
   font-size: 0.8rem;
   text-align: center;
@@ -467,15 +186,6 @@
 .astra-ui .inventory-paper-dialog__unavailable button:hover:not(:disabled) {
   border-color: var(--astra-link);
   color: var(--astra-link);
-}
-
-.astra-ui .inventory-paper-dialog__unavailable button:disabled {
-  cursor: wait;
-  opacity: 0.65;
-}
-
-.astra-ui .inventory-paper-dialog__unavailable [role="alert"] {
-  color: var(--astra-c-danger);
 }
 
 .astra-ui .inventory-paper-dialog__rail {
@@ -1305,24 +1015,6 @@
   white-space: normal;
 }
 
-.astra-ui .inventory-output-description__text .katex-display {
-  max-width: 100%;
-  margin: 0.8rem 0;
-  overflow-x: auto;
-  overflow-y: hidden;
-}
-
-.astra-ui .inventory-prose__inline-math {
-  white-space: nowrap;
-}
-
-.astra-ui .inventory-prose__display-math .katex-display {
-  max-width: 100%;
-  margin: 0.8rem 0;
-  overflow-x: auto;
-  overflow-y: hidden;
-}
-
 .astra-ui .inventory-output-provenance-slot {
   position: relative;
   min-width: 0;
@@ -1505,7 +1197,6 @@
   .astra-ui .inventory-detail-dialog { padding: 0; }
   .astra-ui .inventory-detail-dialog > section { height: 100dvh; max-height: 100dvh; border: 0; border-radius: 0; }
   .astra-ui .inventory-paper-dialog__layout { display: block; height: auto; overflow: visible; }
-  .astra-ui .inventory-paper-pdf { height: 58vh; }
   .astra-ui .inventory-paper-dialog__rail { overflow: visible; border-top: 1px solid var(--astra-rule); border-left: 0; }
   .astra-ui .inventory-output-dialog__preview { min-height: 12rem; }
 }
@@ -1596,77 +1287,6 @@
 .astra-ui[data-astra-theme="brand-dark"] .astra-evidence__thumb img {
   background: var(--astra-artifact-paper);
   border-radius: 3px;
-}
-
-/* --------------------------------------------------------------------------
-   Editorial record and artifact presentation
-   -------------------------------------------------------------------------- */
-
-.astra-ui .astra-record-detail {
-  width: min(74rem, 100%);
-  margin-inline: auto;
-  padding: clamp(1.5rem, 4vw, 3rem);
-  border: 0;
-  border-radius: 0;
-  background: var(--astra-canvas);
-  font-family: var(--astra-font-body);
-}
-
-.astra-ui .astra-record-detail__header {
-  min-height: 0;
-  align-items: flex-end;
-  padding: 0 0 1rem;
-  border-color: var(--astra-rule-strong);
-  background: transparent;
-}
-
-.astra-ui .astra-record-detail__header .astra-surface-header__content {
-  gap: 0.35rem;
-}
-
-.astra-ui .astra-record-detail__header .astra-surface-header__title {
-  max-width: 48rem;
-  font-family: var(--astra-font-heading);
-  font-size: clamp(1.9rem, 4vw, 2.8rem);
-  line-height: 1.08;
-}
-
-.astra-ui .astra-record-detail__path {
-  font-size: 0.6875rem;
-}
-
-.astra-ui .astra-record-detail__section {
-  max-width: 56rem;
-  margin-block-start: 1.75rem;
-  font-family: var(--astra-font-body);
-  font-size: 1rem;
-  line-height: 1.62;
-}
-
-.astra-ui .astra-record-detail__section h3 {
-  padding-block-end: 0.5rem;
-  border-block-end: 1px solid var(--astra-rule);
-  color: var(--astra-muted);
-  font-family: var(--astra-font-ui);
-}
-
-.astra-ui .astra-option-list li,
-.astra-ui .astra-relation-list li {
-  padding-block: 0.7rem;
-}
-
-.astra-ui .astra-result-viewer {
-  margin-block-start: 2rem;
-  padding: 1rem 0 0;
-  border: 0;
-  border-block-start: 1px solid var(--astra-rule-strong);
-  border-radius: 0;
-  background: transparent;
-}
-
-.astra-ui .astra-result-viewer > header {
-  margin-block-end: 0.75rem;
-  font-family: var(--astra-font-ui);
 }
 
 .astra-ui .astra-artifact--image,
@@ -1795,10 +1415,6 @@
 }
 
 @media (max-width: 720px) {
-  .astra-ui .astra-record-detail__header {
-    align-items: stretch;
-  }
-
   .astra-ui .inventory-detail-dialog {
     padding: 0;
   }
@@ -2170,9 +1786,6 @@
     overflow: visible;
   }
 
-  .astra-ui .inventory-detail-dialog--embedded .inventory-paper-pdf {
-    min-height: 32rem;
-  }
 }
 
 @container (max-width: 47.5rem) {
@@ -2218,9 +1831,6 @@
     overflow: visible;
   }
 
-  .astra-ui .inventory-detail-dialog--embedded .inventory-paper-pdf {
-    min-height: 32rem;
-  }
 }
 
 /* --------------------------------------------------------------------------
@@ -3024,66 +2634,12 @@
 }
 
 .astra-ui .inventory-paper-dialog__artifact {
+  display: grid;
   min-width: 0;
   min-height: 0;
   overflow: hidden;
   border-right: 1px solid var(--astra-rule);
   background: var(--astra-canvas);
-}
-
-.astra-ui .inventory-paper-pdf {
-  position: relative;
-  display: block;
-  width: 100%;
-  height: 100%;
-  min-width: 0;
-  min-height: 0;
-  background: var(--astra-canvas);
-}
-
-.astra-ui .inventory-paper-pdf__toolbar {
-  position: absolute;
-  z-index: 3;
-  top: 0.875rem;
-  left: 50%;
-  display: flex;
-  width: max-content;
-  max-width: calc(100% - 2rem);
-  min-height: 2rem;
-  align-items: center;
-  gap: 0.6875rem;
-  border: 1px solid var(--astra-rule);
-  border-radius: 999px;
-  background: var(--astra-canvas);
-  color: var(--astra-muted);
-  padding: 0.375rem 0.875rem;
-  box-shadow: 0 0.125rem 0.5rem rgb(34 31 32 / 0.06);
-  font: 0.8125rem/1 var(--astra-font-ui);
-  transform: translateX(-50%);
-}
-
-.astra-ui .inventory-paper-pdf__toolbar button {
-  width: auto;
-  height: auto;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  color: var(--astra-link);
-  padding: 0.125rem 0.25rem;
-  font-size: 0.9375rem;
-}
-
-.astra-ui .inventory-paper-pdf__page-controls > span {
-  color: var(--astra-muted);
-}
-
-.astra-ui .inventory-paper-pdf__scroll {
-  width: 100%;
-  height: 100%;
-  min-height: 0;
-  overflow: auto;
-  background: var(--astra-canvas);
-  padding: 3.5rem 1.125rem 1.125rem;
 }
 
 .astra-ui .inventory-paper-dialog__rail {

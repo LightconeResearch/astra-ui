@@ -1,20 +1,14 @@
+import type { ResolvedAnalysisNode, ResolvedInsight } from '@astra-spec/sdk';
 import {
   InventoryEmptyState,
   InventoryRecordIdentity,
   InventoryRecordList,
 } from './InventoryPrimitives.js';
-import {
-  getInventoryScope,
-  inventoryRecordTitle,
-  inventoryRecordsOfKind,
-  type InventoryModel,
-} from './model.js';
-import type { InventoryInsightRecord, InventoryScope } from '../types.js';
+import { recordTitle } from './inventory-data.js';
 
-interface PriorInsightsInventoryProps {
-  model: InventoryModel;
-  scopeId: string;
-  onOpenInsight: (insight: InventoryInsightRecord, scope: InventoryScope) => void;
+export interface PriorInsightsInventoryProps {
+  analysis: ResolvedAnalysisNode;
+  onOpenInsight: (insight: ResolvedInsight, analysis: ResolvedAnalysisNode) => void;
 }
 
 function evidenceLabel(count: number): string {
@@ -22,14 +16,12 @@ function evidenceLabel(count: number): string {
 }
 
 export function PriorInsightsInventory({
-  model,
-  scopeId,
+  analysis,
   onOpenInsight,
 }: PriorInsightsInventoryProps) {
-  const scope = getInventoryScope(model, scopeId);
-  const records = scope ? inventoryRecordsOfKind(scope, 'prior_insight', model) : [];
+  const records = analysis.prior_insights;
 
-  if (!scope || !records.length) {
+  if (!records.length) {
     return <InventoryEmptyState>No prior insights are declared in this analysis.</InventoryEmptyState>;
   }
 
@@ -44,14 +36,14 @@ export function PriorInsightsInventory({
           { className: 'inventory-record-list__arrow' },
         ]}
         rows={records.map((record) => ({
-          key: record.id,
-          accessibleLabel: `${inventoryRecordTitle(record)}: ${record.claim ?? 'Claim unavailable'} ${evidenceLabel(record.evidence.length)}`,
-          onOpen: () => onOpenInsight(record, scope),
+          key: record.canonicalPath,
+          accessibleLabel: `${recordTitle(record)}: ${record.claim} ${evidenceLabel(record.evidence.length)}`,
+          onOpen: () => onOpenInsight(record, analysis),
           cells: [
             <InventoryRecordIdentity
               kind="prior_insight"
-              title={record.claim ?? inventoryRecordTitle(record)}
-              subtitle={record.label ? record.localId : undefined}
+              title={record.claim}
+              subtitle={record.label ? record.id : undefined}
             />,
             <span>{evidenceLabel(record.evidence.length)}</span>,
             <span aria-hidden="true">→</span>,

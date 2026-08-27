@@ -1,23 +1,13 @@
 import type { ReactNode } from 'react';
 import { InventoryCountHeading } from './InventoryPrimitives.js';
-import type { InventoryKind } from '../types.js';
-
-const RELATION_GLYPHS: Record<InventoryKind | 'paper', string> = {
-  analysis: '◐',
-  input: '↳',
-  decision: '◇',
-  output: '◆',
-  finding: '●',
-  prior_insight: '◈',
-  paper: '▧',
-};
+import { surfaceGlyph, type SurfaceKind } from '../ui.js';
 
 export interface InventoryRelationItem {
   key: string;
   label: ReactNode;
   identifier?: ReactNode | undefined;
   detail?: ReactNode | undefined;
-  kind?: InventoryKind | 'paper' | undefined;
+  kind?: SurfaceKind | undefined;
   className?: string | undefined;
   accessibleLabel?: string | undefined;
   onOpen?: (() => void) | undefined;
@@ -73,7 +63,7 @@ export function InventoryRelationList({
                     className={`inventory-relation-item__glyph${item.kind ? '' : ' is-empty'}`}
                     aria-hidden="true"
                   >
-                    {item.kind ? RELATION_GLYPHS[item.kind] : ''}
+                    {item.kind ? surfaceGlyph(item.kind) : ''}
                   </span>
                   <span className="inventory-relation-item__copy">
                     <span className="inventory-relation-item__label">{item.label}</span>
@@ -88,7 +78,7 @@ export function InventoryRelationList({
                     className={`inventory-relation-item__glyph${item.kind ? '' : ' is-empty'}`}
                     aria-hidden="true"
                   >
-                    {item.kind ? RELATION_GLYPHS[item.kind] : ''}
+                    {item.kind ? surfaceGlyph(item.kind) : ''}
                   </span>
                   <span className="inventory-relation-item__copy">
                     <span className="inventory-relation-item__label">{item.label}</span>

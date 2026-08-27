@@ -1,4 +1,10 @@
+import type {
+  ResolvedAnalysisNode,
+  ResolvedDecision,
+  ResolvedInsight,
+} from '@astra-spec/sdk';
 import { InventoryProse } from './InventoryProse.js';
+import type { TextRenderer } from './InventoryProse.js';
 import {
   InventoryDetailDialog,
   InventoryDetailLayout,
@@ -7,22 +13,13 @@ import {
 } from './InventoryPrimitives.js';
 import { InventoryRelationList } from './InventoryRelations.js';
 import { doiHref } from './citationMetadata.js';
-import {
-  inventoryInformedDecisions,
-  inventoryRecordTitle,
-  type InventoryModel,
-} from './model.js';
-import type {
-  InventoryDecisionRecord,
-  InventoryInsightRecord,
-  InventoryScope,
-} from '../types.js';
+import { analysisTitle, recordTitle } from './inventory-data.js';
 
-function insightEvidenceName(entry: InventoryInsightRecord): string {
-  return entry.label ?? entry.localId;
+function insightEvidenceName(entry: ResolvedInsight): string {
+  return entry.label ?? entry.id;
 }
 
-function primaryLiteratureEvidence(insight: InventoryInsightRecord) {
+function primaryLiteratureEvidence(insight: ResolvedInsight) {
   return insight.evidence.find((evidence) => evidence.doi || evidence.quote);
 }
 
@@ -42,17 +39,19 @@ function InsightEvidenceTitle({
   );
 }
 
+export interface InsightDetailTriggerProps {
+  insight: ResolvedInsight;
+  onOpen: () => void;
+  tag?: string | undefined;
+  variant?: 'title' | 'claim' | undefined;
+}
+
 export function InsightDetailTrigger({
   insight,
   onOpen,
   tag = 'prior insight',
   variant = 'title',
-}: {
-  insight: InventoryInsightRecord;
-  onOpen: () => void;
-  tag?: string | undefined;
-  variant?: 'title' | 'claim' | undefined;
-}) {
+}: InsightDetailTriggerProps) {
   const title = insightEvidenceName(insight);
   if (variant === 'claim') {
     return (
@@ -71,7 +70,7 @@ export function InsightDetailTrigger({
       >
         <span className="astra-evidence__glyph--insight" aria-hidden="true">◈</span>
         <div className="inventory-insight-trigger__claim">
-          <InventoryProse text={insight.claim ?? title} />
+          <InventoryProse text={insight.claim} />
         </div>
       </div>
     );
@@ -88,33 +87,36 @@ export function InsightDetailTrigger({
   );
 }
 
+export interface InsightDetailDialogProps {
+  insight: ResolvedInsight;
+  analysis: ResolvedAnalysisNode;
+  decisions: ResolvedDecision[];
+  renderText?: TextRenderer | undefined;
+  onOpenSource?: (() => void) | undefined;
+  onOpenDecision?: ((decision: ResolvedDecision) => void) | undefined;
+  onBack?: (() => void) | undefined;
+  onClose: () => void;
+}
+
 export function InsightDetailDialog({
   insight,
-  model,
-  scope,
+  analysis,
+  decisions,
+  renderText,
   onOpenSource,
   onOpenDecision,
   onBack,
   onClose,
-}: {
-  insight: InventoryInsightRecord;
-  model: InventoryModel;
-  scope: InventoryScope;
-  onOpenSource?: (() => void) | undefined;
-  onOpenDecision?: ((decision: InventoryDecisionRecord) => void) | undefined;
-  onBack?: (() => void) | undefined;
-  onClose: () => void;
-}) {
-  const decisions = inventoryInformedDecisions(model, scope, insight);
+}: InsightDetailDialogProps) {
   const title = insightEvidenceName(insight);
   const source = primaryLiteratureEvidence(insight);
 
   return (
     <InventoryDetailDialog
       kind="prior_insight"
-      eyebrow={`Insight · ${scope.name}`}
+      eyebrow={`Insight · ${analysisTitle(analysis)}`}
       title={title}
-      identifier={insight.label ? insight.localId : undefined}
+      identifier={insight.label ? insight.id : undefined}
       onBack={onBack}
       closeLabel="Close insight details"
       onClose={onClose}
@@ -126,7 +128,7 @@ export function InsightDetailDialog({
               label="Claim"
               className="inventory-record-detail__prose--section-heading inventory-insight-detail__claim"
             >
-              <InventoryProse text={insight.claim} />
+              <InventoryProse text={insight.claim} renderText={renderText} />
             </InventoryDetailProse>
           ) : null}
           {source?.doi ? (
@@ -134,11 +136,11 @@ export function InsightDetailDialog({
               <h4>Source paper</h4>
               {onOpenSource ? (
                 <button type="button" onClick={onOpenSource}>
-                  {source.doi}{source.page ? ` · page ${source.page}` : ''} ↗
+                  {source.doi}{source.location?.page ? ` · page ${source.location.page}` : ''} ↗
                 </button>
               ) : (
                 <a href={doiHref(source.doi)} target="_blank" rel="noreferrer">
-                  {source.doi}{source.page ? ` · page ${source.page}` : ''} ↗
+                  {source.doi}{source.location?.page ? ` · page ${source.location.page}` : ''} ↗
                 </a>
               )}
             </section>
@@ -146,7 +148,7 @@ export function InsightDetailDialog({
           {source?.quote ? (
             <section className="inventory-insight-detail__source-quote">
               <h4>Source passage</h4>
-              <blockquote><InventoryProse text={source.quote} /></blockquote>
+              <blockquote><InventoryProse text={source.quote.exact} renderText={renderText} /></blockquote>
               {source.doi && onOpenSource ? (
                 <button
                   type="button"
@@ -161,19 +163,19 @@ export function InsightDetailDialog({
           {insight.notes ? (
             <section className="inventory-insight-detail__notes">
               <h4>Notes</h4>
-              <div><InventoryProse text={insight.notes} /></div>
+              <div><InventoryProse text={insight.notes} renderText={renderText} /></div>
             </section>
           ) : null}
           <InventoryRelationList
             title="Informs decisions"
             items={decisions.map((decision) => ({
-              key: decision.id,
-              label: inventoryRecordTitle(decision),
+              key: decision.canonicalPath,
+              label: recordTitle(decision),
               kind: 'decision',
-              accessibleLabel: `View decision: ${inventoryRecordTitle(decision)}`,
+              accessibleLabel: `View decision: ${recordTitle(decision)}`,
               onOpen: onOpenDecision ? () => onOpenDecision(decision) : undefined,
             }))}
-            empty="No decisions in this scope cite this insight."
+            empty="No decisions in this analysis cite this insight."
           />
         </InventoryDetailMain>
       </InventoryDetailLayout>

@@ -1,5 +1,2 @@
-/* Umbrella entry: the complete astra-ui stylesheet. Hosts that only
-   mount detail surfaces should import components.css instead. */
-
-@import "./components.css";
+/* Umbrella entry retained for hosts that prefer the package-wide stylesheet. */
 @import "./views.css";

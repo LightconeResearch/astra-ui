@@ -1,3 +1,4 @@
+import type { ResolvedRecord } from '@astra-spec/sdk';
 import {
   forwardRef,
   type ButtonHTMLAttributes,
@@ -5,19 +6,24 @@ import {
   type ReactNode,
 } from 'react';
 
-export type SurfaceKind =
-  | 'analysis'
-  | 'input'
-  | 'decision'
-  | 'output'
-  | 'finding'
-  | 'prior_insight'
-  | 'paper'
-  | 'file';
+export type SurfaceKind = ResolvedRecord['kind'] | 'analysis' | 'paper';
+
+const SURFACE_GLYPHS: Record<SurfaceKind, string> = {
+  analysis: '◐',
+  input: '↳',
+  decision: '◇',
+  output: '◆',
+  finding: '●',
+  prior_insight: '◈',
+  paper: '▧',
+};
+
+export function surfaceGlyph(kind: SurfaceKind): string {
+  return SURFACE_GLYPHS[kind];
+}
 
 export type SurfaceHeaderDensity = 'compact' | 'regular' | 'inline';
 export type SurfaceHeadingLevel = 'h1' | 'h2' | 'h3' | 'h4';
-export type ProjectViewHeadingLevel = 'h1' | 'h2';
 
 function classes(...values: Array<string | undefined | false>): string {
   return values.filter(Boolean).join(' ');
@@ -83,50 +89,6 @@ export function SurfaceHeader({
       </div>
       {actions != null ? (
         <div className={classes('astra-surface-header__actions', actionsClassName)}>
-          {actions}
-        </div>
-      ) : null}
-    </header>
-  );
-}
-
-export interface ProjectViewHeaderProps {
-  title: ReactNode;
-  titleAs?: ProjectViewHeadingLevel | undefined;
-  context?: ReactNode | undefined;
-  leading?: ReactNode | undefined;
-  actions?: ReactNode | undefined;
-  className?: string | undefined;
-  summaryClassName?: string | undefined;
-  actionsClassName?: string | undefined;
-}
-
-/**
- * Shared compact workbench header for primary project views such as graph and
- * inventory. View-specific controls retain their own state and handlers.
- */
-export function ProjectViewHeader({
-  title,
-  titleAs = 'h1',
-  context,
-  leading,
-  actions,
-  className,
-  summaryClassName,
-  actionsClassName,
-}: ProjectViewHeaderProps) {
-  const Heading = titleAs;
-  return (
-    <header className={classes('astra-project-view-header', className)}>
-      <div className={classes('astra-project-view-header__summary', summaryClassName)}>
-        {leading}
-        <Heading className="astra-project-view-header__title">{title}</Heading>
-        {context != null ? (
-          <code className="astra-project-view-header__context">{context}</code>
-        ) : null}
-      </div>
-      {actions != null ? (
-        <div className={classes('astra-project-view-header__actions', actionsClassName)}>
           {actions}
         </div>
       ) : null}
