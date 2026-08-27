@@ -13,7 +13,7 @@
   "scripts": {
     "clean": "npm run clean --workspace @lightcone-research/astra-ui",
     "build": "npm run build --workspace @lightcone-research/astra-ui",
-    "typecheck": "npm run typecheck --workspace @lightcone-research/astra-ui && tsc -p packages/playground/tsconfig.json && tsc -p tsconfig.tests.json",
+    "typecheck": "npm run build && npm run typecheck --workspace @lightcone-research/astra-ui && tsc -p packages/playground/tsconfig.json && tsc -p tsconfig.tests.json",
     "typecheck:react19": "tsc -p tsconfig.react19.json",
     "lint": "eslint .",
     "test": "npm run build && node --test tests/*.test.mjs && vitest run",
@@ -23,7 +23,7 @@
     "playground": "npm run dev --workspace astra-ui-playground",
     "screenshots": "npm run build && node packages/playground/scripts/screenshot.mjs packages/playground/screenshots/current",
     "screenshots:compare": "node packages/playground/scripts/compare.mjs packages/playground/screenshots/baseline packages/playground/screenshots/current",
-    "check": "npm run lint && npm run typecheck && npm run typecheck:react19 && npm test"
+    "check": "npm run lint && npm run typecheck && npm run typecheck:react19 && node --test tests/*.test.mjs && vitest run"
   },
   "devDependencies": {
     "@astra-spec/sdk": "^0.0.8",
