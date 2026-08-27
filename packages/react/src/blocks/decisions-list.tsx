@@ -56,7 +56,7 @@ export const DecisionsList = forwardRef<HTMLDivElement, DecisionsListProps>(func
     : records.filter((record) => record.tags?.includes(tagFilter));
 
   if (!records.length) {
-    return <EmptyState {...props} ref={ref} data-slot="decisions-list" className={className}>{labels.empty.decisions}</EmptyState>;
+    return <EmptyState data-slot="decisions-list" {...props} ref={ref} className={className}>{labels.empty.decisions}</EmptyState>;
   }
 
   return (

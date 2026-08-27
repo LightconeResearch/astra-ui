@@ -99,12 +99,20 @@ test('artifact previews render only host-safe values', () => {
   assert.match(loading, /aria-busy="true"/);
 });
 
-test('authored prose is plain by default and host-renderable by slot', () => {
-  const plain = withinUi(React.createElement(Prose, {
-    text: 'Use $x$ and **strong** literally.',
+test('authored prose typesets inline code and LaTeX by default, and is host-renderable by slot', () => {
+  const plain = withinUi(React.createElement(Prose, { text: 'Plain **text** stays as written.' }));
+  assert.match(plain, /Plain \*\*text\*\* stays as written\./);
+  assert.doesNotMatch(plain, /katex|<strong>|<code>/);
+
+  const rich = withinUi(React.createElement(Prose, {
+    text: 'Peak at $s^2\\,\\Delta\\xi_\\ell(s)$ with `qiso`. $$\\alpha_\\mathrm{iso} = 1$$',
   }));
-  assert.match(plain, /Use \$x\$ and \*\*strong\*\* literally\./);
-  assert.doesNotMatch(plain, /katex|<strong>/);
+  assert.match(rich, /astra-prose__inline-math/);
+  assert.match(rich, /astra-prose__display-math/);
+  assert.match(rich, /class="katex"/);
+  assert.match(rich, /class="katex-display"/);
+  assert.match(rich, /katex-mathml/);
+  assert.match(rich, /<code>qiso<\/code>/);
 
   let seenField;
   const custom = withinUi(React.createElement(Prose, {

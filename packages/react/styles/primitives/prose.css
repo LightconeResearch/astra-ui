@@ -1,0 +1,15 @@
+@layer astra.tokens, astra.base, astra.components, astra.views;
+
+/* Prose: inline code and KaTeX math inside authored text (primitives/prose.tsx). */
+@layer astra.components {
+  :where(.astra-ui) .astra-prose__inline-math {
+    white-space: nowrap;
+  }
+
+  :where(.astra-ui) .astra-prose__display-math .katex-display {
+    max-width: 100%;
+    margin: 0.8rem 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+}

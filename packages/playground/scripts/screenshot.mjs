@@ -16,7 +16,7 @@ const args = process.argv.slice(2);
 const filterIndex = args.indexOf('--filter');
 const filter = filterIndex >= 0 ? args[filterIndex + 1] : undefined;
 if (filterIndex >= 0 && !filter) throw new Error('--filter needs a substring');
-const positional = args.filter((value, index) => index !== filterIndex && index !== filterIndex + 1);
+const positional = filterIndex >= 0 ? args.filter((value, index) => index !== filterIndex && index !== filterIndex + 1) : args;
 const outDir = resolve(positional[0] ?? join(here, '../screenshots/run'));
 const port = 61000;
 const base = `http://localhost:${port}`;

@@ -24,7 +24,7 @@ export const FindingsList = forwardRef<HTMLDivElement, FindingsListProps>(functi
   const labels = useLabels();
   const records = analysis.findings;
   if (!records.length) {
-    return <EmptyState {...props} ref={ref} data-slot="findings-list" className={className}>{labels.empty.findings}</EmptyState>;
+    return <EmptyState data-slot="findings-list" {...props} ref={ref} className={className}>{labels.empty.findings}</EmptyState>;
   }
   return (
     <InventoryRecords {...props} ref={ref} kind="finding" className={className}>

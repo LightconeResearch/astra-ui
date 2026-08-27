@@ -68,7 +68,7 @@ export const PaperDetail = forwardRef<HTMLDivElement, PaperDetailProps>(function
   const fetching = metadata?.status === 'fetching';
 
   return (
-    <div {...props} ref={ref} data-slot="paper-detail" className={cn('astra-paper-detail__layout', className)}>
+    <div data-slot="paper-detail" {...props} ref={ref} className={cn('astra-paper-detail__layout', className)}>
       <div className="astra-paper-detail__artifact">
         {canRender && renderPaper ? (
           <>{renderPaper(paper, { focusEvidence })}</>

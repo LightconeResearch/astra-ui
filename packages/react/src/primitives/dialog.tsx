@@ -334,7 +334,7 @@ export const DialogContent = forwardRef<HTMLElement, DialogContentProps>(functio
     if (!open) return null;
     return (
       // eslint-disable-next-line jsx-a11y/no-static-element-interactions -- host handler passthrough only
-      <div {...props} {...data} ref={ref as Ref<HTMLDivElement>} className={cn('astra-dialog', className)} onMouseDown={onMouseDown} onFocus={onFocus}>
+      <div {...data} {...props} ref={ref as Ref<HTMLDivElement>} className={cn('astra-dialog', className)} onMouseDown={onMouseDown} onFocus={onFocus}>
         {panel}
       </div>
     );
@@ -342,8 +342,8 @@ export const DialogContent = forwardRef<HTMLElement, DialogContentProps>(functio
   return (
     // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- backdrop click dismisses the modal
     <dialog
-      {...props}
       {...data}
+      {...props}
       ref={setRefs}
       className={cn('astra-dialog', className)}
       aria-modal="true"
@@ -477,17 +477,17 @@ export const DialogAction = forwardRef<HTMLElement, DialogActionProps>(function 
   const Component = asChild ? Slot : 'button';
   return (
     <Component
+      data-slot="dialog-action"
       {...props}
       {...(asChild ? {} : { type: 'button' })}
       ref={ref as never}
-      data-slot="dialog-action"
       className={cn('astra-dialog__action', className)}
     />
   );
 });
 
 export const DialogBody = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(function DialogBody({ className, ...props }, ref) {
-  return <div {...props} ref={ref} data-slot="dialog-body" className={cn('astra-dialog__body', className)} />;
+  return <div data-slot="dialog-body" {...props} ref={ref} className={cn('astra-dialog__body', className)} />;
 });
 
 /* ------------------------------------------------------------------ */

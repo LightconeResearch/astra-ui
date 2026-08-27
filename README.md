@@ -89,7 +89,10 @@ style scope.
   metric, text, loading, unavailable); `tablePreviewFromDelimited`,
   `tablePreviewFromRows` and `metricPreviewFromJson` build that data without
   doing any I/O.
-- `renderText(text, { field })` renders authored prose; plain text is the default.
+- `renderText(text, { field })` replaces the built-in prose rendering, which
+  typesets inline `code`, `$inline$` and `$$display$$` math with KaTeX
+  (`primitives.css` imports `katex/dist/katex.css`; bundlers resolve it from
+  the package's `katex` dependency).
 - `renderPaper(paper, { focusEvidence })` renders host-owned paper content.
 - `onFetchPaper(doi)` is an event; the host returns metadata (and
   `status: 'fetching' | 'error'`) through `paperMetadata`.

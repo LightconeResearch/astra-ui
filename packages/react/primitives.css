@@ -1,4 +1,5 @@
 /* Tokens, base paint, and the primitives. Import order is part of the cascade; keep it. */
+@import "katex/dist/katex.css";
 @import "./styles/tokens.css";
 @import "./styles/base.css";
 @import "./styles/primitives/kind.css";
@@ -11,3 +12,4 @@
 @import "./styles/primitives/count-heading.css";
 @import "./styles/primitives/record-list.css";
 @import "./styles/primitives/empty-state.css";
+@import "./styles/primitives/prose.css";

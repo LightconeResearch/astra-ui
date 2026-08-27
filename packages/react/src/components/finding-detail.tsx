@@ -1,7 +1,8 @@
 import type { ResolvedInsight } from '@astra-spec/sdk';
-import { forwardRef, type HTMLAttributes } from 'react';
+import { Fragment, forwardRef, type HTMLAttributes } from 'react';
 import { recordTitle } from '../model/records.js';
-import type { FindingEvidenceLink } from '../model/relations.js';
+import { doiHref } from '../model/doi.js';
+import { findingLiterature, type FindingEvidenceLink } from '../model/relations.js';
 import { cn } from '../lib/cn.js';
 import { useLabels } from '../lib/labels.js';
 import { DetailLayout, DetailMain } from '../primitives/detail-layout.js';
@@ -18,7 +19,7 @@ export interface FindingDetailProps extends Omit<HTMLAttributes<HTMLDivElement>,
   onOpenRecord?: OpenRecordHandler | undefined;
 }
 
-/** Notes and the supporting results a finding cites. */
+/** Notes, the supporting results a finding cites, and its literature sources. */
 export const FindingDetail = forwardRef<HTMLDivElement, FindingDetailProps>(function FindingDetail({
   record,
   evidence,
@@ -27,8 +28,9 @@ export const FindingDetail = forwardRef<HTMLDivElement, FindingDetailProps>(func
   className,
   ...props
 }, ref) {
+  const literature = findingLiterature(record);
   return (
-    <DetailLayout {...props} ref={ref} layout="single" className={cn('astra-finding-detail', className)} data-slot="finding-detail">
+    <DetailLayout data-slot="finding-detail" {...props} ref={ref} layout="single" className={cn('astra-finding-detail', className)}>
       <DetailMain>
         {record.notes ? (
           <section className="astra-finding-detail__notes">
@@ -56,6 +58,24 @@ export const FindingDetail = forwardRef<HTMLDivElement, FindingDetailProps>(func
             };
           })}
         />
+        {literature.map((source, index) => {
+          const doi = source.doi ?? '';
+          const location = source.location?.page ? ` · page ${source.location.page}` : '';
+          return (
+            <Fragment key={`${doi}-${index}`}>
+              <section className="astra-insight-detail__paper astra-paper-doi">
+                <h4>Source paper</h4>
+                <a href={doiHref(doi)} target="_blank" rel="noreferrer">{doi}{location} ↗</a>
+              </section>
+              {source.quote ? (
+                <section className="astra-insight-detail__source-quote">
+                  <h4>Source passage</h4>
+                  <blockquote><Prose text={source.quote.exact} field="quote" renderText={renderText} /></blockquote>
+                </section>
+              ) : null}
+            </Fragment>
+          );
+        })}
       </DetailMain>
     </DetailLayout>
   );

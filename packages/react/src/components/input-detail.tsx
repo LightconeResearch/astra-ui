@@ -15,16 +15,17 @@ export interface InputDetailProps extends Omit<HTMLAttributes<HTMLDivElement>, '
   renderText?: TextRenderer | undefined;
 }
 
-/** Description and declared source of an input. */
+/** Description, the record an alias resolves from, and the declared source of an input. */
 export const InputDetail = forwardRef<HTMLDivElement, InputDetailProps>(function InputDetail({
   record,
   renderText,
   className,
   ...props
 }, ref) {
-  const source = inputSourceLabel(record);
+  const declared = record.source ?? record.ref;
+  const primary = record.resolvedFrom ?? declared ?? 'Source not declared';
   return (
-    <DetailLayout {...props} ref={ref} layout="single" className={className} data-slot="input-detail">
+    <DetailLayout data-slot="input-detail" {...props} ref={ref} layout="single" className={className}>
       <DetailMain>
         {record.description ? (
           <DetailSection label="Description" heading="section">
@@ -34,8 +35,15 @@ export const InputDetail = forwardRef<HTMLDivElement, InputDetailProps>(function
         <section className="astra-input-source">
           <h4>{record.resolvedFrom ? 'Resolved from' : 'Source'}</h4>
           {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- long paths scroll horizontally */}
-          <code tabIndex={0} title={source}>{source}</code>
+          <code tabIndex={0} title={primary}>{primary}</code>
         </section>
+        {record.resolvedFrom && declared ? (
+          <section className="astra-input-source">
+            <h4>Source</h4>
+            {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- long paths scroll horizontally */}
+            <code tabIndex={0} title={declared}>{declared}</code>
+          </section>
+        ) : null}
       </DetailMain>
     </DetailLayout>
   );

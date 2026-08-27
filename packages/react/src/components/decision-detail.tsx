@@ -26,7 +26,7 @@ export const DecisionDetail = forwardRef<HTMLDivElement, DecisionDetailProps>(fu
 }, ref) {
   const optionsId = useId();
   return (
-    <DetailLayout {...props} ref={ref} layout="single" className={className} data-slot="decision-detail">
+    <DetailLayout data-slot="decision-detail" {...props} ref={ref} layout="single" className={className}>
       <DetailMain>
         {record.rationale ? (
           <DetailSection label="Rationale" heading="section">

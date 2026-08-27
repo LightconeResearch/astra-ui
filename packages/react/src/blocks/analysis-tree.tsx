@@ -81,18 +81,19 @@ export const AnalysisTree = forwardRef<HTMLElement, AnalysisTreeProps>(function 
   onSelectAnalysis,
   showHeading = true,
   className,
+  'aria-label': hostLabel,
   ...props
 }, ref) {
   const labels = useLabels();
   const headingId = useId();
   return (
     <nav
+      data-slot="analysis-tree"
       {...props}
       ref={ref}
-      data-slot="analysis-tree"
       className={cn('astra-analysis-tree', className)}
-      aria-labelledby={showHeading ? headingId : undefined}
-      aria-label={showHeading ? undefined : labels.analysisTree}
+      aria-labelledby={showHeading && !hostLabel ? headingId : undefined}
+      aria-label={hostLabel ?? (showHeading ? undefined : labels.analysisTree)}
     >
       {showHeading ? <h2 id={headingId}>{labels.analysisTree}</h2> : null}
       <ul>

@@ -20,7 +20,7 @@ export const PriorInsightsList = forwardRef<HTMLDivElement, PriorInsightsListPro
   const labels = useLabels();
   const records = analysis.prior_insights;
   if (!records.length) {
-    return <EmptyState {...props} ref={ref} data-slot="prior-insights-list" className={className}>{labels.empty.prior_insights}</EmptyState>;
+    return <EmptyState data-slot="prior-insights-list" {...props} ref={ref} className={className}>{labels.empty.prior_insights}</EmptyState>;
   }
   return (
     <InventoryRecords {...props} ref={ref} kind="prior_insight" className={className}>

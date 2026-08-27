@@ -108,9 +108,9 @@ export const OutputDetail = forwardRef<HTMLDivElement, OutputDetailProps>(functi
 
   return (
     <div
+      data-slot="output-detail"
       {...props}
       ref={ref}
-      data-slot="output-detail"
       className={cn('astra-output-detail__layout', className)}
       data-layout={visual ? 'reader' : 'single'}
     >

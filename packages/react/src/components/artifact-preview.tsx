@@ -217,21 +217,32 @@ export interface DelimitedPreviewOptions {
   sourceTruncated?: boolean | undefined;
 }
 
-function splitDelimited(line: string, delimiter: string): string[] {
-  const cells: string[] = [];
-  let current = '';
+/** RFC 4180-style rows: quoted cells may hold delimiters, doubled quotes, and line breaks. Blank rows are dropped. */
+function parseDelimited(text: string, delimiter: string): string[][] {
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let cell = '';
   let quoted = false;
-  for (let index = 0; index < line.length; index += 1) {
-    const character = line.charAt(index);
-    if (character === '"') {
-      if (quoted && line[index + 1] === '"') { current += '"'; index += 1; } else quoted = !quoted;
-    } else if (character === delimiter && !quoted) {
-      cells.push(current);
-      current = '';
-    } else current += character;
+  const endCell = () => { row.push(cell.trim()); cell = ''; };
+  const endRow = () => {
+    endCell();
+    if (row.some((value) => value.length > 0)) rows.push(row);
+    row = [];
+  };
+  for (let index = 0; index < text.length; index += 1) {
+    const character = text.charAt(index);
+    if (quoted) {
+      if (character !== '"') cell += character;
+      else if (text.charAt(index + 1) === '"') { cell += '"'; index += 1; } else quoted = false;
+    } else if (character === '"') quoted = true;
+    else if (character === delimiter) endCell();
+    else if (character === '\n' || character === '\r') {
+      if (character === '\r' && text.charAt(index + 1) === '\n') index += 1;
+      endRow();
+    } else cell += character;
   }
-  cells.push(current);
-  return cells.map((cell) => cell.trim());
+  endRow();
+  return rows;
 }
 
 /** Turns delimited text (CSV, TSV) into table preview data. */
@@ -239,11 +250,9 @@ export function tablePreviewFromDelimited(text: string, options: DelimitedPrevie
   const delimiter = options.delimiter ?? ',';
   const maxRows = options.maxRows ?? 30;
   const maxColumns = options.maxColumns ?? 30;
-  const lines = text.split(/\r?\n/).filter((line) => line.trim().length > 0);
-  const [head = '', ...body] = lines;
-  const allHeaders = splitDelimited(head, delimiter);
+  const [allHeaders = [], ...body] = parseDelimited(text, delimiter);
   const headers = allHeaders.slice(0, maxColumns);
-  const rows = body.slice(0, maxRows).map((line) => splitDelimited(line, delimiter).slice(0, maxColumns));
+  const rows = body.slice(0, maxRows).map((cells) => cells.slice(0, maxColumns));
   return {
     kind: 'table',
     headers,

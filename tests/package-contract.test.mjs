@@ -39,7 +39,7 @@ test('the package depends on the SDK model and host React only', async () => {
   assert.equal(manifest.peerDependencies['@astra-spec/sdk'], '^0.1.1');
   assert.equal(manifest.peerDependencies.react, '>=18 <20');
   assert.equal(manifest.peerDependencies['react-dom'], '>=18 <20');
-  assert.equal(manifest.dependencies, undefined);
+  assert.deepEqual(manifest.dependencies, { katex: '^0.16.47' }, 'katex typesets authored math; nothing else is bundled');
   assert.equal(manifest.scripts.prepack, 'npm run build');
   assert.ok(manifest.files.includes('LICENSE'));
   assert.ok(manifest.files.includes('src'), 'source ships for go-to-definition');
@@ -115,7 +115,11 @@ test('source contains no parallel resolver, session, storage, or integration lay
   assert.doesNotMatch(source, /RuntimeOverlay|ViewerSession|ViewerHost|ViewerChange/);
   assert.doesNotMatch(source, /ProjectViewModel|scopeId|recordId|knownRevision/);
   assert.doesNotMatch(source, /createNodeFileAccess|createJupyterFileAccess|resolveAnalysis\s*\(/);
-  assert.doesNotMatch(source, /from ['"](?:node:|@jupyter|myst-|katex)/i);
+  assert.doesNotMatch(source, /from ['"](?:node:|@jupyter|myst-)/i);
+  // KaTeX is the one rendering dependency, confined to the prose primitive.
+  const katexImports = [...source.matchAll(/from ['"]katex['"]/g)].length;
+  assert.equal(katexImports, 1, 'katex is imported once, by primitives/prose.tsx');
+  assert.match(await readFile(new URL('primitives/prose.tsx', sourceDirectory), 'utf8'), /from 'katex'/);
   assert.doesNotMatch(source, /PaperPdfViewer|pdf\.mjs|pdf\.worker/);
   assert.match(source, /indexAnalysis\(document\)/);
 });
@@ -158,7 +162,7 @@ test('styles are layered, scoped with :where, and free of theme or host selector
   // primitives.css follows the legacy source order (surface-header before dialog, ...).
   const primitives = await readFile(new URL('primitives.css', packageRoot), 'utf8');
   const imports = [...primitives.matchAll(/@import "\.\/styles\/primitives\/([a-z-]+)\.css"/g)].map(([, name]) => name);
-  assert.deepEqual(imports, ['kind', 'surface-header', 'badge', 'button', 'dialog', 'detail-layout', 'relation-list', 'count-heading', 'record-list', 'empty-state'], 'primitives.css import order is part of the cascade');
+  assert.deepEqual(imports, ['kind', 'surface-header', 'badge', 'button', 'dialog', 'detail-layout', 'relation-list', 'count-heading', 'record-list', 'empty-state', 'prose'], 'primitives.css import order is part of the cascade');
 });
 
 test('every class the components emit has a rule, and every styled block is emitted', async () => {

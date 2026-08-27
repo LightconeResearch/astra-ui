@@ -52,7 +52,7 @@ export const RelationList = forwardRef<HTMLElement, RelationListProps>(function 
   ...props
 }, ref) {
   return (
-    <section {...props} ref={ref} data-slot="relation-list" className={cn('astra-relation-list', className)}>
+    <section data-slot="relation-list" {...props} ref={ref} className={cn('astra-relation-list', className)}>
       {headerAction ? (
         <div className="astra-relation-list__header">
           <CountHeading title={title} count={items.length} />

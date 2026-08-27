@@ -22,7 +22,7 @@ export interface PaperRowsProps extends Omit<HTMLAttributes<HTMLDivElement>, 'ch
 export const PaperRows = forwardRef<HTMLDivElement, PaperRowsProps>(function PaperRows({ papers, onOpen, className, ...props }, ref) {
   const labels = useLabels();
   return (
-    <div {...props} ref={ref} data-slot="paper-list" className={cn('astra-paper-list', className)} role="group" aria-label={labels.sections.papers}>
+    <div data-slot="paper-list" {...props} ref={ref} className={cn('astra-paper-list', className)} role="group" aria-label={labels.sections.papers}>
       {papers.map((paper) => (
         <button
           key={paper.doi}
@@ -55,7 +55,7 @@ export const PapersList = forwardRef<HTMLDivElement, PapersListProps>(function P
 }, ref) {
   const labels = useLabels();
   if (!papers.length) {
-    return <EmptyState {...props} ref={ref} data-slot="papers-list" className={className}>{labels.empty.papers}</EmptyState>;
+    return <EmptyState data-slot="papers-list" {...props} ref={ref} className={className}>{labels.empty.papers}</EmptyState>;
   }
   return (
     <InventoryRecords {...props} ref={ref} kind="paper" className={className}>

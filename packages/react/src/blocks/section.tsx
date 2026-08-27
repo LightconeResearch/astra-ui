@@ -25,9 +25,9 @@ export const InventorySection = forwardRef<HTMLElement, InventorySectionProps>(f
 }, ref) {
   return (
     <section
+      data-slot="inventory-section"
       {...props}
       ref={ref}
-      data-slot="inventory-section"
       className={cn('astra-inventory__section', className)}
       {...(section ? { 'data-section': section } : {})}
     >
@@ -63,9 +63,9 @@ export const InventoryOutline = forwardRef<HTMLElement, InventoryOutlineProps>(f
   const labels = useLabels();
   return (
     <aside
+      data-slot="inventory-outline"
       {...props}
       ref={ref}
-      data-slot="inventory-outline"
       className={cn('astra-inventory-outline', className)}
       aria-label={labels.outline}
     >
@@ -88,5 +88,5 @@ export interface InventoryRecordsProps extends HTMLAttributes<HTMLDivElement> {
 
 /** Wrapper that gives a per-kind list its layout hooks. */
 export const InventoryRecords = forwardRef<HTMLDivElement, InventoryRecordsProps>(function InventoryRecords({ kind, className, ...props }, ref) {
-  return <div {...props} ref={ref} data-slot="inventory-records" className={cn('astra-inventory-records', className)} data-kind={kind} />;
+  return <div data-slot="inventory-records" {...props} ref={ref} className={cn('astra-inventory-records', className)} data-kind={kind} />;
 });

@@ -36,9 +36,9 @@ export const RecordList = forwardRef<HTMLDivElement, RecordListProps>(function R
   const gridStyle = { ...style, '--astra-record-columns': columnTemplate } as CSSProperties;
   return (
     <div
+      data-slot="record-list"
       {...props}
       ref={ref}
-      data-slot="record-list"
       className={cn('astra-record-list', className)}
       role="group"
       aria-label={label}
@@ -84,7 +84,7 @@ export const RecordIdentity = forwardRef<HTMLSpanElement, RecordIdentityProps>(f
   ...props
 }, ref) {
   return (
-    <span {...props} ref={ref} data-slot="record-identity" className={cn('astra-record-list__name', className)}>
+    <span data-slot="record-identity" {...props} ref={ref} className={cn('astra-record-list__name', className)}>
       <span className="astra-record-list__glyph" data-kind={kind} aria-hidden="true">
         {surfaceGlyph(kind)}
       </span>
@@ -98,6 +98,6 @@ export const RecordIdentity = forwardRef<HTMLSpanElement, RecordIdentityProps>(f
 
 export const EmptyState = forwardRef<HTMLParagraphElement, HTMLAttributes<HTMLParagraphElement>>(
   function EmptyState({ className, ...props }, ref) {
-    return <p {...props} ref={ref} data-slot="empty-state" className={cn('astra-empty-state', className)} />;
+    return <p data-slot="empty-state" {...props} ref={ref} className={cn('astra-empty-state', className)} />;
   },
 );

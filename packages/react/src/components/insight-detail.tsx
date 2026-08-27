@@ -42,7 +42,7 @@ export const InsightDetail = forwardRef<HTMLDivElement, InsightDetailProps>(func
   const source = primaryLiteratureEvidence(insight);
   const sourceLocation = source?.location?.page ? ` · page ${source.location.page}` : '';
   return (
-    <DetailLayout {...props} ref={ref} layout="single" className={cn('astra-insight-detail', className)} data-slot="insight-detail">
+    <DetailLayout data-slot="insight-detail" {...props} ref={ref} layout="single" className={cn('astra-insight-detail', className)}>
       <DetailMain>
         {insight.claim ? (
           <DetailSection label="Claim" heading="section">

@@ -121,5 +121,8 @@
     "firefox >= 113",
     "safari >= 16.2",
     "ios_saf >= 16.2"
-  ]
+  ],
+  "dependencies": {
+    "katex": "^0.16.47"
+  }
 }

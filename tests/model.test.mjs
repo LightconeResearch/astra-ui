@@ -1,10 +1,12 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { indexAnalysis } from '@astra-spec/sdk';
+import { tablePreviewFromDelimited } from '../packages/react/dist/components/index.js';
 import {
   collectInventoryPapers,
   decisionInsights,
   findingEvidence,
+  findingLiterature,
   informedDecisions,
   locateRecord,
   outputRelations,
@@ -82,4 +84,31 @@ test('relations, evidence, and insight derivations follow provenance', () => {
 
   const insight = index.recordByPath.get('prior_insights.published_method');
   assert.deepEqual(informedDecisions(fixtureDocument, insight).map(({ id }) => id), ['method']);
+});
+
+test('output relations list a record referenced twice only once', () => {
+  const index = indexAnalysis(fixtureDocument);
+  const headline = index.recordByPath.get('outputs.headline');
+  const twice = {
+    ...headline,
+    provenance: { inputPaths: ['inputs.catalog', 'inputs.catalog'], decisionPaths: ['decisions.method', 'decisions.method'] },
+  };
+  const relations = outputRelations(index, twice);
+  assert.deepEqual(relations.inputs.map(({ canonicalPath }) => canonicalPath), ['inputs.catalog']);
+  assert.deepEqual(relations.decisions.map(({ canonicalPath }) => canonicalPath), ['decisions.method']);
+});
+
+test('finding literature is the DOI-bearing evidence, kept apart from artifact evidence', () => {
+  const index = indexAnalysis(fixtureDocument);
+  const finding = index.recordByPath.get('findings.headline_finding');
+  assert.deepEqual(findingLiterature(finding).map(({ doi }) => doi), ['10.9999/finding']);
+  assert.equal(findingEvidence(index, finding).length + findingLiterature(finding).length, finding.evidence.length);
+});
+
+test('delimited previews keep quoted delimiters, quotes, and line breaks inside one cell', () => {
+  const preview = tablePreviewFromDelimited('name,note\r\n"Smith, J","says ""hi""\nand bye"\n\nplain,row\n');
+  assert.deepEqual(preview.headers, ['name', 'note']);
+  assert.deepEqual(preview.rows, [['Smith, J', 'says "hi"\nand bye'], ['plain', 'row']]);
+  assert.equal(preview.totalRows, 2);
+  assert.equal(preview.truncated, false);
 });

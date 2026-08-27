@@ -6,6 +6,7 @@ export {
   decisionInsightPaths,
   decisionInsights,
   findingEvidence,
+  findingLiterature,
   informedDecisions,
   linkedRecord,
   outputRelations,

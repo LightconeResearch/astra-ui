@@ -44,5 +44,5 @@ export { RelationList } from './relation-list.js';
 export type { RelationItem, RelationListProps } from './relation-list.js';
 export { CountHeading, DetailLayout, DetailMain, DetailRail, DetailSection } from './detail-layout.js';
 export type { CountHeadingProps, DetailLayoutMode, DetailLayoutProps, DetailRailProps, DetailSectionProps } from './detail-layout.js';
-export { Prose } from './prose.js';
-export type { ProseContext, ProseField, ProseProps, TextRenderer } from './prose.js';
+export { Prose, parseProse, renderProse } from './prose.js';
+export type { ProseContext, ProseField, ProseProps, ProseToken, TextRenderer } from './prose.js';

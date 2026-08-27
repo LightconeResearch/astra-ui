@@ -167,7 +167,7 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(
   const anchorId = (section: InventorySectionId) => `${idPrefix}${section.replace('_', '-')}`;
 
   return (
-    <div {...rest} ref={ref} data-slot="inventory" className={cn('astra-inventory', className)}>
+    <div data-slot="inventory" {...rest} ref={ref} className={cn('astra-inventory', className)}>
       <div className="astra-inventory__layout">
         <div className="astra-inventory__sections">
           {sections.map((section) => (

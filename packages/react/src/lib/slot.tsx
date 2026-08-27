@@ -26,6 +26,23 @@ function mergeRefs<T>(...refs: (Ref<T> | undefined)[]): Ref<T> {
 }
 
 /**
+ * The child's own ref across React versions. React 18 keeps it on the
+ * element and, in development, defines a warning getter `props.ref`;
+ * React 19 keeps it in `props` and warns on `element.ref`. Only the real one
+ * is read, so neither build logs nor drops the ref.
+ */
+function elementRef(element: SlottableElement): Ref<HTMLElement> | undefined {
+  const isWarning = (target: object) => {
+    // eslint-disable-next-line @typescript-eslint/unbound-method -- the getter is inspected for React's warning flag, never called
+    const getter = Object.getOwnPropertyDescriptor(target, 'ref')?.get;
+    return Boolean(getter && 'isReactWarning' in getter && getter.isReactWarning);
+  };
+  if (isWarning(element.props)) return (element as { ref?: Ref<HTMLElement> }).ref;
+  if (isWarning(element)) return element.props.ref;
+  return element.props.ref ?? (element as { ref?: Ref<HTMLElement> }).ref;
+}
+
+/**
  * Renders its single child with the slot's props merged in (the `asChild`
  * pattern): class names are concatenated, event handlers are composed, and
  * refs are forwarded. Used by Button and the dialog parts.
@@ -47,7 +64,6 @@ export const Slot = forwardRef<HTMLElement, SlotProps>(function Slot({ children,
       };
     } else merged[key] = value;
   }
-  const childRef = 'ref' in childProps ? childProps.ref : (element as { ref?: Ref<HTMLElement> }).ref;
-  merged.ref = mergeRefs(ref, childRef);
+  merged.ref = mergeRefs(ref, elementRef(element));
   return cloneElement(element, merged);
 });

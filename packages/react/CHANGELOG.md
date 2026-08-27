@@ -73,6 +73,39 @@ the token contract are new.
   `data-slot`.
 - Print and reduced-motion rules.
 
+### Fixed after review
+
+- Escape inside a modal is decided when the `<dialog>` `cancel` event
+  arrives: a full-screen artifact exits and the dialog stays open; only the
+  next Escape closes it. Backdrop dismissal is primary-button only. The
+  full-screen layer is a `role="dialog"`.
+- A close the component runs itself (host `open={false}`, unmount, React
+  StrictMode's simulated unmount) no longer reports a dismissal, so dialogs
+  no longer close on open in development.
+- Focus moves to the close control only when a body swap removed the focused
+  element, never on unrelated re-renders.
+- `DetailDialog` and every kind `*Dialog` forward `id`, `style`, `data-*`,
+  `aria-*` and handlers to the dialog root.
+- `Inventory`: switching analysis makes exactly one stack change; the
+  persistent dialog stays mounted while an entry or its analysis stops
+  resolving; an unknown `analysisPath` shows the root (documented).
+- One evidence rule (first entry with a DOI) decides both the passage an
+  insight shows and the paper it opens.
+- A caller's `data-slot` wins over the primitive default it builds on
+  (`dialog-close`, `dialog-header`, `decision-detail`, ... reach the DOM).
+- `Slot` / `asChild` forwards the child's own ref in React 18 development
+  builds too.
+- `AnalysisTree` honours a host `aria-label`; `InsightTrigger` runs a host
+  `onKeyDown` first and respects `preventDefault`.
+- `outputRelations` lists a record referenced twice only once; a finding's
+  literature evidence (DOI, quote) renders as source papers; an alias input
+  shows what it resolves from and its own source; delimited previews parse
+  quoted delimiters, quotes and line breaks.
+- Authored prose renders inline `code`, `$inline$` and `$$display$$` math
+  with KaTeX by default again (as 0.2.0 did): `katex` is the package's one
+  dependency, `primitives.css` imports `katex/dist/katex.css`, and
+  `parseProse` / `renderProse` are exported. `renderText` still replaces it.
+
 ### Removed
 
 - The generation-layered stylesheets and every dead selector; the duplicated

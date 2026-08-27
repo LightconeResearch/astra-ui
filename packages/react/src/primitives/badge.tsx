@@ -20,9 +20,9 @@ export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(function Badge({
 }, ref) {
   return (
     <span
+      data-slot="badge"
       {...props}
       ref={ref}
-      data-slot="badge"
       className={cn('astra-badge', className)}
       data-tone={tone}
       {...(kind ? { 'data-kind': kind } : {})}

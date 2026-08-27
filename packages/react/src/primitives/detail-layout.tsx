@@ -16,9 +16,9 @@ export const DetailLayout = forwardRef<HTMLDivElement, DetailLayoutProps>(functi
 }, ref) {
   return (
     <div
+      data-slot="detail-layout"
       {...props}
       ref={ref}
-      data-slot="detail-layout"
       className={cn('astra-detail__layout', className)}
       data-layout={layout}
     />
@@ -26,7 +26,7 @@ export const DetailLayout = forwardRef<HTMLDivElement, DetailLayoutProps>(functi
 });
 
 export const DetailMain = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(function DetailMain({ className, ...props }, ref) {
-  return <div {...props} ref={ref} data-slot="detail-main" className={cn('astra-detail__main', className)} />;
+  return <div data-slot="detail-main" {...props} ref={ref} className={cn('astra-detail__main', className)} />;
 });
 
 export interface DetailRailProps extends HTMLAttributes<HTMLElement> {
@@ -34,7 +34,7 @@ export interface DetailRailProps extends HTMLAttributes<HTMLElement> {
 }
 
 export const DetailRail = forwardRef<HTMLElement, DetailRailProps>(function DetailRail({ label, className, ...props }, ref) {
-  return <aside {...props} ref={ref} data-slot="detail-rail" className={cn('astra-detail__aside', className)} aria-label={label} />;
+  return <aside data-slot="detail-rail" {...props} ref={ref} className={cn('astra-detail__aside', className)} aria-label={label} />;
 });
 
 export interface DetailSectionProps extends HTMLAttributes<HTMLElement> {
@@ -53,9 +53,9 @@ export const DetailSection = forwardRef<HTMLElement, DetailSectionProps>(functio
 }, ref) {
   return (
     <section
+      data-slot="detail-section"
       {...props}
       ref={ref}
-      data-slot="detail-section"
       className={cn('astra-detail__section', className)}
       {...(heading === 'section' ? { 'data-heading': 'section' } : {})}
     >
@@ -77,7 +77,7 @@ export const CountHeading = forwardRef<HTMLHeadingElement, CountHeadingProps>(fu
   ...props
 }, ref) {
   return (
-    <h4 {...props} ref={ref} data-slot="count-heading" className={cn('astra-count-heading', className)}>
+    <h4 data-slot="count-heading" {...props} ref={ref} className={cn('astra-count-heading', className)}>
       {title} <span>{count}</span>
     </h4>
   );

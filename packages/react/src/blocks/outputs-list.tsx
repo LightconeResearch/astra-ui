@@ -30,10 +30,10 @@ export const OutputCard = forwardRef<HTMLButtonElement, OutputCardProps>(functio
 }, ref) {
   return (
     <button
+      data-slot="output-card"
       {...props}
       ref={ref}
       type="button"
-      data-slot="output-card"
       className={cn('astra-output-card', className)}
       onClick={(event) => { onClick?.(event); onOpen(); }}
     >
@@ -128,11 +128,11 @@ export const OutputsList = forwardRef<HTMLDivElement, OutputsListProps>(function
   const tables = analysis.outputs.filter(({ type }) => type === 'table');
   const files = analysis.outputs.filter(({ type }) => type !== 'figure' && type !== 'table');
   if (!analysis.outputs.length) {
-    return <EmptyState {...props} ref={ref} data-slot="outputs-list" className={className}>{labels.empty.outputs}</EmptyState>;
+    return <EmptyState data-slot="outputs-list" {...props} ref={ref} className={className}>{labels.empty.outputs}</EmptyState>;
   }
   const open = (output: ResolvedOutput) => { onOpenRecord(output, analysis); };
   return (
-    <div {...props} ref={ref} data-slot="outputs-list" className={cn('astra-inventory-outputs', className)}>
+    <div data-slot="outputs-list" {...props} ref={ref} className={cn('astra-inventory-outputs', className)}>
       <OutputGallery title="Figures" outputs={figures} renderArtifact={renderArtifact} onOpen={open} />
       <OutputGallery title="Tables" outputs={tables} renderArtifact={renderArtifact} onOpen={open} />
       <OutputFiles outputs={files} onOpen={open} />

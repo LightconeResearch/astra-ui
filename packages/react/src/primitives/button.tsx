@@ -26,10 +26,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
   const Component = asChild ? Slot : 'button';
   return (
     <Component
+      data-slot="button"
       {...props}
       {...(asChild ? (type ? { type } : {}) : { type: type ?? 'button' })}
       ref={ref}
-      data-slot="button"
       className={cn('astra-button', className)}
       data-variant={variant}
       data-size={size}
@@ -47,9 +47,9 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
   function IconButton({ label, className, ...props }, ref) {
     return (
       <Button
+        data-slot="icon-button"
         {...props}
         ref={ref}
-        data-slot="icon-button"
         className={cn('astra-icon-button', className)}
         aria-label={label}
       />

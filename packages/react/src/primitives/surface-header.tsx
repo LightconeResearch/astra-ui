@@ -48,9 +48,9 @@ export const SurfaceHeader = forwardRef<HTMLElement, SurfaceHeaderProps>(functio
   const Heading = titleAs;
   return (
     <header
+      data-slot="surface-header"
       {...props}
       ref={ref}
-      data-slot="surface-header"
       className={cn('astra-surface-header', className)}
       data-density={density}
       {...(kind ? { 'data-kind': kind } : {})}

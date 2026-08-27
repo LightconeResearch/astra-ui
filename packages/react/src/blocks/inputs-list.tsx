@@ -21,7 +21,7 @@ export const InputsList = forwardRef<HTMLDivElement, InputsListProps>(function I
   const labels = useLabels();
   const records = analysis.inputs;
   if (!records.length) {
-    return <EmptyState {...props} ref={ref} data-slot="inputs-list" className={className}>{labels.empty.inputs}</EmptyState>;
+    return <EmptyState data-slot="inputs-list" {...props} ref={ref} className={className}>{labels.empty.inputs}</EmptyState>;
   }
   return (
     <InventoryRecords {...props} ref={ref} kind="input" className={className}>

@@ -1,5 +1,12 @@
 import type { ResolvedInsight } from '@astra-spec/sdk';
-import { forwardRef, type ButtonHTMLAttributes, type HTMLAttributes, type MouseEvent as ReactMouseEvent, type Ref } from 'react';
+import {
+  forwardRef,
+  type ButtonHTMLAttributes,
+  type HTMLAttributes,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type MouseEvent as ReactMouseEvent,
+  type Ref,
+} from 'react';
 import { recordTitle } from '../model/records.js';
 import { cn } from '../lib/cn.js';
 import { Prose, type TextRenderer } from '../primitives/prose.js';
@@ -38,12 +45,21 @@ export const InsightTrigger = forwardRef<HTMLElement, InsightTriggerProps>(funct
   renderText,
   className,
   onClick,
+  onKeyDown,
   ...props
 }, ref) {
   const title = recordTitle(insight);
   const open = (event: ReactMouseEvent<HTMLElement>) => {
     onClick?.(event as never);
     onOpen();
+  };
+  const keyOpen = (event: ReactKeyboardEvent<HTMLElement>) => {
+    onKeyDown?.(event as never);
+    if (event.defaultPrevented) return;
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      onOpen();
+    }
   };
   if (variant === 'claim') {
     // A div rather than a <button>: block prose inside a button would inherit
@@ -59,12 +75,7 @@ export const InsightTrigger = forwardRef<HTMLElement, InsightTriggerProps>(funct
         tabIndex={0}
         aria-label={props['aria-label'] ?? `Open insight details: ${title}`}
         onClick={open}
-        onKeyDown={(event) => {
-          if (event.key === 'Enter' || event.key === ' ') {
-            event.preventDefault();
-            onOpen();
-          }
-        }}
+        onKeyDown={keyOpen}
       >
         <span className="astra-evidence__glyph--insight" aria-hidden="true">◈</span>
         <div className="astra-insight-trigger__claim">
@@ -83,6 +94,7 @@ export const InsightTrigger = forwardRef<HTMLElement, InsightTriggerProps>(funct
       data-variant="title"
       aria-label={props['aria-label'] ?? `Open insight details: ${title}`}
       onClick={open}
+      onKeyDown={onKeyDown}
     >
       <InsightEvidenceTitle name={title} tag={tag ?? undefined} />
     </button>
