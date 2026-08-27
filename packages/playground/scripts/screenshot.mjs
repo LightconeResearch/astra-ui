@@ -12,9 +12,12 @@ import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const outDir = resolve(process.argv[2] ?? join(here, '../screenshots/run'));
-const filterIndex = process.argv.indexOf('--filter');
-const filter = filterIndex > 0 ? process.argv[filterIndex + 1] : undefined;
+const args = process.argv.slice(2);
+const filterIndex = args.indexOf('--filter');
+const filter = filterIndex >= 0 ? args[filterIndex + 1] : undefined;
+if (filterIndex >= 0 && !filter) throw new Error('--filter needs a substring');
+const positional = args.filter((value, index) => index !== filterIndex && index !== filterIndex + 1);
+const outDir = resolve(positional[0] ?? join(here, '../screenshots/run'));
 const port = 61000;
 const base = `http://localhost:${port}`;
 

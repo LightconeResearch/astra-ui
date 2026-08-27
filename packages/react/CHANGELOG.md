@@ -45,6 +45,9 @@ the token contract are new.
 | private `InventoryRecordDetail`, relation/evidence derivations | `RecordDialog`, `outputRelations`, `findingEvidence`, `decisionInsights`, `informedDecisions`, `locateRecord` |
 | local dialog stack in `InventoryExplorer` | `useDetailStack`; `Inventory { detail, defaultDetail, onDetailChange }` |
 | `inventory-*` class names | `astra-*` blocks with `data-*` variants; see the styling contract in the README |
+| `onFetchPaper: (doi) => Promise<InventoryPaperMetadata>` | `onFetchPaper: (doi) => void`; the host owns the request and reports progress through `paperMetadata[doi].status` / `.error` |
+| `paperMetadataFromCitations`, `citationTitleFromHtml` | removed; fetching and parsing paper metadata is a host concern (`onFetchPaper` + `paperMetadata`) |
+| `normalizeDoi` re-exported from the package | import it from `@astra-spec/sdk`; `doiHref` stays in `./model` |
 | `--astra-ink`, `--astra-rule`, `--astra-label`, … (brand raw names) | `--astra-color-text`, `--astra-color-border`, `--astra-font-ui`, … (see TOKENS.md) |
 | tokens supplied only by `@lightcone-research/lightcone-brand` | every token has a literal default in `styles/tokens.css` and the package references no brand names; a theme maps its palette onto the role tokens |
 
