@@ -46,7 +46,7 @@ the token contract are new.
 | local dialog stack in `InventoryExplorer` | `useDetailStack`; `Inventory { detail, defaultDetail, onDetailChange }` |
 | `inventory-*` class names | `astra-*` blocks with `data-*` variants; see the styling contract in the README |
 | `--astra-ink`, `--astra-rule`, `--astra-label`, … (brand raw names) | `--astra-color-text`, `--astra-color-border`, `--astra-font-ui`, … (see TOKENS.md) |
-| tokens supplied only by `@lightcone-research/lightcone-brand` | every token has a default in `styles/tokens.css`; the brand is an optional override |
+| tokens supplied only by `@lightcone-research/lightcone-brand` | every token has a literal default in `styles/tokens.css` and the package references no brand names; a theme maps its palette onto the role tokens |
 
 ### Added
 

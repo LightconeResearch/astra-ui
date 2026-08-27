@@ -133,7 +133,8 @@ test('every token the styles consume is declared with a default', async () => {
   const consumed = new Set([...css.matchAll(/var\((--astra-[a-z0-9-]+)/g)].map(([, name]) => name));
   const missing = [...consumed].filter((name) => !declared.has(name) && !local.has(name));
   assert.deepEqual(missing, [], 'consumed tokens without a default in tokens.css');
-  const consumedByTokens = new Set([...tokens.matchAll(/var\((--astra-[a-z0-9-]+)/g)].map(([, name]) => name));
+  const consumedByTokens = new Set([...stripComments(tokens).matchAll(/var\((--astra-[a-z0-9-]+)/g)].map(([, name]) => name));
+  assert.deepEqual([...consumedByTokens].filter((name) => !declared.has(name)), [], 'tokens.css references only tokens it declares: no host or brand names');
   const unused = [...declared].filter((name) => !consumed.has(name) && !consumedByTokens.has(name) && !source.includes(`'${name}'`));
   assert.deepEqual(unused, [], 'tokens declared in tokens.css that nothing consumes');
   assert.doesNotMatch(css, /--astra-(ink|canvas|panel|raised|rule|muted|label|serif)\b/, 'components consume role names only');

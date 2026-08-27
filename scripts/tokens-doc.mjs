@@ -10,7 +10,6 @@ const blocks = [...css.matchAll(/:where\(([^{]+)\)[^{]*\{([\s\S]*?)\n {2}\}/g)];
 const parse = (body) => Object.fromEntries([...body.matchAll(/^\s*(--astra-[a-z0-9-]+):\s*([^;]+);/gm)].map(([, name, value]) => [name, value.trim()]));
 const light = parse(blocks[0][2]);
 const dark = parse(blocks.slice(1).map((b) => b[2]).join('\n'));
-const strip = (value) => value.replace(/^var\(--astra-[a-z0-9-]+,\s*/, '').replace(/\)$/, '');
 const groups = [
   ['Surfaces', /^--astra-color-(canvas|surface|header|artifact)/],
   ['Text', /^--astra-color-(text|eyebrow)/],
@@ -26,7 +25,7 @@ for (const [title, pattern] of groups) {
   const names = Object.keys(light).filter((name) => pattern.test(name));
   if (!names.length) continue;
   out += `## ${title}\n\n| Token | Light default | Dark default |\n| --- | --- | --- |\n`;
-  for (const name of names) out += `| \`${name}\` | \`${strip(light[name])}\` | ${dark[name] ? `\`${strip(dark[name])}\`` : '—'} |\n`;
+  for (const name of names) out += `| \`${name}\` | \`${light[name]}\` | ${dark[name] ? `\`${dark[name]}\`` : '—'} |\n`;
   out += '\n';
 }
 writeFileSync(new URL('../packages/react/TOKENS.md', import.meta.url), out);

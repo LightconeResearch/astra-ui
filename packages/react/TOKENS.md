@@ -68,7 +68,7 @@ Every token is declared on `:where(.astra-ui)` at zero specificity, so a theme r
 
 | Token | Light default | Dark default |
 | --- | --- | --- |
-| `--astra-kind` | `var(--astra-color-accent` | — |
+| `--astra-kind` | `var(--astra-color-accent)` | — |
 
 ## Typography
 

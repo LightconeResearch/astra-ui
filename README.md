@@ -153,9 +153,10 @@ a set of overrides on `.astra-ui`:
 
 The full list is in [`packages/react/TOKENS.md`](packages/react/TOKENS.md).
 Dark mode: set `data-astra-color-scheme="dark"` on `.astra-ui`, or let the
-JupyterLab / VS Code host signal it. `@lightcone-research/lightcone-brand` is
-one such theme (Lightcone's palette and fonts); the package renders sensibly
-without it.
+JupyterLab / VS Code host signal it. The package knows nothing about any
+particular theme: `tokens.css` holds literal defaults only, and a theme maps
+its own palette and fonts onto the role names. `@lightcone-research/lightcone-brand`
+is one such theme; the package renders sensibly without it.
 
 Styling hooks for hosts:
 
