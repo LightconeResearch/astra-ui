@@ -1,7 +1,10 @@
 /* papers-list — emitted by src/blocks/papers-list.tsx */
 @layer astra.tokens, astra.base, astra.components, astra.views;
 @layer astra.views {
+  /* The list is its own query container: the meta column hides on the
+     list's width, inside or outside <Inventory>. */
   :where(.astra-ui) .astra-paper-list {
+    container-type: inline-size;
     display: flex;
     flex-direction: column;
     gap: 0.625rem;

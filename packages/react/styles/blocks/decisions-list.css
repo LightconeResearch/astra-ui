@@ -17,8 +17,10 @@
     font-size: 0.75rem;
   }
 
+  /* The filter stacks on the width of its records block (the query container
+     declared in records.css); :where() keeps the specificity unchanged. */
   @container (max-width: 38rem) {
-    :where(.astra-ui) .astra-inventory-filter {
+    :where(.astra-ui) :where(.astra-inventory-records) .astra-inventory-filter {
       align-items: flex-start;
       flex-direction: column;
     }
@@ -62,7 +64,7 @@
   }
 
   @container (max-width: 34rem) {
-    :where(.astra-ui) .astra-inventory-filter {
+    :where(.astra-ui) :where(.astra-inventory-records) .astra-inventory-filter {
       align-items: flex-start;
       flex-direction: column;
     }
