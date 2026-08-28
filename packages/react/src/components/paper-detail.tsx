@@ -1,5 +1,5 @@
 import type { ResolvedDecision, ResolvedInsight } from '@astra-spec/sdk';
-import { forwardRef, useCallback, useState, type HTMLAttributes, type ReactNode } from 'react';
+import { forwardRef, useCallback, useMemo, useRef, useState, type HTMLAttributes, type ReactNode } from 'react';
 import { doiHref } from '../model/doi.js';
 import { countLabel } from '../model/records.js';
 import { paperEvidence, type InventoryPaper, type InventoryPaperMetadata, type PaperFocusEvidence } from '../model/papers.js';
@@ -36,7 +36,7 @@ export interface PaperDetailProps extends Omit<HTMLAttributes<HTMLDivElement>, '
 function initialFocus(paper: InventoryPaper, focusInsight: ResolvedInsight | undefined): PaperFocusEvidence | undefined {
   if (!focusInsight) return undefined;
   const evidence = paperEvidence(focusInsight, paper.doi)[0];
-  return evidence?.quote ? { insight: focusInsight, evidence } : undefined;
+  return evidence?.quote ? { key: `${focusInsight.canonicalPath}-source`, insight: focusInsight, evidence } : undefined;
 }
 
 /** Host-rendered paper content beside the insights and decisions it supports. */
@@ -60,9 +60,14 @@ export const PaperDetail = forwardRef<HTMLDivElement, PaperDetailProps>(function
     setFocusKey(key);
     setOverride(undefined);
   }
-  const focusEvidence = override ?? initialFocus(paper, focusInsight);
+  // One object per request, kept across unrelated re-renders, with a key
+  // that changes on every locate click so a repeat of the same passage is
+  // still a new request to the host.
+  const focusEvidence = useMemo(() => override ?? initialFocus(paper, focusInsight), [override, paper, focusInsight]);
+  const sequence = useRef(0);
   const locate = useCallback((insight: ResolvedInsight, evidence: PaperFocusEvidence['evidence']) => {
-    setOverride({ insight, evidence });
+    sequence.current += 1;
+    setOverride({ key: `${insight.canonicalPath}-${sequence.current}`, insight, evidence });
   }, []);
   const canRender = Boolean(paper.pdfUrl && renderPaper);
   const fetching = metadata?.status === 'fetching';
@@ -76,9 +81,11 @@ export const PaperDetail = forwardRef<HTMLDivElement, PaperDetailProps>(function
           <div className="astra-paper-detail__unavailable" {...(fetching ? { 'aria-busy': true } : {})}>
             {!paper.pdfUrl && onFetchPaper ? (
               <>
-                <p>{metadata?.status === 'error'
-                  ? (metadata.error ?? 'The paper could not be fetched.')
-                  : 'No paper content is available from this host.'}</p>
+                <p {...(metadata?.status === 'error' ? { role: 'alert' } : {})}>
+                  {metadata?.status === 'error'
+                    ? (metadata.error ?? 'The paper could not be fetched.')
+                    : 'No paper content is available from this host.'}
+                </p>
                 <button type="button" disabled={fetching} onClick={() => { onFetchPaper(paper.doi); }}>
                   {labels.actions.fetchPaper}
                 </button>
@@ -145,7 +152,7 @@ export const PaperDetail = forwardRef<HTMLDivElement, PaperDetailProps>(function
             undefined,
             { onOpen: onOpenDecision ? () => { onOpenDecision(decision); } : undefined },
           ))}
-          empty="No decisions in this analysis cite insights from this paper."
+          empty="No decisions cite insights from this paper."
         />
       </aside>
     </div>

@@ -4,14 +4,6 @@
   @media (max-width: 640px) {
     :where(.astra-ui) .astra-inventory-records:where([data-kind="decision"]) > .astra-inventory-filter {
       justify-content: flex-start;
-      grid-column: 1;
-      grid-row: 2;
-      margin-top: 0.5rem;
-    }
-
-    :where(.astra-ui) .astra-inventory-records:where([data-kind="decision"]) > .astra-record-list {
-      grid-column: 1;
-      grid-row: 3;
     }
 
     :where(.astra-ui) .astra-inventory-records:where([data-kind="input"]) .astra-record-list__body > button {
@@ -23,14 +15,10 @@
     padding-block: 0.78rem;
   }
 
-  :where(.astra-ui) .astra-inventory-records:where([data-kind="decision"]) > .astra-inventory-filter {
-    grid-column: 1;
-    grid-row: 2;
-  }
-
-  :where(.astra-ui) .astra-inventory-records:where([data-kind="decision"]) > .astra-record-list {
-    grid-column: 1;
-    grid-row: 3;
+  /* Space between the tag filter and the list. Only after a filter: the block
+     is a query container (an independent formatting context), so a leading
+     margin would no longer collapse into the section heading's. */
+  :where(.astra-ui) .astra-inventory-records:where([data-kind="decision"]) > .astra-inventory-filter + .astra-record-list {
     margin-top: 0.75rem;
   }
 
@@ -52,7 +40,11 @@
     }
 
   }
+  /* Every per-kind list is its own query container, so the queries below and
+     the tag filter's (decisions-list.css) resolve against the block's width
+     inside or outside <Inventory>. */
   :where(.astra-ui) .astra-inventory-records {
+    container-type: inline-size;
     padding-top: 0;
     padding: 0;
   }

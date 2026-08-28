@@ -51,7 +51,7 @@ describe('Inventory analysis selection', () => {
     expect(screen.queryByRole('dialog', { hidden: true })).toBeNull();
   });
 
-  it('leaves a controlled stack to the host when the analysis changes, pruning only what stopped resolving', () => {
+  it('leaves a controlled stack to the host when the analysis changes: entries resolve in their own analysis', () => {
     const onDetailChange = vi.fn();
     const { rerender } = render(
       <Inventory document={fixtureDocument} detail={[rootInsight, rootPaper]} onDetailChange={onDetailChange} />,
@@ -65,6 +65,18 @@ describe('Inventory analysis selection', () => {
         onDetailChange={onDetailChange}
       />,
     );
+    // The root paper is not among clustering's papers, but the entry belongs to the root analysis, where it still resolves.
+    expect(onDetailChange).not.toHaveBeenCalled();
+    expect(dialog().getAttribute('data-kind')).toBe('paper');
+  });
+
+  it('prunes a controlled entry whose paper no longer exists anywhere', () => {
+    const onDetailChange = vi.fn();
+    const { rerender } = render(
+      <Inventory document={fixtureDocument} detail={[rootInsight, rootPaper]} onDetailChange={onDetailChange} />,
+    );
+    const withoutCitation = withRootInsight({ ...(fixtureDocument.analysis.prior_insights[0] as ResolvedInsight), evidence: [] });
+    rerender(<Inventory document={withoutCitation} detail={[rootInsight, rootPaper]} onDetailChange={onDetailChange} />);
     expect(onDetailChange.mock.calls).toEqual([[[rootInsight]]]);
   });
 });

@@ -35,12 +35,25 @@ depends on the ones below it, and every file is also importable on its own.
 | `./blocks` | Sections of the inventory page: `OutputsList`, `DecisionsList`, `InputsList`, `FindingsList`, `PriorInsightsList`, `PapersList`, `InventorySection`, `InventoryOutline`, `AnalysisTree` | `blocks.css` |
 | `./views` | Ready-made full surfaces: `Inventory` | `views.css` |
 | `./model` | Pure derivations over the SDK model, for hosts composing their own views (over the SDK's `indexAnalysis`): `locateRecord`, `outputRelations`, `findingEvidence`, `decisionInsights`, `informedDecisions`, `collectInventoryPapers`, `doiHref` | — |
-| `./<layer>/<file>` | Individual files, e.g. `@lightcone-research/astra-ui/components/output-dialog` | `styles/<layer>/<file>.css` |
+| `./<layer>/<file>` | Individual files, e.g. `@lightcone-research/astra-ui/components/output-dialog` | one of the bundles (see below) |
 
 `styles.css` is an alias of `views.css`; the bundles nest
 (`primitives.css` ⊂ `components.css` ⊂ `blocks.css` ⊂ `views.css`), so import
-exactly one, or the per-component sheets you need on top of
-`styles/tokens.css` and `styles/base.css`.
+exactly one. The bundles are the supported way to load styles: their import
+order is part of the cascade, and they pull in `styles/tokens.css`,
+`styles/base.css`, and KaTeX's stylesheet.
+
+The per-component sheets under `styles/<layer>/` (also exported, as
+`./styles/*`) are not one-to-one with the source files: each is named after
+the file that *emits* its classes, so a few imports have no sheet of their
+own — `components/output-dialog` is styled by `primitives/dialog.css` and
+`components/output-detail.css`; `components/record-dialog` by the kind sheets
+it composes (`output-detail`, `decision-detail`, `input-detail`,
+`finding-detail`, `insight-detail`, `paper-detail`); `blocks/findings-list`,
+`blocks/inputs-list` and `blocks/prior-insights-list` by `blocks/records.css`
+over `primitives/record-list.css`; and `blocks/section` by `blocks/records.css`
+and `views/inventory.css`. A contract test checks that every class a source
+file emits has a rule in some sheet.
 
 **Vocabulary.** A *record* is anything an ASTRA analysis declares — an input,
 output, decision, finding or prior insight (the SDK's `ResolvedRecord`);
@@ -203,15 +216,23 @@ Stories, one file per layer of interest (`packages/playground/src/*.stories.tsx`
 | Primitives | Buttons, Badges, Headers, Artifacts, RecordLists, Relations | the `./primitives` layer and `ArtifactPreview`, every variant side by side |
 | Theme | Colors, Typography | the token contract: each `--astra-*` token with its resolved value |
 
-The Ladle toolbar toggles light/dark (`data-astra-color-scheme`) and the
-viewport width. The host side of the stories — artifact URLs, paper metadata,
-`renderArtifact` / `renderPaper` — lives in `src/host.tsx`, so it doubles as
-a minimal example of what an integration provides.
+The Ladle toolbar's theme toggle sets `data-astra-color-scheme` on the
+`.astra-ui` root — the package contract, so the dark palette in
+`styles/tokens.css` is exercised — and, when the brand is loaded, its own
+`data-astra-theme="brand-light|brand-dark"` alongside it; the width toggle
+switches the viewport (1280, 768, 414). The host side of the stories —
+artifact URLs, paper metadata, `renderArtifact` / `renderPaper` — lives in
+`src/host.tsx`, so it doubles as a minimal example of what an integration
+provides.
 
 The playground applies `@lightcone-research/lightcone-brand` on top of
 `styles.css` (linked from `../lightcone-brand`), so it shows the Lightcone
-look rather than the package defaults; remove the import in
-`.ladle/components.tsx` to see the unthemed rendering.
+look rather than the package defaults. To see the unthemed rendering, start
+it without the brand:
+
+```bash
+VITE_ASTRA_THEME=none npm run playground
+```
 
 Regenerate the fixture from any ASTRA project with
 `npm run fixture --workspace astra-ui-playground [projectRoot] [universeId]`;

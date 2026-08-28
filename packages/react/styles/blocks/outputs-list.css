@@ -238,7 +238,10 @@
     }
 
   }
+  /* The block is its own query container: the gallery collapses on the
+     block's width, inside or outside <Inventory>. */
   :where(.astra-ui) .astra-inventory-outputs {
+    container-type: inline-size;
     padding-top: 0;
     padding: 0;
   }

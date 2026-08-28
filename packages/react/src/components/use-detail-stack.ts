@@ -43,12 +43,16 @@ export function useDetailStack({ value, defaultValue, onChange }: DetailStackOpt
   const onChangeRef = useRef(onChange);
   useEffect(() => { onChangeRef.current = onChange; });
 
-  // Updates read the latest stack (not the render-time one) so two calls in
-  // the same tick compose, and only notify the host once per change.
+  // Uncontrolled updates read the latest stack (not the render-time one) so
+  // two calls in the same tick compose, and notify the host once per change.
+  // Controlled updates are proposals computed from the value the host last
+  // rendered; the host decides, like a controlled input.
   const update = useCallback((compute: (current: readonly DetailEntry[]) => readonly DetailEntry[]) => {
     const next = [...compute(latest.current)];
-    latest.current = next;
-    if (!controlled) setInternal(next);
+    if (!controlled) {
+      latest.current = next;
+      setInternal(next);
+    }
     onChangeRef.current?.(next);
   }, [controlled]);
   const set = useCallback((next: readonly DetailEntry[]) => { update(() => next); }, [update]);

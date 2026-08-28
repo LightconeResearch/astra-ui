@@ -7,6 +7,7 @@ export {
   decisionInsights,
   findingEvidence,
   findingLiterature,
+  indirectDecisionPaths,
   informedDecisions,
   linkedRecord,
   outputRelations,
@@ -18,6 +19,7 @@ export {
   findPaper,
   insightDois,
   paperEvidence,
+  paperForDoi,
   paperMetadataFor,
 } from './papers.js';
 export type {

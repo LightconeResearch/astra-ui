@@ -100,6 +100,7 @@
     "findPaper",
     "findingEvidence",
     "findingLiterature",
+    "indirectDecisionPaths",
     "informedDecisions",
     "insightDois",
     "isInsight",
@@ -108,6 +109,7 @@
     "locateRecord",
     "outputRelations",
     "paperEvidence",
+    "paperForDoi",
     "paperMetadataFor",
     "recordTitle",
     "selectedOptionLabel"

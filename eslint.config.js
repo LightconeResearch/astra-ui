@@ -6,7 +6,7 @@ import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   {
-    ignores: ['**/dist/**', '**/node_modules/**', '**/.cache/**', 'packages/playground/build/**', 'packages/playground/screenshots/**'],
+    ignores: ['**/dist/**', '**/node_modules/**', '**/.cache/**', '.claude/**', 'packages/playground/build/**', 'packages/playground/screenshots/**'],
   },
   js.configs.recommended,
   ...tseslint.configs.strictTypeChecked,

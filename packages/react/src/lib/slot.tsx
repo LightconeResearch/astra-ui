@@ -17,11 +17,27 @@ export interface SlotProps extends HTMLAttributes<HTMLElement> {
 type SlottableElement = ReactElement<Record<string, unknown> & { ref?: Ref<HTMLElement> }>;
 
 function mergeRefs<T>(...refs: (Ref<T> | undefined)[]): Ref<T> {
-  return (value) => {
-    for (const ref of refs) {
-      if (typeof ref === 'function') ref(value);
-      else if (ref) (ref as { current: T | null }).current = value;
-    }
+  return (value: T | null) => {
+    // React 19 callback refs may return a cleanup; when any does, return one
+    // cleanup that runs them and detaches the others instead of letting React
+    // call this ref again with null.
+    const cleanups = refs.map((ref): unknown => {
+      if (typeof ref === 'function') {
+        const callback: (instance: T | null) => unknown = ref;
+        return callback(value);
+      }
+      if (ref) (ref as { current: T | null }).current = value;
+      return undefined;
+    });
+    if (!cleanups.some((cleanup) => typeof cleanup === 'function')) return undefined;
+    return () => {
+      refs.forEach((ref, index) => {
+        const cleanup = cleanups[index];
+        if (typeof cleanup === 'function') (cleanup as () => void)();
+        else if (typeof ref === 'function') ref(null);
+        else if (ref) (ref as { current: T | null }).current = null;
+      });
+    };
   };
 }
 
@@ -54,6 +70,8 @@ export const Slot = forwardRef<HTMLElement, SlotProps>(function Slot({ children,
   const childProps = element.props;
   const merged: Record<string, unknown> = { ...props };
   for (const [key, value] of Object.entries(childProps)) {
+    // A child prop set to undefined does not erase the slot's prop.
+    if (value === undefined) continue;
     const slotValue = merged[key];
     if (key === 'className') merged[key] = cn(slotValue as string | undefined, value as string | undefined);
     else if (key === 'style') merged[key] = { ...(slotValue as object | undefined), ...(value as object) };

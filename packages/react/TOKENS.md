@@ -39,7 +39,7 @@ Every token is declared on `:where(.astra-ui)` at zero specificity, so a theme r
 | Token | Light default | Dark default |
 | --- | --- | --- |
 | `--astra-color-accent` | `#4e5a70` | `#aeb8ca` |
-| `--astra-color-accent-contrast` | `#ffffff` | — |
+| `--astra-color-accent-contrast` | `#ffffff` | `#171614` |
 | `--astra-color-link` | `var(--astra-color-accent)` | — |
 | `--astra-color-focus` | `#3f7280` | `#86adb7` |
 | `--astra-color-danger` | `#a45a43` | `#d6927d` |

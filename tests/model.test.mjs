@@ -7,6 +7,7 @@ import {
   decisionInsights,
   findingEvidence,
   findingLiterature,
+  indirectDecisionPaths,
   informedDecisions,
   locateRecord,
   outputRelations,
@@ -111,4 +112,47 @@ test('delimited previews keep quoted delimiters, quotes, and line breaks inside 
   assert.deepEqual(preview.rows, [['Smith, J', 'says "hi"\nand bye'], ['plain', 'row']]);
   assert.equal(preview.totalRows, 2);
   assert.equal(preview.truncated, false);
+});
+
+test('a byte-limited delimited sample drops its cut-off last record and reports an unknown total', () => {
+  const cut = tablePreviewFromDelimited('a,b\n1,2\n3,4\n5,', { sourceTruncated: true });
+  assert.deepEqual(cut.rows, [['1', '2'], ['3', '4']]);
+  assert.equal(cut.totalRows, undefined);
+  assert.equal(cut.truncated, true);
+
+  const cleanEnd = tablePreviewFromDelimited('a,b\n1,2\n3,4\n', { sourceTruncated: true });
+  assert.deepEqual(cleanEnd.rows, [['1', '2'], ['3', '4']], 'a sample ending on a newline keeps its last record');
+  assert.equal(cleanEnd.totalRows, undefined);
+
+  const openQuote = tablePreviewFromDelimited('a,b\n1,2\n3,"multi\nline', { sourceTruncated: true });
+  assert.deepEqual(openQuote.rows, [['1', '2']], 'an unterminated quoted record is dropped');
+
+  const exact = tablePreviewFromDelimited('a,b\n1,2\n3,4\n5,6\n', { maxRows: 2 });
+  assert.deepEqual(exact.rows, [['1', '2'], ['3', '4']]);
+  assert.equal(exact.totalRows, 3);
+  assert.equal(exact.truncated, true);
+});
+
+test('indirect decisions are reached through upstream outputs and input aliases, direct ones excluded, cycles ignored', () => {
+  const root = fixtureDocument.analysis;
+  const output = (id, provenance, decisions = []) => ({
+    id, kind: 'output', canonicalPath: `outputs.${id}`, type: 'data', format: 'npy', active: true, inputs: [], decisions, provenance,
+  });
+  const upstream = output('upstream', { inputPaths: [], decisionPaths: ['decisions.method'] }, ['method']);
+  const downstream = output('downstream', { inputPaths: ['outputs.upstream'], decisionPaths: [] });
+  const viaAlias = output('via_alias', { inputPaths: ['inputs.alias'], decisionPaths: [] });
+  const alreadyDirect = output('already_direct', { inputPaths: ['outputs.upstream'], decisionPaths: ['decisions.method'] }, ['method']);
+  const loopA = output('loop_a', { inputPaths: ['outputs.loop_b'], decisionPaths: [] });
+  const loopB = output('loop_b', { inputPaths: ['outputs.loop_a', 'outputs.upstream'], decisionPaths: [] });
+  const alias = { id: 'alias', kind: 'input', canonicalPath: 'inputs.alias', type: 'data', resolvedFrom: 'outputs.upstream' };
+  const document = {
+    ...fixtureDocument,
+    analysis: { ...root, inputs: [...root.inputs, alias], outputs: [...root.outputs, upstream, downstream, viaAlias, alreadyDirect, loopA, loopB] },
+  };
+  const index = indexAnalysis(document);
+  assert.deepEqual(indirectDecisionPaths(index, downstream), ['decisions.method']);
+  assert.deepEqual(indirectDecisionPaths(index, viaAlias), ['decisions.method']);
+  assert.deepEqual(indirectDecisionPaths(index, alreadyDirect), []);
+  assert.deepEqual(indirectDecisionPaths(index, loopA), ['decisions.method']);
+  assert.deepEqual(outputRelations(index, downstream).indirectDecisions.map(({ record }) => record.id), ['method']);
 });
