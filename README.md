@@ -30,9 +30,9 @@ retain control of loading, files, network requests, routing, and state.
 - **Host-controlled integration.** Render callbacks and events connect artifact
   decoding, paper content, navigation, and application state without hiding I/O
   inside the component library.
-- **Themeable without lock-in.** Role-based `--astra-*` tokens, light and dark
-  defaults, cascade layers, and stable `data-*` hooks make host overrides
-  predictable.
+- **Neutral and themeable without lock-in.** Role-based `--astra-*` tokens,
+  standalone light and dark defaults, cascade layers, and stable `data-*` hooks
+  let hosts apply a separate brand without coupling it to the components.
 - **Typed and tested.** ESM subpath exports include TypeScript declarations and
   are checked with React 18 and React 19 typings, SSR tests, DOM interaction
   tests, and package contract tests.
