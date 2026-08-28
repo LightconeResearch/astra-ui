@@ -1,269 +1,127 @@
 # `@astra-spec/ui`
 
-Composable, themable React components for resolved [ASTRA](https://astra-spec.org/) analyses.
+[![CI](https://github.com/LightconeResearch/astra-ui/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/LightconeResearch/astra-ui/actions/workflows/ci.yml)
 
-The package renders `ResolvedAnalysisDocument` and the `Resolved*` records from
-[`@astra-spec/sdk`](https://github.com/LightconeResearch/astra-typescript). It
-follows a shadcn/ui-style boundary — data flows in, events flow out, hosts
-compose the pieces they need — but ships as an ordinary npm library rather than
-vendored source. It does not parse ASTRA files, resolve references, read
-artifacts, fetch papers, or hold application state.
+Composable, themable React components for resolved
+[ASTRA](https://astra-spec.org/) analyses.
 
-| Layer | Owns |
-| --- | --- |
-| `@astra-spec/sdk` | Validation, resolution, canonical paths, provenance, artifact bindings, indexes |
-| `@astra-spec/ui` | Primitives, record details and dialogs, inventory views, the token contract |
-| Host | `ProjectReader`, loading and refresh, artifact bytes and URLs, paper fetching, routing |
+`@astra-spec/ui` turns the resolved data model from
+[`@astra-spec/sdk`](https://github.com/LightconeResearch/astra-typescript) into
+accessible inventory views, record details, dialogs, artifact previews, and
+lower-level building blocks. The library stays presentation-only: applications
+retain control of loading, files, network requests, routing, and state.
 
-## Install
+> [!IMPORTANT]
+> **Project status: early alpha.** The library is ready for evaluation and early
+> integrations, but its public APIs and styling contract may still change before
+> 1.0.
+
+**[Read the complete package and component guide →](packages/react/README.md)**
+
+[Token reference](packages/react/TOKENS.md) ·
+[ASTRA specification](https://astra-spec.org/) ·
+[TypeScript SDK](https://github.com/LightconeResearch/astra-typescript)
+
+## Highlights
+
+- **Composable by design.** Use the complete `Inventory` view, individual
+  inventory blocks, record dialogs and detail bodies, or generic primitives.
+- **Host-controlled integration.** Render callbacks and events connect artifact
+  decoding, paper content, navigation, and application state without hiding I/O
+  inside the component library.
+- **Themeable without lock-in.** Role-based `--astra-*` tokens, light and dark
+  defaults, cascade layers, and stable `data-*` hooks make host overrides
+  predictable.
+- **Typed and tested.** ESM subpath exports include TypeScript declarations and
+  are checked with React 18 and React 19 typings, SSR tests, DOM interaction
+  tests, and package contract tests.
+
+## Quick start
 
 ```bash
 npm install @astra-spec/ui @astra-spec/sdk react react-dom
 ```
 
-Peers: `@astra-spec/sdk@^0.1.1`, React 18 or 19.
-
-## Entry points
-
-The package has no root entry; import the layer you need. Each layer only
-depends on the ones below it, and every file is also importable on its own.
-
-| Entry | What you import from it | Stylesheet |
-| --- | --- | --- |
-| `./primitives` | Generic UI with no ASTRA knowledge: `Button`, `Badge`, `SurfaceHeader`, the `Dialog` compound, `RecordList`, `RelationList`, `DetailLayout`, `Prose`, `cn`, `Slot`, labels | `primitives.css` |
-| `./components` | One thing at a time: `OutputDialog` / `OutputDetail`, `DecisionDialog` / `DecisionDetail`, … for every record kind and for papers; `ArtifactPreview`; `InsightTrigger`; `RecordDialog` (any record); `useDetailStack` | `components.css` |
-| `./blocks` | Sections of the inventory page: `OutputsList`, `DecisionsList`, `InputsList`, `FindingsList`, `PriorInsightsList`, `PapersList`, `InventorySection`, `InventoryOutline`, `AnalysisTree` | `blocks.css` |
-| `./views` | Ready-made full surfaces: `Inventory` | `views.css` |
-| `./model` | Pure derivations over the SDK model, for hosts composing their own views (over the SDK's `indexAnalysis`): `locateRecord`, `outputRelations`, `findingEvidence`, `decisionInsights`, `informedDecisions`, `collectInventoryPapers`, `doiHref` | — |
-| `./<layer>/<file>` | Individual files, e.g. `@astra-spec/ui/components/output-dialog` | one of the bundles (see below) |
-
-`styles.css` is an alias of `views.css`; the bundles nest
-(`primitives.css` ⊂ `components.css` ⊂ `blocks.css` ⊂ `views.css`), so import
-exactly one. The bundles are the supported way to load styles: their import
-order is part of the cascade, and they pull in `styles/tokens.css`,
-`styles/base.css`, and KaTeX's stylesheet.
-
-The per-component sheets under `styles/<layer>/` (also exported, as
-`./styles/*`) are not one-to-one with the source files: each is named after
-the file that *emits* its classes, so a few imports have no sheet of their
-own — `components/output-dialog` is styled by `primitives/dialog.css` and
-`components/output-detail.css`; `components/record-dialog` by the kind sheets
-it composes (`output-detail`, `decision-detail`, `input-detail`,
-`finding-detail`, `insight-detail`, `paper-detail`); `blocks/findings-list`,
-`blocks/inputs-list` and `blocks/prior-insights-list` by `blocks/records.css`
-over `primitives/record-list.css`; and `blocks/section` by `blocks/records.css`
-and `views/inventory.css`. A contract test checks that every class a source
-file emits has a rule in some sheet.
-
-**Vocabulary.** A *record* is anything an ASTRA analysis declares — an input,
-output, decision, finding or prior insight (the SDK's `ResolvedRecord`);
-`RecordDialog`, `RecordList` and `onOpenRecord` are generic over those kinds.
-The *inventory* is the page that lists every record of an analysis.
-
-## Resolve once, then render
-
 ```tsx
-import { resolveAnalysis } from '@astra-spec/sdk';
-import { createNodeProjectReader } from '@astra-spec/sdk/node';
-import { ArtifactPreview, type ArtifactRenderer } from '@astra-spec/ui/components';
+import type { ResolvedAnalysisDocument } from '@astra-spec/sdk';
 import { Inventory } from '@astra-spec/ui/views';
 import '@astra-spec/ui/styles.css';
 
-const bundle = await resolveAnalysis(createNodeProjectReader(projectRoot), { universeId: 'baseline' });
-const bindings = new Map(bundle.bindings.map((binding) => [binding.outputPath, binding]));
-
-const renderArtifact: ArtifactRenderer = (output, { compact }) => {
-  const binding = bindings.get(output.canonicalPath);
-  return binding
-    ? <HostArtifactPreview output={output} path={binding.path} cacheToken={binding.cacheToken} compact={compact} />
-    : <ArtifactPreview output={output} compact={compact} />;
-};
-
-export function AnalysisView() {
+export function AnalysisView({ document }: { document: ResolvedAnalysisDocument }) {
   return (
     <div className="astra-ui">
-      <Inventory
-        document={bundle.document}
-        renderArtifact={renderArtifact}
-        onOpenArtifact={(output) => openArtifact(bindings.get(output.canonicalPath))}
-      />
+      <Inventory document={document} />
     </div>
   );
 }
 ```
 
-Wrap the tree in an element with the `astra-ui` class: that is the token and
-style scope.
+The document must already be resolved by `@astra-spec/sdk`. See the
+[package guide](packages/react/README.md) for resolution examples, every public
+component, host extension points, stylesheet choices, theming, and platform
+support.
 
-### Host extension points
+## Architecture
 
-- `renderArtifact(output, { compact })` renders host-decoded artifact content.
-  `ArtifactPreview` renders host-safe `ArtifactPreviewData` (table, image,
-  metric, text, loading, unavailable); `tablePreviewFromDelimited`,
-  `tablePreviewFromRows` and `metricPreviewFromJson` build that data without
-  doing any I/O.
-- `renderText(text, { field })` replaces the built-in prose rendering, which
-  typesets inline `code`, `$inline$` and `$$display$$` math with KaTeX
-  (`primitives.css` imports `katex/dist/katex.css`; bundlers resolve it from
-  the package's `katex` dependency).
-- `renderPaper(paper, { focusEvidence })` renders host-owned paper content.
-- `onFetchPaper(doi)` is an event; the host returns metadata (and
-  `status: 'fetching' | 'error'`) through `paperMetadata`.
-- `labels` overrides every user-facing string.
+| Layer | Responsibility |
+| --- | --- |
+| `@astra-spec/sdk` | Validation, resolution, canonical paths, provenance, artifact bindings, and indexes |
+| `@astra-spec/ui` | Primitives, record and paper details, dialogs, inventory blocks and views, and the token contract |
+| Host application | Project reading, loading and refresh, artifact bytes and URLs, paper fetching, routing, and state |
 
-### Compose your own surface
+The public API is layered and has no root JavaScript export:
 
-`Inventory` is a ~100-line composition of exported blocks and components. A
-host that owns navigation (a router, a JupyterLab command, a MyST link) uses
-the same parts directly:
-
-```tsx
-import { RecordDialog, useDetailStack } from '@astra-spec/ui/components';
-import { OutputsList } from '@astra-spec/ui/blocks';
-import { indexAnalysis } from '@astra-spec/sdk';
-
-function OutputsPage({ document, detail, onDetailChange }) {
-  const index = useMemo(() => indexAnalysis(document), [document]);
-  const stack = useDetailStack({ value: detail, onChange: onDetailChange });
-  return (
-    <>
-      <OutputsList analysis={document.analysis} onOpenRecord={stack.openRecord} />
-      {stack.active ? (
-        <RecordDialog
-          entry={stack.active}
-          document={document}
-          index={index}
-          onOpenRecord={stack.pushRecord}
-          onBack={stack.previous ? stack.back : undefined}
-          onClose={stack.close}
-        />
-      ) : null}
-    </>
-  );
-}
+```text
+primitives + model → components → blocks → views
 ```
 
-`Inventory` itself accepts `detail` / `onDetailChange` (controlled
-stack), `sections`, `idPrefix`, `showOutline`, `detailMode="embedded"`, and an
-`index` you already built.
+Import the layer you need, for example `@astra-spec/ui/components` or
+`@astra-spec/ui/views`. Individual files are also available as subpaths.
 
-Dialogs are a compound (`Dialog`, `DialogContent`, `DialogHeader`,
-`DialogBody`, `DialogClose`, `DialogBack`, `DialogAction`) on the native
-`<dialog>` element; `DetailDialog` is the record-detail preset, and every kind
-exposes a dialog-free `*Detail` body for sidebars and embedded pages.
+## Repository
 
-## Theming
-
-Components consume only role-named tokens (`--astra-color-*`,
-`--astra-font-*`, `--astra-radius-*`, `--astra-space-*`), all declared with
-light and dark defaults in `styles/tokens.css` at zero specificity. A theme is
-a set of overrides on `.astra-ui`:
-
-```css
-.astra-ui {
-  --astra-color-accent: #7a3e9d;
-  --astra-font-heading: "Fraunces", serif;
-  --astra-radius-control: 0.375rem;
-}
-```
-
-The full list is in [`packages/react/TOKENS.md`](packages/react/TOKENS.md).
-Dark mode: set `data-astra-color-scheme="dark"` on `.astra-ui`, or let the
-JupyterLab / VS Code host signal it. The package knows nothing about any
-particular theme: `tokens.css` holds literal defaults only, and a theme maps
-its own palette and fonts onto the role names. `@lightcone-research/lightcone-brand`
-is one such theme; the package renders sensibly without it.
-
-Styling hooks for hosts:
-
-- Every component accepts `className`, forwards its ref, and spreads extra
-  attributes onto its root.
-- Every part carries a `data-slot` attribute (`data-slot="surface-header-title"`), and
-  variants are data attributes (`data-kind`, `data-mode`, `data-layout`,
-  `data-density`, `data-variant`, `data-selected`, `data-expanded`).
-- All rules live in `@layer astra.tokens, astra.base, astra.components,
-  astra.views` (the cascade layers are coarser than the folders: primitives and
-  components share `astra.components`, blocks and views share `astra.views`)
-  and are scoped with `:where(.astra-ui)`, so unlayered host CSS overrides any
-  component rule at any specificity. Standalone variant
-  selectors (`.astra-dialog:where([data-mode="embedded"])`) add no
-  specificity, like the modifier classes they replace.
-- `[data-kind="decision"]` on any element sets `--astra-kind`,
-  `--astra-kind-ink` and `--astra-kind-soft` for that subtree.
-
-Browser floor: Chrome 111, Safari 16.2, Firefox 113 (`color-mix`,
-`@container`, `@layer`).
-
-## Playground
-
-`packages/playground` is a [Ladle](https://ladle.dev) workspace that renders
-every layer of the package over a real analysis — the resolved
-`desi-myst-proto` project, committed as `fixtures/desi.json`. It is the
-fastest way to see what a component looks like, to try a change while
-developing, and it is the source of the parity screenshots.
-
-```bash
-npm run playground       # http://localhost:61000
-```
-
-Stories, one file per layer of interest (`packages/playground/src/*.stories.tsx`):
-
-| Group | Stories | Shows |
-| --- | --- | --- |
-| Explorer | Root, Clustering, Reconstruction, EmbeddedDetail, Tree | the `Inventory` view on the root and on child analyses, with the detail dialog inline, and the `AnalysisTree` block |
-| Dialogs / Modal | OutputFigure, OutputTable, OutputData, Decision, Finding, Input, Insight, Paper, PaperWithoutContent, WithBackTrail | every record and paper dialog as a modal `<dialog>`, including the back-trail state |
-| Dialogs / Embedded | the same ten | the same dialogs in `mode="embedded"` (a panel inside the page, as a JupyterLab host renders them) |
-| Primitives | Buttons, Badges, Headers, Artifacts, RecordLists, Relations | the `./primitives` layer and `ArtifactPreview`, every variant side by side |
-| Theme | Colors, Typography | the token contract: each `--astra-*` token with its resolved value |
-
-The Ladle toolbar's theme toggle sets `data-astra-color-scheme` on the
-`.astra-ui` root — the package contract, so the dark palette in
-`styles/tokens.css` is exercised — and, when the brand is loaded, its own
-`data-astra-theme="brand-light|brand-dark"` alongside it; the width toggle
-switches the viewport (1280, 768, 414). The host side of the stories —
-artifact URLs, paper metadata, `renderArtifact` / `renderPaper` — lives in
-`src/host.tsx`, so it doubles as a minimal example of what an integration
-provides.
-
-The playground applies `@lightcone-research/lightcone-brand` on top of
-`styles.css` (linked from `../lightcone-brand`), so it shows the Lightcone
-look rather than the package defaults. To see the unthemed rendering, start
-it without the brand:
-
-```bash
-VITE_ASTRA_THEME=none npm run playground
-```
-
-Regenerate the fixture from any ASTRA project with
-`npm run fixture --workspace astra-ui-playground [projectRoot] [universeId]`;
-it writes `fixtures/desi.json` and copies the previewable artifacts (png,
-csv, ...) into `packages/playground/public`, which is gitignored.
-
-### Screenshots and parity
-
-```bash
-npm run screenshots      # every story, light and dark, 1280×900, into screenshots/current
-npm run screenshots:compare
-```
-
-`screenshots` builds the package, starts Ladle, and captures each story
-with Playwright; `screenshots:compare` diffs the run against
-`packages/playground/screenshots/baseline` with ImageMagick's `compare` and
-fails on any pixel difference. The baseline is the pre-refactor rendering of
-`main`, which is how "renders exactly as before" is verified. Needs
-`npx playwright install chromium` once and ImageMagick on the path.
+| Path | Purpose |
+| --- | --- |
+| [`packages/react`](packages/react) | Published `@astra-spec/ui` package, source, styles, and package documentation |
+| [`packages/playground`](packages/playground) | Private Ladle workspace covering views, dialogs, primitives, responsive layouts, and themes |
+| [`tests`](tests) | SSR, package-contract, model, attribute-forwarding, and DOM interaction tests |
+| [`scripts`](scripts) | Consumer checks, token documentation, and project utilities |
 
 ## Development
 
+Requires Node.js 20 or newer. The branded playground also expects the
+`lightcone-brand` repository to be checked out at `../lightcone-brand` before
+installing dependencies.
+
 ```bash
 npm install
-npm run typecheck        # package, playground, and React 19 typings
-npm run lint
-npm test                 # build, SSR + contract tests, DOM tests
-npm run check            # all of the above
-npm run check:consumers  # type-check ../jupyterlab-astra and ../astra-theme
+npm run playground
 ```
+
+The playground opens at <http://localhost:61000> and exercises the package over
+a committed resolved ASTRA project. Run
+`VITE_ASTRA_THEME=none npm run playground` to display only the package defaults.
+
+| Command | Purpose |
+| --- | --- |
+| `npm run check` | Run the complete CI gate: lint, builds, type checks, React 19 checks, SSR/contract tests, and DOM tests |
+| `npm run build` | Build the React package into `packages/react/dist` |
+| `npm test` | Build and run the Node and Vitest suites |
+| `npm run playground` | Start the Ladle component explorer |
+| `npm run screenshots` | Capture every story in light and dark mode with Playwright |
+| `npm run screenshots:compare` | Compare a capture against the local ImageMagick baseline |
+| `npm run check:consumers` | Type-check sibling consumers against the local package build |
+
+Screenshot capture requires Playwright Chromium; comparison additionally
+requires ImageMagick.
+
+## Releases
+
+The root workspace is private; only `packages/react` is published. A `v*` Git
+tag triggers the [publish workflow](.github/workflows/publish.yml), which derives
+the package version from the tag, runs the release checks, and publishes through
+npm trusted publishing. Package versions are not edited by hand.
 
 ## License
 
-BSD-3-Clause. See [LICENSE](./LICENSE).
+BSD-3-Clause. See [LICENSE](LICENSE).
