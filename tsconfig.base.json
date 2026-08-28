@@ -12,7 +12,7 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "inlineSources": true,
+    "inlineSources": false,
     "composite": true,
     "isolatedModules": true,
     "verbatimModuleSyntax": true,

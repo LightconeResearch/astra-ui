@@ -1,0 +1,63 @@
+/* finding-detail — emitted by src/components/finding-detail.tsx */
+@layer astra.tokens, astra.base, astra.components, astra.views;
+@layer astra.components {
+  :where(.astra-ui) .astra-finding-detail__notes h4 {
+    margin: 0 0 0.55rem;
+    color: var(--astra-color-text);
+    font-family: var(--astra-font-ui);
+    font-size: 0.82rem;
+  }
+
+
+  :where(.astra-ui) .astra-finding-detail__notes > div > :first-child {
+    margin-top: 0;
+  }
+
+  :where(.astra-ui) .astra-finding-detail__notes > div > :last-child {
+    margin-bottom: 0;
+  }
+
+  :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-finding-detail__notes {
+    padding-block: 0.875rem;
+    border-block-start: 1px solid var(--astra-color-border);
+  }
+
+  :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-finding-detail__notes h4 {
+    color: var(--astra-color-text);
+    font: 700 0.8125rem/1.25 var(--astra-font-ui);
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-finding-detail__notes > div {
+    color: var(--astra-color-text-muted);
+    font: 400 0.84375rem/1.55 var(--astra-font-body);
+  }
+
+  :where(.astra-ui) .astra-finding-detail__notes {
+    margin-top: 1.625rem;
+  }
+
+  :where(.astra-ui) .astra-finding-detail__notes h4 {
+    margin: 0 0 0.5rem;
+    color: var(--astra-color-text);
+    font: 700 0.875rem/1.2 var(--astra-font-ui);
+  }
+
+  :where(.astra-ui) .astra-finding-detail__notes:first-child {
+    margin-top: 0;
+  }
+
+  :where(.astra-ui) .astra-finding-detail__results {
+    margin-top: 1.625rem;
+  }
+
+  :where(.astra-ui) .astra-finding-detail__notes > div {
+    font-size: 1rem;
+    line-height: 1.6;
+    font: 0.9375rem/1.55 var(--astra-font-body);
+    color: var(--astra-color-text-muted);
+    font-family: var(--astra-font-body);
+  }
+
+}

@@ -1,323 +1,158 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { indexAnalysis } from '@astra-spec/sdk';
+import { tablePreviewFromDelimited } from '../packages/react/dist/components/index.js';
 import {
-  createProjectViewModelIndex,
-  validateProjectViewModel,
-} from '../packages/react/dist/core.js';
+  collectInventoryPapers,
+  decisionInsights,
+  findingEvidence,
+  findingLiterature,
+  indirectDecisionPaths,
+  informedDecisions,
+  locateRecord,
+  outputRelations,
+} from '../packages/react/dist/model/index.js';
+import { fixtureDocument } from './fixture.mjs';
 
-/**
- * Canonical project-view-model.v1 fixture shared by model and React tests.
- */
-const canonicalFixture = {
-  schemaVersion: 'project-view-model.v1',
-  revision: { analysis: 'fixture-analysis' },
-  project: {
-    id: 'desi-demo',
-    name: 'DESI demo',
-    description: 'A small nested ASTRA viewer fixture.',
-  },
-  selection: {
-    availableUniverses: [],
-    decisions: {
-      'root:decision:method': 'fiducial',
-      'clustering:decision:weighting': 'fkp',
-    },
-    source: 'unknown',
-  },
-  scopes: [
+test('paper presentation data is derived from the SDK document and index', () => {
+  const index = indexAnalysis(fixtureDocument);
+  const papers = collectInventoryPapers(
+    fixtureDocument,
+    index,
+    fixtureDocument.analysis,
     {
-      id: 'root',
-      canonicalPath: 'root',
-      name: 'DESI demo',
-      childIds: ['clustering'],
-      recordIds: [
-        'root:input:catalog',
-        'root:decision:method',
-        'root:prior_insight:published_method',
-        'root:output:headline',
-      ],
-    },
-    {
-      id: 'clustering',
-      canonicalPath: 'clustering',
-      name: 'Clustering',
-      parentId: 'root',
-      childIds: [],
-      recordIds: [
-        'clustering:input:headline_alias',
-        'clustering:decision:method_alias',
-        'clustering:decision:weighting',
-        'clustering:output:xi',
-      ],
-    },
-  ],
-  records: [
-    {
-      id: 'root:input:catalog',
-      localId: 'catalog',
-      canonicalPath: 'inputs.catalog',
-      scopeId: 'root',
-      kind: 'input',
-      description: 'Input catalogue.',
-      relations: [],
-      inputType: 'data',
-    },
-    {
-      id: 'root:decision:method',
-      localId: 'method',
-      canonicalPath: 'decisions.method',
-      scopeId: 'root',
-      kind: 'decision',
-      relations: [],
-      selectedOptionId: 'fiducial',
-      options: [
-        {
-          id: 'fiducial',
-          label: 'Fiducial',
-          selected: true,
-          insightRecordIds: ['root:prior_insight:published_method'],
-        },
-        { id: 'alternate', label: 'Alternate', selected: false },
-      ],
-    },
-    {
-      id: 'root:prior_insight:published_method',
-      localId: 'published_method',
-      canonicalPath: 'prior_insights.published_method',
-      scopeId: 'root',
-      kind: 'prior_insight',
-      relations: [],
-      claim: 'The method is established.',
-      evidence: [{ doi: '10.0000/example' }],
-    },
-    {
-      id: 'root:output:headline',
-      localId: 'headline',
-      canonicalPath: 'outputs.headline',
-      scopeId: 'root',
-      kind: 'output',
-      relations: [
-        {
-          kind: 'depends_on',
-          targetRecordId: 'clustering:output:xi',
-          direct: true,
-        },
-        {
-          kind: 'depends_on',
-          targetRecordId: 'root:input:catalog',
-          direct: false,
-        },
-        {
-          kind: 'parameterized_by',
-          targetRecordId: 'root:decision:method',
-          direct: true,
-        },
-        {
-          kind: 'parameterized_by',
-          targetRecordId: 'clustering:decision:weighting',
-          direct: false,
-        },
-      ],
-      outputType: 'figure',
-      recipe: {
-        command: 'python scripts/render_headline.py --output {output}',
-      },
-      resourceIds: ['resource:headline'],
-      provenance: {
-        inputs: [
-          {
-            reference: 'clustering.xi',
-            recordId: 'clustering:output:xi',
-            direct: true,
-          },
-          {
-            reference: 'catalog',
-            recordId: 'root:input:catalog',
-            label: 'Input catalogue',
-            direct: false,
-          },
-        ],
-        decisions: [
-          {
-            reference: 'method',
-            recordId: 'root:decision:method',
-            selection: 'Fiducial',
-            direct: true,
-          },
-          {
-            reference: 'weighting',
-            recordId: 'clustering:decision:weighting',
-            label: 'Weighting',
-            scopeId: 'clustering',
-            selection: 'FKP',
-            direct: false,
-          },
-        ],
+      '10.1234/example': {
+        title: 'A useful paper',
+        authors: 'A. Researcher',
+        pdfUrl: '/papers/example.pdf',
       },
     },
-    {
-      id: 'clustering:input:headline_alias',
-      localId: 'headline_alias',
-      canonicalPath: 'clustering.inputs.headline_alias',
-      scopeId: 'clustering',
-      kind: 'input',
-      relations: [
-        {
-          kind: 'aliases',
-          targetRecordId: 'root:output:headline',
-          direct: true,
-        },
-      ],
-    },
-    {
-      id: 'clustering:decision:method_alias',
-      localId: 'method_alias',
-      canonicalPath: 'clustering.decisions.method_alias',
-      scopeId: 'clustering',
-      kind: 'decision',
-      relations: [
-        {
-          kind: 'aliases',
-          targetRecordId: 'root:decision:method',
-          direct: true,
-        },
-      ],
-      options: [],
-    },
-    {
-      id: 'clustering:decision:weighting',
-      localId: 'weighting',
-      canonicalPath: 'clustering.decisions.weighting',
-      scopeId: 'clustering',
-      kind: 'decision',
-      label: 'Weighting',
-      relations: [],
-      selectedOptionId: 'fkp',
-      options: [{ id: 'fkp', label: 'FKP', selected: true }],
-    },
-    {
-      id: 'clustering:output:xi',
-      localId: 'xi',
-      canonicalPath: 'clustering.outputs.xi',
-      scopeId: 'clustering',
-      kind: 'output',
-      relations: [
-        {
-          kind: 'depends_on',
-          targetRecordId: 'root:input:catalog',
-          direct: true,
-        },
-        {
-          kind: 'parameterized_by',
-          targetRecordId: 'clustering:decision:weighting',
-          direct: true,
-        },
-        {
-          kind: 'aliases',
-          targetRecordId: 'root:output:headline',
-          direct: true,
-        },
-      ],
-      outputType: 'table',
-      resourceIds: [],
-      provenance: {
-        inputs: [
-          {
-            reference: 'catalog',
-            recordId: 'root:input:catalog',
-            direct: true,
-          },
-        ],
-        decisions: [
-          {
-            reference: 'weighting',
-            recordId: 'clustering:decision:weighting',
-            direct: true,
-          },
-        ],
-      },
-    },
-  ],
-  resources: [
-    {
-      id: 'resource:headline',
-      kind: 'figure',
-      fileName: 'headline.png',
-      mediaType: 'image/png',
-      revision: 'image-1',
-      availability: 'available',
-      source: 'inferred',
-      outputRecordId: 'root:output:headline',
-    },
-  ],
-  diagnostics: [],
-};
-
-export function fixtureModel(options = {}) {
-  const model = structuredClone(canonicalFixture);
-  if (options.analysisRevision) {
-    model.revision.analysis = options.analysisRevision;
-  }
-  if (options.selectionRevision) {
-    model.revision.selection = options.selectionRevision;
-  }
-  if (options.universeId) {
-    model.selection.universeId = options.universeId;
-    model.selection.source = 'explicit';
-  }
-  return model;
-}
-
-test('the canonical model fixture indexes and validates as one viewable model', () => {
-  const model = fixtureModel({
-    analysisRevision: 'analysis-1',
-    selectionRevision: 'selection-1',
-    universeId: 'baseline',
-  });
-  const index = createProjectViewModelIndex(model);
-
-  assert.equal(model.scopes[0].id, 'root');
-  assert.equal(model.scopes[1].parentId, 'root');
-  assert.equal(model.revision.analysis, 'analysis-1');
-  assert.equal(model.resources[0].id, 'resource:headline');
-  assert.equal(model.resources[0].mediaType, 'image/png');
-
-  const headline = index.recordByPath.get('outputs.headline').record;
-  assert.deepEqual(
-    headline.relations.map(({ kind, targetRecordId, direct }) => [
-      kind,
-      targetRecordId,
-      direct,
-    ]),
-    [
-      ['depends_on', 'clustering:output:xi', true],
-      ['depends_on', 'root:input:catalog', false],
-      ['parameterized_by', 'root:decision:method', true],
-      ['parameterized_by', 'clustering:decision:weighting', false],
-    ],
   );
-  const alias = index.recordByPath.get('clustering.decisions.method_alias').record;
-  assert.equal(alias.relations[0].targetRecordId, 'root:decision:method');
-  const inputAlias = index.recordByPath.get('clustering.inputs.headline_alias').record;
-  assert.equal(inputAlias.relations[0].targetRecordId, 'root:output:headline');
 
-  const method = index.recordByPath.get('decisions.method').record;
-  assert.deepEqual(method.options[0].insightRecordIds, ['root:prior_insight:published_method']);
-  assert.deepEqual(validateProjectViewModel(model), []);
+  assert.deepEqual(papers.map(({ doi }) => doi), [
+    '10.1234/example',
+    '10.5678/nested',
+    '10.9999/finding',
+  ]);
+  assert.equal(papers[0].title, 'A useful paper');
+  assert.deepEqual(
+    papers[0].insights.map(({ canonicalPath }) => canonicalPath),
+    ['prior_insights.published_method'],
+  );
+  assert.deepEqual(
+    papers[0].decisions.map(({ canonicalPath }) => canonicalPath),
+    ['decisions.method'],
+  );
+  assert.deepEqual(
+    papers[2].insights.map(({ canonicalPath }) => canonicalPath),
+    ['findings.headline_finding'],
+  );
 });
 
-test('indexes authored local ids without deriving them from canonical paths', () => {
-  const model = fixtureModel();
-  const insight = model.records.find(
-    (record) => record.kind === 'prior_insight',
+test('a child paper inventory remains local to the selected analysis', () => {
+  const index = indexAnalysis(fixtureDocument);
+  const papers = collectInventoryPapers(
+    fixtureDocument,
+    index,
+    fixtureDocument.analysis.analyses[0],
   );
-  insight.localId = 'planck2018_headline_parameters';
-  insight.canonicalPath = 'prior_insights.host_normalized_slug';
 
-  const index = createProjectViewModelIndex(model);
-  assert.equal(
-    index.recordsByLocalId.get('planck2018_headline_parameters')?.[0].record,
-    insight,
-  );
-  assert.equal(index.recordsByLocalId.has('host_normalized_slug'), false);
+  assert.deepEqual(papers.map(({ doi }) => doi), ['10.5678/nested']);
+});
+
+test('the inventory index locates records with their owning analysis', () => {
+  const index = indexAnalysis(fixtureDocument);
+  assert.equal(locateRecord(index, 'outputs.headline').analysis.canonicalPath, '$');
+  assert.equal(locateRecord(index, 'clustering.outputs.correlation').analysis.canonicalPath, 'clustering');
+  assert.equal(locateRecord(index, 'outputs.missing'), undefined);
+});
+
+test('relations, evidence, and insight derivations follow provenance', () => {
+  const index = indexAnalysis(fixtureDocument);
+  const headline = index.recordByPath.get('outputs.headline');
+  const relations = outputRelations(index, headline);
+  assert.deepEqual(relations.inputs.map(({ record }) => record.id), ['catalog']);
+  assert.deepEqual(relations.decisions.map(({ record }) => record.id), ['method']);
+  assert.equal(relations.alias, undefined);
+
+  const finding = index.recordByPath.get('findings.headline_finding');
+  const evidence = findingEvidence(index, finding);
+  assert.equal(evidence.length, 1);
+  assert.equal(evidence[0].output.canonicalPath, 'outputs.headline');
+
+  const decision = index.recordByPath.get('decisions.method');
+  assert.deepEqual(decisionInsights(index, decision).map(({ id }) => id), ['published_method']);
+
+  const insight = index.recordByPath.get('prior_insights.published_method');
+  assert.deepEqual(informedDecisions(fixtureDocument, insight).map(({ id }) => id), ['method']);
+});
+
+test('output relations list a record referenced twice only once', () => {
+  const index = indexAnalysis(fixtureDocument);
+  const headline = index.recordByPath.get('outputs.headline');
+  const twice = {
+    ...headline,
+    provenance: { inputPaths: ['inputs.catalog', 'inputs.catalog'], decisionPaths: ['decisions.method', 'decisions.method'] },
+  };
+  const relations = outputRelations(index, twice);
+  assert.deepEqual(relations.inputs.map(({ canonicalPath }) => canonicalPath), ['inputs.catalog']);
+  assert.deepEqual(relations.decisions.map(({ canonicalPath }) => canonicalPath), ['decisions.method']);
+});
+
+test('finding literature is the DOI-bearing evidence, kept apart from artifact evidence', () => {
+  const index = indexAnalysis(fixtureDocument);
+  const finding = index.recordByPath.get('findings.headline_finding');
+  assert.deepEqual(findingLiterature(finding).map(({ doi }) => doi), ['10.9999/finding']);
+  assert.equal(findingEvidence(index, finding).length + findingLiterature(finding).length, finding.evidence.length);
+});
+
+test('delimited previews keep quoted delimiters, quotes, and line breaks inside one cell', () => {
+  const preview = tablePreviewFromDelimited('name,note\r\n"Smith, J","says ""hi""\nand bye"\n\nplain,row\n');
+  assert.deepEqual(preview.headers, ['name', 'note']);
+  assert.deepEqual(preview.rows, [['Smith, J', 'says "hi"\nand bye'], ['plain', 'row']]);
+  assert.equal(preview.totalRows, 2);
+  assert.equal(preview.truncated, false);
+});
+
+test('a byte-limited delimited sample drops its cut-off last record and reports an unknown total', () => {
+  const cut = tablePreviewFromDelimited('a,b\n1,2\n3,4\n5,', { sourceTruncated: true });
+  assert.deepEqual(cut.rows, [['1', '2'], ['3', '4']]);
+  assert.equal(cut.totalRows, undefined);
+  assert.equal(cut.truncated, true);
+
+  const cleanEnd = tablePreviewFromDelimited('a,b\n1,2\n3,4\n', { sourceTruncated: true });
+  assert.deepEqual(cleanEnd.rows, [['1', '2'], ['3', '4']], 'a sample ending on a newline keeps its last record');
+  assert.equal(cleanEnd.totalRows, undefined);
+
+  const openQuote = tablePreviewFromDelimited('a,b\n1,2\n3,"multi\nline', { sourceTruncated: true });
+  assert.deepEqual(openQuote.rows, [['1', '2']], 'an unterminated quoted record is dropped');
+
+  const exact = tablePreviewFromDelimited('a,b\n1,2\n3,4\n5,6\n', { maxRows: 2 });
+  assert.deepEqual(exact.rows, [['1', '2'], ['3', '4']]);
+  assert.equal(exact.totalRows, 3);
+  assert.equal(exact.truncated, true);
+});
+
+test('indirect decisions are reached through upstream outputs and input aliases, direct ones excluded, cycles ignored', () => {
+  const root = fixtureDocument.analysis;
+  const output = (id, provenance, decisions = []) => ({
+    id, kind: 'output', canonicalPath: `outputs.${id}`, type: 'data', format: 'npy', active: true, inputs: [], decisions, provenance,
+  });
+  const upstream = output('upstream', { inputPaths: [], decisionPaths: ['decisions.method'] }, ['method']);
+  const downstream = output('downstream', { inputPaths: ['outputs.upstream'], decisionPaths: [] });
+  const viaAlias = output('via_alias', { inputPaths: ['inputs.alias'], decisionPaths: [] });
+  const alreadyDirect = output('already_direct', { inputPaths: ['outputs.upstream'], decisionPaths: ['decisions.method'] }, ['method']);
+  const loopA = output('loop_a', { inputPaths: ['outputs.loop_b'], decisionPaths: [] });
+  const loopB = output('loop_b', { inputPaths: ['outputs.loop_a', 'outputs.upstream'], decisionPaths: [] });
+  const alias = { id: 'alias', kind: 'input', canonicalPath: 'inputs.alias', type: 'data', resolvedFrom: 'outputs.upstream' };
+  const document = {
+    ...fixtureDocument,
+    analysis: { ...root, inputs: [...root.inputs, alias], outputs: [...root.outputs, upstream, downstream, viaAlias, alreadyDirect, loopA, loopB] },
+  };
+  const index = indexAnalysis(document);
+  assert.deepEqual(indirectDecisionPaths(index, downstream), ['decisions.method']);
+  assert.deepEqual(indirectDecisionPaths(index, viaAlias), ['decisions.method']);
+  assert.deepEqual(indirectDecisionPaths(index, alreadyDirect), []);
+  assert.deepEqual(indirectDecisionPaths(index, loopA), ['decisions.method']);
+  assert.deepEqual(outputRelations(index, downstream).indirectDecisions.map(({ record }) => record.id), ['method']);
 });

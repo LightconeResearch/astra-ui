@@ -1,0 +1,159 @@
+/* decision-detail — emitted by src/components/decision-detail.tsx */
+@layer astra.tokens, astra.base, astra.components, astra.views;
+@layer astra.components {
+  :where(.astra-ui) .astra-decision-insights {
+    display: grid;
+    gap: 0;
+    margin: 0.2rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  :where(.astra-ui) .astra-decision-insights > li {
+    border-bottom: 1px solid var(--astra-color-border);
+    padding: 0.72rem 0;
+  }
+
+  :where(.astra-ui) .astra-decision-insights > li:last-child {
+    border-bottom: 0;
+  }
+
+  :where(.astra-ui) .astra-decision-options h4 {
+    margin: 0 0 0.55rem;
+    color: var(--astra-color-text);
+    font-family: var(--astra-font-ui);
+    font-size: 0.82rem;
+  }
+
+  :where(.astra-ui) .astra-decision-options__marker {
+    color: var(--astra-color-text-subtle);
+  }
+
+  :where(.astra-ui) .astra-decision-options li[data-selected] .astra-decision-options__marker {
+    color: var(--astra-color-accent);
+  }
+
+  :where(.astra-ui) .astra-decision-options li > span:nth-child(2) {
+    display: grid;
+    min-width: 0;
+    gap: 0.12rem;
+  }
+
+  :where(.astra-ui) .astra-decision-options strong {
+    font-family: var(--astra-font-ui);
+    font-size: 0.8rem;
+  }
+
+  :where(.astra-ui) .astra-decision-options small {
+    color: var(--astra-color-accent);
+    font-family: var(--astra-font-ui);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  :where(.astra-ui) .astra-decision-options ul {
+    gap: 0;
+  }
+
+  :where(.astra-ui) .astra-decision-options li {
+    border: 0;
+    border-block-end: 1px solid var(--astra-color-border);
+    border-radius: 0;
+    background: transparent;
+    padding: 0.75rem 0.25rem;
+  }
+
+  :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-decision-options {
+    padding-block: 0.875rem;
+    border-block-start: 1px solid var(--astra-color-border);
+  }
+
+  :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-decision-options h4 {
+    color: var(--astra-color-text);
+    font: 700 0.8125rem/1.25 var(--astra-font-ui);
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  :where(.astra-ui) .astra-decision-options {
+    margin-top: 1.625rem;
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  :where(.astra-ui) .astra-decision-options h4 {
+    margin: 0 0 0.5rem;
+    color: var(--astra-color-text);
+    font: 700 0.875rem/1.2 var(--astra-font-ui);
+  }
+
+  :where(.astra-ui) .astra-decision-options ul {
+    list-style: none;
+    display: grid;
+    gap: 0.4375rem;
+    margin: 0;
+    padding: 0;
+  }
+
+  :where(.astra-ui) .astra-decision-options li {
+    display: grid;
+    grid-template-columns: 1.375rem minmax(0, 1fr) auto;
+    gap: 0.6875rem;
+    align-items: center;
+    border: 1px solid var(--astra-color-border);
+    border-radius: 0.625rem;
+    background: var(--astra-color-canvas);
+    padding: 0.6875rem 0.875rem;
+  }
+
+  :where(.astra-ui) .astra-decision-options strong {
+    font: 700 0.875rem/1.2 var(--astra-font-ui);
+  }
+
+  :where(.astra-ui) .astra-decision-options code {
+    margin-top: 0.125rem;
+    color: var(--astra-color-text-subtle);
+    font-size: 0.6875rem;
+  }
+
+  :where(.astra-ui) .astra-decision-options small {
+    color: var(--astra-color-kind-decision-ink);
+    font-size: 0.625rem;
+  }
+
+  :where(.astra-ui) .astra-decision-insights > li {
+    border: 0;
+    padding: 0;
+  }
+
+  :where(.astra-ui) .astra-decision-insights > li + li {
+    border-top: 1px solid var(--astra-color-border);
+  }
+
+  :where(.astra-ui) .astra-decision-options li {
+    border-color: var(--astra-color-border);
+    border-radius: var(--astra-radius-control);
+    background: var(--astra-color-surface-raised);
+  }
+
+  :where(.astra-ui) .astra-decision-options li[data-selected] .astra-decision-options__marker,
+  :where(.astra-ui) .astra-decision-options li[data-selected] small {
+    color: var(--astra-color-kind-decision-ink);
+  }
+
+  :where(.astra-ui) .astra-decision-options li {
+    border-color: var(--astra-color-border);
+    border-radius: 0.625rem;
+    background: var(--astra-color-canvas);
+  }
+
+  :where(.astra-ui) .astra-decision-options li[data-selected] {
+    border-block-end-color: var(--astra-color-border);
+    box-shadow: none;
+    border-color: color-mix(in srgb, var(--astra-color-kind-decision) 42%, var(--astra-color-border));
+    background: color-mix(in srgb, var(--astra-color-kind-decision) 8%, var(--astra-color-canvas));
+  }
+
+}

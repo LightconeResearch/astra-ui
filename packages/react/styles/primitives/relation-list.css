@@ -1,0 +1,184 @@
+/* relation-list — emitted by src/primitives/relation-list.tsx */
+@layer astra.tokens, astra.base, astra.components, astra.views;
+@layer astra.components {
+  :where(.astra-ui) .astra-relation-list__header {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  :where(.astra-ui) .astra-relation-list li {
+    display: grid;
+    grid-template-columns: 0.9rem minmax(0, 1fr) auto;
+    column-gap: 0.55rem;
+    align-items: center;
+    border: 0;
+    border-bottom: 1px solid var(--astra-color-border);
+    border-radius: 0;
+    background: transparent;
+    padding: 0.62rem 0.08rem;
+  }
+
+  :where(.astra-ui) .astra-relation-list li[data-interactive] {
+    display: block;
+    padding: 0;
+  }
+
+  :where(.astra-ui) .astra-relation-list__trigger {
+    display: grid;
+    grid-template-columns: 0.9rem minmax(0, 1fr) auto;
+    width: 100%;
+    column-gap: 0.55rem;
+    align-items: center;
+    cursor: pointer;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: inherit;
+    padding: 0.62rem 0.08rem;
+    text-align: left;
+  }
+
+  :where(.astra-ui) .astra-relation-list__trigger:hover {
+    background: transparent;
+    color: var(--astra-color-link);
+  }
+
+  :where(.astra-ui) .astra-relation-list__trigger > span:last-child {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+    color: var(--astra-color-text-subtle);
+  }
+
+  :where(.astra-ui) .astra-relation-item__glyph {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    align-self: start;
+    color: var(--astra-color-text-subtle);
+    line-height: 1.2;
+  }
+
+  :where(.astra-ui) .astra-relation-item__glyph[data-empty] {
+    visibility: hidden;
+  }
+
+  :where(.astra-ui) .astra-relation-list [data-kind="decision"] .astra-relation-item__glyph {
+    color: var(--astra-color-kind-decision);
+  }
+
+  :where(.astra-ui) .astra-relation-list [data-kind="input"] .astra-relation-item__glyph {
+    color: var(--astra-color-kind-input);
+  }
+
+  :where(.astra-ui) .astra-relation-list [data-kind="output"] .astra-relation-item__glyph {
+    color: var(--astra-color-kind-output);
+  }
+
+  :where(.astra-ui) .astra-relation-list [data-kind="finding"] .astra-relation-item__glyph {
+    color: var(--astra-color-kind-finding);
+  }
+
+  :where(.astra-ui) .astra-relation-list [data-kind="prior_insight"] .astra-relation-item__glyph {
+    color: var(--astra-color-kind-insight);
+  }
+
+  :where(.astra-ui) .astra-relation-item__copy {
+    display: grid;
+    grid-column: 2;
+    min-width: 0;
+    gap: 0.1rem;
+  }
+
+  :where(.astra-ui) .astra-relation-list li > small {
+    grid-column: 2;
+    min-width: 0;
+  }
+
+  :where(.astra-ui) .astra-relation-item__label {
+    font-family: var(--astra-font-ui);
+    font-size: 0.72rem;
+  }
+
+  :where(.astra-ui) .astra-relation-item__label,
+  :where(.astra-ui) .astra-relation-list code,
+  :where(.astra-ui) .astra-relation-list small {
+    overflow-wrap: anywhere;
+  }
+
+  :where(.astra-ui) .astra-relation-list code,
+  :where(.astra-ui) .astra-relation-list small {
+    color: var(--astra-color-text-subtle);
+    font-size: 0.59rem;
+  }
+
+  :where(.astra-ui) .astra-relation-list > p {
+    color: var(--astra-color-text-subtle);
+    font-size: 0.72rem;
+  }
+
+  :where(.astra-ui) .astra-relation-list > .astra-relation-list__description {
+    margin: 0.22rem 0 0.62rem;
+    color: var(--astra-color-text-subtle);
+    font-size: 0.67rem;
+    line-height: 1.45;
+  }
+
+  :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-relation-list li,
+  :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-relation-list__trigger {
+    min-height: 0;
+    padding-block: 0.5rem;
+  }
+
+  :where(.astra-ui) .astra-relation-list ul {
+    border-top: 1px solid var(--astra-color-border);
+    list-style: none;
+    display: grid;
+    gap: 0;
+    margin: 0.5rem 0 0;
+    border: 0;
+    padding: 0;
+  }
+
+  :where(.astra-ui) .astra-relation-list li,
+  :where(.astra-ui) .astra-relation-list__trigger {
+    min-height: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  :where(.astra-ui) .astra-relation-list li + li {
+    border-top: 1px solid var(--astra-color-border);
+  }
+
+  :where(.astra-ui) .astra-relation-list li[data-interactive] {
+    border-radius: 0;
+  }
+
+  :where(.astra-ui) .astra-relation-list__trigger,
+  :where(.astra-ui) .astra-relation-list li:where(:not([data-interactive])) {
+    grid-template-columns: 1.375rem minmax(0, 1fr) 1rem;
+    padding: 0.625rem 0.25rem;
+  }
+
+  :where(.astra-ui) .astra-relation-item__label {
+    font: 400 0.8125rem/1.25 var(--astra-font-ui);
+  }
+
+  :where(.astra-ui) .astra-relation-list small {
+    margin-top: 0.125rem;
+    color: var(--astra-color-text-subtle);
+    font-size: 0.6875rem;
+  }
+
+  :where(.astra-ui) .astra-relation-list__trigger:hover {
+    background: transparent;
+  }
+
+  :where(.astra-ui) .astra-relation-list__trigger:focus-visible {
+    outline: 2px solid var(--astra-color-accent);
+    outline-offset: -2px;
+    outline-color: var(--astra-color-focus);
+  }
+
+}

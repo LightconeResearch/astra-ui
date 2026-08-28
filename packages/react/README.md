@@ -1,19 +1,31 @@
 # `@lightcone-research/astra-ui`
 
-Host-neutral React surfaces for the ASTRA project view model. The package owns
-inventory, record detail, and result preview. It has no JupyterLab, MyST,
-VS Code, filesystem, networking, or chat dependency.
+Composable, themable React components for `ResolvedAnalysisDocument` from
+`@astra-spec/sdk`.
 
-`InventoryExplorer` is the canonical rich inventory surface. Pass it a
-`ProjectViewModelV1` (plus an optional runtime overlay and `ViewerHost`).
-
-Hosts provide the `ViewerHost` methods they support; resource IDs are resolved
-into safe previews at that boundary. Import the component CSS separately:
-
-```ts
-import '@lightcone-research/lightcone-brand/theme.css';
+```tsx
+import { Inventory } from '@lightcone-research/astra-ui/views';
 import '@lightcone-research/astra-ui/styles.css';
+
+<div className="astra-ui">
+  <Inventory document={bundle.document} renderArtifact={renderArtifact} />
+</div>
 ```
 
-Wrap surfaces in an `.astra-ui` element or use `AstraViewerProvider` inside
-one. The shared CSS is scoped and follows host semantic variables.
+Entry points: `./primitives` (generic UI), `./components` (one record or
+paper at a time: dialogs and detail bodies), `./blocks` (sections of the
+inventory page), `./views` (full surfaces), `./model` (pure derivations), plus
+every file individually (`./components/output-dialog`, `./primitives/button`,
+...). Stylesheets: `primitives.css` ⊂ `components.css` ⊂ `blocks.css` ⊂
+`views.css` (= `styles.css`), or one sheet per component under `styles/`.
+
+The package owns presentation only. The host resolves ASTRA with the SDK and
+owns files, artifact bytes and URLs, cache invalidation, paper fetching, and
+navigation; `renderArtifact`, `renderPaper`, `renderText`, and `onFetchPaper`
+are the extension points.
+
+Theming is a set of `--astra-*` overrides on `.astra-ui`; every token and its
+defaults are listed in [TOKENS.md](./TOKENS.md). See the
+[repository README](https://github.com/LightconeResearch/astra-ui#readme) for
+the full integration guide and [CHANGELOG.md](./CHANGELOG.md) for migration
+notes.

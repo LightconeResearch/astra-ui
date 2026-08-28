@@ -1,0 +1,116 @@
+/* button — emitted by src/primitives/button.tsx */
+@layer astra.tokens, astra.base, astra.components, astra.views;
+@layer astra.components {
+  :where(.astra-ui) .astra-button {
+    min-height: 2rem;
+    padding: 0.35rem 0.65rem;
+    border: 1px solid var(--astra-color-border-strong);
+    background: var(--astra-color-surface-raised);
+    color: var(--astra-color-text-muted);
+    cursor: pointer;
+    font: 600 0.75rem/1.2 var(--astra-font-ui);
+  }
+
+  :where(.astra-ui) .astra-button[data-size="small"] {
+    min-height: 1.9rem;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.7rem;
+  }
+
+  :where(.astra-ui) .astra-button[data-variant="primary"] {
+    border-color: var(--astra-color-accent);
+    background: var(--astra-color-accent);
+    color: var(--astra-color-accent-contrast);
+  }
+
+  :where(.astra-ui) .astra-button[data-variant="quiet"] {
+    border-color: transparent;
+    background: transparent;
+  }
+
+  :where(.astra-ui) .astra-button[data-tone="accent"] {
+    color: var(--astra-color-accent);
+  }
+
+  :where(.astra-ui) .astra-button:hover:not(:disabled) {
+    border-color: var(--astra-kind, var(--astra-color-accent));
+    background: var(--astra-color-surface-muted);
+    color: var(--astra-color-text);
+  }
+
+  :where(.astra-ui) .astra-button:disabled {
+    cursor: default;
+    opacity: 0.55;
+  }
+
+  :where(.astra-ui) .astra-surface-header .astra-icon-button {
+    display: grid;
+    width: 1.9rem;
+    height: 1.9rem;
+    min-height: 1.9rem;
+    flex: 0 0 auto;
+    place-items: center;
+    padding: 0;
+    font: 1.1rem/1 var(--astra-font-ui);
+  }
+
+  :where(.astra-ui) .astra-button {
+    min-height: 2rem;
+    border-color: var(--astra-color-border-strong);
+    border-radius: var(--astra-radius-control);
+    background: transparent;
+    color: var(--astra-color-text);
+    font: 600 0.8125rem/1.2 var(--astra-font-ui);
+  }
+
+  :where(.astra-ui) .astra-button:hover:not(:disabled) {
+    border-color: var(--astra-kind, var(--astra-color-kind-decision));
+    background: var(--astra-color-surface-raised);
+  }
+
+  :where(.astra-ui) :is( .astra-dialog__action, .astra-dialog__actions > .astra-icon-button, .astra-dialog__back, .astra-output-detail__fullscreen-header button ) {
+    display: inline-flex;
+    box-sizing: border-box;
+    min-height: 2rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    cursor: pointer;
+    border: 1px solid var(--astra-color-border);
+    border-radius: 0.375rem;
+    background: var(--astra-color-canvas);
+    color: var(--astra-color-link);
+    padding: 0.375rem 0.625rem;
+    font: 650 0.8125rem/1 var(--astra-font-ui);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  :where(.astra-ui) .astra-dialog__actions > .astra-icon-button {
+    width: 2rem;
+    height: 2rem;
+    min-height: 2rem;
+    flex: 0 0 auto;
+    padding: 0;
+    color: var(--astra-color-text-subtle);
+    font-size: 1.0625rem;
+  }
+
+  :where(.astra-ui) :is( .astra-dialog__action, .astra-dialog__actions > .astra-icon-button, .astra-dialog__back, .astra-output-detail__fullscreen-header button ):hover {
+    border-color: var(--astra-color-border-strong);
+    background: var(--astra-color-canvas);
+    color: var(--astra-color-text);
+  }
+
+  :where(.astra-ui) .astra-dialog__actions > .astra-icon-button,
+  :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-dialog__actions > .astra-icon-button {
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid var(--astra-color-border);
+    border-radius: 0.375rem;
+    background: var(--astra-color-canvas);
+    color: var(--astra-color-text-subtle);
+    font-size: 1.0625rem;
+  }
+
+}

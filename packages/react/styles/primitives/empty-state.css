@@ -1,0 +1,10 @@
+/* empty-state — emitted by src/primitives/record-list.tsx */
+@layer astra.tokens, astra.base, astra.components, astra.views;
+@layer astra.components {
+  :where(.astra-ui) .astra-empty-state,
+  :where(.astra-ui) .astra-empty-state {
+    margin: 1.5rem 0;
+    color: var(--astra-color-text-subtle);
+  }
+
+}

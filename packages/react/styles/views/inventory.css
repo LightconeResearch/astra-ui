@@ -1,0 +1,186 @@
+/* inventory — emitted by src/views/inventory.tsx + blocks/section.tsx */
+@layer astra.tokens, astra.base, astra.components, astra.views;
+@layer astra.views {
+  @media (max-width: 640px) {
+    :where(.astra-ui) .astra-inventory__section:where([data-section="decisions"]) {
+      grid-template-columns: 1fr;
+    }
+
+    :where(.astra-ui) .astra-inventory__sections {
+      gap: 3rem;
+    }
+
+  }
+  :where(.astra-ui) .astra-inventory__section h2 {
+    scroll-margin-top: 2rem;
+  }
+
+  :where(.astra-ui) .astra-inventory__section:first-child > h2 {
+    margin-top: 0;
+  }
+
+  :where(.astra-ui) .astra-inventory__section:where([data-section="decisions"]) > h2 {
+    margin: 0;
+  }
+
+  :where(.astra-ui) .astra-inventory {
+    color: var(--astra-color-text);
+    font-family: var(--astra-font-ui);
+  }
+
+  :where(.astra-ui) .astra-inventory__sections {
+    gap: 2.75rem;
+  }
+
+  :where(.astra-ui) .astra-inventory {
+    container-type: inline-size;
+    min-height: 0;
+    padding-bottom: 4rem;
+    background: var(--astra-color-canvas);
+    color: var(--astra-color-text);
+    font-family: var(--astra-font-body);
+  }
+
+  :where(.astra-ui) .astra-inventory__sections {
+    gap: 2.75rem;
+  }
+
+  :where(.astra-ui) .astra-inventory__section {
+    min-height: 0;
+  }
+
+  :where(.astra-ui) .astra-inventory__section > h2 {
+    margin-bottom: 0.65rem;
+    margin: 0 0 1rem;
+    padding: 0 0 0.5rem;
+    border-block-end: 1px solid var(--astra-color-border-strong);
+    color: var(--astra-color-text);
+    font-family: var(--astra-font-heading);
+    font-size: 1.1875rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  :where(.astra-ui) .astra-inventory {
+    padding: 0;
+  }
+
+  :where(.astra-ui) .astra-inventory__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 11.25rem;
+    gap: 3rem;
+    align-items: start;
+  }
+
+  :where(.astra-ui) .astra-inventory__sections {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 2.75rem;
+  }
+
+  /* Sections are block-flow, and the per-kind blocks inside them keep their
+     own boxes (no display: contents): each is the query container for its
+     own @container rules, and a boxless element cannot be one. */
+  :where(.astra-ui) .astra-inventory__section {
+    display: block;
+    min-width: 0;
+  }
+
+  :where(.astra-ui) .astra-inventory__heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1.125rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--astra-color-border-strong);
+  }
+
+  :where(.astra-ui) .astra-inventory__heading h2,
+  :where(.astra-ui) .astra-inventory__section .astra-inventory__heading h2 {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    color: var(--astra-color-text);
+    background: transparent;
+    font-family: var(--astra-font-heading);
+    font-size: 1.1875rem;
+    font-weight: 700;
+    line-height: 1.2;
+    scroll-margin-top: 4.5rem;
+  }
+
+  :where(.astra-ui) .astra-inventory__heading > span {
+    flex: 0 0 auto;
+    color: var(--astra-color-text-subtle);
+    font-family: var(--astra-font-ui);
+    font-size: 0.78125rem;
+  }
+
+  :where(.astra-ui) .astra-inventory-outline {
+    position: sticky;
+    top: 4.5rem;
+    min-width: 0;
+  }
+
+  :where(.astra-ui) .astra-inventory-outline h3 {
+    margin: 0 0 0.5rem;
+    color: var(--astra-color-text-subtle);
+    font-family: var(--astra-font-ui);
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  :where(.astra-ui) .astra-inventory-outline nav {
+    display: flex;
+    flex-direction: column;
+  }
+
+  :where(.astra-ui) .astra-inventory-outline a {
+    display: grid;
+    grid-template-columns: 0.75rem minmax(0, 1fr) auto;
+    gap: 0.5625rem;
+    align-items: baseline;
+    padding: 0.4375rem 0;
+    border-bottom: 1px solid var(--astra-color-border-subtle);
+    color: var(--astra-color-text-subtle);
+    font-family: var(--astra-font-ui);
+    font-size: 0.8125rem;
+    text-decoration: none;
+  }
+
+  :where(.astra-ui) .astra-inventory-outline a:last-child {
+    border-bottom: 0;
+  }
+
+  :where(.astra-ui) .astra-inventory-outline__glyph {
+    color: var(--astra-kind, var(--astra-color-text-subtle));
+    font-size: 0.625rem;
+    text-align: center;
+  }
+
+  :where(.astra-ui) .astra-inventory-outline a:hover,
+  :where(.astra-ui) .astra-inventory-outline a:focus-visible {
+    color: var(--astra-color-text);
+  }
+
+  @container (max-width: 62rem) {
+    :where(.astra-ui) .astra-inventory__layout {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    :where(.astra-ui) .astra-inventory-outline {
+      display: none;
+    }
+
+  }
+  @container (max-width: 34rem) {
+    :where(.astra-ui) .astra-inventory__heading {
+      align-items: flex-start;
+    }
+
+  }
+}

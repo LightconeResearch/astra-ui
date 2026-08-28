@@ -1,28 +1,50 @@
 {
   "name": "astra-ui-workspace",
-  "version": "0.1.0",
   "private": true,
-  "description": "Host-neutral view models and React components for inspecting ASTRA analyses.",
+  "description": "Composable React components for resolved ASTRA analyses.",
   "license": "BSD-3-Clause",
   "type": "module",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "workspaces": [
     "packages/*"
   ],
   "scripts": {
-    "build": "tsc -b packages/react",
-    "typecheck": "tsc -b packages/react --pretty false --force",
-    "test": "npm run build && node --test tests/*.test.mjs",
-    "test:packages": "node --test tests/package-contract.test.mjs"
+    "clean": "npm run clean --workspace @lightcone-research/astra-ui",
+    "build": "npm run build --workspace @lightcone-research/astra-ui",
+    "typecheck": "npm run build && npm run typecheck --workspace @lightcone-research/astra-ui && tsc -p packages/playground/tsconfig.json && tsc -p tsconfig.tests.json",
+    "typecheck:react19": "tsc -p tsconfig.react19.json",
+    "lint": "eslint .",
+    "test": "npm run build && node --test tests/*.test.mjs && vitest run",
+    "test:packages": "npm run build && node --test tests/package-contract.test.mjs",
+    "test:dom": "vitest run",
+    "check:consumers": "node scripts/check-consumers.mjs",
+    "playground": "npm run dev --workspace astra-ui-playground",
+    "screenshots": "npm run build && node packages/playground/scripts/screenshot.mjs packages/playground/screenshots/current",
+    "screenshots:compare": "node packages/playground/scripts/compare.mjs packages/playground/screenshots/baseline packages/playground/screenshots/current",
+    "check": "npm run lint && npm run typecheck && npm run typecheck:react19 && node --test tests/*.test.mjs && vitest run"
   },
   "devDependencies": {
-    "@astra-spec/sdk": "file:../astra-typescript",
-    "@types/react": "^18.3.0",
+    "@astra-spec/sdk": "^0.1.1",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.6",
+    "@types/react": "^18.3.31",
     "@types/react-dom": "^18.3.0",
+    "eslint": "^9.39.5",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "happy-dom": "^20.11.8",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "typescript": "^5.7.0"
+    "typescript": "^5.7.0",
+    "typescript-eslint": "^8.68.0",
+    "vitest": "^4.1.11",
+    "@types/react-19": "npm:@types/react@^19",
+    "globals": "^16.0.0"
+  },
+  "allowScripts": {
+    "esbuild@0.25.12": true
   }
 }

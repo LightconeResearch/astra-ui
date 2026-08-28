@@ -1,0 +1,72 @@
+/* records — emitted by src/blocks/section.tsx */
+@layer astra.tokens, astra.base, astra.components, astra.views;
+@layer astra.views {
+  @media (max-width: 640px) {
+    :where(.astra-ui) .astra-inventory-records:where([data-kind="decision"]) > .astra-inventory-filter {
+      justify-content: flex-start;
+    }
+
+    :where(.astra-ui) .astra-inventory-records:where([data-kind="input"]) .astra-record-list__body > button {
+      grid-template-columns: minmax(0, 1fr) minmax(5rem, 0.75fr) 1rem;
+    }
+
+  }
+  :where(.astra-ui) .astra-inventory-records:where([data-kind="finding"]) .astra-record-list__body > button {
+    padding-block: 0.78rem;
+  }
+
+  /* Space between the tag filter and the list. Only after a filter: the block
+     is a query container (an independent formatting context), so a leading
+     margin would no longer collapse into the section heading's. */
+  :where(.astra-ui) .astra-inventory-records:where([data-kind="decision"]) > .astra-inventory-filter + .astra-record-list {
+    margin-top: 0.75rem;
+  }
+
+  @container (max-width: 58rem) {
+    :where(.astra-ui) .astra-inventory-records:where([data-kind="decision"]) .astra-record-list__body > button {
+      grid-template-columns: minmax(0, 1.35fr) minmax(7rem, 0.9fr) 1.25rem;
+    }
+
+    :where(.astra-ui) .astra-inventory-records:where([data-kind="decision"]) .astra-record-list__secondary {
+      display: none;
+    }
+
+  }
+  @container (max-width: 38rem) {
+    :where(.astra-ui) .astra-inventory-records:where([data-kind="decision"]) .astra-record-list__body > button,
+    :where(.astra-ui) .astra-inventory-records:where([data-kind="input"]) .astra-record-list__body > button {
+      grid-template-columns: minmax(0, 1fr) 1.25rem;
+      row-gap: 0.25rem;
+    }
+
+  }
+  /* Every per-kind list is its own query container, so the queries below and
+     the tag filter's (decisions-list.css) resolve against the block's width
+     inside or outside <Inventory>. */
+  :where(.astra-ui) .astra-inventory-records {
+    container-type: inline-size;
+    padding-top: 0;
+    padding: 0;
+  }
+
+  @container (max-width: 48rem) {
+    :where(.astra-ui) .astra-inventory-records:where([data-kind="decision"]) .astra-record-list__body > button,
+    :where(.astra-ui) .astra-inventory-records:where([data-kind="input"]) .astra-record-list__body > button {
+      grid-template-columns: minmax(0, 1.3fr) minmax(8rem, 1fr) 1.25rem;
+    }
+
+    :where(.astra-ui) .astra-inventory-records:where([data-kind="decision"]) .astra-record-list__secondary,
+    :where(.astra-ui) .astra-inventory-records:where([data-kind="input"]) .astra-record-list__secondary {
+      display: none;
+    }
+
+  }
+  @container (max-width: 34rem) {
+    :where(.astra-ui) .astra-inventory-records:where([data-kind="decision"]) .astra-record-list__body > button,
+    :where(.astra-ui) .astra-inventory-records:where([data-kind="input"]) .astra-record-list__body > button {
+      grid-template-columns: minmax(0, 1fr) 1.25rem;
+      row-gap: 0.25rem;
+    }
+
+  }
+}

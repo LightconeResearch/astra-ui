@@ -1,683 +1,329 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
+import { DetailDialog, DialogProvider, Prose } from '../packages/react/dist/primitives/index.js';
 import {
   ArtifactPreview,
-  createInventoryModel,
-  DecisionDialog,
-  FindingDialog,
-  InputDialog,
-  InsightDetailDialog,
-  InventoryDetailDialog,
-  InventoryDetailPresentation,
-  InventoryExplorer,
-  InventoryProse,
-  InventoryRelationList,
-  OverviewInventory,
   OutputDetail,
-  OutputDialog,
+  PaperDetail,
   PaperDialog,
-} from '../packages/react/dist/index.js';
-import { fixtureModel } from './model.test.mjs';
+  RecordDialog,
+  recordEntry,
+} from '../packages/react/dist/components/index.js';
+import { indexAnalysis } from '@astra-spec/sdk';
+import { collectInventoryPapers } from '../packages/react/dist/model/index.js';
+import { AnalysisTree, OutputCard } from '../packages/react/dist/blocks/index.js';
+import { Inventory } from '../packages/react/dist/views/index.js';
+import { fixtureDocument } from './fixture.mjs';
 
-test('inventory renders the canonical model without a host dependency', () => {
-  const model = fixtureModel();
-  const html = renderToStaticMarkup(
-    React.createElement('div', { className: 'astra-ui' },
-      React.createElement(InventoryExplorer, {
-        model,
-        scopeId: 'root',
-      }),
-    ),
+function withinUi(component) {
+  return renderToStaticMarkup(
+    React.createElement('div', { className: 'astra-ui' }, component),
   );
+}
 
-  assert.match(html, /heading-text">Outputs</);
-  assert.match(html, /heading-text">Decisions</);
-  assert.match(html, /heading-text">Inputs</);
-  assert.match(html, /heading-text">Findings</);
-  assert.match(html, /heading-text">Prior Insights</);
-  assert.match(html, /heading-text">Papers</);
-  assert.ok(html.indexOf('heading-text">Prior Insights') < html.indexOf('heading-text">Papers'));
-  assert.match(html, /inventory-page-layout/);
-  assert.match(html, /On this page/);
-  assert.match(html, /inventory-page-outline/);
-  assert.match(html, /inventory-paper-list/);
-  assert.match(html, /headline/);
-  assert.match(html, /Fiducial/);
-  assert.match(html, /10\.0000\/example/);
-  assert.doesNotMatch(html, /jupyter|myst/i);
-});
-
-test('Claude-style inventory shells retain kind-specific record information', () => {
-  const model = fixtureModel();
-  const html = renderToStaticMarkup(
-    React.createElement('div', { className: 'astra-ui' },
-      React.createElement(InventoryExplorer, {
-        model,
-        scopeId: 'root',
-      }),
-    ),
-  );
-
-  // Output cards keep the real artifact preview and open affordance.
-  assert.match(html, /inventory-output-card__preview/);
-  assert.match(html, /Open ↗/);
-  assert.match(html, /headline/);
-
-  // Compact rows remain record-aware rather than becoming generic mock cards.
-  assert.match(html, /inventory-records--decisions/);
-  assert.match(html, /Fiducial/);
-  assert.match(html, /inventory-records--inputs/);
-  assert.match(html, /data-kind="input"/);
-
-  // Paper cards retain citation identity and relationship counts.
-  assert.match(html, /inventory-paper-list__copy/);
-  assert.match(html, /10\.0000\/example/);
-  assert.match(html, /1 insight/);
-  assert.match(html, /1 decision/);
-});
-
-test('inventory prose typesets inline and display LaTeX with KaTeX', () => {
-  const html = renderToStaticMarkup(
-    React.createElement('div', { className: 'astra-ui' },
-      React.createElement(InventoryProse, {
-        text: 'Peak at $s^2\\,\\Delta\\xi_\\ell(s)$ with `qiso`. $$\\alpha_\\mathrm{iso} = 1$$',
-      }),
-    ),
-  );
-
-  assert.match(html, /inventory-prose__inline-math/);
-  assert.match(html, /inventory-prose__display-math/);
-  assert.match(html, /class="katex"/);
-  assert.match(html, /class="katex-display"/);
-  assert.match(html, /katex-mathml/);
-  assert.match(html, /katex-html/);
-  assert.match(html, /<code>qiso<\/code>/);
-});
-
-test('canonical models preserve the complete rich inventory presentation', () => {
-  const model = fixtureModel({ universeId: 'baseline' });
-  const inventory = createInventoryModel(model);
-  const headline = inventory.recordByPath.get('outputs.headline')?.record;
-  assert.equal(headline?.kind, 'output');
-  assert.deepEqual(headline?.provenance.inputs, [
-    {
-      reference: 'clustering.xi',
-      recordId: 'clustering:output:xi',
-      direct: true,
+test('the composed inventory consumes ResolvedAnalysisDocument directly', () => {
+  const renderedOutputs = [];
+  const html = withinUi(React.createElement(Inventory, {
+    document: fixtureDocument,
+    paperMetadata: {
+      '10.1234/example': { title: 'A useful paper' },
     },
-    {
-      reference: 'catalog',
-      recordId: 'root:input:catalog',
-      label: 'Input catalogue',
-      direct: false,
+    renderArtifact: (output, { compact }) => {
+      renderedOutputs.push([output.canonicalPath, compact]);
+      return React.createElement('span', { 'data-preview': output.canonicalPath }, 'Host preview');
     },
-  ]);
-  assert.deepEqual(
-    headline?.provenance.decisions.map(({ recordId, scopeId }) => [recordId, scopeId]),
-    [
-      ['root:decision:method', undefined],
-      ['clustering:decision:weighting', 'clustering'],
-    ],
-  );
-  assert.equal(
-    inventory.recordByPath.get('clustering.outputs.xi')?.record.relations
-      .find((relation) => relation.kind === 'aliases')?.targetRecordId,
-    'root:output:headline',
-  );
-  const html = renderToStaticMarkup(
-    React.createElement('div', { className: 'astra-ui' },
-      React.createElement(InventoryExplorer, {
-        model,
-        scopeId: 'root',
-      }),
-    ),
-  );
+  }));
 
-  assert.match(html, /heading-text">Outputs</);
-  assert.match(html, /heading-text">Decisions</);
-  assert.match(html, /heading-text">Inputs</);
-  assert.match(html, /heading-text">Findings</);
-  assert.match(html, /heading-text">Papers</);
-  assert.match(html, /headline/);
+  for (const label of ['Outputs', 'Decisions', 'Inputs', 'Findings', 'Prior Insights', 'Papers']) {
+    assert.match(html, new RegExp(`<h2 id="[a-z-]+" tabindex="-1"><span>${label}</span></h2>`));
+  }
+  assert.match(html, /Headline result/);
   assert.match(html, /Fiducial/);
-  assert.match(html, /10\.0000\/example/);
+  assert.match(html, /A useful paper/);
+  assert.match(html, /2 evidence items/);
+  assert.match(html, /Host preview/);
+  assert.deepEqual(renderedOutputs, [['outputs.headline', true]]);
+  assert.doesNotMatch(html, /results\//);
+  assert.match(html, /class="astra-inventory"/);
+  assert.doesNotMatch(html, /class="inventory-/);
 });
 
-test('analysis hierarchy preserves the standalone recursive scope selector', () => {
-  const model = fixtureModel();
-  const html = renderToStaticMarkup(
-    React.createElement(OverviewInventory, {
-      model,
-      scopeId: 'root',
-      onSelectScope: () => {},
-    }),
-  );
+test('sections, labels, and anchors are configurable', () => {
+  const html = withinUi(React.createElement(Inventory, {
+    document: fixtureDocument,
+    sections: ['findings', 'outputs'],
+    idPrefix: 'demo-',
+    showOutline: false,
+    labels: { sections: { outputs: 'Results' } },
+  }));
+  assert.match(html, /<h2 id="demo-findings"/);
+  assert.match(html, /<h2 id="demo-outputs" tabindex="-1"><span>Results<\/span>/);
+  assert.doesNotMatch(html, /Decisions/);
+  assert.doesNotMatch(html, /On this page/);
+});
 
+test('the analysis picker follows the SDK recursive analysis tree', () => {
+  const html = withinUi(React.createElement(AnalysisTree, {
+    document: fixtureDocument,
+    analysisPath: 'clustering',
+    onSelectAnalysis: () => {},
+  }));
+
+  assert.match(html, /Project hierarchy/);
   assert.match(html, /DESI demo/);
   assert.match(html, /Clustering/);
-  assert.match(html, /Project hierarchy/);
+  assert.match(html, /aria-current="page"/);
 });
 
-test('artifact previews render host-safe data rather than paths', () => {
-  const html = renderToStaticMarkup(
-    React.createElement(ArtifactPreview, {
-      preview: {
-        kind: 'table',
-        headers: ['tracer', 'alpha'],
-        rows: [['LRG', 1.002]],
-      },
-    }),
-  );
+test('artifact previews render only host-safe values', () => {
+  const output = fixtureDocument.analysis.outputs[0];
+  const html = withinUi(React.createElement(ArtifactPreview, {
+    output,
+    caption: 'Preview supplied by host',
+    preview: {
+      kind: 'table',
+      headers: ['tracer', 'alpha'],
+      rows: [['LRG', 1.002]],
+    },
+  }));
+
   assert.match(html, /tracer/);
   assert.match(html, /1\.002/);
+  assert.match(html, /data-type="table"/);
   assert.doesNotMatch(html, /results\//);
+
+  const inactive = withinUi(React.createElement(ArtifactPreview, {
+    output: fixtureDocument.analysis.outputs[1],
+  }));
+  assert.match(inactive, /not active in the selected universe/);
+
+  const loading = withinUi(React.createElement(ArtifactPreview, {
+    output,
+    preview: { kind: 'loading' },
+  }));
+  assert.match(loading, /aria-busy="true"/);
 });
 
-test('shared detail headers pair record type with title and dismissal', () => {
-  const html = renderToStaticMarkup(
-    React.createElement(InventoryDetailDialog, {
-      kind: 'decision',
-      eyebrow: 'Decision · Root analysis',
-      title: 'Method choice',
-      identifier: 'decisions.method',
-      closeLabel: 'Close decision details',
-      onClose: () => {},
-      children: React.createElement('p', null, 'Decision content'),
-    }),
-  );
+test('authored prose typesets inline code and LaTeX by default, and is host-renderable by slot', () => {
+  const plain = withinUi(React.createElement(Prose, { text: 'Plain **text** stays as written.' }));
+  assert.match(plain, /Plain \*\*text\*\* stays as written\./);
+  assert.doesNotMatch(plain, /katex|<strong>|<code>/);
 
-  assert.match(html, /inventory-detail-dialog__header astra-surface-header|astra-surface-header inventory-detail-dialog__header/);
-  assert.match(html, /data-density="compact"/);
-  assert.match(html, /data-kind="decision"/);
-  assert.match(html, /<dialog/);
-  assert.match(html, /role="dialog"/);
-  assert.match(html, /aria-modal="true"/);
-  assert.match(html, /aria-label="Close decision details"/);
-  assert.match(html, /inventory-detail-dialog__kind">Decision</);
+  const rich = withinUi(React.createElement(Prose, {
+    text: 'Peak at $s^2\\,\\Delta\\xi_\\ell(s)$ with `qiso`. $$\\alpha_\\mathrm{iso} = 1$$',
+  }));
+  assert.match(rich, /astra-prose__inline-math/);
+  assert.match(rich, /astra-prose__display-math/);
+  assert.match(rich, /class="katex"/);
+  assert.match(rich, /class="katex-display"/);
+  assert.match(rich, /katex-mathml/);
+  assert.match(rich, /<code>qiso<\/code>/);
+
+  let seenField;
+  const custom = withinUi(React.createElement(Prose, {
+    text: 'Host prose',
+    field: 'rationale',
+    renderText: (text, { field }) => { seenField = field; return React.createElement('em', null, text); },
+  }));
+  assert.match(custom, /<em>Host prose<\/em>/);
+  assert.equal(seenField, 'rationale');
+});
+
+test('paper content and source focus are delegated to a host renderer', () => {
+  const index = indexAnalysis(fixtureDocument);
+  const paper = collectInventoryPapers(
+    fixtureDocument,
+    index,
+    fixtureDocument.analysis,
+    {
+      '10.1234/example': {
+        title: 'A useful paper',
+        pdfUrl: '/papers/example.pdf',
+      },
+    },
+  )[0];
+  let renderOptions;
+  const html = withinUi(React.createElement(PaperDialog, {
+    record: paper,
+    focusInsight: paper.insights[0],
+    renderPaper: (_paper, options) => {
+      renderOptions = options;
+      return React.createElement('div', { 'data-paper-renderer': true }, 'Host paper renderer');
+    },
+    onClose: () => {},
+  }));
+
+  assert.match(html, /Host paper renderer/);
+  assert.match(html, /Locate/);
+  assert.match(html, /class="astra-dialog__action"/);
+  assert.equal(
+    renderOptions.focusEvidence.evidence.quote.exact,
+    'The fiducial method performs well.',
+  );
+});
+
+test('missing paper content exposes only a host fetch event', () => {
+  const paper = {
+    doi: '10.1234/example',
+    title: 'A useful paper',
+    insights: [],
+    decisions: [],
+  };
+  const html = withinUi(React.createElement(PaperDialog, {
+    record: paper,
+    onFetchPaper: () => {},
+    onClose: () => {},
+  }));
+
+  assert.match(html, /Fetch paper/);
+  assert.doesNotMatch(html, /Loading|Fetching|pdf\.mjs/);
+
+  const fetching = withinUi(React.createElement(PaperDialog, {
+    record: paper,
+    metadata: { status: 'fetching' },
+    onFetchPaper: () => {},
+    onClose: () => {},
+  }));
+  assert.match(fetching, /aria-busy="true"/);
+  assert.match(fetching, /<button type="button" disabled=""/);
+});
+
+test('detail presentation preserves accessible modal and embedded shells', () => {
+  const detail = React.createElement(DetailDialog, {
+    kind: 'decision',
+    kindLabel: 'Decision',
+    title: 'Method choice',
+    closeLabel: 'Close decision details',
+    onClose: () => {},
+    children: React.createElement('p', null, 'Decision content'),
+  });
+  const modal = withinUi(detail);
+  assert.match(modal, /<dialog/);
+  assert.match(modal, /aria-modal="true"/);
+  assert.match(modal, /aria-label="Close decision details"/);
+  assert.match(modal, /class="astra-dialog__panel" data-kind="decision"/);
+
+  const embedded = withinUi(React.createElement(DialogProvider, {
+    mode: 'embedded',
+    children: detail,
+  }));
+  assert.match(embedded, /data-mode="embedded"[^>]*class="astra-dialog"/);
+  assert.doesNotMatch(embedded, /<dialog/);
+});
+
+test('the record dialog derives relations and evidence from the index', () => {
+  const index = indexAnalysis(fixtureDocument);
+  const output = withinUi(React.createElement(RecordDialog, {
+    entry: recordEntry('outputs.headline', '$'),
+    document: fixtureDocument,
+    index,
+    onClose: () => {},
+  }));
+  assert.match(output, /Headline result/);
+  assert.match(output, /Input catalogue/);
+  assert.match(output, /Method choice/);
+
+  const finding = withinUi(React.createElement(RecordDialog, {
+    entry: recordEntry('findings.headline_finding', '$'),
+    document: fixtureDocument,
+    index,
+    onOpenRecord: () => {},
+    onClose: () => {},
+  }));
+  assert.match(finding, /Supporting results/);
+  assert.match(finding, /View supporting result: Headline result/);
+
+  const missing = withinUi(React.createElement(RecordDialog, {
+    entry: recordEntry('outputs.gone', '$'),
+    document: fixtureDocument,
+    index,
+    onClose: () => {},
+    fallback: React.createElement('p', null, 'gone'),
+  }));
+  assert.match(missing, /<dialog[^>]*data-kind="analysis"/);
+  assert.match(missing, /no longer available/);
+  assert.match(missing, /<p>gone<\/p>/);
+});
+
+test('the artifact box frames figures and tables, or whatever the host returns, and nothing otherwise', () => {
+  const index = indexAnalysis(fixtureDocument);
+  const figure = index.recordByPath.get('outputs.headline');
+  const data = { ...figure, id: 'raw', canonicalPath: 'outputs.raw', type: 'data', format: 'npy' };
+  const relations = { inputs: [], decisions: [] };
+  const box = /astra-output-detail__artifact/;
+  assert.match(withinUi(React.createElement(OutputDetail, { record: figure, relations })), box);
+  assert.doesNotMatch(withinUi(React.createElement(OutputDetail, { record: data, relations })), box);
+  assert.doesNotMatch(withinUi(React.createElement(OutputDetail, { record: data, relations, renderArtifact: () => null })), box);
+  const hosted = withinUi(React.createElement(OutputDetail, { record: data, relations, renderArtifact: () => React.createElement('span', null, 'host preview') }));
+  assert.match(hosted, box);
+  assert.match(hosted, /host preview/);
+});
+
+test('a figure whose host renderer opts out falls back to the single-column layout', () => {
+  const index = indexAnalysis(fixtureDocument);
+  const figure = index.recordByPath.get('outputs.headline');
+  const relations = { inputs: [], decisions: [] };
+  assert.match(withinUi(React.createElement(OutputDetail, { record: figure, relations })), /data-layout="reader"/);
+  const optedOut = withinUi(React.createElement(OutputDetail, { record: figure, relations, renderArtifact: () => null }));
+  assert.match(optedOut, /data-layout="single"/);
+  assert.doesNotMatch(optedOut, /astra-output-detail__artifact/);
+  assert.doesNotMatch(optedOut, /astra-output-detail__provenance-slot/);
+});
+
+test('output dialogs list indirect decision dependencies reached through upstream outputs', () => {
+  const index = indexAnalysis(fixtureDocument);
+  const figure = index.recordByPath.get('outputs.headline');
+  const method = index.recordByPath.get('decisions.method');
+  const relations = { inputs: [], decisions: [], indirectDecisions: [{ canonicalPath: method.canonicalPath, record: method, analysis: fixtureDocument.analysis }] };
+  const html = withinUi(React.createElement(OutputDetail, { record: figure, relations }));
+  assert.match(html, /Indirect decision dependencies/);
+  assert.match(html, /Through upstream outputs\./);
   assert.match(html, /Method choice/);
-  assert.doesNotMatch(html, /decisions\.method/);
-  assert.doesNotMatch(html, /Root analysis/);
-  assert.match(html, /Decision content/);
 });
 
-test('embedded record details preserve the in-place record trail without opening a modal', () => {
-  const html = renderToStaticMarkup(
-    React.createElement(InventoryDetailPresentation, {
-      mode: 'embedded',
-      backLabel: 'Back to inventory',
-      backText: 'Inventory',
-      children: React.createElement(InventoryDetailDialog, {
-        kind: 'output',
-        eyebrow: 'Figure · Root analysis',
-        title: 'Headline result',
-        backLabel: 'Back to inventory',
-        onBack: () => {},
-        closeLabel: 'Close output details',
-        onClose: () => {},
-        children: React.createElement('p', null, 'Output content'),
-      }),
-    }),
-  );
-
-  assert.match(html, /inventory-detail-dialog--embedded/);
-  assert.match(html, /inventory-detail-dialog__kind">Figure</);
-  assert.match(html, /inventory-detail-dialog__crumb">Inventory</);
-  assert.match(html, /Headline result/);
-  assert.match(html, /aria-label="Close output details"/);
-  assert.match(html, /inventory-detail-dialog__back/);
-  assert.doesNotMatch(html, /Root analysis/);
-  assert.doesNotMatch(html, /<dialog/);
+test('output cards carry an accessible name instead of their preview cells', () => {
+  const index = indexAnalysis(fixtureDocument);
+  const html = withinUi(React.createElement(OutputCard, { output: index.recordByPath.get('outputs.headline'), onOpen: () => undefined }));
+  assert.match(html, /<button[^>]*aria-label="Open figure: Headline result"/);
 });
 
-test('embedded details span the record and oversized tables scroll internally', () => {
-  const css = readFileSync(
-    new URL('../packages/react/components.css', import.meta.url),
-    'utf8',
-  );
-
-  assert.match(
-    css,
-    /inventory-detail-dialog--embedded \.inventory-record-detail__main[\s\S]*?max-width:\s*none/,
-  );
-  assert.match(
-    css,
-    /inventory-detail-dialog--embedded \.inventory-output-provenance[\s\S]*?max-width:\s*none/,
-  );
-  assert.match(
-    css,
-    /inventory-output-dialog__preview\.is-table > \.inventory-output-table[\s\S]*?overflow:\s*auto/,
-  );
-  assert.match(
-    css,
-    /inventory-output-dialog__preview\.is-table thead[\s\S]*?position:\s*sticky/,
-  );
-  assert.match(
-    css,
-    /inventory-output-dialog__layout--reader[\s\S]*?grid-template-columns:\s*minmax\(0, 1fr\) clamp\(19\.5rem, 27%, 21rem\)/,
-  );
-  assert.match(
-    css,
-    /inventory-detail-dialog--output-reader > section[\s\S]*?width:\s*min\(78rem, 100%\)/,
-  );
-  assert.match(
-    css,
-    /inventory-output-dialog__preview > img[\s\S]*?width:\s*100%[\s\S]*?height:\s*100%[\s\S]*?object-fit:\s*contain/,
-  );
-  assert.match(
-    css,
-    /is-expanded \.inventory-artifact-fullscreen__header[\s\S]*?width:\s*100%[\s\S]*?justify-content:\s*space-between/,
-  );
-  assert.match(
-    css,
-    /inventory-output-artifact\.is-expanded[\s\S]*?position:\s*fixed[\s\S]*?inset:\s*0/,
-  );
+test('a paper fetch error is announced', () => {
+  const index = indexAnalysis(fixtureDocument);
+  const paper = collectInventoryPapers(fixtureDocument, index, fixtureDocument.analysis)[0];
+  const html = withinUi(React.createElement(PaperDetail, { record: paper, metadata: { status: 'error', error: 'Not in cache' }, onFetchPaper: () => undefined }));
+  assert.match(html, /<p role="alert">Not in cache<\/p>/);
 });
 
-test('figure and table results use a reader layout with description before recipe in the rail', () => {
-  const inventory = createInventoryModel(fixtureModel());
-  const record = inventory.recordByPath.get('outputs.headline')?.record;
-  const scope = inventory.scopeById.get('root');
-  const css = readFileSync(
-    new URL('../packages/react/components.css', import.meta.url),
-    'utf8',
-  );
-  assert.equal(record?.kind, 'output');
-  assert.ok(scope);
-
-  const html = renderToStaticMarkup(
-    React.createElement(OutputDetail, {
-      record: { ...record, description: 'The primary result description.' },
-      scope,
-      model: inventory,
-    }),
-  );
-
-  assert.match(html, /inventory-output-dialog__layout--reader/);
-  assert.match(html, /inventory-output-artifact/);
-  assert.match(html, /inventory-artifact-fullscreen__header/);
-  assert.doesNotMatch(html, /inventory-output-artifact__fullscreen/);
-  assert.match(html, /<small>Full screen<\/small>/);
-  assert.match(html, /aria-label="Exit full-screen result"/);
-  assert.match(html, /The primary result description/);
-  assert.match(html, /inventory-output-provenance-slot/);
-  assert.doesNotMatch(html, />Direct</);
-  assert.doesNotMatch(html, />Indirect</);
-  assert.doesNotMatch(html, />Upstream output</);
-  assert.doesNotMatch(html, />Input</);
-  assert.ok(
-    html.indexOf('inventory-output-provenance-slot') < html.indexOf('The primary result description'),
-  );
-  assert.ok(
-    html.indexOf('The primary result description') < html.indexOf('Recipe'),
-  );
-  assert.doesNotMatch(html, /No decisions are referenced directly by this output recipe\./);
-  assert.match(
-    css,
-    /inventory-output-provenance > \.inventory-output-description--rail[\s\S]*?border-bottom:\s*0/,
-  );
-
-  const dialogHtml = renderToStaticMarkup(
-    React.createElement(OutputDialog, {
-      record: { ...record, description: 'The primary result description.' },
-      scope,
-      model: inventory,
-      onOpenDependency: () => {},
-      onClose: () => {},
-    }),
-  );
-  assert.match(dialogHtml, /inventory-detail-dialog--reader inventory-detail-dialog--output-reader/);
-  assert.match(dialogHtml, /aria-label="View figure full screen"/);
-  assert.match(dialogHtml, /inventory-detail-dialog__header-action/);
-  assert.doesNotMatch(dialogHtml, /inventory-output-artifact__fullscreen/);
-  assert.doesNotMatch(dialogHtml, /Open ↗/);
-
-  const tableDialogHtml = renderToStaticMarkup(
-    React.createElement(OutputDialog, {
-      record: { ...record, outputType: 'table' },
-      scope,
-      model: inventory,
-      onOpenDependency: () => {},
-      onClose: () => {},
-    }),
-  );
-  assert.match(tableDialogHtml, /inventory-output-artifact is-table/);
-  assert.match(tableDialogHtml, /aria-label="View table full screen"/);
-  assert.match(tableDialogHtml, /inventory-detail-dialog__header-action/);
-  assert.doesNotMatch(tableDialogHtml, /inventory-output-artifact__fullscreen/);
+test('an insight opened from another analysis still offers its source paper', () => {
+  const index = indexAnalysis(fixtureDocument);
+  const clustering = fixtureDocument.analysis.analyses[0];
+  const papersOfClustering = collectInventoryPapers(fixtureDocument, index, clustering);
+  assert.equal(papersOfClustering.some(({ doi }) => doi === '10.1234/example'), false, 'the viewed analysis does not list the paper');
+  const html = withinUi(React.createElement(RecordDialog, {
+    entry: recordEntry('prior_insights.published_method', '$'),
+    document: fixtureDocument,
+    index,
+    papers: papersOfClustering,
+    onOpenPaper: () => undefined,
+    onClose: () => undefined,
+  }));
+  assert.match(html, /Locate passage in paper/);
+  assert.match(html, /<button type="button">https:\/\/doi\.org\/10\.1234\/EXAMPLE/);
 });
 
-test('non-visual results keep details in one main column without a large preview', () => {
-  const css = readFileSync(
-    new URL('../packages/react/components.css', import.meta.url),
-    'utf8',
-  );
-  const inventory = createInventoryModel(fixtureModel());
-  const record = inventory.recordByPath.get('outputs.headline')?.record;
-  const scope = inventory.scopeById.get('root');
-  assert.equal(record?.kind, 'output');
-  assert.ok(scope);
-
-  const html = renderToStaticMarkup(
-    React.createElement(OutputDetail, {
-      record: {
-        ...record,
-        outputType: 'metric',
-        metric: { value: 1.002, uncertainty: 0.008, unit: 'ratio' },
-        description: 'A compact scalar result.',
-      },
-      scope,
-      model: inventory,
-    }),
-  );
-
-  assert.match(html, /inventory-output-dialog__layout--single/);
-  assert.match(html, /inventory-output-dialog__inline-result/);
-  assert.match(html, /A compact scalar result/);
-  assert.match(html, /inventory-output-provenance is-inline/);
-  assert.doesNotMatch(html, /inventory-output-dialog__preview/);
-  assert.doesNotMatch(html, /inventory-output-provenance-slot/);
-  assert.doesNotMatch(html, /View result full screen/);
-  assert.match(
-    css,
-    /inventory-output-dialog__layout--single \.inventory-output-provenance[\s\S]*?border:\s*0/,
-  );
-});
-
-test('input dialogs size to their content and scroll long source paths horizontally', () => {
-  const css = readFileSync(
-    new URL('../packages/react/components.css', import.meta.url),
-    'utf8',
-  );
-  const inventory = createInventoryModel(fixtureModel());
-  const record = inventory.recordByPath.get('inputs.catalog')?.record;
-  const scope = inventory.scopeById.get('root');
-  assert.equal(record?.kind, 'input');
-  assert.ok(scope);
-
-  const html = renderToStaticMarkup(
-    React.createElement(InputDialog, {
-      record: {
-        ...record,
-        source: '/a/very/long/source/path/that/is/wider/than/the/input/dialog/path/pill/catalog.fits',
-      },
-      scope,
-      onClose: () => {},
-    }),
-  );
-
-  assert.match(html, /inventory-detail-dialog--input/);
-  assert.match(html, /inventory-record-detail__prose--section-heading/);
-  assert.match(html, /<code tabindex="0" title="\/a\/very\/long\/source\/path/);
-  assert.match(
-    css,
-    /inventory-detail-dialog--input,[\s\S]*?inventory-detail-dialog--finding[\s\S]*?\) > section[\s\S]*?height:\s*auto/,
-  );
-  assert.match(
-    css,
-    /inventory-detail-dialog--input \.inventory-input-source code[\s\S]*?max-width:\s*100%[\s\S]*?overflow-x:\s*auto[\s\S]*?overflow-y:\s*hidden[\s\S]*?white-space:\s*nowrap/,
-  );
-});
-
-test('finding dialogs show notes without a leading section gap and list supporting results', () => {
-  const css = readFileSync(
-    new URL('../packages/react/components.css', import.meta.url),
-    'utf8',
-  );
-  const inventory = createInventoryModel(fixtureModel());
-  const scope = inventory.scopeById.get('root');
-  assert.ok(scope);
-
-  const html = renderToStaticMarkup(
-    React.createElement(FindingDialog, {
-      record: {
-        id: 'root:finding:sharper_peak',
-        localId: 'sharper_peak',
-        canonicalPath: 'findings.sharper_peak',
-        scopeId: 'root',
-        kind: 'finding',
-        relations: [],
-        claim: 'The reconstructed peak is sharper.',
-        notes: 'The result is visible in the primary figure.',
-        evidence: [{
-          artifactRecordId: 'root:output:headline',
-          quote: 'This quote should not be repeated in the supporting-results list.',
-        }],
-      },
-      scope,
-      model: inventory,
-      onOpenEvidence: () => {},
-      onClose: () => {},
-    }),
-  );
-
-  assert.match(html, /inventory-finding-detail__notes/);
-  assert.match(html, /inventory-detail-dialog--finding/);
-  assert.match(html, /Supporting results/);
-  assert.match(html, /inventory-finding-supporting-results/);
-  assert.match(html, /aria-label="View supporting result: headline"/);
-  assert.match(html, /outputs\.headline/);
-  assert.doesNotMatch(html, /inventory-finding-evidence-preview/);
-  assert.doesNotMatch(html, /This quote should not be repeated/);
-  assert.match(
-    css,
-    /inventory-finding-detail__notes:first-child\s*\{[\s\S]*?margin-top:\s*0/,
-  );
-  assert.match(
-    css,
-    /inventory-detail-dialog--finding[\s\S]*?> section[\s\S]*?height:\s*auto/,
-  );
-});
-
-test('long inventory row collections scroll inside their own section', () => {
-  const css = readFileSync(
-    new URL('../packages/react/inventory.css', import.meta.url),
-    'utf8',
-  );
-
-  assert.match(
-    css,
-    /inventory-record-list__body,[\s\S]*?inventory-paper-list[\s\S]*?max-height:\s*min\(28rem, 55vh\)[\s\S]*?overflow-y:\s*auto/,
-  );
-  assert.match(css, /overscroll-behavior:\s*contain/);
-  assert.match(css, /scrollbar-gutter:\s*stable/);
-});
-
-test('paper details use compact insight and informed-decision lists', () => {
-  const html = renderToStaticMarkup(
-    React.createElement(PaperDialog, {
-      paper: {
-        doi: '10.0000/example',
-        title: 'Example paper',
-        pdfUrl: 'https://example.test/paper.pdf',
-        insights: [{
-          id: 'root:prior_insight:a_very_long_prior_insight_identifier_that_must_stay_inside_the_rail',
-          localId: 'a_very_long_prior_insight_identifier_that_must_stay_inside_the_rail',
-          canonicalPath: 'prior_insights.a_very_long_prior_insight_identifier_that_must_stay_inside_the_rail',
-          scopeId: 'root',
-          kind: 'prior_insight',
-          relations: [],
-          claim: 'A compact claim preview.',
-          evidence: [{ doi: '10.0000/example', quote: 'A source passage.' }],
-        }],
-        decisions: [{
-          id: 'root:decision:method',
-          localId: 'method',
-          canonicalPath: 'decisions.method',
-          scopeId: 'root',
-          kind: 'decision',
-          label: 'Method choice',
-          relations: [],
-          options: [],
-        }],
-      },
-      scope: {
-        id: 'root',
-        canonicalPath: 'root',
-        name: 'Example',
-        childIds: [],
-        recordIds: [],
-      },
-      onOpenInsight: () => {},
-      onOpenDecision: () => {},
-      onClose: () => {},
-    }),
-  );
-
-  assert.match(html, /inventory-paper-insights/);
-  assert.match(html, /inventory-paper-insight__claim/);
-  assert.match(html, /Informs decisions/);
-  assert.match(html, /inventory-paper-informs/);
-  assert.doesNotMatch(html, />prior insight</);
-  assert.doesNotMatch(html, /inventory-paper-insight__quote/);
-  assert.doesNotMatch(html, /View paper full screen/);
-  assert.doesNotMatch(html, /Exit full-screen paper/);
-  assert.doesNotMatch(html, /Full screen/);
-});
-
-test('a missing cited paper offers an explicit cache fetch without an arXiv PDF fallback', () => {
-  const paperSource = readFileSync(
-    new URL('../packages/react/src/full-inventory/PapersInventory.tsx', import.meta.url),
-    'utf8',
-  );
-  const citationSource = readFileSync(
-    new URL('../packages/react/src/full-inventory/citationMetadata.ts', import.meta.url),
-    'utf8',
-  );
-  const html = renderToStaticMarkup(
-    React.createElement(PaperDialog, {
-      paper: {
-        doi: '10.48550/arXiv.2401.12345',
-        title: 'Cached only paper',
-        insights: [],
-        decisions: [],
-      },
-      scope: {
-        id: 'root',
-        canonicalPath: 'root',
-        name: 'Example',
-        childIds: [],
-        recordIds: [],
-      },
-      onFetchPaper: async () => ({
-        title: 'Cached only paper',
-        pdfUrl: '/astra/papers/10.48550%2FarXiv.2401.12345/pdf',
-      }),
-      onOpenInsight: () => {},
-      onOpenDecision: () => {},
-      onClose: () => {},
-    }),
-  );
-
-  assert.match(html, />Fetch paper</);
-  assert.match(html, /not in your ASTRA paper cache/);
-  assert.doesNotMatch(`${paperSource}\n${citationSource}`, /arxiv\.org\/pdf|directCitationPdfUrl/);
-});
-
-test('decision rationale and input description use section-heading typography', () => {
-  const inventory = createInventoryModel(fixtureModel());
-  const scope = inventory.scopeById.get('root');
-  const decision = inventory.recordByPath.get('decisions.method')?.record;
-  assert.ok(scope);
-  assert.equal(decision?.kind, 'decision');
-
-  const html = renderToStaticMarkup(
-    React.createElement(DecisionDialog, {
-      record: { ...decision, rationale: 'The rationale text.' },
-      scope,
-      model: inventory,
-      onOpenInsight: () => {},
-      onClose: () => {},
-    }),
-  );
-  const css = readFileSync(
-    new URL('../packages/react/components.css', import.meta.url),
-    'utf8',
-  );
-
-  assert.match(html, /inventory-record-detail__prose--section-heading/);
-  assert.match(html, />Rationale</);
-  assert.match(html, />Options</);
-  assert.match(
-    css,
-    /inventory-record-detail__prose\.inventory-record-detail__prose--section-heading > span[\s\S]*?font:\s*700 0\.875rem\/1\.2/,
-  );
-});
-
-test('paper viewer gives the document most of the available width', () => {
-  const css = readFileSync(
-    new URL('../packages/react/components.css', import.meta.url),
-    'utf8',
-  );
-
-  assert.match(
-    css,
-    /inventory-paper-dialog__layout[\s\S]*?grid-template-columns:\s*minmax\(0, 1fr\) clamp\(17\.5rem, 27%, 20rem\)/,
-  );
-  assert.doesNotMatch(css, /minmax\(23\.75rem, 0\.9fr\)/);
-  assert.match(
-    css,
-    /inventory-detail-dialog--embedded \.inventory-paper-dialog__rail[\s\S]*?padding:\s*1\.125rem 1rem 1\.5rem/,
-  );
-});
-
-test('relationship lists share compact typed rows instead of pill boxes', () => {
-  const html = renderToStaticMarkup(
-    React.createElement(InventoryRelationList, {
-      title: 'Dependencies',
-      items: [{
-        key: 'method',
-        label: 'Method choice',
-        kind: 'decision',
-        detail: 'Direct',
-        onOpen: () => {},
-      }],
-      empty: 'No dependencies.',
-    }),
-  );
-
-  assert.match(html, /inventory-relation-item__glyph/);
-  assert.match(html, /data-kind="decision"/);
-  assert.match(html, />◇</);
-  assert.match(html, /Method choice/);
-  assert.match(html, /Direct/);
-  assert.match(html, /inventory-relation-item__label/);
-  assert.doesNotMatch(html, /<strong>Method choice<\/strong>/);
-});
-
-test('insight details use the same compact informed-decision relationship', () => {
-  const model = createInventoryModel(fixtureModel());
-  const scope = model.model.scopes[0];
-  const insight = model.recordById.get('root:prior_insight:published_method');
-  assert.ok(insight);
-  assert.equal(insight.kind, 'prior_insight');
-
-  const html = renderToStaticMarkup(
-    React.createElement(InsightDetailDialog, {
-      insight,
-      model,
-      scope,
-      onOpenDecision: () => {},
-      onClose: () => {},
-    }),
-  );
-
-  assert.match(html, /Informs decisions/);
-  assert.match(html, /data-kind="decision"/);
-  assert.doesNotMatch(html, /decisions\.method/);
-
-  const css = readFileSync(
-    new URL('../packages/react/components.css', import.meta.url),
-    'utf8',
-  );
-  assert.match(
-    css,
-    /inventory-relation-item__label\s*\{[\s\S]*?font:\s*400 0\.8125rem\/1\.25/,
-  );
-  assert.match(
-    css,
-    /inventory-insight-trigger__claim\s*\{[\s\S]*?font:\s*400 0\.8125rem\/1\.35/,
-  );
+test('table previews say whether their total is exact or unknown, and stay quiet when compact', () => {
+  const index = indexAnalysis(fixtureDocument);
+  const output = index.recordByPath.get('outputs.headline');
+  const rows = [['1', '2'], ['3', '4']];
+  const exact = withinUi(React.createElement(ArtifactPreview, { output, preview: { kind: 'table', headers: ['a', 'b'], rows, totalRows: 5 } }));
+  assert.match(exact, /Showing 2 of 5 rows and 2 of 2 columns\./);
+  const unknown = withinUi(React.createElement(ArtifactPreview, { output, preview: { kind: 'table', headers: ['a', 'b'], rows, truncated: true } }));
+  assert.match(unknown, /Showing the first 2 rows \(total unknown\) and 2 of 2 columns\./);
+  assert.doesNotMatch(unknown, /2 of 2 rows/);
+  const complete = withinUi(React.createElement(ArtifactPreview, { output, preview: { kind: 'table', headers: ['a', 'b'], rows } }));
+  assert.doesNotMatch(complete, /Showing/);
+  const compact = withinUi(React.createElement(ArtifactPreview, { output, compact: true, preview: { kind: 'table', headers: ['a', 'b'], rows, truncated: true } }));
+  assert.doesNotMatch(compact, /Showing/);
 });

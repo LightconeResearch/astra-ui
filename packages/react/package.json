@@ -1,66 +1,127 @@
 {
   "name": "@lightcone-research/astra-ui",
-  "version": "0.1.0",
-  "description": "Host-neutral React surfaces for inspecting ASTRA project view models.",
+  "version": "0.3.0",
+  "description": "Composable, themable React components for resolved ASTRA analyses.",
   "license": "BSD-3-Clause",
+  "homepage": "https://github.com/LightconeResearch/astra-ui#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LightconeResearch/astra-ui.git",
+    "directory": "packages/react"
+  },
+  "bugs": {
+    "url": "https://github.com/LightconeResearch/astra-ui/issues"
+  },
+  "keywords": [
+    "astra",
+    "react",
+    "components",
+    "design-system",
+    "reproducible-research"
+  ],
   "type": "module",
   "sideEffects": [
-    "./styles.css",
-    "./components.css",
-    "./views.css",
-    "./inventory.css",
-    "./ui.css"
+    "*.css"
   ],
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "style": "./styles.css",
   "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "default": "./dist/index.js"
+    "./primitives": {
+      "types": "./dist/primitives/index.d.ts",
+      "import": "./dist/primitives/index.js",
+      "default": "./dist/primitives/index.js"
     },
-    "./core": {
-      "types": "./dist/core.d.ts",
-      "import": "./dist/core.js",
-      "default": "./dist/core.js"
+    "./primitives/*": {
+      "types": "./dist/primitives/*.d.ts",
+      "import": "./dist/primitives/*.js",
+      "default": "./dist/primitives/*.js"
     },
     "./components": {
-      "types": "./dist/components.d.ts",
-      "import": "./dist/components.js",
-      "default": "./dist/components.js"
+      "types": "./dist/components/index.d.ts",
+      "import": "./dist/components/index.js",
+      "default": "./dist/components/index.js"
+    },
+    "./components/*": {
+      "types": "./dist/components/*.d.ts",
+      "import": "./dist/components/*.js",
+      "default": "./dist/components/*.js"
+    },
+    "./blocks": {
+      "types": "./dist/blocks/index.d.ts",
+      "import": "./dist/blocks/index.js",
+      "default": "./dist/blocks/index.js"
+    },
+    "./blocks/*": {
+      "types": "./dist/blocks/*.d.ts",
+      "import": "./dist/blocks/*.js",
+      "default": "./dist/blocks/*.js"
     },
     "./views": {
-      "types": "./dist/views.d.ts",
-      "import": "./dist/views.js",
-      "default": "./dist/views.js"
+      "types": "./dist/views/index.d.ts",
+      "import": "./dist/views/index.js",
+      "default": "./dist/views/index.js"
+    },
+    "./views/*": {
+      "types": "./dist/views/*.d.ts",
+      "import": "./dist/views/*.js",
+      "default": "./dist/views/*.js"
+    },
+    "./model": {
+      "types": "./dist/model/index.d.ts",
+      "import": "./dist/model/index.js",
+      "default": "./dist/model/index.js"
+    },
+    "./model/*": {
+      "types": "./dist/model/*.d.ts",
+      "import": "./dist/model/*.js",
+      "default": "./dist/model/*.js"
     },
     "./styles.css": "./styles.css",
-    "./components.css": "./components.css",
     "./views.css": "./views.css",
-    "./inventory.css": "./inventory.css",
-    "./ui.css": "./ui.css"
+    "./blocks.css": "./blocks.css",
+    "./components.css": "./components.css",
+    "./primitives.css": "./primitives.css",
+    "./styles/*": "./styles/*",
+    "./package.json": "./package.json"
   },
   "files": [
     "dist",
+    "src",
+    "styles",
     "styles.css",
-    "components.css",
     "views.css",
-    "inventory.css",
-    "ui.css",
-    "README.md"
+    "blocks.css",
+    "components.css",
+    "primitives.css",
+    "README.md",
+    "CHANGELOG.md",
+    "TOKENS.md",
+    "LICENSE"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "clean": "node --input-type=module -e \"import { rmSync } from 'node:fs'; rmSync('dist', { recursive: true, force: true })\" && tsc -b tsconfig.json --clean",
+    "build": "npm run clean && tsc -p tsconfig.json",
+    "prepack": "npm run build",
+    "prepublishOnly": "npm run check --prefix ../..",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "peerDependencies": {
-    "@astra-spec/sdk": "^0.0.5",
+    "@astra-spec/sdk": "^0.1.1",
     "react": ">=18 <20",
     "react-dom": ">=18 <20"
   },
-  "engines": {
-    "node": ">=18"
+  "publishConfig": {
+    "access": "public"
   },
+  "engines": {
+    "node": ">=20"
+  },
+  "browserslist": [
+    "chrome >= 111",
+    "edge >= 111",
+    "firefox >= 113",
+    "safari >= 16.2",
+    "ios_saf >= 16.2"
+  ],
   "dependencies": {
     "katex": "^0.16.47"
   }
