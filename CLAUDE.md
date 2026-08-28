@@ -9,7 +9,7 @@ from `@astra-spec/sdk`. npm workspaces: `packages/react` (the published package)
 ## Commands
 
 ```bash
-npm install              # playground links file:../../../lightcone-brand — the sibling must be checked out
+npm install              # installs the published Lightcone brand used by the playground
 npm run check            # the CI gate: lint + typecheck (+react19) + node tests + vitest
 npm run build            # tsc only, packages/react/src -> dist (CSS is hand-written, never built)
 npm test                 # build + node --test tests/*.test.mjs + vitest run

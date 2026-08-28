@@ -90,9 +90,7 @@ Import the layer you need, for example `@astra-spec/ui/components` or
 
 ## Development
 
-Requires Node.js 20 or newer. The branded playground also expects the
-`lightcone-brand` repository to be checked out at `../lightcone-brand` before
-installing dependencies. It loads the brand's explicit
+Requires Node.js 20 or newer. The branded playground loads the published
 `@lightcone-research/brand/adapters/astra.css` integration and sets both the
 ASTRA and Lightcone colour-scheme attributes. The unbranded mode does not load
 that adapter and sets only ASTRA's own scheme attribute.

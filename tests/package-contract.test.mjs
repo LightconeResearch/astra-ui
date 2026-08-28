@@ -240,7 +240,7 @@ test('the playground opts into its external brand explicitly', async () => {
 
   assert.equal(
     manifest.devDependencies['@lightcone-research/brand'],
-    'file:../../../lightcone-brand'
+    '^0.0.1'
   );
   assert.match(provider, /import\('@lightcone-research\/brand\/adapters\/astra\.css'\)/);
   assert.match(
