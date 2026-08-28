@@ -1,6 +1,7 @@
 # `@astra-spec/ui`
 
 [![CI](https://github.com/LightconeResearch/astra-ui/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/LightconeResearch/astra-ui/actions/workflows/ci.yml)
+[![npm version](https://img.shields.io/npm/v/%40astra-spec%2Fui?logo=npm&label=npm)](https://www.npmjs.com/package/@astra-spec/ui)
 
 Composable, themable React components for resolved
 [ASTRA](https://astra-spec.org/) analyses.
