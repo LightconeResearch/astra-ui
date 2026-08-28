@@ -4,13 +4,6 @@
   @media (max-width: 640px) {
     :where(.astra-ui) .astra-inventory-records:where([data-kind="decision"]) > .astra-inventory-filter {
       justify-content: flex-start;
-      grid-column: 1;
-      grid-row: 2;
-    }
-
-    :where(.astra-ui) .astra-inventory-records:where([data-kind="decision"]) > .astra-record-list {
-      grid-column: 1;
-      grid-row: 3;
     }
 
     :where(.astra-ui) .astra-inventory-records:where([data-kind="input"]) .astra-record-list__body > button {
@@ -20,16 +13,6 @@
   }
   :where(.astra-ui) .astra-inventory-records:where([data-kind="finding"]) .astra-record-list__body > button {
     padding-block: 0.78rem;
-  }
-
-  :where(.astra-ui) .astra-inventory-records:where([data-kind="decision"]) > .astra-inventory-filter {
-    grid-column: 1;
-    grid-row: 2;
-  }
-
-  :where(.astra-ui) .astra-inventory-records:where([data-kind="decision"]) > .astra-record-list {
-    grid-column: 1;
-    grid-row: 3;
   }
 
   /* Space between the tag filter and the list. Only after a filter: the block

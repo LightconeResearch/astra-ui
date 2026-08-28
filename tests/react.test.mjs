@@ -261,6 +261,17 @@ test('the artifact box frames figures and tables, or whatever the host returns, 
   assert.match(hosted, /host preview/);
 });
 
+test('a figure whose host renderer opts out falls back to the single-column layout', () => {
+  const index = indexAnalysis(fixtureDocument);
+  const figure = index.recordByPath.get('outputs.headline');
+  const relations = { inputs: [], decisions: [] };
+  assert.match(withinUi(React.createElement(OutputDetail, { record: figure, relations })), /data-layout="reader"/);
+  const optedOut = withinUi(React.createElement(OutputDetail, { record: figure, relations, renderArtifact: () => null }));
+  assert.match(optedOut, /data-layout="single"/);
+  assert.doesNotMatch(optedOut, /astra-output-detail__artifact/);
+  assert.doesNotMatch(optedOut, /astra-output-detail__provenance-slot/);
+});
+
 test('output dialogs list indirect decision dependencies reached through upstream outputs', () => {
   const index = indexAnalysis(fixtureDocument);
   const figure = index.recordByPath.get('outputs.headline');

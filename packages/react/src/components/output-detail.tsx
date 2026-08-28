@@ -57,8 +57,11 @@ export const OutputDetail = forwardRef<HTMLDivElement, OutputDetailProps>(functi
   ...props
 }, ref) {
   const labels = useLabels();
-  const visual = isVisualOutput(output);
   const artifact = artifactNode(output, renderArtifact);
+  // Reader layout (artifact column + details rail) only when there is an
+  // artifact to frame: a host renderer may opt out of a figure or table by
+  // returning null, and the details then take the single column instead.
+  const visual = artifact != null;
   const exitFullScreen = useCallback(() => { onExpandedChange?.(false); }, [onExpandedChange]);
   // Inside a modal dialog, Escape reaches the full-screen layer through the
   // dialog's cancel event (the guard), which fires after any keydown handling

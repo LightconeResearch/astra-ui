@@ -20,14 +20,7 @@
   }
 
   :where(.astra-ui) .astra-inventory__section:where([data-section="decisions"]) > h2 {
-    grid-column: 1;
-    grid-row: 1;
     margin: 0;
-  }
-
-  :where(.astra-ui) .astra-inventory__section:where([data-section="decisions"]) > .astra-empty-state {
-    grid-column: 1 / -1;
-    grid-row: 2;
   }
 
   :where(.astra-ui) .astra-inventory {
@@ -68,18 +61,6 @@
     line-height: 1.2;
   }
 
-  :where(.astra-ui) .astra-inventory__section:where([data-section="decisions"]) {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    column-gap: 0;
-    align-items: stretch;
-  }
-
-  :where(.astra-ui) .astra-inventory__section:where([data-section="decisions"]) > h2 {
-    grid-column: 1;
-    grid-row: 1;
-  }
-
   :where(.astra-ui) .astra-inventory {
     padding: 0;
   }
@@ -101,8 +82,7 @@
   /* Sections are block-flow, and the per-kind blocks inside them keep their
      own boxes (no display: contents): each is the query container for its
      own @container rules, and a boxless element cannot be one. */
-  :where(.astra-ui) .astra-inventory__section,
-  :where(.astra-ui) .astra-inventory__section:where([data-section="decisions"]) {
+  :where(.astra-ui) .astra-inventory__section {
     display: block;
     min-width: 0;
   }

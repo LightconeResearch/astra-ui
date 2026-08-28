@@ -21,7 +21,11 @@ export interface OutputRelations {
   inputs: LinkedRecord[];
   /** Decisions the output declares directly. */
   decisions: LinkedRecord[];
-  /** Decisions reached through upstream outputs (see `indirectDecisionPaths`); absent when not derived. */
+  /**
+   * Decisions reached through upstream outputs (see `indirectDecisionPaths`).
+   * `outputRelations()` always fills it (possibly empty); optional so hosts
+   * assembling relations by hand can leave it out.
+   */
   indirectDecisions?: LinkedRecord[] | undefined;
   alias?: LinkedRecord | undefined;
 }
