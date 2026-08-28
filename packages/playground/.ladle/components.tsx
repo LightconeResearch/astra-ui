@@ -4,13 +4,13 @@ import { useEffect, useState } from 'react';
 import '@astra-spec/ui/styles.css';
 import './playground.css';
 
-// The Lightcone brand is applied over the package defaults unless the
-// playground runs with VITE_ASTRA_THEME=none, which shows the unthemed
-// rendering. theme.css only sets tokens and @font-face rules, so loading it
-// after styles.css is equivalent to the static import it replaces.
+// The playground explicitly opts into the external Lightcone theme unless it
+// runs with VITE_ASTRA_THEME=none, which shows the package's neutral defaults.
+// Loading the unlayered adapter after styles.css is equivalent to importing it
+// before the UI's layered styles.
 const brand = import.meta.env.VITE_ASTRA_THEME !== 'none';
 const brandLoaded: Promise<unknown> = brand
-  ? import('@lightcone-research/lightcone-brand/theme.css')
+  ? import('@lightcone-research/brand/theme.css')
   : Promise.resolve();
 
 export const Provider: GlobalProvider = ({ children, globalState }) => {
@@ -19,14 +19,13 @@ export const Provider: GlobalProvider = ({ children, globalState }) => {
     void brandLoaded.then(() => { setReady(true); });
   }, []);
   if (!ready) return null;
-  // Both attributes: data-astra-color-scheme is the package contract (it
-  // selects tokens.css's dark palette); data-astra-theme is the brand's.
   const scheme = globalState.theme === 'dark' ? 'dark' : 'light';
   return (
     <div
-      className="astra-ui playground-root"
+      className={brand
+        ? 'astra-ui lightcone-brand playground-root'
+        : 'astra-ui playground-root'}
       data-astra-color-scheme={scheme}
-      {...(brand ? { 'data-astra-theme': `brand-${scheme}` } : {})}
     >
       {children}
     </div>

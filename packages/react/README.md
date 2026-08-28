@@ -233,6 +233,11 @@ the same `.astra-ui` scope:
 }
 ```
 
+The bundled light and dark values are independent, brand-neutral fallbacks so
+the package remains usable on its own. An external theme should map its own
+primitives onto these semantic roles under an explicit opt-in scope; it should
+not duplicate component selectors or make `@astra-spec/ui` depend on the brand.
+
 The complete token list and default values are in [TOKENS.md](./TOKENS.md).
 Set `data-astra-color-scheme="light"` or `"dark"` on `.astra-ui`; `"dark"`
 selects the built-in dark palette and `"light"` uses the base palette. Leaving

@@ -216,6 +216,30 @@ test('the colour-scheme contract is explicit and host-neutral', async () => {
   }
 });
 
+test('the playground opts into its external brand explicitly', async () => {
+  const provider = await readFile(
+    new URL('../packages/playground/.ladle/components.tsx', import.meta.url),
+    'utf8'
+  );
+  const manifest = JSON.parse(await readFile(
+    new URL('../packages/playground/package.json', import.meta.url),
+    'utf8'
+  ));
+
+  assert.equal(
+    manifest.devDependencies['@lightcone-research/brand'],
+    'file:../../../lightcone-brand'
+  );
+  assert.match(provider, /import\('@lightcone-research\/brand\/theme\.css'\)/);
+  assert.match(
+    provider,
+    /\? 'astra-ui lightcone-brand playground-root'/,
+    'the branded playground adds the brand scope to its ASTRA root'
+  );
+  assert.match(provider, /data-astra-color-scheme=\{scheme\}/);
+  assert.doesNotMatch(provider, /data-astra-theme/);
+});
+
 test('styles are layered, scoped with :where, and free of theme or host selectors', async () => {
   const files = await filesUnder(stylesDirectory, /\.css$/);
   for (const url of files) {
