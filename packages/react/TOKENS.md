@@ -2,7 +2,7 @@
 
 Generated from `styles/tokens.css` by `scripts/tokens-doc.mjs`; do not edit by hand.
 
-Every token is declared on `:where(.astra-ui)` at zero specificity, so a theme redefines it on `.astra-ui` (or any ancestor) and always wins. Dark values apply under `.astra-ui[data-astra-color-scheme="dark"]`, or automatically when JupyterLab or VS Code report a dark theme.
+Every token is declared on `:where(.astra-ui)` at zero specificity, so a theme redefines it on `.astra-ui` (or any ancestor) and always wins. Built-in dark values apply under `.astra-ui[data-astra-color-scheme="dark"]`, or automatically when JupyterLab or VS Code report a dark theme. An explicit `light` or `dark` scheme takes precedence over host theme classes. Without an explicit scheme, VS Code high-contrast and high-contrast-light themes use the host’s accessibility colour tokens instead of either built-in palette. Native `forced-colors` mode always uses system colours.
 
 ## Surfaces
 
@@ -22,7 +22,7 @@ Every token is declared on `:where(.astra-ui)` at zero specificity, so a theme r
 | --- | --- | --- |
 | `--astra-color-text` | `#221f20` | `#f2eee7` |
 | `--astra-color-text-muted` | `#4e5a70` | `#c4bdb2` |
-| `--astra-color-text-subtle` | `#8b7d70` | `#a39b90` |
+| `--astra-color-text-subtle` | `#796d61` | `#a39b90` |
 | `--astra-color-text-faint` | `#b8b0a8` | `#777168` |
 | `--astra-color-eyebrow` | `#3f7280` | `#86adb7` |
 

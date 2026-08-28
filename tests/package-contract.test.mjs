@@ -26,6 +26,37 @@ async function sourceText(directory = sourceDirectory) {
 
 const stripComments = (css) => css.replace(/\/\*[\s\S]*?\*\//g, '');
 
+function ruleBody(css, marker) {
+  const selector = css.indexOf(marker);
+  assert.notEqual(selector, -1, `missing CSS rule: ${marker}`);
+  const start = css.indexOf('{', selector) + 1;
+  let depth = 1;
+  let end = start;
+  while (depth && end < css.length) {
+    if (css[end] === '{') depth += 1;
+    else if (css[end] === '}') depth -= 1;
+    end += 1;
+  }
+  assert.equal(depth, 0, `unclosed CSS rule: ${marker}`);
+  return css.slice(start, end - 1);
+}
+
+const tokenValues = (body) => new Map([...body.matchAll(/^\s*(--astra-[a-z0-9-]+):\s*([^;]+);/gm)]
+  .map(([, name, value]) => [name, value.trim()]));
+
+function relativeLuminance(hex) {
+  assert.match(hex, /^#[0-9a-f]{6}$/i, `${hex} is not a six-digit sRGB colour`);
+  const [red, green, blue] = hex.slice(1).match(/../g)
+    .map((channel) => Number.parseInt(channel, 16) / 255)
+    .map((channel) => channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4);
+  return 0.2126 * red + 0.7152 * green + 0.0722 * blue;
+}
+
+function contrastRatio(first, second) {
+  const [lighter, darker] = [relativeLuminance(first), relativeLuminance(second)].sort((a, b) => b - a);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
 async function stylesText({ includeTokens = true } = {}) {
   const files = (await filesUnder(stylesDirectory, /\.css$/)).filter((url) => includeTokens || !url.pathname.endsWith('/tokens.css'));
   return stripComments((await Promise.all(files.map((url) => readFile(url, 'utf8')))).join('\n'));
@@ -138,13 +169,67 @@ test('every token the styles consume is declared with a default', async () => {
   const missing = [...consumed].filter((name) => !declared.has(name) && !local.has(name));
   assert.deepEqual(missing, [], 'consumed tokens without a default in tokens.css');
   const consumedByTokens = new Set([...stripComments(tokens).matchAll(/var\((--astra-[a-z0-9-]+)/g)].map(([, name]) => name));
-  assert.deepEqual([...consumedByTokens].filter((name) => !declared.has(name)), [], 'tokens.css references only tokens it declares: no host or brand names');
+  assert.deepEqual([...consumedByTokens].filter((name) => !declared.has(name)), [], 'tokens.css composes only ASTRA role tokens it declares');
   const unused = [...declared].filter((name) => !consumed.has(name) && !consumedByTokens.has(name) && !source.includes(`'${name}'`));
   assert.deepEqual(unused, [], 'tokens declared in tokens.css that nothing consumes');
   assert.doesNotMatch(css, /--astra-(ink|canvas|panel|raised|rule|muted|label|serif)\b/, 'components consume role names only');
 });
 
-test('styles are layered, scoped with :where, and free of theme or host selectors', async () => {
+test('subtle text meets WCAG AA against the built-in canvas and surface', async () => {
+  const css = await readFile(new URL('tokens.css', stylesDirectory), 'utf8');
+  const schemes = [
+    ['light', tokenValues(ruleBody(css, ':where(.astra-ui) {'))],
+    ['dark', tokenValues(ruleBody(css, ':where(.astra-ui[data-astra-color-scheme="dark"])'))],
+  ];
+  for (const [scheme, values] of schemes) {
+    const foreground = values.get('--astra-color-text-subtle');
+    for (const backgroundToken of ['--astra-color-canvas', '--astra-color-surface']) {
+      const background = values.get(backgroundToken);
+      const ratio = contrastRatio(foreground, background);
+      assert.ok(ratio >= 4.5, `${scheme} text-subtle on ${backgroundToken} is ${ratio.toFixed(2)}:1; expected at least 4.5:1`);
+    }
+  }
+});
+
+test('VS Code high contrast and native forced colours have distinct adapters', async () => {
+  const css = stripComments(await readFile(new URL('tokens.css', stylesDirectory), 'utf8'));
+  const darkMarker = ':where(.astra-ui[data-astra-color-scheme="dark"])';
+  const darkSelector = css.slice(css.indexOf(darkMarker), css.indexOf('{', css.indexOf(darkMarker)));
+  assert.match(darkSelector, /\.vscode-dark\b/, 'ordinary VS Code dark themes use the built-in dark palette');
+  assert.doesNotMatch(darkSelector, /\.vscode-high-contrast/, 'high contrast must not be treated as ordinary dark');
+
+  const highContrastMarker = ':where(.vscode-high-contrast, .vscode-high-contrast-light)';
+  const highContrastStart = css.indexOf(highContrastMarker);
+  assert.notEqual(highContrastStart, -1, 'both VS Code high-contrast host classes have an adapter');
+  const highContrastSelector = css.slice(highContrastStart, css.indexOf('{', highContrastStart));
+  assert.match(highContrastSelector, /:not\(\[data-astra-color-scheme="light"\]\)/);
+  assert.match(highContrastSelector, /:not\(\[data-astra-color-scheme="dark"\]\)/);
+  const highContrastBody = ruleBody(css, highContrastMarker);
+  const highContrast = tokenValues(highContrastBody);
+  const light = tokenValues(ruleBody(css, ':where(.astra-ui) {'));
+  const colourTokens = [...light.keys()].filter((name) => name.startsWith('--astra-color-'));
+  assert.deepEqual(colourTokens.filter((name) => !highContrast.has(name)), [], 'high contrast must not leak built-in palette colours');
+  assert.doesNotMatch(css.replace(highContrastBody, ''), /--vscode-/, 'VS Code host tokens stay confined to its high-contrast adapter');
+  assert.deepEqual([...new Set([...highContrastBody.matchAll(/var\((--[a-zA-Z0-9-]+)/g)].map(([, name]) => name))]
+    .filter((name) => !name.startsWith('--vscode-')), [], 'the host adapter references only VS Code host tokens');
+  assert.match(highContrast.get('--astra-color-canvas'), /var\(--vscode-editor-background, Canvas\)/);
+  assert.match(highContrast.get('--astra-color-text-subtle'), /var\(--vscode-editor-foreground, CanvasText\)/);
+  assert.match(highContrast.get('--astra-color-border-strong'), /var\(--vscode-contrastBorder, ButtonBorder\)/);
+  assert.match(highContrast.get('--astra-color-focus'), /--vscode-(?:contrastActiveBorder|focusBorder)/);
+
+  const forcedMarker = '@media (forced-colors: active)';
+  const forcedStart = css.indexOf(forcedMarker);
+  assert.ok(forcedStart > highContrastStart, 'forced colours override host and explicit schemes last');
+  const forcedMedia = ruleBody(css, forcedMarker);
+  const forced = tokenValues(ruleBody(forcedMedia, ':where(.astra-ui) {'));
+  assert.deepEqual(colourTokens.filter((name) => !forced.has(name)), [], 'forced colours must replace every built-in palette colour');
+  assert.equal(forced.get('--astra-color-canvas'), 'Canvas');
+  assert.equal(forced.get('--astra-color-text-subtle'), 'CanvasText');
+  assert.equal(forced.get('--astra-color-accent'), 'Highlight');
+  assert.equal(forced.get('--astra-color-accent-contrast'), 'HighlightText');
+});
+
+test('styles are layered, scoped with :where, and keep host adapters in tokens.css', async () => {
   const files = await filesUnder(stylesDirectory, /\.css$/);
   for (const url of files) {
     const css = stripComments(await readFile(url, 'utf8'));
@@ -153,6 +238,9 @@ test('styles are layered, scoped with :where, and free of theme or host selector
     assert.doesNotMatch(css, /__DEAD__/, `${url.pathname} has no placeholder selectors`);
     assert.doesNotMatch(css, /^\s*\.astra-ui[\s.]/m, `${url.pathname} scopes with :where(.astra-ui)`);
     assert.doesNotMatch(css, /lightcone-brand|data-astra-theme|inventory-detail-dialog|astra-record-detail|astra-result-viewer/, `${url.pathname} has no legacy or theme selectors`);
+    if (!url.pathname.endsWith('/tokens.css')) {
+      assert.doesNotMatch(css, /data-jp-theme-light|\.vscode-|--vscode-|forced-colors/, `${url.pathname} leaves host adaptation to tokens.css`);
+    }
   }
   for (const bundle of ['primitives.css', 'components.css', 'blocks.css', 'views.css', 'styles.css']) {
     const css = await readFile(new URL(bundle, packageRoot), 'utf8');
@@ -168,6 +256,20 @@ test('styles are layered, scoped with :where, and free of theme or host selector
 // Innermost `selector { declarations }` pairs anywhere in a sheet, including
 // inside @layer, @media, and @container blocks.
 const rules = (css) => [...css.matchAll(/([^{};]+)\{([^{}]*)\}/g)].map(([, selector, declarations]) => [selector.trim(), declarations]);
+
+test('the intentionally low-contrast faint token is decorative only', async () => {
+  const consumers = [];
+  for (const url of await filesUnder(stylesDirectory, /\.css$/)) {
+    if (url.pathname.endsWith('/tokens.css')) continue;
+    for (const [selector, declarations] of rules(stripComments(await readFile(url, 'utf8')))) {
+      if (declarations.includes('var(--astra-color-text-faint)')) consumers.push([url.pathname, selector]);
+    }
+  }
+  assert.ok(consumers.length > 0, 'text-faint remains a documented decorative role');
+  for (const [pathname, selector] of consumers) {
+    assert.match(selector, /__arrow\b/, `${pathname}: ${selector} uses text-faint for user-facing text; use text-subtle or split the role`);
+  }
+});
 
 // The body of every `@container ... { ... }` block in a sheet.
 function containerBlocks(css) {
