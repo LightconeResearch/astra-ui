@@ -6,10 +6,23 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 
 const css = readFileSync(new URL('../packages/react/styles/tokens.css', import.meta.url), 'utf8');
-const blocks = [...css.matchAll(/:where\(([^{]+)\)[^{]*\{([\s\S]*?)\n {2}\}/g)];
+const ruleBody = (marker) => {
+  const selector = css.indexOf(marker);
+  if (selector < 0) throw new Error(`Missing token rule: ${marker}`);
+  const start = css.indexOf('{', selector) + 1;
+  let depth = 1;
+  let end = start;
+  while (depth && end < css.length) {
+    if (css[end] === '{') depth += 1;
+    else if (css[end] === '}') depth -= 1;
+    end += 1;
+  }
+  if (depth) throw new Error(`Unclosed token rule: ${marker}`);
+  return css.slice(start, end - 1);
+};
 const parse = (body) => Object.fromEntries([...body.matchAll(/^\s*(--astra-[a-z0-9-]+):\s*([^;]+);/gm)].map(([, name, value]) => [name, value.trim()]));
-const light = parse(blocks[0][2]);
-const dark = parse(blocks.slice(1).map((b) => b[2]).join('\n'));
+const light = parse(ruleBody(':where(.astra-ui) {'));
+const dark = parse(ruleBody(':where(.astra-ui[data-astra-color-scheme="dark"])'));
 const groups = [
   ['Surfaces', /^--astra-color-(canvas|surface|header|artifact)/],
   ['Text', /^--astra-color-(text|eyebrow)/],
@@ -20,7 +33,7 @@ const groups = [
   ['Typography', /^--astra-font/],
   ['Geometry', /^--astra-(radius|shadow|space|z)/],
 ];
-let out = '# astra-ui token contract\n\nGenerated from `styles/tokens.css` by `scripts/tokens-doc.mjs`; do not edit by hand.\n\nEvery token is declared on `:where(.astra-ui)` at zero specificity, so a theme redefines it on `.astra-ui` (or any ancestor) and always wins. Dark values apply under `.astra-ui[data-astra-color-scheme="dark"]`, or automatically when JupyterLab or VS Code report a dark theme.\n\n';
+let out = '# astra-ui token contract\n\nGenerated from `styles/tokens.css` by `scripts/tokens-doc.mjs`; do not edit by hand.\n\nEvery token is declared on `:where(.astra-ui)` at zero specificity in the `astra.tokens` layer. Override tokens on the `.astra-ui` root with a later or unlayered rule, or on a descendant for a narrower scope; normal cascade and inheritance rules apply. Set `data-astra-color-scheme="light"` or `"dark"` on `.astra-ui`; `"dark"` selects the built-in dark palette and `"light"` uses the base palette. Leaving the attribute unset also uses the base palette. The package does not inspect host theme state: integrations map their host theme to this attribute and update it when that theme changes.\n\n';
 for (const [title, pattern] of groups) {
   const names = Object.keys(light).filter((name) => pattern.test(name));
   if (!names.length) continue;

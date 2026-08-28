@@ -2,10 +2,12 @@
  * astra-ui token contract.
  *
  * Every custom property the components consume is declared here with a
- * literal default, at zero specificity, so a host or theme that redefines the
- * same name on `.astra-ui` (or any ancestor) always wins. Themes only set
- * values; they never need to know component internals, and this file knows
- * nothing about any particular theme.
+ * literal default, at zero specificity. Override tokens on the `.astra-ui`
+ * root with a later or unlayered rule, or on a descendant for a narrower
+ * scope; normal cascade and inheritance rules apply. Themes only set values;
+ * they never need to know component internals. Host integrations own theme
+ * detection and select a built-in palette with
+ * `data-astra-color-scheme="light|dark"`.
  */
 @layer astra.tokens, astra.base, astra.components, astra.views;
 
@@ -23,7 +25,8 @@
     /* Text */
     --astra-color-text: #221f20;
     --astra-color-text-muted: #4e5a70;
-    --astra-color-text-subtle: #8b7d70;
+    --astra-color-text-subtle: #796d61;
+    /* Decorative glyphs only; this intentionally is not a text colour. */
     --astra-color-text-faint: #b8b0a8;
     --astra-color-eyebrow: #3f7280;
 
@@ -77,9 +80,8 @@
     --astra-z-fullscreen: 10000;
   }
 
-  /* Dark palette: explicit opt-in, or the host reports darkness. */
-  :where(.astra-ui[data-astra-color-scheme="dark"]),
-  :where([data-jp-theme-light="false"], .vscode-dark, .vscode-high-contrast) :where(.astra-ui:not([data-astra-color-scheme="light"])) {
+  /* Dark palette: explicit opt-in by the integrating host. */
+  :where(.astra-ui[data-astra-color-scheme="dark"]) {
     --astra-color-canvas: #171614;
     --astra-color-surface: #1e1d1a;
     --astra-color-surface-raised: #272520;
