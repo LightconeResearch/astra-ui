@@ -76,7 +76,7 @@ export const paperMetadata = {
 
 export function renderPaper() {
   return (
-    <div style={{ display: 'grid', placeItems: 'center', height: '100%', color: 'var(--astra-muted)' }}>
+    <div style={{ display: 'grid', placeItems: 'center', height: '100%', color: 'var(--astra-color-text-subtle)' }}>
       Host paper renderer (PDF viewer would mount here)
     </div>
   );

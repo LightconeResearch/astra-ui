@@ -93,6 +93,11 @@ dark defaults in `styles/tokens.css`; a theme is a set of overrides on `.astra-u
 (`primitives.css` ⊂ `components.css` ⊂ `blocks.css` ⊂ `views.css` = `styles.css`) and **their import
 order is part of the cascade**. Browser floor: Chrome 111, Safari 16.2, Firefox 113.
 
+The playground's branded mode imports
+`@lightcone-research/brand/adapters/astra.css`, adds the `.lightcone-brand`
+scope, and sets `data-lightcone-color-scheme` alongside ASTRA's independent
+scheme attribute. Its unbranded mode sets only `data-astra-color-scheme`.
+
 ## Invariants the tests enforce
 
 `tests/package-contract.test.mjs` fails loudly and specifically; read its assertion messages before
