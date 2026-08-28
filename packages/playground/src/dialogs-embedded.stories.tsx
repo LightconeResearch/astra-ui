@@ -1,5 +1,5 @@
 import type { Story } from '@ladle/react';
-import { DialogProvider } from '@lightcone-research/astra-ui/primitives';
+import { DialogProvider } from '@astra-spec/ui/primitives';
 import { dialogStories } from './dialogs';
 
 export default { title: 'Dialogs / Embedded' };

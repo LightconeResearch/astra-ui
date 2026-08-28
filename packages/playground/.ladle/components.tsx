@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 import type { GlobalProvider } from '@ladle/react';
 import { useEffect, useState } from 'react';
-import '@lightcone-research/astra-ui/styles.css';
+import '@astra-spec/ui/styles.css';
 import './playground.css';
 
 // The Lightcone brand is applied over the package defaults unless the

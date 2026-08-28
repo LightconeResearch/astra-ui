@@ -34,7 +34,7 @@ async function stylesText({ includeTokens = true } = {}) {
 test('the package depends on the SDK model and host React only', async () => {
   const manifest = await parse(new URL('package.json', packageRoot));
 
-  assert.equal(manifest.name, '@lightcone-research/astra-ui');
+  assert.equal(manifest.name, '@astra-spec/ui');
   assert.match(manifest.version, /^\d+\.\d+\.\d+/);
   assert.equal(manifest.peerDependencies['@astra-spec/sdk'], '^0.1.1');
   assert.equal(manifest.peerDependencies.react, '>=18 <20');

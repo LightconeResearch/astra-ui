@@ -10,7 +10,7 @@
   },
   "devDependencies": {
     "@ladle/react": "^5.0.0",
-    "@lightcone-research/astra-ui": "file:../react",
+    "@astra-spec/ui": "file:../react",
     "@lightcone-research/lightcone-brand": "file:../../../lightcone-brand",
     "playwright": "^1.62.1"
   }

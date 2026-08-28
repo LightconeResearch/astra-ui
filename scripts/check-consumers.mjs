@@ -1,5 +1,5 @@
 // Type-checks the sibling consumers against THIS workspace's build of
-// @lightcone-research/astra-ui (not whatever copy sits in their node_modules),
+// @astra-spec/ui (not whatever copy sits in their node_modules),
 // so a breaking change here fails locally before it lands.
 //
 //   npm run check:consumers
@@ -33,8 +33,8 @@ for (const { name, dir, include } of consumers) {
       noEmit: true,
       baseUrl: dir,
       paths: {
-        ...Object.fromEntries(['primitives', 'components', 'blocks', 'views', 'model'].map((layer) => [`@lightcone-research/astra-ui/${layer}`, [join(dist, layer, 'index.d.ts')]])),
-        '@lightcone-research/astra-ui/*': [join(dist, '*')],
+        ...Object.fromEntries(['primitives', 'components', 'blocks', 'views', 'model'].map((layer) => [`@astra-spec/ui/${layer}`, [join(dist, layer, 'index.d.ts')]])),
+        '@astra-spec/ui/*': [join(dist, '*')],
       },
     },
     include: include.map((pattern) => join(dir, pattern)),

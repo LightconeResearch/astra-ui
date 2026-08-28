@@ -1,5 +1,5 @@
 import { indexAnalysis, type ResolvedDecision, type ResolvedInput, type ResolvedInsight, type ResolvedOutput } from '@astra-spec/sdk';
-import { DialogProvider } from '@lightcone-research/astra-ui/primitives';
+import { DialogProvider } from '@astra-spec/ui/primitives';
 import {
   DecisionDialog,
   FindingDialog,
@@ -7,14 +7,14 @@ import {
   InsightDialog,
   OutputDialog,
   PaperDialog,
-} from '@lightcone-research/astra-ui/components';
+} from '@astra-spec/ui/components';
 import {
   collectInventoryPapers,
   decisionInsights,
   findingEvidence,
   informedDecisions,
   outputRelations,
-} from '@lightcone-research/astra-ui/model';
+} from '@astra-spec/ui/model';
 import type { ReactNode } from 'react';
 import { byPath } from './derive';
 import { analysisDocument, paperMetadata, renderArtifact, renderPaper } from './host';

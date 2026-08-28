@@ -1,6 +1,6 @@
 import type { Story } from '@ladle/react';
-import { AnalysisTree } from '@lightcone-research/astra-ui/blocks';
-import { Inventory } from '@lightcone-research/astra-ui/views';
+import { AnalysisTree } from '@astra-spec/ui/blocks';
+import { Inventory } from '@astra-spec/ui/views';
 import { useState } from 'react';
 import { analysisDocument, paperMetadata, renderArtifact, renderPaper } from './host';
 

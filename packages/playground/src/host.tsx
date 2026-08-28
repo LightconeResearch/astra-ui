@@ -5,7 +5,7 @@ import {
   ArtifactPreview,
   type ArtifactPreviewData,
   type ArtifactRenderer,
-} from '@lightcone-research/astra-ui/components';
+} from '@astra-spec/ui/components';
 import { useEffect, useState } from 'react';
 import fixture from '../fixtures/desi.json';
 

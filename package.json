@@ -11,9 +11,9 @@
     "packages/*"
   ],
   "scripts": {
-    "clean": "npm run clean --workspace @lightcone-research/astra-ui",
-    "build": "npm run build --workspace @lightcone-research/astra-ui",
-    "typecheck": "npm run build && npm run typecheck --workspace @lightcone-research/astra-ui && tsc -p packages/playground/tsconfig.json && tsc -p tsconfig.tests.json",
+    "clean": "npm run clean --workspace @astra-spec/ui",
+    "build": "npm run build --workspace @astra-spec/ui",
+    "typecheck": "npm run build && npm run typecheck --workspace @astra-spec/ui && tsc -p packages/playground/tsconfig.json && tsc -p tsconfig.tests.json",
     "typecheck:react19": "tsc -p tsconfig.react19.json",
     "lint": "eslint .",
     "test": "npm run build && node --test tests/*.test.mjs && vitest run",

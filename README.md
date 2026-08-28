@@ -1,4 +1,4 @@
-# `@lightcone-research/astra-ui`
+# `@astra-spec/ui`
 
 Composable, themable React components for resolved [ASTRA](https://astra-spec.org/) analyses.
 
@@ -12,13 +12,13 @@ artifacts, fetch papers, or hold application state.
 | Layer | Owns |
 | --- | --- |
 | `@astra-spec/sdk` | Validation, resolution, canonical paths, provenance, artifact bindings, indexes |
-| `@lightcone-research/astra-ui` | Primitives, record details and dialogs, inventory views, the token contract |
+| `@astra-spec/ui` | Primitives, record details and dialogs, inventory views, the token contract |
 | Host | `ProjectReader`, loading and refresh, artifact bytes and URLs, paper fetching, routing |
 
 ## Install
 
 ```bash
-npm install @lightcone-research/astra-ui @astra-spec/sdk react react-dom
+npm install @astra-spec/ui @astra-spec/sdk react react-dom
 ```
 
 Peers: `@astra-spec/sdk@^0.1.1`, React 18 or 19.
@@ -35,7 +35,7 @@ depends on the ones below it, and every file is also importable on its own.
 | `./blocks` | Sections of the inventory page: `OutputsList`, `DecisionsList`, `InputsList`, `FindingsList`, `PriorInsightsList`, `PapersList`, `InventorySection`, `InventoryOutline`, `AnalysisTree` | `blocks.css` |
 | `./views` | Ready-made full surfaces: `Inventory` | `views.css` |
 | `./model` | Pure derivations over the SDK model, for hosts composing their own views (over the SDK's `indexAnalysis`): `locateRecord`, `outputRelations`, `findingEvidence`, `decisionInsights`, `informedDecisions`, `collectInventoryPapers`, `doiHref` | — |
-| `./<layer>/<file>` | Individual files, e.g. `@lightcone-research/astra-ui/components/output-dialog` | one of the bundles (see below) |
+| `./<layer>/<file>` | Individual files, e.g. `@astra-spec/ui/components/output-dialog` | one of the bundles (see below) |
 
 `styles.css` is an alias of `views.css`; the bundles nest
 (`primitives.css` ⊂ `components.css` ⊂ `blocks.css` ⊂ `views.css`), so import
@@ -65,9 +65,9 @@ The *inventory* is the page that lists every record of an analysis.
 ```tsx
 import { resolveAnalysis } from '@astra-spec/sdk';
 import { createNodeProjectReader } from '@astra-spec/sdk/node';
-import { ArtifactPreview, type ArtifactRenderer } from '@lightcone-research/astra-ui/components';
-import { Inventory } from '@lightcone-research/astra-ui/views';
-import '@lightcone-research/astra-ui/styles.css';
+import { ArtifactPreview, type ArtifactRenderer } from '@astra-spec/ui/components';
+import { Inventory } from '@astra-spec/ui/views';
+import '@astra-spec/ui/styles.css';
 
 const bundle = await resolveAnalysis(createNodeProjectReader(projectRoot), { universeId: 'baseline' });
 const bindings = new Map(bundle.bindings.map((binding) => [binding.outputPath, binding]));
@@ -118,8 +118,8 @@ host that owns navigation (a router, a JupyterLab command, a MyST link) uses
 the same parts directly:
 
 ```tsx
-import { RecordDialog, useDetailStack } from '@lightcone-research/astra-ui/components';
-import { OutputsList } from '@lightcone-research/astra-ui/blocks';
+import { RecordDialog, useDetailStack } from '@astra-spec/ui/components';
+import { OutputsList } from '@astra-spec/ui/blocks';
 import { indexAnalysis } from '@astra-spec/sdk';
 
 function OutputsPage({ document, detail, onDetailChange }) {

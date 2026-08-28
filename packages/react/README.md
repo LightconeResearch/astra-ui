@@ -1,11 +1,11 @@
-# `@lightcone-research/astra-ui`
+# `@astra-spec/ui`
 
 Composable, themable React components for `ResolvedAnalysisDocument` from
 `@astra-spec/sdk`.
 
 ```tsx
-import { Inventory } from '@lightcone-research/astra-ui/views';
-import '@lightcone-research/astra-ui/styles.css';
+import { Inventory } from '@astra-spec/ui/views';
+import '@astra-spec/ui/styles.css';
 
 <div className="astra-ui">
   <Inventory document={bundle.document} renderArtifact={renderArtifact} />
