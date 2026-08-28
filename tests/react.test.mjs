@@ -2,13 +2,14 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { DetailDialog, DialogProvider, Prose } from '../packages/react/dist/primitives/index.js';
+import { DetailDialog, DialogProvider, PreviewPopover, Prose } from '../packages/react/dist/primitives/index.js';
 import {
   ArtifactPreview,
   OutputDetail,
   PaperDetail,
   PaperDialog,
   RecordDialog,
+  RecordPreview,
   recordEntry,
 } from '../packages/react/dist/components/index.js';
 import { indexAnalysis } from '@astra-spec/sdk';
@@ -48,6 +49,29 @@ test('the composed inventory consumes ResolvedAnalysisDocument directly', () => 
   assert.doesNotMatch(html, /results\//);
   assert.match(html, /class="astra-inventory"/);
   assert.doesNotMatch(html, /class="inventory-/);
+});
+
+test('record previews render on the server while closed popovers keep portal DOM out of hydration', () => {
+  const index = indexAnalysis(fixtureDocument);
+  const output = index.recordByPath.get('outputs.headline');
+  const content = React.createElement(RecordPreview, {
+    entry: { kind: 'record', record: output, analysis: fixtureDocument.analysis },
+    document: fixtureDocument,
+    index,
+    renderArtifact: () => React.createElement('span', null, 'Static artifact'),
+  });
+  const preview = withinUi(content);
+  assert.match(preview, /data-slot="record-preview"/);
+  assert.match(preview, /Headline result/);
+  assert.match(preview, /Static artifact/);
+
+  const popover = renderToStaticMarkup(React.createElement(PreviewPopover, {
+    label: 'SSR output preview',
+    trigger: React.createElement('button', { type: 'button' }, 'Result'),
+    children: content,
+  }));
+  assert.match(popover, /<button[^>]*>Result<\/button>/);
+  assert.doesNotMatch(popover, /preview-popover-portal|role="dialog"/);
 });
 
 test('sections, labels, and anchors are configurable', () => {

@@ -31,7 +31,7 @@ const groups = [
   ['Record kinds', /^--astra-color-kind/],
   ['Kind indirection', /^--astra-kind/],
   ['Typography', /^--astra-font/],
-  ['Geometry', /^--astra-(radius|shadow|space|z)/],
+  ['Geometry', /^--astra-(radius|shadow|space|width|z)/],
 ];
 let out = '# astra-ui token contract\n\nGenerated from `styles/tokens.css` by `scripts/tokens-doc.mjs`; do not edit by hand.\n\nEvery token is declared on `:where(.astra-ui)` at zero specificity in the `astra.tokens` layer. The bundled values are independent, brand-neutral fallbacks so the package remains usable on its own; external themes map their primitives onto these semantic roles under an explicit opt-in scope. Override tokens on the `.astra-ui` root with a later or unlayered rule, or on a descendant for a narrower scope; normal cascade and inheritance rules apply. Set `data-astra-color-scheme="light"` or `"dark"` on `.astra-ui`; `"dark"` selects the built-in dark palette and `"light"` uses the base palette. Leaving the attribute unset also uses the base palette. The package does not inspect host theme state: integrations map their host theme to this attribute and update it when that theme changes.\n\n';
 for (const [title, pattern] of groups) {

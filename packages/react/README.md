@@ -63,8 +63,8 @@ layer you need:
 | --- | --- | --- |
 | `@astra-spec/ui/views` | Complete, ready-made surfaces | `Inventory` |
 | `@astra-spec/ui/blocks` | Sections that can be assembled into a custom page | `AnalysisTree`, inventory lists, `InventorySection`, `InventoryOutline` |
-| `@astra-spec/ui/components` | One ASTRA record or paper at a time | `*Detail`, `*Dialog`, `RecordDialog`, `ArtifactPreview`, `useDetailStack` |
-| `@astra-spec/ui/primitives` | Generic presentation with no resolved ASTRA model dependency beyond record kinds | Buttons, badges, dialog and detail-layout compounds, lists, prose, labels |
+| `@astra-spec/ui/components` | One ASTRA record or paper at a time | `*Detail`, `*Dialog`, `RecordDialog`, `RecordPreview`, `ArtifactPreview`, `useDetailStack` |
+| `@astra-spec/ui/primitives` | Generic presentation with no resolved ASTRA model dependency beyond record kinds | Buttons, badges, dialogs, `PreviewPopover`, detail-layout compounds, lists, prose, labels |
 | `@astra-spec/ui/model` | Pure, React-free derivations over SDK data | Record lookup, relationships, paper collection, display labels, DOI helpers |
 
 Every public file also has a direct subpath, such as
@@ -138,6 +138,59 @@ Dialogs support two modes:
   and Escape/backdrop dismissal.
 - `mode="embedded"` renders the same chrome as an inline panel.
 
+### Record previews
+
+`RecordPreview` is compact, positioning-agnostic content for three entry
+shapes: a resolved record, an analysis node, or the contextual value emitted by
+an inline ASTRA value. It preserves kind-specific evidence and provenance while
+leaving artifact decoding, authored-text rendering, citation formatting, and
+navigation with the host.
+
+`PreviewPopover` is the matching generic primitive. It opens after a short
+pointer-hover delay or immediately on keyboard focus, remains open while the
+pointer or focus is inside it, flips and shifts at viewport edges, and dismisses
+with Escape. Preview content may contain links, buttons, and nested previews,
+so it is exposed as a non-modal dialog rather than a tooltip.
+
+```tsx
+import { indexAnalysis, type ResolvedDecision } from '@astra-spec/sdk';
+import { RecordPreview } from '@astra-spec/ui/components';
+import { PreviewPopover } from '@astra-spec/ui/primitives';
+import '@astra-spec/ui/components.css';
+
+const index = indexAnalysis(document);
+const decision = index.recordByPath.get('decisions.method') as ResolvedDecision;
+const analysis = index.analysisByRecordPath.get(decision.canonicalPath)!;
+
+<PreviewPopover
+  label={`Decision preview: ${decision.label}`}
+  kind="decision"
+  trigger={<button type="button">{decision.label}</button>}
+  portalProps={{
+    // Portaled content cannot inherit classes or attributes from the trigger.
+    className: 'your-brand-scope',
+    'data-astra-color-scheme': 'light',
+  }}
+>
+  <RecordPreview
+    entry={{ kind: 'record', record: decision, analysis }}
+    document={document}
+    index={index}
+    renderArtifact={renderArtifact}
+    renderText={renderText}
+    renderCitation={(doi) => <Cite doi={doi} />}
+    onOpenRecord={openFullRecord}
+  />
+</PreviewPopover>
+```
+
+The portal wrapper always carries `astra-ui`. Use `portalProps` to add a brand
+scope and synchronize `data-astra-color-scheme` plus any brand-specific scheme
+attribute. Alternatively, mount it under an already-scoped element with
+`portalRoot`. `renderRecordReference` receives each related record and its
+default trigger so a host can wrap decision insights and finding outputs in a
+nested `PreviewPopover` without copying preview markup.
+
 ### Artifact previews
 
 The UI package does not read artifact files. `ArtifactPreview` renders safe,
@@ -175,6 +228,7 @@ The primitive layer is useful for building surfaces that match the library:
 | Components | Purpose |
 | --- | --- |
 | `Button`, `IconButton`, `Badge` | Controls and status/kind labels |
+| `PreviewPopover` | Accessible hover/focus positioning, viewport bounds, portal scoping, and nested preview coordination |
 | `SurfaceHeader` | Reusable title, eyebrow, identifier, leading, and action layout |
 | `Dialog`, `DialogProvider`, `DialogContent`, `DialogHeader`, `DialogBody`, `DialogClose`, `DialogBack`, `DialogAction` | Compound dialog context, state, and presentation building blocks |
 | `DetailDialog` | Preset dialog shell used by record and paper dialogs |

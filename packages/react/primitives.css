@@ -6,6 +6,7 @@
 @import "./styles/primitives/surface-header.css";
 @import "./styles/primitives/badge.css";
 @import "./styles/primitives/button.css";
+@import "./styles/primitives/preview-popover.css";
 @import "./styles/primitives/dialog.css";
 @import "./styles/primitives/detail-layout.css";
 @import "./styles/primitives/relation-list.css";

@@ -8,7 +8,8 @@ Composable, themable React components for resolved
 
 `@astra-spec/ui` turns the resolved data model from
 [`@astra-spec/sdk`](https://github.com/LightconeResearch/astra-typescript) into
-accessible inventory views, record details, dialogs, artifact previews, and
+accessible inventory views, record details, hover/focus record previews,
+dialogs, artifact previews, and
 lower-level building blocks. The library stays presentation-only: applications
 retain control of loading, files, network requests, routing, and state.
 
@@ -26,7 +27,8 @@ retain control of loading, files, network requests, routing, and state.
 ## Highlights
 
 - **Composable by design.** Use the complete `Inventory` view, individual
-  inventory blocks, record dialogs and detail bodies, or generic primitives.
+  inventory blocks, record dialogs, compact previews and detail bodies, or
+  generic primitives.
 - **Host-controlled integration.** Render callbacks and events connect artifact
   decoding, paper content, navigation, and application state without hiding I/O
   inside the component library.

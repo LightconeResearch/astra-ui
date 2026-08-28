@@ -8,6 +8,11 @@ export { surfaceGlyph } from './kind.js';
 export type { SurfaceKind } from './kind.js';
 export { Button, IconButton } from './button.js';
 export type { ButtonProps, ButtonSize, ButtonTone, ButtonVariant, IconButtonProps } from './button.js';
+export { PreviewPopover } from './preview-popover.js';
+export type {
+  PreviewPopoverPortalProps,
+  PreviewPopoverProps,
+} from './preview-popover.js';
 export { Badge } from './badge.js';
 export type { BadgeProps, BadgeStatus, BadgeTone } from './badge.js';
 export { SurfaceHeader } from './surface-header.js';
