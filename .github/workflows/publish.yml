@@ -1,0 +1,49 @@
+name: Publish Package
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  id-token: write # Required for npm OIDC trusted publishing
+  contents: write # Required to commit the version bump back to main
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0 # Full history so the version-bump commit can be pushed to main
+
+      - uses: actions/setup-node@v6
+        with:
+          # Node 24 ships npm >= 11.5.1, which is required for OIDC trusted publishing.
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run build
+
+      - name: Package hygiene
+        run: |
+          npx --yes publint packages/react
+          npx --yes @arethetypeswrong/cli --pack packages/react --profile esm-only --entrypoints ./primitives ./components ./blocks ./views ./model
+
+      - name: Set version from release tag
+        run: npm version "${GITHUB_REF_NAME#v}" --no-git-tag-version --allow-same-version --workspace @astra-spec/ui
+
+      # `prepublishOnly` runs the full `npm run check` (lint, typechecks, tests)
+      # and `prepack` rebuilds dist, so this step is the real release gate.
+      - name: Publish to npm
+        run: npm publish --workspace @astra-spec/ui
+
+      - name: Commit updated version to main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add packages/react/package.json package-lock.json
+          git diff --staged --quiet || (git commit -m "chore: bump version to ${GITHUB_REF_NAME#v}" && git push origin HEAD:main)
