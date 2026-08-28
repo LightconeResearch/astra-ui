@@ -301,3 +301,18 @@ test('an insight opened from another analysis still offers its source paper', ()
   assert.match(html, /Locate passage in paper/);
   assert.match(html, /<button type="button">https:\/\/doi\.org\/10\.1234\/EXAMPLE/);
 });
+
+test('table previews say whether their total is exact or unknown, and stay quiet when compact', () => {
+  const index = indexAnalysis(fixtureDocument);
+  const output = index.recordByPath.get('outputs.headline');
+  const rows = [['1', '2'], ['3', '4']];
+  const exact = withinUi(React.createElement(ArtifactPreview, { output, preview: { kind: 'table', headers: ['a', 'b'], rows, totalRows: 5 } }));
+  assert.match(exact, /Showing 2 of 5 rows and 2 of 2 columns\./);
+  const unknown = withinUi(React.createElement(ArtifactPreview, { output, preview: { kind: 'table', headers: ['a', 'b'], rows, truncated: true } }));
+  assert.match(unknown, /Showing the first 2 rows \(total unknown\) and 2 of 2 columns\./);
+  assert.doesNotMatch(unknown, /2 of 2 rows/);
+  const complete = withinUi(React.createElement(ArtifactPreview, { output, preview: { kind: 'table', headers: ['a', 'b'], rows } }));
+  assert.doesNotMatch(complete, /Showing/);
+  const compact = withinUi(React.createElement(ArtifactPreview, { output, compact: true, preview: { kind: 'table', headers: ['a', 'b'], rows, truncated: true } }));
+  assert.doesNotMatch(compact, /Showing/);
+});

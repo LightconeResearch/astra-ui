@@ -148,6 +148,16 @@ the token contract are new.
   is a live region again. Empty-state copy no longer claims "in this
   analysis" where the derivation is document-wide.
 
+- Dark scheme: `--astra-color-accent-contrast` is defined for dark too, so
+  primary buttons no longer paint white on the pale dark-mode accent.
+- The full-screen artifact layer behaves like the modal it declares: focus
+  moves to its exit control, everything outside it (up to the enclosing
+  dialog) is `inert`, and focus returns to the opener on exit.
+- Table previews distinguish an exact total (`totalRows`) from a sample whose
+  total is unknown ("Showing the first 30 rows (total unknown)"), and
+  `tablePreviewFromDelimited({ sourceTruncated })` drops a record the byte
+  limit cut, including an unterminated quoted one, instead of counting it.
+
 ### Removed
 
 - The generation-layered stylesheets and every dead selector; the duplicated

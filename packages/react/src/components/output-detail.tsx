@@ -74,6 +74,34 @@ export const OutputDetail = forwardRef<HTMLDivElement, OutputDetailProps>(functi
     document.addEventListener('keydown', onKeyDown);
     return () => { document.removeEventListener('keydown', onKeyDown); };
   }, [expanded, inModalDialog, exitFullScreen]);
+  // The full-screen layer is a modal: focus enters it, everything outside it
+  // (up to the enclosing native dialog, or the document) is inert while it
+  // is open, and focus returns to the control that opened it.
+  const layerRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const layer = layerRef.current;
+    if (!expanded || !layer) return undefined;
+    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const boundary: HTMLElement = layer.closest('dialog') ?? document.body;
+    const inerted: Element[] = [];
+    let node: HTMLElement = layer;
+    while (node !== boundary) {
+      const parent: HTMLElement | null = node.parentElement;
+      if (!parent) break;
+      for (const sibling of Array.from(parent.children)) {
+        if (sibling !== node && !sibling.hasAttribute('inert')) {
+          sibling.setAttribute('inert', '');
+          inerted.push(sibling);
+        }
+      }
+      node = parent;
+    }
+    (layer.querySelector<HTMLElement>('button') ?? layer).focus();
+    return () => {
+      for (const element of inerted) element.removeAttribute('inert');
+      if (opener?.isConnected) opener.focus();
+    };
+  }, [expanded]);
 
   const supportingDetails = (
     <aside className="astra-output-detail__provenance" aria-label="Output provenance and dependencies">
@@ -137,6 +165,7 @@ export const OutputDetail = forwardRef<HTMLDivElement, OutputDetailProps>(functi
       <div className="astra-output-detail__result">
         {artifact != null ? (
         <div
+          ref={layerRef}
           className="astra-output-detail__artifact"
           data-type={output.type}
           {...(expanded

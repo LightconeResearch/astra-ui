@@ -6,8 +6,10 @@ export interface TablePreviewData {
   kind: 'table';
   headers: string[];
   rows: (string | number | boolean | null)[][];
+  /** Exact number of rows in the source. Leave unset when the source was sampled and the total is unknown. */
   totalRows?: number | undefined;
   totalColumns?: number | undefined;
+  /** The preview does not show everything: rows or columns were cut, or the source itself was a sample. */
   truncated?: boolean | undefined;
 }
 
@@ -154,8 +156,13 @@ export const ArtifactPreview = forwardRef<HTMLElement, ArtifactPreviewProps>(fun
     const rowLimit = compact ? 4 : 30;
     const headers = preview.headers.slice(0, columnLimit);
     const rows = preview.rows.slice(0, rowLimit);
-    const totalRows = preview.totalRows ?? preview.rows.length;
+    const totalRows = preview.totalRows;
     const totalColumns = preview.totalColumns ?? preview.headers.length;
+    const moreRows = totalRows === undefined ? Boolean(preview.truncated) : totalRows > rows.length;
+    const moreColumns = totalColumns > headers.length;
+    const rowsNote = totalRows === undefined
+      ? `the first ${rows.length} rows (total unknown)`
+      : `${rows.length} of ${totalRows} rows`;
     return (
       // The full-size table scrolls and must be keyboard-reachable; the compact one sits inside a card button.
       <div {...shared} ref={ref as never} className={cn(rootClass, 'astra-artifact__table')} {...(compact ? {} : { tabIndex: 0 })}>
@@ -173,12 +180,8 @@ export const ArtifactPreview = forwardRef<HTMLElement, ArtifactPreviewProps>(fun
             ))}
           </tbody>
         </table>
-        {!compact && (
-          preview.truncated
-          || totalRows > rows.length
-          || totalColumns > headers.length
-        ) ? (
-          <p>Showing {rows.length} of {totalRows} rows and {headers.length} of {totalColumns} columns.</p>
+        {!compact && (preview.truncated || moreRows || moreColumns) ? (
+          <p>Showing {rowsNote} and {headers.length} of {totalColumns} columns.</p>
         ) : null}
       </div>
     );
@@ -218,7 +221,7 @@ export interface DelimitedPreviewOptions {
 }
 
 /** RFC 4180-style rows: quoted cells may hold delimiters, doubled quotes, and line breaks. Blank rows are dropped. */
-function parseDelimited(text: string, delimiter: string): string[][] {
+function parseDelimited(text: string, delimiter: string): { rows: string[][]; unterminated: boolean } {
   const rows: string[][] = [];
   let row: string[] = [];
   let cell = '';
@@ -242,7 +245,7 @@ function parseDelimited(text: string, delimiter: string): string[][] {
     } else cell += character;
   }
   endRow();
-  return rows;
+  return { rows, unterminated: quoted };
 }
 
 /** Turns delimited text (CSV, TSV) into table preview data. */
@@ -250,16 +253,22 @@ export function tablePreviewFromDelimited(text: string, options: DelimitedPrevie
   const delimiter = options.delimiter ?? ',';
   const maxRows = options.maxRows ?? 30;
   const maxColumns = options.maxColumns ?? 30;
-  const [allHeaders = [], ...body] = parseDelimited(text, delimiter);
+  const parsed = parseDelimited(text, delimiter);
+  const [allHeaders = [], ...records] = parsed.rows;
+  // A byte-limited sample may end inside a record (or inside a quoted cell);
+  // that record is dropped, and the total row count is unknown.
+  const sampled = Boolean(options.sourceTruncated);
+  const lastComplete = /\r?\n$/.test(text) && !parsed.unterminated;
+  const body = sampled && !lastComplete ? records.slice(0, -1) : records;
   const headers = allHeaders.slice(0, maxColumns);
   const rows = body.slice(0, maxRows).map((cells) => cells.slice(0, maxColumns));
   return {
     kind: 'table',
     headers,
     rows,
-    totalRows: body.length,
+    ...(sampled ? {} : { totalRows: body.length }),
     totalColumns: allHeaders.length,
-    truncated: Boolean(options.sourceTruncated) || body.length > maxRows || allHeaders.length > maxColumns,
+    truncated: sampled || body.length > maxRows || allHeaders.length > maxColumns,
   };
 }
 

@@ -103,6 +103,33 @@ describe('Dialog', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
+  it('treats the full-screen layer as a modal: focus enters it, the rest is inert, focus returns on exit', () => {
+    const output = fixtureDocument.analysis.outputs[0] as ResolvedOutput;
+    function Host() {
+      const [expanded, setExpanded] = useState(false);
+      return (
+        <DetailDialog title="T" closeLabel="Close" onClose={() => undefined} actions={<button type="button" onClick={() => { setExpanded(true); }}>Expand</button>}>
+          <OutputDetail record={output} relations={{ inputs: [], decisions: [] }} expanded={expanded} onExpandedChange={setExpanded} />
+        </DetailDialog>
+      );
+    }
+    render(<Host />);
+    const expand = screen.getByRole('button', { name: 'Expand' });
+    expand.focus();
+    fireEvent.click(expand);
+    const layer = document.querySelector('[data-expanded]') as HTMLElement;
+    const exit = screen.getByRole('button', { name: 'Exit full screen' });
+    expect(document.activeElement).toBe(exit);
+    expect(layer.hasAttribute('inert')).toBe(false);
+    expect(document.querySelector('.astra-output-detail__provenance-slot')?.hasAttribute('inert')).toBe(true);
+    expect(screen.getByRole('button', { name: 'Close', hidden: true }).closest('[inert]')).not.toBeNull();
+
+    fireEvent.click(exit);
+    expect(document.querySelector('[data-expanded]')).toBeNull();
+    expect(document.querySelector('[inert]')).toBeNull();
+    expect(document.activeElement).toBe(expand);
+  });
+
   it('exits a full-screen artifact on Escape when no modal dialog owns the key', () => {
     const onExpandedChange = vi.fn();
     const output = fixtureDocument.analysis.outputs[0] as ResolvedOutput;

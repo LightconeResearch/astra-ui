@@ -114,6 +114,25 @@ test('delimited previews keep quoted delimiters, quotes, and line breaks inside 
   assert.equal(preview.truncated, false);
 });
 
+test('a byte-limited delimited sample drops its cut-off last record and reports an unknown total', () => {
+  const cut = tablePreviewFromDelimited('a,b\n1,2\n3,4\n5,', { sourceTruncated: true });
+  assert.deepEqual(cut.rows, [['1', '2'], ['3', '4']]);
+  assert.equal(cut.totalRows, undefined);
+  assert.equal(cut.truncated, true);
+
+  const cleanEnd = tablePreviewFromDelimited('a,b\n1,2\n3,4\n', { sourceTruncated: true });
+  assert.deepEqual(cleanEnd.rows, [['1', '2'], ['3', '4']], 'a sample ending on a newline keeps its last record');
+  assert.equal(cleanEnd.totalRows, undefined);
+
+  const openQuote = tablePreviewFromDelimited('a,b\n1,2\n3,"multi\nline', { sourceTruncated: true });
+  assert.deepEqual(openQuote.rows, [['1', '2']], 'an unterminated quoted record is dropped');
+
+  const exact = tablePreviewFromDelimited('a,b\n1,2\n3,4\n5,6\n', { maxRows: 2 });
+  assert.deepEqual(exact.rows, [['1', '2'], ['3', '4']]);
+  assert.equal(exact.totalRows, 3);
+  assert.equal(exact.truncated, true);
+});
+
 test('indirect decisions are reached through upstream outputs and input aliases, direct ones excluded, cycles ignored', () => {
   const root = fixtureDocument.analysis;
   const output = (id, provenance, decisions = []) => ({
