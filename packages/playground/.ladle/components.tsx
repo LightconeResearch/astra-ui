@@ -10,7 +10,7 @@ import './playground.css';
 // before the UI's layered styles.
 const brand = import.meta.env.VITE_ASTRA_THEME !== 'none';
 const brandLoaded: Promise<unknown> = brand
-  ? import('@lightcone-research/brand/theme.css')
+  ? import('@lightcone-research/brand/adapters/astra.css')
   : Promise.resolve();
 
 export const Provider: GlobalProvider = ({ children, globalState }) => {
@@ -26,6 +26,7 @@ export const Provider: GlobalProvider = ({ children, globalState }) => {
         ? 'astra-ui lightcone-brand playground-root'
         : 'astra-ui playground-root'}
       data-astra-color-scheme={scheme}
+      data-lightcone-color-scheme={brand ? scheme : undefined}
     >
       {children}
     </div>
