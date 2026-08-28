@@ -191,45 +191,32 @@ test('subtle text meets WCAG AA against the built-in canvas and surface', async 
   }
 });
 
-test('VS Code high contrast and native forced colours have distinct adapters', async () => {
+test('the colour-scheme contract is explicit and host-neutral', async () => {
   const css = stripComments(await readFile(new URL('tokens.css', stylesDirectory), 'utf8'));
   const darkMarker = ':where(.astra-ui[data-astra-color-scheme="dark"])';
-  const darkSelector = css.slice(css.indexOf(darkMarker), css.indexOf('{', css.indexOf(darkMarker)));
-  assert.match(darkSelector, /\.vscode-dark\b/, 'ordinary VS Code dark themes use the built-in dark palette');
-  assert.doesNotMatch(darkSelector, /\.vscode-high-contrast/, 'high contrast must not be treated as ordinary dark');
+  const darkStart = css.indexOf(darkMarker);
+  assert.notEqual(darkStart, -1, 'the dark palette has a public selector');
+  const darkSelector = css.slice(darkStart, css.indexOf('{', darkStart)).trim();
+  assert.equal(darkSelector, darkMarker, 'only the explicit ASTRA dark attribute selects the dark palette');
+  assert.equal([...css.matchAll(/data-astra-color-scheme/g)].length, 1, 'tokens.css has no implicit or competing scheme selectors');
+  assert.doesNotMatch(css, /(?:data-jp-|--jp-|\.jp-|vscode|--vscode-|forced-colors)/i,
+    'tokens.css contains no JupyterLab, VS Code, or forced-colour host adapter');
 
-  const highContrastMarker = ':where(.vscode-high-contrast, .vscode-high-contrast-light)';
-  const highContrastStart = css.indexOf(highContrastMarker);
-  assert.notEqual(highContrastStart, -1, 'both VS Code high-contrast host classes have an adapter');
-  const highContrastSelector = css.slice(highContrastStart, css.indexOf('{', highContrastStart));
-  assert.match(highContrastSelector, /:not\(\[data-astra-color-scheme="light"\]\)/);
-  assert.match(highContrastSelector, /:not\(\[data-astra-color-scheme="dark"\]\)/);
-  const highContrastBody = ruleBody(css, highContrastMarker);
-  const highContrast = tokenValues(highContrastBody);
-  const light = tokenValues(ruleBody(css, ':where(.astra-ui) {'));
-  const colourTokens = [...light.keys()].filter((name) => name.startsWith('--astra-color-'));
-  assert.deepEqual(colourTokens.filter((name) => !highContrast.has(name)), [], 'high contrast must not leak built-in palette colours');
-  assert.doesNotMatch(css.replace(highContrastBody, ''), /--vscode-/, 'VS Code host tokens stay confined to its high-contrast adapter');
-  assert.deepEqual([...new Set([...highContrastBody.matchAll(/var\((--[a-zA-Z0-9-]+)/g)].map(([, name]) => name))]
-    .filter((name) => !name.startsWith('--vscode-')), [], 'the host adapter references only VS Code host tokens');
-  assert.match(highContrast.get('--astra-color-canvas'), /var\(--vscode-editor-background, Canvas\)/);
-  assert.match(highContrast.get('--astra-color-text-subtle'), /var\(--vscode-editor-foreground, CanvasText\)/);
-  assert.match(highContrast.get('--astra-color-border-strong'), /var\(--vscode-contrastBorder, ButtonBorder\)/);
-  assert.match(highContrast.get('--astra-color-focus'), /--vscode-(?:contrastActiveBorder|focusBorder)/);
-
-  const forcedMarker = '@media (forced-colors: active)';
-  const forcedStart = css.indexOf(forcedMarker);
-  assert.ok(forcedStart > highContrastStart, 'forced colours override host and explicit schemes last');
-  const forcedMedia = ruleBody(css, forcedMarker);
-  const forced = tokenValues(ruleBody(forcedMedia, ':where(.astra-ui) {'));
-  assert.deepEqual(colourTokens.filter((name) => !forced.has(name)), [], 'forced colours must replace every built-in palette colour');
-  assert.equal(forced.get('--astra-color-canvas'), 'Canvas');
-  assert.equal(forced.get('--astra-color-text-subtle'), 'CanvasText');
-  assert.equal(forced.get('--astra-color-accent'), 'Highlight');
-  assert.equal(forced.get('--astra-color-accent-contrast'), 'HighlightText');
+  const readme = await readFile(new URL('README.md', packageRoot), 'utf8');
+  const tokenDocs = await readFile(new URL('TOKENS.md', packageRoot), 'utf8');
+  for (const [name, documentation] of [['README.md', readme], ['TOKENS.md', tokenDocs]]) {
+    assert.match(documentation, /data-astra-color-scheme="light"/,
+      `${name} documents the explicit light scheme`);
+    assert.match(documentation, /or `"dark"`/,
+      `${name} documents the explicit dark scheme`);
+    assert.match(documentation, /integration[s]?\s+map[s]?\s+(?:its|their)\s+host theme to\s+this attribute/i,
+      `${name} assigns host theme detection to integrations`);
+    assert.doesNotMatch(documentation, /JupyterLab|VS Code|forced.colou?r/i,
+      `${name} keeps the public theme contract host-neutral`);
+  }
 });
 
-test('styles are layered, scoped with :where, and keep host adapters in tokens.css', async () => {
+test('styles are layered, scoped with :where, and free of theme or host selectors', async () => {
   const files = await filesUnder(stylesDirectory, /\.css$/);
   for (const url of files) {
     const css = stripComments(await readFile(url, 'utf8'));
@@ -238,9 +225,7 @@ test('styles are layered, scoped with :where, and keep host adapters in tokens.c
     assert.doesNotMatch(css, /__DEAD__/, `${url.pathname} has no placeholder selectors`);
     assert.doesNotMatch(css, /^\s*\.astra-ui[\s.]/m, `${url.pathname} scopes with :where(.astra-ui)`);
     assert.doesNotMatch(css, /lightcone-brand|data-astra-theme|inventory-detail-dialog|astra-record-detail|astra-result-viewer/, `${url.pathname} has no legacy or theme selectors`);
-    if (!url.pathname.endsWith('/tokens.css')) {
-      assert.doesNotMatch(css, /data-jp-theme-light|\.vscode-|--vscode-|forced-colors/, `${url.pathname} leaves host adaptation to tokens.css`);
-    }
+    assert.doesNotMatch(css, /data-jp-|--jp-|\.jp-|vscode|--vscode-|forced-colors/i, `${url.pathname} has no host-specific selectors or tokens`);
   }
   for (const bundle of ['primitives.css', 'components.css', 'blocks.css', 'views.css', 'styles.css']) {
     const css = await readFile(new URL(bundle, packageRoot), 'utf8');

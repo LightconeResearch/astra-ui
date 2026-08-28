@@ -234,12 +234,11 @@ the same `.astra-ui` scope:
 ```
 
 The complete token list and default values are in [TOKENS.md](./TOKENS.md).
-Set `data-astra-color-scheme="dark"` on `.astra-ui` to select the built-in dark
-defaults, or `"light"` to keep the light defaults when the host reports a dark
-theme. An explicit scheme takes precedence over host theme classes. Without
-one, the defaults follow JupyterLab and VS Code light/dark themes; VS Code
-high-contrast and high-contrast-light themes instead use the host's
-accessibility colour tokens. Native forced-colour mode uses system colours.
+Set `data-astra-color-scheme="light"` or `"dark"` on `.astra-ui`; `"dark"`
+selects the built-in dark palette and `"light"` uses the base palette. Leaving
+the attribute unset also uses the base palette. The package deliberately does
+not inspect host-specific theme state. An integration maps its host theme to
+this attribute and updates it when that theme changes.
 
 Styled roots and internal parts expose `data-slot` attributes. Kinds and
 variants use attributes including `data-kind`, `data-mode`, `data-layout`,

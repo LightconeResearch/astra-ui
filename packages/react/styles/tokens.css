@@ -2,10 +2,12 @@
  * astra-ui token contract.
  *
  * Every custom property the components consume is declared here with a
- * literal default, at zero specificity, so a host or theme that redefines the
- * same name on `.astra-ui` (or any ancestor) always wins. Themes only set
- * values; they never need to know component internals. Host-specific values
- * are confined to the accessibility adapters below.
+ * literal default, at zero specificity. Override tokens on the `.astra-ui`
+ * root with a later or unlayered rule, or on a descendant for a narrower
+ * scope; normal cascade and inheritance rules apply. Themes only set values;
+ * they never need to know component internals. Host integrations own theme
+ * detection and select a built-in palette with
+ * `data-astra-color-scheme="light|dark"`.
  */
 @layer astra.tokens, astra.base, astra.components, astra.views;
 
@@ -78,9 +80,8 @@
     --astra-z-fullscreen: 10000;
   }
 
-  /* Dark palette: explicit opt-in, or the host reports darkness. */
-  :where(.astra-ui[data-astra-color-scheme="dark"]),
-  :where([data-jp-theme-light="false"], .vscode-dark) :where(.astra-ui:not([data-astra-color-scheme="light"])) {
+  /* Dark palette: explicit opt-in by the integrating host. */
+  :where(.astra-ui[data-astra-color-scheme="dark"]) {
     --astra-color-canvas: #171614;
     --astra-color-surface: #1e1d1a;
     --astra-color-surface-raised: #272520;
@@ -116,93 +117,5 @@
     --astra-color-kind-finding-soft: rgb(214 146 125 / 0.15);
     --astra-color-kind-insight-soft: rgb(194 181 169 / 0.15);
     --astra-shadow-raised: 0 5px 18px rgb(0 0 0 / 0.38);
-  }
-
-  /*
-   * VS Code high-contrast themes are not dark themes. When the host owns the
-   * scheme, preserve its tested colour relationships instead of guessing a
-   * palette from the theme name. An explicit ASTRA light/dark scheme remains
-   * authoritative; forced-colour mode below still follows the user agent.
-   */
-  :where(.vscode-high-contrast, .vscode-high-contrast-light)
-    :where(.astra-ui:not([data-astra-color-scheme="light"]):not([data-astra-color-scheme="dark"])) {
-    --astra-color-canvas: var(--vscode-editor-background, Canvas);
-    --astra-color-surface: var(--vscode-editor-background, Canvas);
-    --astra-color-surface-raised: var(--vscode-editorWidget-background, var(--vscode-editor-background, Canvas));
-    --astra-color-surface-muted: var(--vscode-editor-background, Canvas);
-    --astra-color-header: var(--vscode-editorWidget-background, var(--vscode-editor-background, Canvas));
-    --astra-color-artifact-paper: var(--vscode-editor-background, Canvas);
-    --astra-color-artifact-ink: var(--vscode-editor-foreground, CanvasText);
-    --astra-color-text: var(--vscode-editor-foreground, CanvasText);
-    --astra-color-text-muted: var(--vscode-editor-foreground, CanvasText);
-    --astra-color-text-subtle: var(--vscode-editor-foreground, CanvasText);
-    --astra-color-text-faint: var(--vscode-editor-foreground, CanvasText);
-    --astra-color-eyebrow: var(--vscode-textLink-foreground, var(--vscode-editor-foreground, LinkText));
-    --astra-color-border-subtle: var(--vscode-contrastBorder, ButtonBorder);
-    --astra-color-border: var(--vscode-contrastBorder, ButtonBorder);
-    --astra-color-border-strong: var(--vscode-contrastBorder, ButtonBorder);
-    --astra-color-accent: var(--vscode-button-background, Highlight);
-    --astra-color-accent-contrast: var(--vscode-button-foreground, HighlightText);
-    --astra-color-link: var(--vscode-textLink-foreground, LinkText);
-    --astra-color-focus: var(--vscode-contrastActiveBorder, var(--vscode-focusBorder, Highlight));
-    --astra-color-danger: var(--vscode-errorForeground, CanvasText);
-    --astra-color-danger-soft: var(--vscode-editor-background, Canvas);
-    --astra-color-kind-input: var(--vscode-editor-foreground, CanvasText);
-    --astra-color-kind-analysis: var(--vscode-editor-foreground, CanvasText);
-    --astra-color-kind-output: var(--vscode-editor-foreground, CanvasText);
-    --astra-color-kind-decision: var(--vscode-editor-foreground, CanvasText);
-    --astra-color-kind-decision-ink: var(--vscode-editor-foreground, CanvasText);
-    --astra-color-kind-finding: var(--vscode-editor-foreground, CanvasText);
-    --astra-color-kind-insight: var(--vscode-editor-foreground, CanvasText);
-    --astra-color-kind-insight-ink: var(--vscode-editor-foreground, CanvasText);
-    --astra-color-kind-input-soft: var(--vscode-editor-background, Canvas);
-    --astra-color-kind-analysis-soft: var(--vscode-editor-background, Canvas);
-    --astra-color-kind-output-soft: var(--vscode-editor-background, Canvas);
-    --astra-color-kind-decision-soft: var(--vscode-editor-background, Canvas);
-    --astra-color-kind-finding-soft: var(--vscode-editor-background, Canvas);
-    --astra-color-kind-insight-soft: var(--vscode-editor-background, Canvas);
-    --astra-shadow-raised: none;
-  }
-
-  /* Native forced colours supersede both built-in schemes and host themes. */
-  @media (forced-colors: active) {
-    :where(.astra-ui) {
-      --astra-color-canvas: Canvas;
-      --astra-color-surface: Canvas;
-      --astra-color-surface-raised: Canvas;
-      --astra-color-surface-muted: Canvas;
-      --astra-color-header: Canvas;
-      --astra-color-artifact-paper: Canvas;
-      --astra-color-artifact-ink: CanvasText;
-      --astra-color-text: CanvasText;
-      --astra-color-text-muted: CanvasText;
-      --astra-color-text-subtle: CanvasText;
-      --astra-color-text-faint: CanvasText;
-      --astra-color-eyebrow: LinkText;
-      --astra-color-border-subtle: ButtonBorder;
-      --astra-color-border: ButtonBorder;
-      --astra-color-border-strong: ButtonBorder;
-      --astra-color-accent: Highlight;
-      --astra-color-accent-contrast: HighlightText;
-      --astra-color-link: LinkText;
-      --astra-color-focus: Highlight;
-      --astra-color-danger: CanvasText;
-      --astra-color-danger-soft: Canvas;
-      --astra-color-kind-input: CanvasText;
-      --astra-color-kind-analysis: CanvasText;
-      --astra-color-kind-output: CanvasText;
-      --astra-color-kind-decision: CanvasText;
-      --astra-color-kind-decision-ink: CanvasText;
-      --astra-color-kind-finding: CanvasText;
-      --astra-color-kind-insight: CanvasText;
-      --astra-color-kind-insight-ink: CanvasText;
-      --astra-color-kind-input-soft: Canvas;
-      --astra-color-kind-analysis-soft: Canvas;
-      --astra-color-kind-output-soft: Canvas;
-      --astra-color-kind-decision-soft: Canvas;
-      --astra-color-kind-finding-soft: Canvas;
-      --astra-color-kind-insight-soft: Canvas;
-      --astra-shadow-raised: none;
-    }
   }
 }

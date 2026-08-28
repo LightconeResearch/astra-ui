@@ -2,7 +2,7 @@
 
 Generated from `styles/tokens.css` by `scripts/tokens-doc.mjs`; do not edit by hand.
 
-Every token is declared on `:where(.astra-ui)` at zero specificity, so a theme redefines it on `.astra-ui` (or any ancestor) and always wins. Built-in dark values apply under `.astra-ui[data-astra-color-scheme="dark"]`, or automatically when JupyterLab or VS Code report a dark theme. An explicit `light` or `dark` scheme takes precedence over host theme classes. Without an explicit scheme, VS Code high-contrast and high-contrast-light themes use the host’s accessibility colour tokens instead of either built-in palette. Native `forced-colors` mode always uses system colours.
+Every token is declared on `:where(.astra-ui)` at zero specificity in the `astra.tokens` layer. Override tokens on the `.astra-ui` root with a later or unlayered rule, or on a descendant for a narrower scope; normal cascade and inheritance rules apply. Set `data-astra-color-scheme="light"` or `"dark"` on `.astra-ui`; `"dark"` selects the built-in dark palette and `"light"` uses the base palette. Leaving the attribute unset also uses the base palette. The package does not inspect host theme state: integrations map their host theme to this attribute and update it when that theme changes.
 
 ## Surfaces
 
