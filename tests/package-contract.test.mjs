@@ -155,11 +155,14 @@ test('source contains no parallel resolver, session, storage, or integration lay
   assert.match(source, /indexAnalysis\(document\)/);
 });
 
-test('every token the styles consume is declared with a default', async () => {
+test('every token the styles and playground consume is declared with a default', async () => {
   const tokens = await readFile(new URL('tokens.css', stylesDirectory), 'utf8');
   const declared = new Set([...tokens.matchAll(/^\s*(--astra-[a-z0-9-]+):/gm)].map(([, name]) => name));
   const css = await stylesText({ includeTokens: false });
   const source = await sourceText();
+  const playgroundSource = await sourceText(
+    new URL('../packages/playground/src/', import.meta.url)
+  );
   // Element-local tokens: declared inside a component sheet or set from TSX.
   const local = new Set([
     ...[...css.matchAll(/^\s*(--astra-[a-z0-9-]+):/gm)].map(([, name]) => name),
@@ -168,6 +171,15 @@ test('every token the styles consume is declared with a default', async () => {
   const consumed = new Set([...css.matchAll(/var\((--astra-[a-z0-9-]+)/g)].map(([, name]) => name));
   const missing = [...consumed].filter((name) => !declared.has(name) && !local.has(name));
   assert.deepEqual(missing, [], 'consumed tokens without a default in tokens.css');
+  const consumedByPlayground = new Set(
+    [...playgroundSource.matchAll(/var\((--astra-[a-z0-9-]+)/g)]
+      .map(([, name]) => name)
+  );
+  assert.deepEqual(
+    [...consumedByPlayground].filter((name) => !declared.has(name)),
+    [],
+    'playground tokens without a default in tokens.css'
+  );
   const consumedByTokens = new Set([...stripComments(tokens).matchAll(/var\((--astra-[a-z0-9-]+)/g)].map(([, name]) => name));
   assert.deepEqual([...consumedByTokens].filter((name) => !declared.has(name)), [], 'tokens.css composes only ASTRA role tokens it declares');
   const unused = [...declared].filter((name) => !consumed.has(name) && !consumedByTokens.has(name) && !source.includes(`'${name}'`));
@@ -228,15 +240,20 @@ test('the playground opts into its external brand explicitly', async () => {
 
   assert.equal(
     manifest.devDependencies['@lightcone-research/brand'],
-    'file:../../../lightcone-brand'
+    '^0.0.2'
   );
-  assert.match(provider, /import\('@lightcone-research\/brand\/theme\.css'\)/);
+  assert.match(provider, /import\('@lightcone-research\/brand\/adapters\/astra\.css'\)/);
   assert.match(
     provider,
     /\? 'astra-ui lightcone-brand playground-root'/,
     'the branded playground adds the brand scope to its ASTRA root'
   );
   assert.match(provider, /data-astra-color-scheme=\{scheme\}/);
+  assert.match(
+    provider,
+    /data-lightcone-color-scheme=\{brand \? scheme : undefined\}/,
+    'the playground only sets the generic Lightcone scheme contract when its brand is active'
+  );
   assert.doesNotMatch(provider, /data-astra-theme/);
 });
 
