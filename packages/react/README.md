@@ -247,6 +247,8 @@ and their public types.
   Without it, outputs use `ArtifactPreview`'s unavailable state.
 - `renderText(text, { field })` replaces the built-in prose renderer. The
   default understands inline code, `$inline$` math, and `$$display$$` math.
+  Hosts that only need custom math commands can reuse that renderer with
+  `renderProse(text, { macros })`; macro values are KaTeX expansion strings.
 - `renderPaper(paper, { focusEvidence })` renders host-owned paper content.
 - `onFetchPaper(doi)` asks the host to load paper data. Feed the result and
   `status: 'fetching' | 'error'` back through `paperMetadata`.

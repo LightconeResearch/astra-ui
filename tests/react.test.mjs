@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { DetailDialog, DialogProvider, PreviewPopover, Prose } from '../packages/react/dist/primitives/index.js';
+import { DetailDialog, DialogProvider, PreviewPopover, Prose, renderProse } from '../packages/react/dist/primitives/index.js';
 import {
   ArtifactPreview,
   OutputDetail,
@@ -153,6 +153,16 @@ test('authored prose typesets inline code and LaTeX by default, and is host-rend
   }));
   assert.match(custom, /<em>Host prose<\/em>/);
   assert.equal(seenField, 'rationale');
+});
+
+test('authored prose accepts host-normalized custom math macros', () => {
+  const html = withinUi(renderProse(
+    'Configured value: $\\latevalue$.',
+    { macros: { '\\latevalue': '42' } },
+  ));
+
+  assert.match(html, /<mn>42<\/mn>/);
+  assert.doesNotMatch(html, /katex-error|mathcolor="#cc0000"/);
 });
 
 test('paper content and source focus are delegated to a host renderer', () => {
