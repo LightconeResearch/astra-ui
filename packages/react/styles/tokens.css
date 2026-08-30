@@ -65,9 +65,9 @@
     --astra-kind: var(--astra-color-accent);
 
     /* Typography */
-    --astra-font-ui: Georgia, "Times New Roman", serif;
-    --astra-font-body: Georgia, "Times New Roman", serif;
-    --astra-font-heading: Georgia, "Times New Roman", serif;
+    --astra-font-ui: "Source Serif 4", Georgia, "Times New Roman", serif;
+    --astra-font-body: "Source Serif 4", Georgia, "Times New Roman", serif;
+    --astra-font-heading: "Source Serif 4", Georgia, "Times New Roman", serif;
     --astra-font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
     --astra-font-size: 0.875rem;
 
