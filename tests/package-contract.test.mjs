@@ -62,7 +62,7 @@ async function stylesText({ includeTokens = true } = {}) {
   return stripComments((await Promise.all(files.map((url) => readFile(url, 'utf8')))).join('\n'));
 }
 
-test('the package depends on the SDK model and host React only', async () => {
+test('the package depends on the SDK model, floating positioning, and host React only', async () => {
   const manifest = await parse(new URL('package.json', packageRoot));
 
   assert.equal(manifest.name, '@astra-spec/ui');
@@ -70,7 +70,10 @@ test('the package depends on the SDK model and host React only', async () => {
   assert.equal(manifest.peerDependencies['@astra-spec/sdk'], '^0.1.1');
   assert.equal(manifest.peerDependencies.react, '>=18 <20');
   assert.equal(manifest.peerDependencies['react-dom'], '>=18 <20');
-  assert.deepEqual(manifest.dependencies, { katex: '^0.16.47' }, 'katex typesets authored math; nothing else is bundled');
+  assert.deepEqual(manifest.dependencies, {
+    '@floating-ui/react': '^0.27.20',
+    katex: '^0.16.47',
+  }, 'Floating UI positions accessible previews and KaTeX typesets authored math');
   assert.equal(manifest.scripts.prepack, 'npm run build');
   assert.ok(manifest.files.includes('LICENSE'));
   assert.ok(manifest.files.includes('src'), 'source ships for go-to-definition');
@@ -97,14 +100,14 @@ test('every JS subpath resolves to a built module', async () => {
     await readFile(new URL(target.import, packageRoot));
     await readFile(new URL(target.types, packageRoot));
   }
-  for (const subpath of ['primitives/button', 'primitives/dialog', 'model/relations', 'components/output-dialog', 'components/use-detail-stack', 'blocks/outputs-list', 'views/inventory']) {
+  for (const subpath of ['primitives/button', 'primitives/dialog', 'primitives/preview-popover', 'model/relations', 'components/output-dialog', 'components/record-preview', 'components/use-detail-stack', 'blocks/outputs-list', 'views/inventory']) {
     const target = manifest.exports[`./${subpath.split('/')[0]}/*`].import.replace('*', subpath.split('/')[1]);
     await readFile(new URL(target, packageRoot));
   }
   const layers = Object.fromEntries(await Promise.all(['primitives', 'components', 'blocks', 'views', 'model'].map(async (layer) => [layer, await import(`../packages/react/dist/${layer}/index.js`)])));
   const expected = {
-    primitives: ['Button', 'Dialog', 'DetailDialog', 'RecordList', 'cn'],
-    components: ['ArtifactPreview', 'OutputDialog', 'OutputDetail', 'RecordDialog', 'useDetailStack'],
+    primitives: ['Button', 'Dialog', 'DetailDialog', 'PreviewPopover', 'RecordList', 'cn'],
+    components: ['ArtifactPreview', 'OutputDialog', 'OutputDetail', 'RecordDialog', 'RecordPreview', 'useDetailStack'],
     blocks: ['OutputsList', 'InventorySection', 'InventoryOutline', 'AnalysisTree'],
     views: ['Inventory'],
     model: ['locateRecord', 'outputRelations', 'collectInventoryPapers'],
@@ -147,10 +150,13 @@ test('source contains no parallel resolver, session, storage, or integration lay
   assert.doesNotMatch(source, /ProjectViewModel|scopeId|recordId|knownRevision/);
   assert.doesNotMatch(source, /createNodeFileAccess|createJupyterFileAccess|resolveAnalysis\s*\(/);
   assert.doesNotMatch(source, /from ['"](?:node:|@jupyter|myst-)/i);
-  // KaTeX is the one rendering dependency, confined to the prose primitive.
+  // Rendering dependencies stay confined to the primitives that own them.
   const katexImports = [...source.matchAll(/from ['"]katex['"]/g)].length;
   assert.equal(katexImports, 1, 'katex is imported once, by primitives/prose.tsx');
   assert.match(await readFile(new URL('primitives/prose.tsx', sourceDirectory), 'utf8'), /from 'katex'/);
+  const floatingImports = [...source.matchAll(/from ['"]@floating-ui\/react['"]/g)].length;
+  assert.equal(floatingImports, 1, 'Floating UI is imported once, by primitives/preview-popover.tsx');
+  assert.match(await readFile(new URL('primitives/preview-popover.tsx', sourceDirectory), 'utf8'), /from '@floating-ui\/react'/);
   assert.doesNotMatch(source, /PaperPdfViewer|pdf\.mjs|pdf\.worker/);
   assert.match(source, /indexAnalysis\(document\)/);
 });
@@ -276,7 +282,9 @@ test('styles are layered, scoped with :where, and free of theme or host selector
   // primitives.css follows the legacy source order (surface-header before dialog, ...).
   const primitives = await readFile(new URL('primitives.css', packageRoot), 'utf8');
   const imports = [...primitives.matchAll(/@import "\.\/styles\/primitives\/([a-z-]+)\.css"/g)].map(([, name]) => name);
-  assert.deepEqual(imports, ['kind', 'surface-header', 'badge', 'button', 'dialog', 'detail-layout', 'relation-list', 'count-heading', 'record-list', 'empty-state', 'prose'], 'primitives.css import order is part of the cascade');
+  assert.deepEqual(imports, ['kind', 'surface-header', 'badge', 'button', 'preview-popover', 'dialog', 'detail-layout', 'relation-list', 'count-heading', 'record-list', 'empty-state', 'prose'], 'primitives.css import order is part of the cascade');
+  const components = await readFile(new URL('components.css', packageRoot), 'utf8');
+  assert.match(components, /@import "\.\/styles\/components\/record-preview\.css";/, 'components.css ships record preview styles');
 });
 
 // Innermost `selector { declarations }` pairs anywhere in a sheet, including

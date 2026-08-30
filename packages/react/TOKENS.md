@@ -85,9 +85,13 @@ Every token is declared on `:where(.astra-ui)` at zero specificity in the `astra
 | Token | Light default | Dark default |
 | --- | --- | --- |
 | `--astra-radius-control` | `0` | — |
+| `--astra-radius-preview` | `0.1875rem` | — |
 | `--astra-shadow-raised` | `none` | `0 5px 18px rgb(0 0 0 / 0.38)` |
+| `--astra-shadow-preview` | `0 6px 18px rgb(34 31 32 / 0.1)` | `0 6px 18px rgb(0 0 0 / 0.45)` |
+| `--astra-width-preview` | `27.5rem` | — |
 | `--astra-space-2` | `0.5rem` | — |
 | `--astra-space-3` | `0.75rem` | — |
 | `--astra-z-dialog` | `1000` | — |
+| `--astra-z-preview` | `1100` | — |
 | `--astra-z-fullscreen` | `10000` | — |
 

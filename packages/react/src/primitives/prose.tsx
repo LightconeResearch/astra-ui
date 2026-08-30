@@ -17,6 +17,14 @@ export type ProseToken =
   | { type: 'inlineMath'; value: string }
   | { type: 'math'; value: string };
 
+/** String macro expansions accepted by the built-in KaTeX renderer. */
+export type ProseMathMacros = Readonly<Record<string, string>>;
+
+export interface ProseRenderOptions {
+  /** Host-normalized math macros, such as `{ '\\vect': '\\mathbf{#1}' }`. */
+  macros?: ProseMathMacros | undefined;
+}
+
 /** Balanced tokens: display math first, then `code`, then inline math. */
 const PROSE_TOKEN = /(\$\$[\s\S]+?\$\$|`[^`\n]+`|\$[^$\n]+\$)/g;
 
@@ -37,8 +45,20 @@ export function parseProse(text: string): ProseToken[] {
   return nodes;
 }
 
-function renderMath(value: string, displayMode: boolean): string {
-  return renderToString(value, { displayMode, output: 'htmlAndMathml', strict: 'ignore', throwOnError: false });
+function renderMath(
+  value: string,
+  displayMode: boolean,
+  macros?: ProseMathMacros,
+): string {
+  return renderToString(value, {
+    displayMode,
+    output: 'htmlAndMathml',
+    strict: 'ignore',
+    throwOnError: false,
+    // KaTeX may mutate its macro object for global definitions. Keep a host's
+    // shared configuration immutable across independent prose fields.
+    ...(macros ? { macros: { ...macros } } : {}),
+  });
 }
 
 /**
@@ -46,16 +66,19 @@ function renderMath(value: string, displayMode: boolean): string {
  * typeset with KaTeX (load `katex/dist/katex.css`; the stylesheet bundles
  * import it). Text without those markers is returned as is.
  */
-export function renderProse(text: string): ReactNode {
+export function renderProse(
+  text: string,
+  options: ProseRenderOptions = {},
+): ReactNode {
   if (!/[`$]/.test(text)) return text;
   return parseProse(text).map((node, index) => {
     switch (node.type) {
       case 'inlineCode':
         return <code key={index}>{node.value}</code>;
       case 'inlineMath':
-        return <span key={index} className="astra-prose__inline-math" dangerouslySetInnerHTML={{ __html: renderMath(node.value, false) }} />;
+        return <span key={index} className="astra-prose__inline-math" dangerouslySetInnerHTML={{ __html: renderMath(node.value, false, options.macros) }} />;
       case 'math':
-        return <div key={index} className="astra-prose__display-math" dangerouslySetInnerHTML={{ __html: renderMath(node.value, true) }} />;
+        return <div key={index} className="astra-prose__display-math" dangerouslySetInnerHTML={{ __html: renderMath(node.value, true, options.macros) }} />;
       default:
         return <Fragment key={index}>{node.value}</Fragment>;
     }

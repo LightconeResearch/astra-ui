@@ -8,6 +8,11 @@ export { surfaceGlyph } from './kind.js';
 export type { SurfaceKind } from './kind.js';
 export { Button, IconButton } from './button.js';
 export type { ButtonProps, ButtonSize, ButtonTone, ButtonVariant, IconButtonProps } from './button.js';
+export { PreviewPopover } from './preview-popover.js';
+export type {
+  PreviewPopoverPortalProps,
+  PreviewPopoverProps,
+} from './preview-popover.js';
 export { Badge } from './badge.js';
 export type { BadgeProps, BadgeStatus, BadgeTone } from './badge.js';
 export { SurfaceHeader } from './surface-header.js';
@@ -45,4 +50,12 @@ export type { RelationItem, RelationListProps } from './relation-list.js';
 export { CountHeading, DetailLayout, DetailMain, DetailRail, DetailSection } from './detail-layout.js';
 export type { CountHeadingProps, DetailLayoutMode, DetailLayoutProps, DetailRailProps, DetailSectionProps } from './detail-layout.js';
 export { Prose, parseProse, renderProse } from './prose.js';
-export type { ProseContext, ProseField, ProseProps, ProseToken, TextRenderer } from './prose.js';
+export type {
+  ProseContext,
+  ProseField,
+  ProseMathMacros,
+  ProseProps,
+  ProseRenderOptions,
+  ProseToken,
+  TextRenderer,
+} from './prose.js';

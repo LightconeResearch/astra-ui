@@ -1,4 +1,4 @@
-/** ASTRA-aware components: one detail body and one dialog per record kind (input, output, decision, finding, prior insight) plus papers, the RecordDialog router, and the detail stack. */
+/** ASTRA-aware components: compact previews, one detail body and dialog per record kind, papers, the RecordDialog router, and the detail stack. */
 export { recordEntry, paperEntry, sameEntry } from './detail-entry.js';
 export type { DetailEntry } from './detail-entry.js';
 export { useDetailStack } from './use-detail-stack.js';
@@ -23,6 +23,16 @@ export { PaperDetail, PaperDialog, PaperDialogActions } from './paper-detail.js'
 export type { PaperDetailProps, PaperDialogActionsProps, PaperDialogProps, PaperRenderOptions, PaperRenderer } from './paper-detail.js';
 export { RecordDialog } from './record-dialog.js';
 export type { RecordDialogProps } from './record-dialog.js';
+export { RecordPreview } from './record-preview.js';
+export type {
+  RecordPreviewCitationContext,
+  RecordPreviewCitationRenderer,
+  RecordPreviewEntry,
+  RecordPreviewProps,
+  RecordPreviewReference,
+  RecordPreviewReferenceRenderer,
+  RecordPreviewTarget,
+} from './record-preview.js';
 export {
   ArtifactPreview,
   metricPreviewFromJson,

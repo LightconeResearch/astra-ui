@@ -1,0 +1,76 @@
+/* preview-popover — emitted by src/primitives/preview-popover.tsx */
+@layer astra.tokens, astra.base, astra.components, astra.views;
+
+@layer astra.components {
+  :where(.astra-ui).astra-preview-popover-portal,
+  :where(.astra-ui) .astra-preview-popover-portal {
+    display: contents;
+  }
+
+  :where(.astra-ui) .astra-preview-popover {
+    z-index: var(--astra-z-preview);
+    width: var(--astra-width-preview);
+    max-width: calc(100vw - 1rem);
+    color: var(--astra-color-text);
+    font-family: var(--astra-font-body);
+    font-size: var(--astra-font-size);
+    line-height: 1.5;
+  }
+
+  :where(.astra-ui) .astra-preview-popover__surface {
+    position: relative;
+    display: flex;
+    max-height: min(
+      var(--astra-preview-available-height, calc(100dvh - 1.5rem)),
+      calc(100dvh - 1.5rem)
+    );
+    flex-direction: column;
+    border: 1px solid var(--astra-color-border);
+    border-top-color: color-mix(
+      in srgb,
+      var(--astra-kind, var(--astra-color-border-strong)) 55%,
+      var(--astra-color-border)
+    );
+    border-radius: var(--astra-radius-preview);
+    background: var(--astra-color-surface-muted);
+    box-shadow: var(--astra-shadow-preview);
+    opacity: 1;
+    transform: scale(1);
+    transition:
+      opacity 120ms ease,
+      transform 120ms ease;
+    transform-origin: bottom center;
+  }
+
+  :where(.astra-ui) .astra-preview-popover:where([data-placement^="bottom"])
+    .astra-preview-popover__surface {
+    transform-origin: top center;
+  }
+
+  :where(.astra-ui) .astra-preview-popover:where([data-status="initial"], [data-status="close"])
+    .astra-preview-popover__surface {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+
+  :where(.astra-ui) .astra-preview-popover__scroll {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-color: var(--astra-color-border-strong) transparent;
+    scrollbar-width: thin;
+  }
+
+  :where(.astra-ui) .astra-preview-popover__arrow {
+    fill: var(--astra-color-surface-muted);
+    stroke: var(--astra-color-border);
+    stroke-width: 1px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :where(.astra-ui) .astra-preview-popover__surface {
+      transform: none !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
