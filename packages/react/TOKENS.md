@@ -74,9 +74,9 @@ Every token is declared on `:where(.astra-ui)` at zero specificity in the `astra
 
 | Token | Light default | Dark default |
 | --- | --- | --- |
-| `--astra-font-ui` | `Georgia, "Times New Roman", serif` | — |
-| `--astra-font-body` | `Georgia, "Times New Roman", serif` | — |
-| `--astra-font-heading` | `Georgia, "Times New Roman", serif` | — |
+| `--astra-font-ui` | `"Source Serif 4", Georgia, "Times New Roman", serif` | — |
+| `--astra-font-body` | `"Source Serif 4", Georgia, "Times New Roman", serif` | — |
+| `--astra-font-heading` | `"Source Serif 4", Georgia, "Times New Roman", serif` | — |
 | `--astra-font-mono` | `ui-monospace, "SF Mono", Menlo, Consolas, monospace` | — |
 | `--astra-font-size` | `0.875rem` | — |
 
