@@ -184,12 +184,14 @@ const analysis = index.analysisByRecordPath.get(decision.canonicalPath)!;
 </PreviewPopover>
 ```
 
-The portal wrapper always carries `astra-ui`. Use `portalProps` to add a brand
-scope and synchronize `data-astra-color-scheme` plus any brand-specific scheme
-attribute. Alternatively, mount it under an already-scoped element with
-`portalRoot`. `renderRecordReference` receives each related record and its
-default trigger so a host can wrap decision insights and finding outputs in a
-nested `PreviewPopover` without copying preview markup.
+The portal wrapper establishes an `astra-ui` scope when its mount does not
+already inherit one. Use `portalProps` to add a brand scope and synchronize
+`data-astra-color-scheme` plus any brand-specific scheme attribute. Alternatively,
+mount it under an already-scoped element with `portalRoot`; with no `portalProps`,
+the wrapper preserves that scope instead of creating a nested token root.
+`renderRecordReference` receives each related record and its default trigger so
+a host can wrap decision insights and finding outputs in a nested
+`PreviewPopover` without copying preview markup.
 
 ### Artifact previews
 

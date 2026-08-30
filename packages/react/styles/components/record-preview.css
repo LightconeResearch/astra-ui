@@ -116,17 +116,17 @@
     border: 0;
   }
 
-  :where(.astra-ui) .astra-record-preview__options > li[data-selected] {
+  :where(.astra-ui) .astra-record-preview__options > li:where([data-selected]) {
     border-color: var(--astra-kind);
     background: var(--astra-kind-soft);
     color: var(--astra-kind-ink, var(--astra-kind));
   }
 
-  :where(.astra-ui) .astra-record-preview__options > li[data-unselected] {
+  :where(.astra-ui) .astra-record-preview__options > li:where([data-unselected]) {
     opacity: 0.76;
   }
 
-  :where(.astra-ui) .astra-record-preview__options > li[data-excluded] strong {
+  :where(.astra-ui) .astra-record-preview__options > li:where([data-excluded]) strong {
     text-decoration: line-through;
     text-decoration-color: var(--astra-color-border-strong);
   }

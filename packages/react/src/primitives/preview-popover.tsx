@@ -46,8 +46,8 @@ const VIEWPORT_PADDING = 8;
 
 export interface PreviewPopoverPortalProps
   extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
+  [attribute: `data-${string}`]: string | number | boolean | null | undefined;
   'data-astra-color-scheme'?: 'light' | 'dark' | undefined;
-  'data-lightcone-color-scheme'?: 'light' | 'dark' | undefined;
 }
 
 export interface PreviewPopoverProps
@@ -196,14 +196,21 @@ function PreviewPopoverInner({
     </Slot>
   );
 
-  const portalClassName = cn(
-    'astra-ui astra-preview-popover-portal',
-    portalProps?.className,
-  );
   const resolvedPortalRoot = portalRoot === undefined
     ? (automaticPortalRoot ?? undefined)
     : portalRoot;
   const portalRootReady = portalRoot !== undefined || automaticPortalRoot !== undefined;
+  // A nested, unschemed `.astra-ui` would redeclare the base tokens and mask
+  // theme overrides inherited from an explicitly scoped portal mount.
+  const inheritsAstraScope = portalProps === undefined &&
+    typeof HTMLElement !== 'undefined' &&
+    resolvedPortalRoot instanceof HTMLElement &&
+    resolvedPortalRoot.closest('.astra-ui') !== null;
+  const portalClassName = cn(
+    !inheritsAstraScope && 'astra-ui',
+    'astra-preview-popover-portal',
+    portalProps?.className,
+  );
 
   return (
     <>
@@ -212,8 +219,8 @@ function PreviewPopoverInner({
         {isMounted && portalRootReady ? (
           <FloatingPortal root={resolvedPortalRoot} preserveTabOrder>
             <div
-              {...portalProps}
               data-slot="preview-popover-portal"
+              {...portalProps}
               className={portalClassName}
             >
               <FloatingFocusManager
@@ -222,6 +229,7 @@ function PreviewPopoverInner({
                 initialFocus={-1}
               >
                 <div
+                  data-slot="preview-popover"
                   {...getFloatingProps(props)}
                   id={contentId}
                   ref={refs.setFloating}
@@ -232,7 +240,6 @@ function PreviewPopoverInner({
                   data-kind={kind}
                   data-placement={placement}
                   data-status={status}
-                  data-slot="preview-popover"
                 >
                   <div className="astra-preview-popover__surface">
                     <div className="astra-preview-popover__scroll">{children}</div>

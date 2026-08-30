@@ -44,6 +44,18 @@ export interface AstraLabels {
     openPaper: string;
     locate: string;
   };
+  /** Copy used only by the compact RecordPreview surface. */
+  preview: {
+    optionDetail: string;
+    supportedBy: string;
+    evidence: string;
+    provenance: string;
+    source: string;
+    openRecord: (kindLabel: string, recordLabel: string) => string;
+    optionStatus: (selected: boolean, excluded: boolean) => string;
+    remainingDecisionDetails: (count: number) => string;
+    valueSource: (product: string) => string;
+  };
 }
 
 const SECTION_NOUNS: Record<keyof AstraLabels['sections'], [string, string]> = {
@@ -97,6 +109,20 @@ export const defaultLabels: AstraLabels = {
     openPaper: 'Open',
     locate: 'Locate',
   },
+  preview: {
+    optionDetail: 'Option detail',
+    supportedBy: 'Supported by',
+    evidence: 'Evidence',
+    provenance: 'Provenance',
+    source: 'Source',
+    openRecord: (kindLabel, recordLabel) =>
+      `Open ${kindLabel.toLowerCase()} details: ${recordLabel}`,
+    optionStatus: (selected, excluded) =>
+      `${selected ? 'Selected.' : 'Not selected.'}${excluded ? ' Excluded.' : ''}`,
+    remainingDecisionDetails: (count) =>
+      `+ ${count} more in the decision details`,
+    valueSource: (product) => `from ${product}`,
+  },
 };
 
 /** Deep partial of the label set, for host overrides. */
@@ -122,6 +148,7 @@ function merge(base: AstraLabels, overrides: AstraLabelOverrides): AstraLabels {
     kinds: { ...base.kinds, ...defined(overrides.kinds ?? {}) },
     empty: { ...base.empty, ...defined(overrides.empty ?? {}) },
     actions: { ...base.actions, ...defined(overrides.actions ?? {}) },
+    preview: { ...base.preview, ...defined(overrides.preview ?? {}) },
   } as AstraLabels;
 }
 

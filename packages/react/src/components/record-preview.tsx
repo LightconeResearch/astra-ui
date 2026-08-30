@@ -23,7 +23,6 @@ import { decisionInsights } from '../model/relations.js';
 import { Prose, type TextRenderer } from '../primitives/prose.js';
 import { surfaceGlyph, type SurfaceKind } from '../primitives/kind.js';
 import { SurfaceHeader } from '../primitives/surface-header.js';
-import { OutputPreview } from './output-detail.js';
 import type { ArtifactRenderer } from './artifact-preview.js';
 import { primaryLiteratureEvidence } from './insight-detail.js';
 import type { OpenRecordHandler } from './relation-items.js';
@@ -179,6 +178,7 @@ function RelatedRecord({
   renderRecordReference?: RecordPreviewReferenceRenderer | undefined;
   detail?: ReactNode | undefined;
 }) {
+  const labels = useLabels();
   const analysis = index.analysisByRecordPath.get(record.canonicalPath);
   const label = relationTitle(record);
   const copy = (
@@ -197,7 +197,7 @@ function RelatedRecord({
       type="button"
       className="astra-record-preview__relation-trigger"
       data-kind={record.kind}
-      aria-label={`Open ${record.kind.replace(/_/g, ' ')} details: ${label}`}
+      aria-label={labels.preview.openRecord(labels.kinds[record.kind], label)}
       onClick={() => {
         onOpenRecord(record, analysis);
       }}
@@ -257,7 +257,7 @@ function DecisionPreview({
         ) : null}
         {record.options.length ? (
           <section className="astra-record-preview__section">
-            <h4>Option detail</h4>
+            <h4>{labels.preview.optionDetail}</h4>
             <ul className="astra-record-preview__options">
               {record.options.map((option) => {
                 const selected = option.id === record.selectedOptionId;
@@ -270,8 +270,7 @@ function DecisionPreview({
                   >
                     <span aria-hidden="true">{selected ? '●' : '○'}</span>
                     <span className="astra-record-preview__option-status">
-                      {selected ? 'Selected. ' : 'Not selected. '}
-                      {option.excluded ? 'Excluded. ' : ''}
+                      {labels.preview.optionStatus(selected, Boolean(option.excluded))}
                     </span>
                     <strong>{option.label}</strong>
                   </li>
@@ -282,7 +281,7 @@ function DecisionPreview({
         ) : null}
         {supporting.length ? (
           <section className="astra-record-preview__section">
-            <h4>Supported by</h4>
+            <h4>{labels.preview.supportedBy}</h4>
             <ul className="astra-record-preview__relations">
               {shown.map((insight) => (
                 <li key={insight.canonicalPath} data-kind={insight.kind}>
@@ -296,7 +295,7 @@ function DecisionPreview({
               ))}
               {remaining > 0 ? (
                 <li className="astra-record-preview__remaining">
-                  + {remaining} more in the decision details
+                  {labels.preview.remainingDecisionDetails(remaining)}
                 </li>
               ) : null}
             </ul>
@@ -340,22 +339,21 @@ function FindingPreview({
         ) : null}
         {record.evidence.length ? (
           <section className="astra-record-preview__section">
-            <h4>Evidence</h4>
+            <h4>{labels.preview.evidence}</h4>
             <ul className="astra-record-preview__evidence">
               {record.evidence.map((evidence, indexInRecord) => {
                 const candidate = evidence.resolvedOutputPath
                   ? index.recordByPath.get(evidence.resolvedOutputPath)
                   : undefined;
                 const output = candidate?.kind === 'output' ? candidate : undefined;
+                const artifact = output && renderArtifact
+                  ? renderArtifact(output, { compact: true })
+                  : null;
                 return (
                   <li key={`${evidence.id}-${indexInRecord}`}>
-                    {output && renderArtifact ? (
+                    {artifact != null ? (
                       <div className="astra-record-preview__artifact">
-                        <OutputPreview
-                          output={output}
-                          compact
-                          renderArtifact={renderArtifact}
-                        />
+                        {artifact}
                       </div>
                     ) : null}
                     {output ? (
@@ -462,6 +460,9 @@ function OutputRecordPreview({
     recipe,
     record.canonicalPath,
   ].filter((value): value is string => Boolean(value));
+  const artifact = renderArtifact
+    ? renderArtifact(record, { compact: true })
+    : null;
   return (
     <>
       <PreviewHeader
@@ -479,18 +480,14 @@ function OutputRecordPreview({
             />
           </div>
         ) : null}
-        {renderArtifact ? (
+        {artifact != null ? (
           <div className="astra-record-preview__artifact">
-            <OutputPreview
-              output={record}
-              compact
-              renderArtifact={renderArtifact}
-            />
+            {artifact}
           </div>
         ) : null}
         {flow.length > 1 ? (
           <section className="astra-record-preview__section">
-            <h4>Provenance</h4>
+            <h4>{labels.preview.provenance}</h4>
             <ol className="astra-record-preview__flow">
               {flow.map((node, indexInFlow) => (
                 <li key={`${node}-${indexInFlow}`}>
@@ -531,7 +528,7 @@ function InputPreview({
         ) : null}
         {source ? (
           <section className="astra-record-preview__section">
-            <h4>Source</h4>
+            <h4>{labels.preview.source}</h4>
             <code className="astra-record-preview__source">{source}</code>
           </section>
         ) : null}
@@ -630,11 +627,9 @@ function AnalysisPreview({
           </div>
         ) : null}
         <p className="astra-record-preview__counts">
-          {analysis.decisions.length}{' '}
-          {analysis.decisions.length === 1 ? 'decision' : 'decisions'}
+          {labels.sectionCount('decisions', analysis.decisions.length)}
           {' · '}
-          {analysis.outputs.length}{' '}
-          {analysis.outputs.length === 1 ? 'output' : 'outputs'}
+          {labels.sectionCount('outputs', analysis.outputs.length)}
         </p>
       </div>
     </>
@@ -677,7 +672,9 @@ function ValuePreview({
             {entry.column ? <code>{entry.column}</code> : null}
             {entry.filter ? <span>{entry.filter}</span> : null}
             {entry.selection ? <code>{entry.selection}</code> : null}
-            {entry.product ? <span>from {entry.product}</span> : null}
+            {entry.product ? (
+              <span>{labels.preview.valueSource(entry.product)}</span>
+            ) : null}
           </div>
         ) : null}
         {description ? (

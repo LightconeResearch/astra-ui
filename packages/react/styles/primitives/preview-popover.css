@@ -2,7 +2,8 @@
 @layer astra.tokens, astra.base, astra.components, astra.views;
 
 @layer astra.components {
-  .astra-preview-popover-portal {
+  :where(.astra-ui).astra-preview-popover-portal,
+  :where(.astra-ui) .astra-preview-popover-portal {
     display: contents;
   }
 

@@ -12,7 +12,10 @@ import {
   RecordPreview,
   type RecordPreviewReferenceRenderer,
 } from '../../packages/react/src/components/index.js';
-import { LabelsProvider } from '../../packages/react/src/primitives/index.js';
+import {
+  LabelsProvider,
+  type AstraLabelOverrides,
+} from '../../packages/react/src/primitives/index.js';
 import { fixtureDocument as untypedFixture } from '../fixture.mjs';
 
 const fixtureDocument = untypedFixture as unknown as ResolvedAnalysisDocument;
@@ -165,6 +168,38 @@ describe('RecordPreview', () => {
     expect(screen.getByText('outputs.headline')).toBeTruthy();
   });
 
+  it('omits artifact frames when the host renderer opts out', () => {
+    const output = record<ResolvedOutput>('outputs.headline');
+    const finding = record<ResolvedInsight>('findings.headline_finding');
+    const renderArtifact = vi.fn(() => null);
+    const { container, rerender } = render(
+      <RecordPreview
+        {...shared}
+        entry={{ kind: 'record', record: output, analysis: fixtureDocument.analysis }}
+        renderArtifact={renderArtifact}
+      />,
+    );
+
+    expect(container.querySelector('.astra-record-preview__artifact')).toBeNull();
+    expect(renderArtifact).toHaveBeenCalledWith(output, { compact: true });
+
+    renderArtifact.mockClear();
+    rerender(
+      <RecordPreview
+        {...shared}
+        entry={{ kind: 'record', record: finding, analysis: fixtureDocument.analysis }}
+        renderArtifact={renderArtifact}
+      />,
+    );
+
+    expect(container.querySelector('.astra-record-preview__artifact')).toBeNull();
+    expect(renderArtifact).toHaveBeenCalledTimes(1);
+    expect(renderArtifact).toHaveBeenCalledWith(
+      expect.objectContaining({ canonicalPath: 'outputs.headline' }),
+      { compact: true },
+    );
+  });
+
   it('renders input source and tolerates absent optional copy', () => {
     const input = record<ResolvedInput>('inputs.catalog');
     const bareInput: ResolvedInput = { ...input };
@@ -275,5 +310,129 @@ describe('RecordPreview', () => {
     expect(preview.dataset.slot).toBe('record-preview');
     expect(preview.dataset.kind).toBe('prior_insight');
     expect(screen.getByText('Literature insight')).toBeTruthy();
+  });
+
+  it('routes all preview interface copy through label overrides', () => {
+    const decision = record<ResolvedDecision>('decisions.method');
+    const localizedDecision: ResolvedDecision = {
+      ...decision,
+      options: decision.options.map((option) =>
+        option.id === 'alternate' ? { ...option, excluded: true } : option,
+      ),
+    };
+    const finding = record<ResolvedInsight>('findings.headline_finding');
+    const output = record<ResolvedOutput>('outputs.headline');
+    const input = record<ResolvedInput>('inputs.catalog');
+    const child = fixtureDocument.analysis.analyses[0];
+    if (!child) throw new Error('fixture child analysis missing');
+    const labels: AstraLabelOverrides = {
+      kinds: { prior_insight: 'Référence' },
+      sectionCount: (section, count) => `${section}:${count}`,
+      preview: {
+        optionDetail: 'Détail des options',
+        supportedBy: 'Justifié par',
+        evidence: 'Éléments probants',
+        provenance: 'Traçabilité',
+        source: 'Origine',
+        openRecord: (kindLabel, recordLabel) =>
+          `Ouvrir ${kindLabel} : ${recordLabel}`,
+        optionStatus: (selected, excluded) =>
+          `${selected ? 'Retenue.' : 'Non retenue.'}${excluded ? ' Exclue.' : ''}`,
+        remainingDecisionDetails: (count) =>
+          `+ ${count} dans les détails du choix`,
+        valueSource: (product) => `issu de ${product}`,
+      },
+    };
+    const { rerender } = render(
+      <LabelsProvider labels={labels}>
+        <RecordPreview
+          {...shared}
+          entry={{
+            kind: 'record',
+            record: localizedDecision,
+            analysis: fixtureDocument.analysis,
+          }}
+          maxSupportingInsights={0}
+        />
+      </LabelsProvider>,
+    );
+
+    expect(screen.getByRole('heading', { name: 'Détail des options' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Justifié par' })).toBeTruthy();
+    expect(screen.getByText('Fiducial').closest('li')?.textContent).toContain('Retenue.');
+    expect(screen.getByText('Alternate').closest('li')?.textContent).toContain(
+      'Non retenue. Exclue.',
+    );
+    expect(screen.getByText('+ 1 dans les détails du choix')).toBeTruthy();
+
+    rerender(
+      <LabelsProvider labels={labels}>
+        <RecordPreview
+          {...shared}
+          entry={{ kind: 'record', record: decision, analysis: fixtureDocument.analysis }}
+          maxSupportingInsights={1}
+          onOpenRecord={() => undefined}
+        />
+      </LabelsProvider>,
+    );
+    expect(screen.getByRole('button', {
+      name: 'Ouvrir Référence : Published method',
+    })).toBeTruthy();
+
+    rerender(
+      <LabelsProvider labels={labels}>
+        <RecordPreview
+          {...shared}
+          entry={{ kind: 'record', record: finding, analysis: fixtureDocument.analysis }}
+        />
+      </LabelsProvider>,
+    );
+    expect(screen.getByRole('heading', { name: 'Éléments probants' })).toBeTruthy();
+
+    rerender(
+      <LabelsProvider labels={labels}>
+        <RecordPreview
+          {...shared}
+          entry={{ kind: 'record', record: output, analysis: fixtureDocument.analysis }}
+        />
+      </LabelsProvider>,
+    );
+    expect(screen.getByRole('heading', { name: 'Traçabilité' })).toBeTruthy();
+
+    rerender(
+      <LabelsProvider labels={labels}>
+        <RecordPreview
+          {...shared}
+          entry={{ kind: 'record', record: input, analysis: fixtureDocument.analysis }}
+        />
+      </LabelsProvider>,
+    );
+    expect(screen.getByRole('heading', { name: 'Origine' })).toBeTruthy();
+
+    rerender(
+      <LabelsProvider labels={labels}>
+        <RecordPreview
+          {...shared}
+          entry={{ kind: 'analysis', analysis: child }}
+        />
+      </LabelsProvider>,
+    );
+    expect(screen.getByText('decisions:0 · outputs:1')).toBeTruthy();
+
+    rerender(
+      <LabelsProvider labels={labels}>
+        <RecordPreview
+          {...shared}
+          entry={{
+            kind: 'value',
+            record: output,
+            analysis: fixtureDocument.analysis,
+            value: '19.88',
+            product: 'Résultat principal',
+          }}
+        />
+      </LabelsProvider>,
+    );
+    expect(screen.getByText('issu de Résultat principal')).toBeTruthy();
   });
 });

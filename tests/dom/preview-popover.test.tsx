@@ -107,10 +107,13 @@ describe('PreviewPopover', () => {
         label="Finding preview"
         defaultOpen
         kind="finding"
+        data-slot="host-preview"
         portalProps={{
           className: 'lightcone-brand host-scope',
+          'data-slot': 'host-portal',
           'data-astra-color-scheme': 'dark',
           'data-lightcone-color-scheme': 'dark',
+          'data-acme-color-scheme': 'dark',
         }}
         trigger={
           <button ref={triggerRef} type="button" className="child-class" onClick={onClick}>
@@ -127,12 +130,41 @@ describe('PreviewPopover', () => {
     expect(triggerRef.current).toBe(trigger);
     expect(trigger.className).toContain('child-class');
 
-    const portal = document.querySelector('[data-slot="preview-popover-portal"]');
+    const portal = document.querySelector('.astra-preview-popover-portal');
     expect(portal?.classList.contains('astra-ui')).toBe(true);
     expect(portal?.classList.contains('lightcone-brand')).toBe(true);
+    expect(portal?.getAttribute('data-slot')).toBe('host-portal');
     expect(portal?.getAttribute('data-astra-color-scheme')).toBe('dark');
     expect(portal?.getAttribute('data-lightcone-color-scheme')).toBe('dark');
+    expect(portal?.getAttribute('data-acme-color-scheme')).toBe('dark');
+    expect(screen.getByRole('dialog').dataset.slot).toBe('host-preview');
     expect(screen.getByRole('dialog').dataset.kind).toBe('finding');
+  });
+
+  it('preserves an inherited ASTRA theme under an explicitly scoped portal root', () => {
+    const portalRoot = document.createElement('div');
+    portalRoot.className = 'astra-ui host-theme';
+    portalRoot.style.setProperty('--astra-color-text', 'rebeccapurple');
+    document.body.append(portalRoot);
+
+    const { unmount } = render(
+      <PreviewPopover
+        label="Inherited theme preview"
+        defaultOpen
+        portalRoot={portalRoot}
+        trigger={<button type="button">Reference</button>}
+      >
+        Preview body
+      </PreviewPopover>,
+    );
+
+    const portal = portalRoot.querySelector('.astra-preview-popover-portal');
+    expect(portal).toBeTruthy();
+    expect(portal?.classList.contains('astra-ui')).toBe(false);
+    expect(portal?.closest('.astra-ui')).toBe(portalRoot);
+
+    unmount();
+    portalRoot.remove();
   });
 
   it('supports controlled state and nested floating trees', () => {
