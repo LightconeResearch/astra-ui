@@ -199,6 +199,41 @@
     border: 0;
   }
 
+  /* A metric card stacks label over value so the number reads at a glance;
+     the host's compact preview supplies the same data as the dialog. */
+  :where(.astra-ui) .astra-output-card__preview > .astra-artifact:where([data-type="metric"]) {
+    box-sizing: border-box;
+    display: flex;
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 0.6rem;
+    text-align: center;
+  }
+
+  :where(.astra-ui) .astra-output-card__preview > .astra-artifact:where([data-type="metric"]) > .astra-artifact__metric-label {
+    overflow: hidden;
+    max-width: 100%;
+    color: var(--astra-color-text-subtle);
+    font-size: 0.6875rem;
+    line-height: 1.3;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  :where(.astra-ui) .astra-output-card__preview > .astra-artifact:where([data-type="metric"]) .astra-artifact__metric-value {
+    max-width: 100%;
+    font-size: clamp(1.25rem, 3cqw, 1.75rem);
+  }
+
+  :where(.astra-ui) .astra-output-card__preview > .astra-artifact:where([data-type="metric"]) .astra-artifact__metric-uncertainty,
+  :where(.astra-ui) .astra-output-card__preview > .astra-artifact:where([data-type="metric"]) .astra-artifact__metric-unit {
+    font-size: 0.75rem;
+  }
+
   :where(.astra-ui) .astra-output-card__open {
     top: 0.45rem;
     right: 0.45rem;
@@ -223,7 +258,7 @@
   }
 
   :where(.astra-ui) .astra-output-card__body code {
-    font-size: 0.625rem;
+    font-size: 0.6875rem;
   }
 
   @container (max-width: 58rem) {

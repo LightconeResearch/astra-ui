@@ -1,16 +1,15 @@
 import type { ResolvedDecision, ResolvedInsight } from '@astra-spec/sdk';
 import { forwardRef, useCallback, useMemo, useRef, useState, type HTMLAttributes, type ReactNode } from 'react';
-import { doiHref } from '../model/doi.js';
-import { countLabel } from '../model/records.js';
+import { countLabel, recordTitle } from '../model/records.js';
+import { decisionInsightPaths } from '../model/relations.js';
 import { paperEvidence, type InventoryPaper, type InventoryPaperMetadata, type PaperFocusEvidence } from '../model/papers.js';
 import { cn } from '../lib/cn.js';
 import { useLabels } from '../lib/labels.js';
 import { CountHeading } from '../primitives/detail-layout.js';
 import { DetailDialog, DialogAction, type DetailDialogProps } from '../primitives/dialog.js';
-import { Prose, type TextRenderer } from '../primitives/prose.js';
-import { RelationList } from '../primitives/relation-list.js';
+import { surfaceGlyph } from '../primitives/kind.js';
+import type { TextRenderer } from '../primitives/prose.js';
 import { InsightTrigger } from './insight-trigger.js';
-import { relationItemForRecord } from './relation-items.js';
 
 export interface PaperRenderOptions {
   focusEvidence?: PaperFocusEvidence | undefined;
@@ -55,10 +54,12 @@ export const PaperDetail = forwardRef<HTMLDivElement, PaperDetailProps>(function
   const labels = useLabels();
   const [focusKey, setFocusKey] = useState<string | undefined>(undefined);
   const [override, setOverride] = useState<PaperFocusEvidence | undefined>(undefined);
+  const [decisionFilter, setDecisionFilter] = useState<string | undefined>(undefined);
   const key = `${paper.doi}|${focusInsight?.canonicalPath ?? ''}`;
   if (focusKey !== key) {
     setFocusKey(key);
     setOverride(undefined);
+    setDecisionFilter(undefined);
   }
   // One object per request, kept across unrelated re-renders, with a key
   // that changes on every locate click so a repeat of the same passage is
@@ -71,6 +72,12 @@ export const PaperDetail = forwardRef<HTMLDivElement, PaperDetailProps>(function
   }, []);
   const canRender = Boolean(paper.pdfUrl && renderPaper);
   const fetching = metadata?.status === 'fetching';
+  const filterDecision = paper.decisions.find((decision) => decision.canonicalPath === decisionFilter);
+  const visibleInsights = useMemo(() => {
+    if (!filterDecision) return paper.insights;
+    const cited = new Set(decisionInsightPaths(filterDecision));
+    return paper.insights.filter((insight) => cited.has(insight.canonicalPath));
+  }, [paper, filterDecision]);
 
   return (
     <div data-slot="paper-detail" {...props} ref={ref} className={cn('astra-paper-detail__layout', className)}>
@@ -101,23 +108,61 @@ export const PaperDetail = forwardRef<HTMLDivElement, PaperDetailProps>(function
         )}
       </div>
       <aside className="astra-paper-detail__rail" aria-label="Paper insights and decisions">
-        <section className="astra-paper-doi">
-          <h4>DOI</h4>
-          <a href={doiHref(paper.doi)} target="_blank" rel="noreferrer">
-            {paper.doi} ↗
-          </a>
+        <section className="astra-paper-decisions">
+          <CountHeading title="Informs decisions" count={paper.decisions.length} />
+          {paper.decisions.length ? (
+            <div
+              className="astra-paper-decisions__filters"
+              role="group"
+              aria-label="Filter insights by decision"
+            >
+              {paper.decisions.map((decision) => {
+                const active = decision.canonicalPath === decisionFilter;
+                return (
+                  <button
+                    key={decision.canonicalPath}
+                    type="button"
+                    className="astra-paper-decisions__filter"
+                    aria-pressed={active}
+                    onClick={() => {
+                      setDecisionFilter(active ? undefined : decision.canonicalPath);
+                    }}
+                  >
+                    <span aria-hidden="true">{surfaceGlyph('decision')}</span>
+                    <span>{recordTitle(decision)}</span>
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="astra-paper-decisions__empty">No decisions cite insights from this paper.</p>
+          )}
+          {filterDecision && onOpenDecision ? (
+            <button
+              type="button"
+              className="astra-paper-decisions__open"
+              onClick={() => { onOpenDecision(filterDecision); }}
+            >
+              Open {recordTitle(filterDecision)} →
+            </button>
+          ) : null}
         </section>
         <section className="astra-insight-list">
-          <CountHeading title="Insights from this paper" count={paper.insights.length} />
+          <CountHeading
+            title={filterDecision ? `Insights for ${recordTitle(filterDecision)}` : 'Insights from this paper'}
+            count={visibleInsights.length}
+          />
           <ul className="astra-evidence astra-paper-detail__insights">
-            {paper.insights.map((insight) => {
+            {visibleInsights.map((insight) => {
               const evidence = paperEvidence(insight, paper.doi);
               return (
                 <li key={insight.canonicalPath} className="astra-evidence__item astra-paper-insight">
-                  <InsightTrigger insight={insight} tag={null} onOpen={() => onOpenInsight?.(insight)} />
-                  <div className="astra-paper-insight__claim">
-                    <Prose text={insight.claim} field="claim" renderText={renderText} />
-                  </div>
+                  <InsightTrigger
+                    insight={insight}
+                    variant="claim"
+                    renderText={renderText}
+                    onOpen={() => onOpenInsight?.(insight)}
+                  />
                   {evidence.length ? (
                     <div className="astra-paper-insight__sources">
                       <span>{countLabel(evidence.length, 'passage')}</span>
@@ -143,17 +188,6 @@ export const PaperDetail = forwardRef<HTMLDivElement, PaperDetailProps>(function
             })}
           </ul>
         </section>
-        <RelationList
-          className="astra-detail__relations"
-          title="Informs decisions"
-          items={paper.decisions.map((decision) => relationItemForRecord(
-            decision,
-            undefined,
-            undefined,
-            { onOpen: onOpenDecision ? () => { onOpenDecision(decision); } : undefined },
-          ))}
-          empty="No decisions cite insights from this paper."
-        />
       </aside>
     </div>
   );

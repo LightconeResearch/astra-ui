@@ -117,7 +117,9 @@ function OutputFiles({ outputs, onOpen }: { outputs: ResolvedOutput[]; onOpen: (
   );
 }
 
-/** Figures and tables as galleries, everything else as a list. */
+const GALLERY_TYPES = new Set<ResolvedOutput['type']>(['figure', 'table', 'metric']);
+
+/** Figures, tables, and metrics as galleries, everything else as a list. */
 export const OutputsList = forwardRef<HTMLDivElement, OutputsListProps>(function OutputsList({
   analysis,
   renderArtifact,
@@ -128,7 +130,8 @@ export const OutputsList = forwardRef<HTMLDivElement, OutputsListProps>(function
   const labels = useLabels();
   const figures = analysis.outputs.filter(({ type }) => type === 'figure');
   const tables = analysis.outputs.filter(({ type }) => type === 'table');
-  const files = analysis.outputs.filter(({ type }) => type !== 'figure' && type !== 'table');
+  const metrics = analysis.outputs.filter(({ type }) => type === 'metric');
+  const files = analysis.outputs.filter(({ type }) => !GALLERY_TYPES.has(type));
   if (!analysis.outputs.length) {
     return <EmptyState data-slot="outputs-list" {...props} ref={ref} className={className}>{labels.empty.outputs}</EmptyState>;
   }
@@ -137,6 +140,7 @@ export const OutputsList = forwardRef<HTMLDivElement, OutputsListProps>(function
     <div data-slot="outputs-list" {...props} ref={ref} className={cn('astra-inventory-outputs', className)}>
       <OutputGallery title="Figures" outputs={figures} renderArtifact={renderArtifact} onOpen={open} />
       <OutputGallery title="Tables" outputs={tables} renderArtifact={renderArtifact} onOpen={open} />
+      <OutputGallery title="Metrics" outputs={metrics} renderArtifact={renderArtifact} onOpen={open} />
       <OutputFiles outputs={files} onOpen={open} />
     </div>
   );

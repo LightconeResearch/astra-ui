@@ -190,7 +190,7 @@ export const ArtifactPreview = forwardRef<HTMLElement, ArtifactPreviewProps>(fun
   if (preview.kind === 'metric') {
     return (
       <div {...shared} ref={ref as never} className={cn(rootClass, 'astra-artifact__metric')}>
-        {preview.label ? <span>{preview.label}</span> : null}
+        {preview.label ? <span className="astra-artifact__metric-label">{preview.label}</span> : null}
         <strong className="astra-artifact__metric-value">{compactValue(preview.value, locale)}</strong>
         {preview.uncertainty !== undefined ? (
           <span className="astra-artifact__metric-uncertainty">± {preview.uncertainty}</span>

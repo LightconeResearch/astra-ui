@@ -152,7 +152,6 @@ describe('Insight source evidence', () => {
     const onDetailChange = vi.fn();
     render(<Inventory document={withRootInsight(insight)} defaultDetail={[insightEntry]} onDetailChange={onDetailChange} />);
 
-    expect(screen.getByRole('button', { name: '10.1000/cited · page 7 ↗' })).toBeTruthy();
     expect(screen.getByText('A passage from the cited paper.')).toBeTruthy();
     expect(screen.queryByText('A passage with no paper.')).toBeNull();
 
@@ -163,7 +162,7 @@ describe('Insight source evidence', () => {
     ]);
   });
 
-  it('opens the first DOI and shows no passage borrowed from a later entry', () => {
+  it('shows no passage borrowed from an entry after the primary evidence', () => {
     const insight = {
       ...baseInsight,
       evidence: [
@@ -174,10 +173,13 @@ describe('Insight source evidence', () => {
     const onDetailChange = vi.fn();
     render(<Inventory document={withRootInsight(insight)} defaultDetail={[insightEntry]} onDetailChange={onDetailChange} />);
 
+    // The primary evidence (first DOI) has no quote, so the popup shows no
+    // passage and no locate affordance — never a later entry's passage.
     expect(screen.queryByText('A passage from the second paper.')).toBeNull();
     expect(screen.queryByRole('button', { name: /Locate passage in paper/ })).toBeNull();
 
-    fireEvent.click(screen.getByRole('button', { name: '10.1000/first ↗' }));
+    // The paper itself stays reachable through the plain open action.
+    fireEvent.click(screen.getByRole('button', { name: /Open source paper/ }));
     expect(onDetailChange).toHaveBeenLastCalledWith([
       insightEntry,
       { kind: 'paper', doi: '10.1000/first', analysisPath: '$', focusInsightPath: 'prior_insights.cited' },
