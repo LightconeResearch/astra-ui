@@ -4,7 +4,7 @@
   :where(.astra-ui) .astra-inventory-filter > span {
     color: var(--astra-color-text-subtle);
     font-family: var(--astra-font-ui);
-    font-size: 0.66rem;
+    font-size: var(--astra-font-size-2xs);
     white-space: nowrap;
   }
 
@@ -14,7 +14,7 @@
   }
 
   :where(.astra-ui) .astra-inventory-filter > span {
-    font-size: 0.75rem;
+    font-size: var(--astra-font-size-xs);
   }
 
   /* The filter stacks on the width of its records block (the query container
@@ -48,7 +48,7 @@
     background: transparent;
     color: var(--astra-color-text-subtle);
     cursor: pointer;
-    font: 500 0.75rem/1.2 var(--astra-font-ui);
+    font: 500 var(--astra-font-size-xs)/1.2 var(--astra-font-ui);
   }
 
   :where(.astra-ui) .astra-inventory-filter__chips button[aria-pressed="true"] {
@@ -60,7 +60,7 @@
   :where(.astra-ui) .astra-inventory-filter > span {
     flex: 0 0 auto;
     color: var(--astra-color-text-subtle);
-    font: 400 0.75rem/1.2 var(--astra-font-ui);
+    font: 400 var(--astra-font-size-xs)/1.2 var(--astra-font-ui);
   }
 
   @container (max-width: 34rem) {

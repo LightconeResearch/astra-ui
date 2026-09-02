@@ -14,7 +14,7 @@
 
   :where(.astra-ui) .astra-insight-list > p {
     color: var(--astra-color-text-subtle);
-    font-size: 0.72rem;
+    font-size: var(--astra-font-size-xs);
   }
 
   :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-insight-list {
@@ -24,7 +24,7 @@
 
   :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-insight-list h4 {
     color: var(--astra-color-text);
-    font: 700 0.8125rem/1.25 var(--astra-font-ui);
+    font: 700 var(--astra-font-size-sm)/1.25 var(--astra-font-ui);
     letter-spacing: 0;
     text-transform: none;
   }
@@ -36,7 +36,7 @@
   :where(.astra-ui) .astra-insight-list h4 {
     margin: 0 0 0.5rem;
     color: var(--astra-color-text);
-    font: 700 0.875rem/1.2 var(--astra-font-ui);
+    font: 700 var(--astra-font-size)/1.2 var(--astra-font-ui);
   }
 
   :where(.astra-ui) .astra-paper-detail__rail .astra-insight-list {

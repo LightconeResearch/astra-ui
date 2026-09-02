@@ -67,7 +67,7 @@
     color: var(--astra-color-text-muted);
     padding: 0.25rem 0.5rem;
     font-family: var(--astra-font-ui);
-    font-size: 0.65rem;
+    font-size: var(--astra-font-size-2xs);
     font-weight: 700;
     opacity: 0;
     transition: opacity 140ms ease;
@@ -81,7 +81,7 @@
   :where(.astra-ui) .astra-output-card__kind {
     color: var(--astra-color-accent);
     font-family: var(--astra-font-ui);
-    font-size: 0.65rem;
+    font-size: var(--astra-font-size-2xs);
     font-weight: 700;
     letter-spacing: 0.09em;
     text-transform: uppercase;
@@ -99,7 +99,7 @@
   :where(.astra-ui) .astra-output-card__body code {
     overflow: hidden;
     color: var(--astra-color-text-subtle);
-    font-size: 0.68rem;
+    font-size: var(--astra-font-size-2xs);
     text-overflow: ellipsis;
     white-space: nowrap;
   }
@@ -150,7 +150,7 @@
     margin: 0 0 0.625rem;
     color: var(--astra-color-text-subtle);
     font-family: var(--astra-font-ui);
-    font-size: 0.6875rem;
+    font-size: var(--astra-font-size-2xs);
     font-weight: 600;
     letter-spacing: 0.09em;
     text-transform: uppercase;
@@ -218,7 +218,7 @@
     overflow: hidden;
     max-width: 100%;
     color: var(--astra-color-text-subtle);
-    font-size: 0.6875rem;
+    font-size: var(--astra-font-size-2xs);
     line-height: 1.3;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -231,7 +231,7 @@
 
   :where(.astra-ui) .astra-output-card__preview > .astra-artifact:where([data-type="metric"]) .astra-artifact__metric-uncertainty,
   :where(.astra-ui) .astra-output-card__preview > .astra-artifact:where([data-type="metric"]) .astra-artifact__metric-unit {
-    font-size: 0.75rem;
+    font-size: var(--astra-font-size-xs);
   }
 
   :where(.astra-ui) .astra-output-card__open {
@@ -249,16 +249,16 @@
 
   :where(.astra-ui) .astra-output-card__kind {
     color: var(--astra-color-kind-output);
-    font-size: 0.5625rem;
+    font-size: var(--astra-font-size-2xs);
   }
 
   :where(.astra-ui) .astra-output-card__body strong {
-    font-size: 0.8125rem;
+    font-size: var(--astra-font-size-sm);
     font-weight: 600;
   }
 
   :where(.astra-ui) .astra-output-card__body code {
-    font-size: 0.6875rem;
+    font-size: var(--astra-font-size-2xs);
   }
 
   @container (max-width: 58rem) {
@@ -289,7 +289,7 @@
     margin: 0 0 0.625rem;
     color: var(--astra-color-text-subtle);
     font-family: var(--astra-font-ui);
-    font-size: 0.6875rem;
+    font-size: var(--astra-font-size-2xs);
     font-weight: 600;
     letter-spacing: 0.09em;
     text-transform: uppercase;
@@ -340,7 +340,7 @@
     border: 0;
     background: color-mix(in srgb, var(--astra-color-surface-raised) 92%, transparent);
     color: var(--astra-color-text-muted);
-    font: 600 0.625rem/1.2 var(--astra-font-ui);
+    font: 600 var(--astra-font-size-2xs)/1.2 var(--astra-font-ui);
   }
 
   :where(.astra-ui) .astra-output-card__body {
@@ -352,7 +352,7 @@
     display: block;
     margin-bottom: 0.125rem;
     color: var(--astra-color-kind-output);
-    font: 700 0.5625rem/1.2 var(--astra-font-ui);
+    font: 700 var(--astra-font-size-2xs)/1.2 var(--astra-font-ui);
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
@@ -360,7 +360,7 @@
   :where(.astra-ui) .astra-output-card__body strong {
     display: block;
     overflow: hidden;
-    font: 600 0.8125rem/1.25 var(--astra-font-ui);
+    font: 600 var(--astra-font-size-sm)/1.25 var(--astra-font-ui);
     text-overflow: ellipsis;
     white-space: nowrap;
   }

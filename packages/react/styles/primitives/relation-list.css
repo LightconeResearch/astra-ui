@@ -97,7 +97,7 @@
 
   :where(.astra-ui) .astra-relation-item__label {
     font-family: var(--astra-font-ui);
-    font-size: 0.72rem;
+    font-size: var(--astra-font-size-xs);
   }
 
   :where(.astra-ui) .astra-relation-item__label,
@@ -109,18 +109,18 @@
   :where(.astra-ui) .astra-relation-list code,
   :where(.astra-ui) .astra-relation-list small {
     color: var(--astra-color-text-subtle);
-    font-size: 0.6875rem;
+    font-size: var(--astra-font-size-2xs);
   }
 
   :where(.astra-ui) .astra-relation-list > p {
     color: var(--astra-color-text-subtle);
-    font-size: 0.75rem;
+    font-size: var(--astra-font-size-xs);
   }
 
   :where(.astra-ui) .astra-relation-list > .astra-relation-list__description {
     margin: 0.22rem 0 0.62rem;
     color: var(--astra-color-text-subtle);
-    font-size: 0.75rem;
+    font-size: var(--astra-font-size-xs);
     line-height: 1.45;
   }
 
@@ -162,13 +162,13 @@
   }
 
   :where(.astra-ui) .astra-relation-item__label {
-    font: 400 0.8125rem/1.25 var(--astra-font-ui);
+    font: 400 var(--astra-font-size-sm)/1.25 var(--astra-font-ui);
   }
 
   :where(.astra-ui) .astra-relation-list small {
     margin-top: 0.125rem;
     color: var(--astra-color-text-subtle);
-    font-size: 0.6875rem;
+    font-size: var(--astra-font-size-2xs);
   }
 
   :where(.astra-ui) .astra-relation-list__trigger:hover {

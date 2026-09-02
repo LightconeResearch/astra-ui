@@ -83,14 +83,14 @@
   :where(.astra-ui) .astra-surface-header .astra-surface-header__eyebrow {
     color: var(--astra-kind-ink, var(--astra-color-eyebrow));
     font-family: var(--astra-font-ui);
-    font-size: 0.62rem;
+    font-size: var(--astra-font-size-2xs);
     font-weight: 700;
     letter-spacing: 0.09em;
     text-transform: uppercase;
   }
 
   :where(.astra-ui) .astra-surface-header[data-density="compact"] .astra-surface-header__eyebrow {
-    font-size: 0.56rem;
+    font-size: var(--astra-font-size-2xs);
   }
 
   :where(.astra-ui) .astra-surface-header .astra-surface-header__title {
@@ -113,7 +113,7 @@
     overflow-wrap: anywhere;
     color: var(--astra-color-text-subtle);
     font-family: var(--astra-font-mono);
-    font-size: 0.68rem;
+    font-size: var(--astra-font-size-2xs);
   }
 
   :where(.astra-ui) .astra-surface-header .astra-surface-header__actions {
@@ -150,7 +150,7 @@
     min-width: 0;
     overflow: hidden;
     font-family: var(--astra-font-ui);
-    font-size: 0.6875rem;
+    font-size: var(--astra-font-size-2xs);
     font-weight: 700;
     letter-spacing: 0.075em;
     line-height: 1.2;
@@ -177,7 +177,7 @@
     white-space: nowrap;
     color: var(--astra-kind-ink, var(--astra-color-text-subtle));
     font-family: var(--astra-font-ui);
-    font-size: 0.6875rem;
+    font-size: var(--astra-font-size-2xs);
   }
 
 }
