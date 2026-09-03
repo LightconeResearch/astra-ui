@@ -42,7 +42,7 @@ export const FindingsList = forwardRef<HTMLDivElement, FindingsListProps>(functi
             key: record.canonicalPath,
             accessibleLabel: `${recordTitle(record)}: ${record.claim} ${evidenceLabel(count)}`,
             onOpen: () => { onOpenRecord(record, analysis); },
-            cells: [
+              cells: [
               <span className="astra-record-list__name" data-variant="claim">
                 <span className="astra-record-list__glyph" aria-hidden="true">●</span>
                 <span>

@@ -490,20 +490,16 @@
     flex: 0 0 auto;
   }
 
+  /* In the provenance rail the description is a section like the relation
+     lists: flush with the rail padding, no divider of its own. The section
+     that follows brings its own top margin. */
   :where(.astra-ui) .astra-output-detail__description {
     max-height: none;
     flex: 0 0 auto;
     margin: 0;
     overflow: visible;
     border: 0;
-    border-top: 1px solid var(--astra-color-border);
-    background: var(--astra-color-canvas);
-    padding: 1rem 1.375rem;
-  }
-
-  :where(.astra-ui) .astra-output-detail__description-text {
-    color: var(--astra-color-text-muted);
-    font: 1rem/1.55 var(--astra-font-body);
+    padding: 0;
   }
 
 
@@ -527,8 +523,9 @@
     padding: 1.25rem 1.125rem 1.875rem;
   }
 
+  /* Recipe closes the rail; give it the same gap the relation lists carry. */
   :where(.astra-ui) .astra-output-detail__recipe {
-    margin: 0;
+    margin: 1.625rem 0 0;
     padding: 0 0 0.125rem;
     border: 0;
   }
@@ -696,11 +693,6 @@
     background: var(--astra-color-header);
   }
 
-  :where(.astra-ui) .astra-output-detail__description-text {
-    color: var(--astra-color-text-muted);
-    font-family: var(--astra-font-ui);
-  }
-
   :where(.astra-ui) .astra-output-detail__preview {
     border-color: var(--astra-color-border-strong);
     border-radius: 8px;
@@ -720,7 +712,7 @@
     background: var(--astra-color-canvas);
   }
 
-  :where(.astra-ui) .astra-dialog :is( .astra-output-detail__recipe pre, .astra-input-source code, .astra-insight-detail__paper button, .astra-insight-detail__paper a, .astra-insight-detail__source-quote blockquote, .astra-insight-detail__open-source, .astra-paper-doi a ) {
+  :where(.astra-ui) .astra-dialog :is( .astra-output-detail__recipe pre, .astra-input-source code, .astra-insight-detail__paper a, .astra-insight-detail__open-source, .astra-paper-doi a ) {
     background: var(--astra-color-canvas);
   }
 

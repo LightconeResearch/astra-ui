@@ -109,18 +109,18 @@
   :where(.astra-ui) .astra-relation-list code,
   :where(.astra-ui) .astra-relation-list small {
     color: var(--astra-color-text-subtle);
-    font-size: 0.59rem;
+    font-size: 0.6875rem;
   }
 
   :where(.astra-ui) .astra-relation-list > p {
     color: var(--astra-color-text-subtle);
-    font-size: 0.72rem;
+    font-size: 0.75rem;
   }
 
   :where(.astra-ui) .astra-relation-list > .astra-relation-list__description {
     margin: 0.22rem 0 0.62rem;
     color: var(--astra-color-text-subtle);
-    font-size: 0.67rem;
+    font-size: 0.75rem;
     line-height: 1.45;
   }
 
