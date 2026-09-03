@@ -44,11 +44,8 @@
   }
 
   :where(.astra-ui) .astra-insight-trigger__claim {
-    font-family: var(--astra-font-body);
-    font-size: 0.84rem;
-    line-height: 1.5;
     color: var(--astra-color-text);
-    font: 400 0.8125rem/1.35 var(--astra-font-ui);
+    font: 400 0.875rem/1.4 var(--astra-font-ui);
   }
 
 }

@@ -313,8 +313,9 @@ test('output dialogs list indirect decision dependencies reached through upstrea
   const relations = { inputs: [], decisions: [], indirectDecisions: [{ canonicalPath: method.canonicalPath, record: method, analysis: fixtureDocument.analysis }] };
   const html = withinUi(React.createElement(OutputDetail, { record: figure, relations }));
   assert.match(html, /Indirect decision dependencies/);
-  assert.match(html, /Through upstream outputs\./);
   assert.match(html, /Method choice/);
+  // Titles stand alone: no canonical-path subtitle under resolved records.
+  assert.doesNotMatch(html, /decisions\.method/);
 });
 
 test('output cards carry an accessible name instead of their preview cells', () => {
@@ -330,7 +331,7 @@ test('a paper fetch error is announced', () => {
   assert.match(html, /<p role="alert">Not in cache<\/p>/);
 });
 
-test('an insight opened from another analysis still offers its source paper', () => {
+test('an insight opened from another analysis still offers its source passage', () => {
   const index = indexAnalysis(fixtureDocument);
   const clustering = fixtureDocument.analysis.analyses[0];
   const papersOfClustering = collectInventoryPapers(fixtureDocument, index, clustering);
@@ -344,7 +345,9 @@ test('an insight opened from another analysis still offers its source paper', ()
     onClose: () => undefined,
   }));
   assert.match(html, /Locate passage in paper/);
-  assert.match(html, /<button type="button">https:\/\/doi\.org\/10\.1234\/EXAMPLE/);
+  assert.match(html, /<blockquote>The fiducial method performs well\.<\/blockquote>/);
+  // The DOI pill is gone: the passage and its locate action carry the source.
+  assert.doesNotMatch(html, /Source paper/);
 });
 
 test('table previews say whether their total is exact or unknown, and stay quiet when compact', () => {

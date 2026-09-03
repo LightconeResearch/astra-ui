@@ -1,13 +1,6 @@
-/* paper-doi — emitted by src/components/insight-detail.tsx + components/paper-detail.tsx */
+/* paper-doi — emitted by src/components/finding-detail.tsx */
 @layer astra.tokens, astra.base, astra.components, astra.views;
 @layer astra.components {
-  :where(.astra-ui) .astra-paper-doi h4 {
-    margin: 0 0 0.55rem;
-    color: var(--astra-color-text);
-    font-family: var(--astra-font-ui);
-    font-size: 0.82rem;
-  }
-
   :where(.astra-ui) .astra-paper-doi h4 {
     margin: 0 0 0.5rem;
     color: var(--astra-color-text);
@@ -16,8 +9,6 @@
 
   :where(.astra-ui) .astra-paper-doi a {
     overflow-wrap: anywhere;
-    font-family: var(--astra-font-mono);
-    font-size: 0.63rem;
     display: block;
     box-sizing: border-box;
     width: 100%;

@@ -29,7 +29,7 @@ export interface InsightDetailProps extends Omit<HTMLAttributes<HTMLDivElement>,
   onOpenDecision?: ((decision: ResolvedDecision) => void) | undefined;
 }
 
-/** Claim, source paper and passage, notes, and the decisions an insight informs. */
+/** Claim, source passage, notes, and the decisions an insight informs. */
 export const InsightDetail = forwardRef<HTMLDivElement, InsightDetailProps>(function InsightDetail({
   record: insight,
   decisions,
@@ -40,7 +40,6 @@ export const InsightDetail = forwardRef<HTMLDivElement, InsightDetailProps>(func
   ...props
 }, ref) {
   const source = primaryLiteratureEvidence(insight);
-  const sourceLocation = source?.location?.page ? ` · page ${source.location.page}` : '';
   return (
     <DetailLayout data-slot="insight-detail" {...props} ref={ref} layout="single" className={cn('astra-insight-detail', className)}>
       <DetailMain>
@@ -49,30 +48,28 @@ export const InsightDetail = forwardRef<HTMLDivElement, InsightDetailProps>(func
             <Prose text={insight.claim} field="claim" renderText={renderText} />
           </DetailSection>
         ) : null}
-        {source?.doi ? (
-          <section className="astra-insight-detail__paper astra-paper-doi">
-            <h4>Source paper</h4>
-            {onOpenSource ? (
-              <button type="button" onClick={onOpenSource}>
-                {source.doi}{sourceLocation} ↗
-              </button>
-            ) : (
-              <a href={doiHref(source.doi)} target="_blank" rel="noreferrer">
-                {source.doi}{sourceLocation} ↗
-              </a>
-            )}
-          </section>
-        ) : null}
         {source?.quote ? (
-          <section className="astra-insight-detail__source-quote">
-            <h4>Source passage</h4>
+          <figure className="astra-insight-detail__source-quote">
             <blockquote><Prose text={source.quote.exact} field="quote" renderText={renderText} /></blockquote>
             {source.doi && onOpenSource ? (
-              <button type="button" className="astra-insight-detail__open-source" onClick={onOpenSource}>
-                Locate passage in paper <span aria-hidden="true">→</span>
-              </button>
+              <figcaption>
+                <button type="button" className="astra-insight-detail__open-source" onClick={onOpenSource}>
+                  Locate passage in paper <span aria-hidden="true">→</span>
+                </button>
+              </figcaption>
             ) : null}
-          </section>
+          </figure>
+        ) : source?.doi ? (
+          // Evidence with a DOI but no quote still needs a way to the paper.
+          onOpenSource ? (
+            <button type="button" className="astra-insight-detail__open-source" onClick={onOpenSource}>
+              Open source paper <span aria-hidden="true">→</span>
+            </button>
+          ) : (
+            <a className="astra-insight-detail__open-source" href={doiHref(source.doi)} target="_blank" rel="noreferrer">
+              Open source paper <span aria-hidden="true">↗</span>
+            </a>
+          )
         ) : null}
         {insight.notes ? (
           <section className="astra-insight-detail__notes">
