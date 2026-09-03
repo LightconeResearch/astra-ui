@@ -14,13 +14,13 @@
   }
 
   :where(.astra-ui) .astra-count-heading > span {
-    font-size: 0.62rem;
+    font-size: var(--astra-font-size-2xs);
     min-width: 1.375rem;
     border-radius: 999px;
     background: var(--astra-color-canvas);
     color: var(--astra-color-text-subtle);
     padding: 0.125rem 0.4375rem;
-    font: 700 0.625rem/1.5 var(--astra-font-ui);
+    font: 700 var(--astra-font-size-2xs)/1.5 var(--astra-font-ui);
     text-align: center;
   }
 

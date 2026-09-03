@@ -12,16 +12,6 @@
     align-items: stretch;
   }
 
-  :where(.astra-ui) .astra-output-detail__layout:where([data-layout="single"]) .astra-output-detail__provenance {
-    position: static;
-    overflow: visible;
-    margin-top: 1.5rem;
-    border-top: 1px solid var(--astra-color-border);
-    border-left: 0;
-    background: transparent;
-    padding: 1.25rem 0 0;
-  }
-
   :where(.astra-ui) .astra-output-detail__result {
     min-width: 0;
     min-height: 0;
@@ -41,7 +31,7 @@
     padding: 0.35rem 0.5rem 0.35rem 0.75rem;
     color: var(--astra-color-text-subtle);
     font-family: var(--astra-font-ui);
-    font-size: 0.68rem;
+    font-size: var(--astra-font-size-2xs);
   }
 
   :where(.astra-ui) .astra-output-detail__fullscreen-header > span:first-child {
@@ -49,23 +39,6 @@
     min-width: 0;
     align-items: baseline;
     gap: 0.6rem;
-  }
-
-  :where(.astra-ui) .astra-output-detail__fullscreen-header small {
-    font-weight: 700;
-    font-size: inherit;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  :where(.astra-ui) .astra-output-detail__fullscreen-header strong {
-    min-width: 0;
-    overflow: hidden;
-    color: var(--astra-color-text);
-    font-family: var(--astra-font-heading);
-    font-size: 0.9rem;
-    text-overflow: ellipsis;
-    white-space: nowrap;
   }
 
   :where(.astra-ui) .astra-output-detail__fullscreen-header button {
@@ -80,28 +53,12 @@
     color: var(--astra-color-accent);
     padding: 0.18rem 0.45rem;
     font: inherit;
-    font-size: 0.75rem;
+    font-size: var(--astra-font-size-xs);
   }
 
   :where(.astra-ui) .astra-output-detail__fullscreen-header button:hover {
     border-color: var(--astra-color-accent);
     background: var(--astra-color-surface-muted);
-  }
-
-  :where(.astra-ui) .astra-output-detail__artifact[data-expanded] .astra-output-detail__preview {
-    width: 100%;
-    height: 100%;
-    min-height: 0;
-    max-height: none;
-    overflow: hidden;
-    border: 0;
-    border-radius: 0;
-  }
-
-  :where(.astra-ui) .astra-output-detail__description {
-    margin: 1.25rem 0 0;
-    padding-top: 1.1rem;
-    border-top: 1px solid var(--astra-color-border);
   }
 
   :where(.astra-ui) .astra-output-detail__layout:where([data-layout="single"]) .astra-output-detail__description:first-child {
@@ -110,39 +67,15 @@
     border-top: 0;
   }
 
-  :where(.astra-ui) .astra-output-detail__description h4 {
-    margin: 0 0 0.5rem;
-    color: var(--astra-color-text);
-    font-family: var(--astra-font-ui);
-    font-size: 0.82rem;
-  }
-
   :where(.astra-ui) .astra-output-detail__description-text {
     width: 100%;
     max-width: none;
     margin: 0;
     color: var(--astra-color-text-muted);
-    font-size: 0.82rem;
-    line-height: 1.5;
+    font-family: var(--astra-font-body);
+    font-size: 1rem;
+    line-height: 1.6;
     white-space: normal;
-  }
-
-  :where(.astra-ui) .astra-output-detail__provenance {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    min-height: 0;
-    flex-direction: column;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    scrollbar-gutter: stable;
-    border-left: 1px solid var(--astra-color-border);
-    background: var(--astra-color-surface-raised);
-    padding: 1.35rem 1.2rem;
-  }
-
-  :where(.astra-ui) .astra-output-detail__recipe {
-    margin-top: 0;
   }
 
   :where(.astra-ui) .astra-output-detail__recipe summary {
@@ -153,14 +86,9 @@
     font-weight: 700;
   }
 
-  :where(.astra-ui) .astra-output-detail__recipe code {
-    color: var(--astra-color-text-muted);
-    font-size: 0.63rem;
-  }
-
   :where(.astra-ui) .astra-output-detail__recipe p {
     color: var(--astra-color-text-subtle);
-    font-size: 0.68rem;
+    font-size: var(--astra-font-size-2xs);
   }
 
   @media (max-width: 640px) {
@@ -175,34 +103,7 @@
       overflow: visible;
     }
 
-    :where(.astra-ui) .astra-output-detail__provenance {
-      position: static;
-      overflow: visible;
-      border-top: 1px solid var(--astra-color-border);
-      border-left: 0;
-    }
-
-    :where(.astra-ui) .astra-output-detail__preview {
-      min-height: 12rem;
-    }
-
   }
-  :where(.astra-ui) .astra-output-detail__result {
-    background: var(--astra-color-canvas);
-  }
-
-  :where(.astra-ui) .astra-output-detail__description-text {
-    color: var(--astra-color-text);
-    font-family: var(--astra-font-body);
-    font-size: 1rem;
-    line-height: 1.6;
-  }
-
-  :where(.astra-ui) .astra-output-detail__provenance {
-    border-color: var(--astra-color-border);
-    background: var(--astra-color-surface-raised);
-  }
-
   :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-output-detail__layout {
     height: auto;
     max-height: none;
@@ -212,7 +113,7 @@
   :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-output-detail__description h4,
   :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-output-detail__recipe summary {
     color: var(--astra-color-text);
-    font: 700 0.8125rem/1.25 var(--astra-font-ui);
+    font: 700 var(--astra-font-size-sm)/1.25 var(--astra-font-ui);
     letter-spacing: 0;
     text-transform: none;
   }
@@ -390,19 +291,13 @@
   :where(.astra-ui) .astra-output-detail__recipe h4 {
     margin: 0 0 0.5rem;
     color: var(--astra-color-text);
-    font: 700 0.875rem/1.2 var(--astra-font-ui);
+    font: 700 var(--astra-font-size)/1.2 var(--astra-font-ui);
   }
 
   :where(.astra-ui) .astra-output-detail__layout:where([data-layout="reader"]) {
     display: grid;
     grid-template-columns: minmax(0, 1fr) clamp(19.5rem, 27%, 21rem);
     align-items: stretch;
-  }
-
-  :where(.astra-ui) .astra-output-detail__result {
-    min-width: 0;
-    min-height: 0;
-    background: var(--astra-color-canvas);
   }
 
   :where(.astra-ui) .astra-output-detail__layout:where([data-layout="reader"]) .astra-output-detail__result {
@@ -513,6 +408,8 @@
   :where(.astra-ui) .astra-output-detail__provenance {
     position: absolute;
     inset: 0;
+    display: flex;
+    flex-direction: column;
     min-width: 0;
     min-height: 0;
     overflow-y: auto;
@@ -544,7 +441,8 @@
   }
 
   :where(.astra-ui) .astra-output-detail__recipe code {
-    font-size: 0.6875rem;
+    color: var(--astra-color-text-muted);
+    font-size: var(--astra-font-size-2xs);
     line-height: 1.5;
   }
 
@@ -573,10 +471,6 @@
     border: 0;
     background: var(--astra-color-canvas);
     padding: 0;
-  }
-
-  :where(.astra-ui) .astra-output-detail__fullscreen-header {
-    display: none;
   }
 
   :where(.astra-ui) .astra-output-detail__artifact[data-expanded] {
@@ -619,13 +513,15 @@
 
   :where(.astra-ui) .astra-output-detail__fullscreen-header small {
     color: var(--astra-color-text-subtle);
-    font: 700 0.6875rem/1.2 var(--astra-font-ui);
+    font: 700 var(--astra-font-size-2xs)/1.2 var(--astra-font-ui);
     letter-spacing: 0.075em;
     text-transform: uppercase;
   }
 
   :where(.astra-ui) .astra-output-detail__fullscreen-header strong {
+    min-width: 0;
     overflow: hidden;
+    color: var(--astra-color-text);
     font: 700 1rem/1.2 var(--astra-font-ui);
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -636,7 +532,9 @@
     height: 100%;
     min-height: 0;
     max-height: none;
+    overflow: hidden;
     border: 0;
+    border-radius: 0;
     background: var(--astra-color-canvas);
   }
 
@@ -674,7 +572,7 @@
   :where(.astra-ui) .astra-output-detail__description > span {
     color: var(--astra-color-text-subtle);
     font-family: var(--astra-font-ui);
-    font-size: 0.68rem;
+    font-size: var(--astra-font-size-2xs);
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -714,11 +612,6 @@
 
   :where(.astra-ui) .astra-dialog :is( .astra-output-detail__recipe pre, .astra-input-source code, .astra-insight-detail__paper a, .astra-insight-detail__open-source, .astra-paper-doi a ) {
     background: var(--astra-color-canvas);
-  }
-
-  :where(.astra-ui) .astra-output-detail__description-text {
-    color: var(--astra-color-text-muted);
-    font-family: var(--astra-font-body);
   }
 
 }

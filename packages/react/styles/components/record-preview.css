@@ -24,7 +24,7 @@
 
   :where(.astra-ui) .astra-record-preview__header .astra-surface-header__eyebrow {
     color: var(--astra-kind-ink, var(--astra-kind));
-    font: 500 0.625rem/1.2 var(--astra-font-ui);
+    font: 500 var(--astra-font-size-2xs)/1.2 var(--astra-font-ui);
     letter-spacing: 0.08em;
   }
 
@@ -59,7 +59,7 @@
   :where(.astra-ui) .astra-record-preview__section > h4 {
     margin: 0.9rem 0 0.4rem;
     color: var(--astra-color-text-subtle);
-    font: 500 0.625rem/1.2 var(--astra-font-ui);
+    font: 500 var(--astra-font-size-2xs)/1.2 var(--astra-font-ui);
     letter-spacing: 0.1em;
     text-transform: uppercase;
   }
@@ -146,7 +146,7 @@
     color: var(--astra-color-text);
     padding: 0;
     text-align: start;
-    font: 500 0.8125rem/1.4 var(--astra-font-ui);
+    font: 500 var(--astra-font-size-sm)/1.4 var(--astra-font-ui);
   }
 
   :where(.astra-ui) button.astra-record-preview__relation-trigger {
@@ -183,7 +183,7 @@
     border: 0 !important;
     background: transparent !important;
     color: var(--astra-color-text-subtle);
-    font: 400 0.6875rem/1.4 var(--astra-font-ui);
+    font: 400 var(--astra-font-size-2xs)/1.4 var(--astra-font-ui);
   }
 
   :where(.astra-ui) .astra-record-preview__evidence > li {
@@ -206,7 +206,7 @@
   :where(.astra-ui) .astra-record-preview__quote {
     margin: 0.35rem 0 0;
     color: var(--astra-color-text-subtle);
-    font-size: 0.8125rem;
+    font-size: var(--astra-font-size-sm);
     font-style: italic;
     line-height: 1.45;
   }
@@ -222,7 +222,7 @@
   :where(.astra-ui) .astra-record-preview__citation {
     margin-top: 0.3rem;
     color: var(--astra-color-text-subtle);
-    font: 400 0.75rem/1.4 var(--astra-font-ui);
+    font: 400 var(--astra-font-size-xs)/1.4 var(--astra-font-ui);
   }
 
   :where(.astra-ui) .astra-record-preview__citation a,
@@ -249,7 +249,7 @@
     background: var(--astra-kind-soft);
     color: var(--astra-kind-ink, var(--astra-kind));
     padding: 0.1em 0.6em;
-    font: 400 0.6875rem/1.4 var(--astra-font-ui);
+    font: 400 var(--astra-font-size-2xs)/1.4 var(--astra-font-ui);
     letter-spacing: 0.04em;
   }
 
@@ -283,14 +283,14 @@
     color: var(--astra-color-text-muted);
     padding: 0.2em 0.45em;
     font-family: var(--astra-font-mono);
-    font-size: 0.6875rem;
+    font-size: var(--astra-font-size-2xs);
     overflow-wrap: anywhere;
   }
 
   :where(.astra-ui) .astra-record-preview__counts {
     margin: 0;
     color: var(--astra-color-text-subtle);
-    font: 400 0.75rem/1.4 var(--astra-font-ui);
+    font: 400 var(--astra-font-size-xs)/1.4 var(--astra-font-ui);
   }
 
   :where(.astra-ui) .astra-record-preview__value {
@@ -311,6 +311,6 @@
     gap: 0.5em;
     margin: 0 0 0.6rem;
     color: var(--astra-color-text-subtle);
-    font: 400 0.75rem/1.4 var(--astra-font-ui);
+    font: 400 var(--astra-font-size-xs)/1.4 var(--astra-font-ui);
   }
 }
