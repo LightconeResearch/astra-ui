@@ -84,7 +84,7 @@
     padding: 0.55rem 0.75rem;
     border-block-start: 1px solid var(--astra-color-border);
     font-family: var(--astra-font-ui);
-    font-size: 0.75rem;
+    font-size: var(--astra-font-size-xs);
     text-align: start;
   }
 
@@ -123,7 +123,7 @@
     gap: 0.35rem;
     color: var(--astra-color-text-subtle);
     font-family: var(--astra-font-ui);
-    font-size: 0.72rem;
+    font-size: var(--astra-font-size-xs);
   }
 
   :where(.astra-ui) .astra-artifact__placeholder > span:first-child {
@@ -160,13 +160,13 @@
     background: color-mix(in srgb, var(--astra-color-artifact-ink) 7%, var(--astra-color-artifact-paper));
     color: color-mix(in srgb, var(--astra-color-artifact-ink) 76%, var(--astra-color-artifact-paper));
     font-family: var(--astra-font-ui);
-    font-size: 0.65rem;
+    font-size: var(--astra-font-size-2xs);
     letter-spacing: 0.03em;
   }
 
   :where(.astra-ui) .astra-artifact__table td:not(:first-child) {
     font-family: var(--astra-font-mono);
-    font-size: 0.65rem;
+    font-size: var(--astra-font-size-2xs);
   }
 
   :where(.astra-ui) .astra-artifact__table td {
@@ -181,7 +181,7 @@
     margin: 0.65rem 0 0;
     color: var(--astra-color-text-subtle);
     font-family: var(--astra-font-ui);
-    font-size: 0.72rem;
+    font-size: var(--astra-font-size-xs);
   }
 
   :where(.astra-ui) .astra-artifact__table[data-compact] {
@@ -192,7 +192,7 @@
 
   :where(.astra-ui) .astra-artifact__table[data-compact] table {
     table-layout: fixed;
-    font-size: 0.6rem;
+    font-size: var(--astra-font-size-2xs);
   }
 
   :where(.astra-ui) .astra-artifact__table[data-compact] th,

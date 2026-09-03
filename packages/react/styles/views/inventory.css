@@ -128,7 +128,7 @@
     margin: 0 0 0.5rem;
     color: var(--astra-color-text-subtle);
     font-family: var(--astra-font-ui);
-    font-size: 0.625rem;
+    font-size: var(--astra-font-size-2xs);
     font-weight: 700;
     letter-spacing: 0.1em;
     text-transform: uppercase;
@@ -148,7 +148,7 @@
     border-bottom: 1px solid var(--astra-color-border-subtle);
     color: var(--astra-color-text-subtle);
     font-family: var(--astra-font-ui);
-    font-size: 0.8125rem;
+    font-size: var(--astra-font-size-sm);
     text-decoration: none;
   }
 
@@ -158,7 +158,7 @@
 
   :where(.astra-ui) .astra-inventory-outline__glyph {
     color: var(--astra-kind, var(--astra-color-text-subtle));
-    font-size: 0.625rem;
+    font-size: var(--astra-font-size-2xs);
     text-align: center;
   }
 
