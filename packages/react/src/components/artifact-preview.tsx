@@ -76,9 +76,11 @@ export interface ArtifactPreviewProps extends Omit<HTMLAttributes<HTMLElement>, 
 
 function compactValue(value: string | number | undefined, locale: string | undefined): string {
   if (value == null || value === '') return 'Value unavailable';
-  return typeof value === 'number'
-    ? value.toLocaleString(locale, { maximumSignificantDigits: 5 })
-    : value;
+  const numeric = typeof value === 'number' ? value
+    : /^[+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?$/i.test(value.trim()) ? Number(value) : undefined;
+  return numeric !== undefined && Number.isFinite(numeric)
+    ? numeric.toLocaleString(locale, { maximumSignificantDigits: 5 })
+    : String(value);
 }
 
 function unavailableReason(output: ResolvedOutput): string {
@@ -193,7 +195,7 @@ export const ArtifactPreview = forwardRef<HTMLElement, ArtifactPreviewProps>(fun
         {preview.label ? <span className="astra-artifact__metric-label">{preview.label}</span> : null}
         <strong className="astra-artifact__metric-value">{compactValue(preview.value, locale)}</strong>
         {preview.uncertainty !== undefined ? (
-          <span className="astra-artifact__metric-uncertainty">± {preview.uncertainty}</span>
+          <span className="astra-artifact__metric-uncertainty">± {compactValue(preview.uncertainty, locale)}</span>
         ) : null}
         {preview.unit ? <span className="astra-artifact__metric-unit">{preview.unit}</span> : null}
       </div>
