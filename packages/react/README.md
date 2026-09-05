@@ -76,8 +76,9 @@ Every public file also has a direct subpath, such as
 ### Full view
 
 `Inventory` is the highest-level component. It renders the selected analysis as
-outputs, decisions, inputs, findings, prior insights, and cited papers, with an
-optional outline and a drill-down detail stack.
+outputs, decisions, inputs, findings, and cited papers, with an optional outline
+and a drill-down detail stack. Prior insights have no section of their own; they
+open from the decisions and papers that cite them.
 
 Its most useful options are:
 
@@ -102,7 +103,6 @@ Use blocks when your application owns the page layout or routing:
 | `DecisionsList` | Decision rows, selected options, and a controlled or uncontrolled tag filter |
 | `InputsList` | Inputs with their source and declared type |
 | `FindingsList` | Findings with claims and evidence counts |
-| `PriorInsightsList` | Prior insights with claims and source counts |
 | `PapersList`, `PaperRows` | Cited papers derived with `collectInventoryPapers` |
 | `InventorySection`, `InventoryRecords`, `InventoryOutline` | Section chrome, kind-aware record layout, and anchor navigation for custom inventories |
 
@@ -257,9 +257,30 @@ and their public types.
 - `labels` on `Inventory`, or `LabelsProvider` around lower-level components,
   overrides the default UI copy.
 
-These are render callbacks and events: the package never fetches a URL, reads a
-file, resolves an ASTRA project, or stores application state on the host's
-behalf.
+The core components use render callbacks and events; they do not read project
+files, resolve an ASTRA project, or fetch papers on the application's behalf.
+
+`RecordDetails` provides the inventory's detail stack without any section or
+page layout. It accepts the same document, index, renderers, metadata, and
+controlled `detail` / `onDetailChange` props as `Inventory`. `AnalysisSelector`
+in the blocks layer provides the analysis-tree dropdown for custom page headers.
+The components layer also exports `parseInventoryOpenReference` and
+`detailEntryForOpenReference` for translating external record links into detail
+entries; integrations still validate their message origin or command boundary.
+
+For continuous PDF reading, import the optional `PaperViewer` from
+`@astra-spec/ui/components/paper-pdf-viewer` and use it in `renderPaper`:
+
+```tsx
+<PaperViewer paper={paper} options={options} loadPdfJs={loadPdfJs} />
+```
+
+Supply a stable `loadPdfJs(): Promise<PdfJs>` callback that initializes the
+runtime and worker, and a usable `paper.pdfUrl`. The runtime fetches that URL;
+the application owns authentication, paper caching/downloading, and PDF.js asset
+delivery. The shared viewer owns continuous page layout, lazy rendering, zoom,
+quote search, and highlighting. It does not bundle PDF.js. Runtime structural
+types and quote helpers are available from `components/pdf-quote`.
 
 ## Styling and theming
 

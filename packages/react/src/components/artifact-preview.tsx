@@ -258,7 +258,7 @@ export function tablePreviewFromDelimited(text: string, options: DelimitedPrevie
   // A byte-limited sample may end inside a record (or inside a quoted cell);
   // that record is dropped, and the total row count is unknown.
   const sampled = Boolean(options.sourceTruncated);
-  const lastComplete = /\r?\n$/.test(text) && !parsed.unterminated;
+  const lastComplete = /[\r\n]$/.test(text) && !parsed.unterminated;
   const body = sampled && !lastComplete ? records.slice(0, -1) : records;
   const headers = allHeaders.slice(0, maxColumns);
   const rows = body.slice(0, maxRows).map((cells) => cells.slice(0, maxColumns));

@@ -37,7 +37,7 @@ test('the composed inventory consumes ResolvedAnalysisDocument directly', () => 
     },
   }));
 
-  for (const label of ['Outputs', 'Decisions', 'Inputs', 'Findings', 'Prior Insights', 'Papers']) {
+  for (const label of ['Outputs', 'Decisions', 'Inputs', 'Findings', 'Papers']) {
     assert.match(html, new RegExp(`<h2 id="[a-z-]+" tabindex="-1"><span>${label}</span></h2>`));
   }
   assert.match(html, /Headline result/);

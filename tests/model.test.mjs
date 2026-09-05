@@ -124,6 +124,9 @@ test('a byte-limited delimited sample drops its cut-off last record and reports 
   assert.deepEqual(cleanEnd.rows, [['1', '2'], ['3', '4']], 'a sample ending on a newline keeps its last record');
   assert.equal(cleanEnd.totalRows, undefined);
 
+  const carriageReturn = tablePreviewFromDelimited('a,b\r1,2\r3,4\r', { sourceTruncated: true });
+  assert.deepEqual(carriageReturn.rows, [['1', '2'], ['3', '4']], 'bare CR line endings also preserve the last complete record');
+
   const openQuote = tablePreviewFromDelimited('a,b\n1,2\n3,"multi\nline', { sourceTruncated: true });
   assert.deepEqual(openQuote.rows, [['1', '2']], 'an unterminated quoted record is dropped');
 
