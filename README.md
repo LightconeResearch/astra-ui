@@ -86,7 +86,7 @@ Import the layer you need, for example `@astra-spec/ui/components` or
 | Path | Purpose |
 | --- | --- |
 | [`packages/react`](packages/react) | Published `@astra-spec/ui` package, source, styles, and package documentation |
-| [`packages/playground`](packages/playground) | Private Ladle workspace covering views, dialogs, primitives, responsive layouts, and themes |
+| [`packages/playground`](packages/playground) | Private Ladle workspace for the surfaces the demo paper never mounts: inventory blocks and views, embedded detail, primitives, and tokens |
 | [`packages/preview`](packages/preview) | Private workspace that renders the demo paper through astra-theme against the local package, for pull-request previews |
 | [`tests`](tests) | SSR, package-contract, model, attribute-forwarding, and DOM interaction tests |
 | [`scripts`](scripts) | Consumer checks, token documentation, and project utilities |
@@ -115,14 +115,21 @@ a committed resolved ASTRA project. Run
 | `npm run playground` | Start the Ladle component explorer |
 | `npm run preview` | Build the demo paper against the working tree and serve it (see [`packages/preview`](packages/preview)) |
 | `npm run screenshots` | Capture every story in light and dark mode with Playwright |
-| `npm run screenshots:compare` | Compare a capture against the local ImageMagick baseline |
+| `npm run preview:screenshots` | Capture every page of a built preview in light and dark mode at three widths |
 | `npm run check:consumers` | Type-check sibling consumers against the local package build |
 
-Screenshot capture requires Playwright Chromium; comparison additionally
-requires ImageMagick.
+Screenshot capture requires Playwright Chromium (`npx playwright install chromium`).
 
-Every pull request also gets a preview of the demo paper rendered with its
-`@astra-spec/ui`, posted as a comment by the `Preview` workflow.
+Every pull request gets a preview of the demo paper rendered with its
+`@astra-spec/ui`, posted as a comment by the `Preview` workflow, which also
+uploads screenshots of the paper and the playground to
+[Argos](https://argos-ci.com/) for a visual diff against the merge base. An
+installable build of every commit is published to
+[pkg.pr.new](https://pkg.pr.new/):
+
+```bash
+npm install https://pkg.pr.new/@astra-spec/ui@<pr-number-or-sha>
+```
 
 ## Releases
 

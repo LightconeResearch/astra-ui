@@ -3,8 +3,8 @@
 //   node scripts/screenshot.mjs <outDir> [--filter substring] [--width px]
 //
 // Starts `ladle serve` on the configured port, reads /meta.json, and writes
-// <outDir>/<storyId>--<theme>.png at a fixed 1280x900 viewport. Compare two
-// runs with scripts/compare.mjs.
+// <outDir>/<storyId>--<theme>.png at a fixed 1280x900 viewport. The Preview
+// workflow uploads a run to Argos for a visual diff against the merge base.
 import { spawn } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';

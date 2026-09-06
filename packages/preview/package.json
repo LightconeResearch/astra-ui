@@ -6,10 +6,12 @@
   "description": "Renders the demo paper through astra-theme against this checkout's @astra-spec/ui and exports it as a static site, for pull-request previews.",
   "scripts": {
     "build": "node build.mjs",
-    "serve": "node build.mjs --serve"
+    "serve": "node build.mjs --serve",
+    "screenshots": "node screenshot.mjs"
   },
   "devDependencies": {
     "mystmd": "1.10.1",
-    "yaml": "^2.9.0"
+    "yaml": "^2.9.0",
+    "playwright": "^1.62.1"
   }
 }
