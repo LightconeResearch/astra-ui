@@ -1,5 +1,6 @@
 // Screenshot every page of the exported paper in light and dark mode at
-// several widths, plus the hover preview astra-ui contributes. CI uploads the
+// several widths, plus the states astra-ui contributes: the hover preview and
+// the record dialog a reference opens, one per record kind. CI uploads the
 // PNGs to Argos for a visual diff against the pull request's merge base.
 //
 //   node packages/preview/screenshot.mjs [--dir <export>] [--out <dir>] [--widths 1280,960,640]
@@ -71,7 +72,7 @@ try {
         await page.screenshot({ path: join(out, `${slug}--${scheme}--${width}.png`), fullPage: true });
         count += 1;
       }
-      // The hover preview, once per scheme at the widest viewport.
+      // The hover preview and the record dialogs, once per scheme at the widest viewport.
       if (width === widths[0]) {
         await page.goto(base + '/', { waitUntil: 'load' });
         await settle(page);
@@ -84,6 +85,24 @@ try {
           await page.waitForTimeout(300);
           await page.screenshot({ path: join(out, `index--hover--${scheme}--${width}.png`) });
           count += 1;
+          await page.mouse.move(0, 0);
+        }
+        // Clicking a reference opens its record in a dialog; capture one per kind.
+        for (const kind of ['decision', 'finding', 'prior_insight', 'value']) {
+          const opener = page.locator(`.astra-ref-trigger:has(.astra-ref--${kind})`).first();
+          if (!(await opener.count())) continue;
+          await opener.scrollIntoViewIfNeeded();
+          await opener.click();
+          const dialog = page.locator('dialog[open]').first();
+          if (!(await dialog.waitFor({ timeout: 5000 }).then(() => true, () => false))) {
+            console.warn(`no dialog opened from the first ${kind} reference`);
+            continue;
+          }
+          await settle(page);
+          await page.screenshot({ path: join(out, `index--dialog-${kind}--${scheme}--${width}.png`) });
+          count += 1;
+          await page.keyboard.press('Escape');
+          await dialog.waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {});
         }
       }
       await context.close();
