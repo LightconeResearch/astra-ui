@@ -87,10 +87,18 @@ jobs:
           PREVIEW_MYSTRA: ${{ inputs.mystra }}
         run: node packages/preview/build.mjs
 
+      # The manifest summary embeds caller-supplied refs and URLs, so it is
+      # treated as untrusted: written through a delimited block here, and only
+      # ever read back through `env:` below, never interpolated into a script.
       - name: Read the build manifest
         id: manifest
         run: |
-          echo "summary=$(jq -r .summary packages/preview/dist/_preview.json)" >> "$GITHUB_OUTPUT"
+          delimiter="summary-$(od -An -N8 -tx1 /dev/urandom | tr -d ' \n')"
+          {
+            echo "summary<<$delimiter"
+            jq -r .summary packages/preview/dist/_preview.json
+            echo "$delimiter"
+          } >> "$GITHUB_OUTPUT"
           du -sh packages/preview/dist
 
       - name: Deploy to Vercel
@@ -102,6 +110,7 @@ jobs:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
+          SUMMARY: ${{ steps.manifest.outputs.summary }}
         run: |
           set -euo pipefail
           args=(deploy packages/preview/dist --yes --archive=tgz --token "$VERCEL_TOKEN"
@@ -115,7 +124,7 @@ jobs:
             echo
             echo "$url"
             echo
-            echo "${{ steps.manifest.outputs.summary }}"
+            echo "$SUMMARY"
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Comment on the pull request

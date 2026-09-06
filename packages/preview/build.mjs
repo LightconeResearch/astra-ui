@@ -79,14 +79,32 @@ const options = {
 if (args.length) throw new Error(`unknown arguments: ${args.join(' ')}`);
 const work = options.cache;
 
+// Refs and the plugin locator may come from another repository's workflow
+// inputs. A ref is handed to `git fetch` as a positional argument, so it must
+// not look like an option, and every value ends up in the export's manifest.
+const isDirectory = (path) => existsSync(path) && statSync(path).isDirectory();
+const isFile = (path) => existsSync(path) && statSync(path).isFile();
+function assertRef(name, value) {
+  if (isDirectory(value)) return;
+  if (!/^[A-Za-z0-9][A-Za-z0-9._/+@~^-]*$/.test(value)) {
+    throw new Error(`${name}: "${value}" is neither a directory nor a git ref (branch, tag, or commit)`);
+  }
+}
+assertRef('--ui', options.ui);
+assertRef('--theme', options.theme);
+assertRef('--content', options.content);
+if (options.mystra && !isFile(options.mystra)) {
+  let url;
+  try { url = new URL(options.mystra); } catch { /* not a URL */ }
+  if (url?.protocol !== 'https:') throw new Error(`--mystra: "${options.mystra}" is neither a file nor an https URL`);
+}
+
 // --- helpers -----------------------------------------------------------------
 
 const rel = (path) => {
   const short = relative(root, path);
   return short.startsWith('..') ? path : short || '.';
 };
-const isDirectory = (path) => existsSync(path) && statSync(path).isDirectory();
-const isFile = (path) => existsSync(path) && statSync(path).isFile();
 
 function log(message) {
   console.log(`\n▶ ${message}`);
@@ -301,14 +319,15 @@ function finalize({ ui, theme, content }) {
     trailingSlash: false,
     headers: [{ source: '/(.*)', headers: [{ key: 'X-Robots-Tag', value: 'noindex' }] }],
   }, null, 2)}\n`);
+  const clean = (text) => String(text).replace(/\p{Cc}/gu, ' ').trim();
   const manifest = {
     builtAt: new Date().toISOString(),
-    ui: ui.label,
-    theme: theme.label,
-    content: content.label,
-    mystra: content.mystra,
-    summary: `@astra-spec/ui ${ui.label} · astra-theme ${theme.label} · content ${content.label} · MySTRA ${content.mystra}`,
+    ui: clean(ui.label),
+    theme: clean(theme.label),
+    content: clean(content.label),
+    mystra: clean(content.mystra),
   };
+  manifest.summary = `@astra-spec/ui ${manifest.ui} · astra-theme ${manifest.theme} · content ${manifest.content} · MySTRA ${manifest.mystra}`;
   writeFileSync(join(options.out, '_preview.json'), `${JSON.stringify(manifest, null, 2)}\n`);
   return manifest;
 }
