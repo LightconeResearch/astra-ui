@@ -23,9 +23,9 @@
     "playground": "npm run dev --workspace astra-ui-playground",
     "preview": "node packages/preview/build.mjs --serve",
     "preview:build": "node packages/preview/build.mjs",
-    "screenshots": "npm run build && node packages/playground/scripts/screenshot.mjs packages/playground/screenshots/current",
-    "screenshots:compare": "node packages/playground/scripts/compare.mjs packages/playground/screenshots/baseline packages/playground/screenshots/current",
-    "check": "npm run lint && npm run typecheck && npm run typecheck:react19 && node --test tests/*.test.mjs && vitest run"
+    "screenshots": "npm run build && node packages/preview/screenshot.mjs stories",
+    "check": "npm run lint && npm run typecheck && npm run typecheck:react19 && node --test tests/*.test.mjs && vitest run",
+    "preview:screenshots": "node packages/preview/screenshot.mjs paper"
   },
   "devDependencies": {
     "@astra-spec/sdk": "^0.1.1",
@@ -44,7 +44,9 @@
     "typescript-eslint": "^8.68.0",
     "vitest": "^4.1.11",
     "@types/react-19": "npm:@types/react@^19",
-    "globals": "^16.0.0"
+    "globals": "^16.0.0",
+    "@argos-ci/cli": "6.9.2",
+    "pkg-pr-new": "0.0.88"
   },
   "allowScripts": {
     "esbuild@0.25.12": true

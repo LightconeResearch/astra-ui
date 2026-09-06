@@ -6,10 +6,14 @@ name: Preview
 # production URL on main. Other repositories can call this workflow with their
 # own refs (workflow_call) so one pipeline serves astra-ui, astra-theme and MySTRA.
 #
+# The job then screenshots the paper and the playground stories in light and
+# dark mode and uploads them to Argos for a visual diff against the merge base.
+#
 # One-time setup is described in packages/preview/README.md: create the Vercel
-# project and add VERCEL_TOKEN, VERCEL_ORG_ID and VERCEL_PROJECT_ID as secrets.
-# Without them (and for pull requests from forks, which never see secrets) the
-# job still builds the site and uploads it as a workflow artifact.
+# project and add VERCEL_TOKEN, VERCEL_ORG_ID and VERCEL_PROJECT_ID as secrets;
+# create the Argos project and add ARGOS_TOKEN. Without them (and for pull
+# requests from forks, which never see secrets) the job still builds the site
+# and the screenshots and uploads both as workflow artifacts.
 
 on:
   pull_request:
@@ -32,7 +36,7 @@ on:
         type: string
         default: ''
       mystra:
-        description: MySTRA bundle URL (default the content's own pin)
+        description: MySTRA bundle URL, or a MySTRA git ref to bundle from source (default the content's own pin)
         type: string
         default: ''
     secrets:
@@ -41,6 +45,8 @@ on:
       VERCEL_ORG_ID:
         required: false
       VERCEL_PROJECT_ID:
+        required: false
+      ARGOS_TOKEN:
         required: false
 
 permissions:
@@ -56,6 +62,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       HAS_VERCEL: ${{ secrets.VERCEL_TOKEN != '' && secrets.VERCEL_ORG_ID != '' && secrets.VERCEL_PROJECT_ID != '' }}
+      # Argos builds belong to this repository's project; callers keep the artifact.
+      HAS_ARGOS: ${{ secrets.ARGOS_TOKEN != '' && github.repository == 'LightconeResearch/astra-ui' }}
       # Only astra-ui's own main is promoted; a caller's push builds a preview.
       PRODUCTION: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'LightconeResearch/astra-ui' }}
     steps:
@@ -133,7 +141,7 @@ jobs:
         with:
           header: preview
           message: |
-            **Demo paper rendered with this pull request's `@astra-spec/ui`:** ${{ steps.deploy.outputs.url }}
+            **Demo paper preview for this pull request:** ${{ steps.deploy.outputs.url }}
 
             <sub>${{ github.event.pull_request.head.sha }} · ${{ steps.manifest.outputs.summary }}</sub>
 
@@ -143,4 +151,35 @@ jobs:
         with:
           name: preview-site
           path: packages/preview/dist
+          retention-days: 7
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Screenshot the paper
+        run: node packages/preview/screenshot.mjs paper
+
+      # The playground covers the surfaces the paper never mounts (inventory
+      # blocks, embedded detail, primitives, tokens). Its fixture and artifact
+      # copies are regenerated from the content clone the build just made, so
+      # the stories show the same analysis as the paper, thumbnails included.
+      # `npm pack` above already built packages/react/dist, which they import.
+      - name: Regenerate the playground fixture from the pinned content
+        run: node packages/playground/scripts/resolve-fixture.mjs
+
+      - name: Screenshot the playground stories
+        run: node packages/preview/screenshot.mjs stories
+
+      - name: Upload screenshots to Argos
+        if: env.HAS_ARGOS == 'true'
+        env:
+          ARGOS_TOKEN: ${{ secrets.ARGOS_TOKEN }}
+        run: npm exec -- argos upload packages/preview/screenshots
+
+      - name: Keep the screenshots as an artifact
+        if: env.HAS_ARGOS != 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: preview-screenshots
+          path: packages/preview/screenshots
           retention-days: 7

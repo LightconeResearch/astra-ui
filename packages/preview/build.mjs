@@ -7,7 +7,8 @@
 //   --ui <dir|ref>        astra-ui checkout to pack (default: this repository) or a git ref
 //   --theme <dir|ref>     astra-theme checkout or git ref (default: refs.json)
 //   --content <dir|ref>   MyST project checkout or git ref (default: refs.json)
-//   --mystra <file|url>   MySTRA plugin bundle (default: whatever the content pins)
+//   --mystra <file|url|dir|ref>  MySTRA bundle file or https URL, or a MySTRA checkout or git
+//                         ref to bundle from source (default: whatever the content pins)
 //   --out <dir>           output directory (default: packages/preview/dist)
 //   --cache <dir>         work directory for clones, installs and tarballs (default: packages/preview/.cache)
 //   --base-url <path>     BASE_URL for hosting under a subpath, e.g. /astra-ui/pr-12
@@ -68,7 +69,7 @@ const options = {
   ui: option('--ui', process.env.PREVIEW_UI || root),
   theme: option('--theme', process.env.PREVIEW_THEME || refs.theme.ref),
   content: option('--content', process.env.PREVIEW_CONTENT || refs.content.ref),
-  mystra: option('--mystra', process.env.PREVIEW_MYSTRA || refs.mystra || undefined),
+  mystra: option('--mystra', process.env.PREVIEW_MYSTRA || refs.mystra?.ref || undefined),
   out: resolve(option('--out', join(here, 'dist'))),
   cache: resolve(option('--cache', process.env.PREVIEW_CACHE || join(here, '.cache'))),
   baseUrl: option('--base-url', process.env.BASE_URL || undefined),
@@ -93,10 +94,13 @@ function assertRef(name, value) {
 assertRef('--ui', options.ui);
 assertRef('--theme', options.theme);
 assertRef('--content', options.content);
-if (options.mystra && !isFile(options.mystra)) {
-  let url;
-  try { url = new URL(options.mystra); } catch { /* not a URL */ }
-  if (url?.protocol !== 'https:') throw new Error(`--mystra: "${options.mystra}" is neither a file nor an https URL`);
+const isHttpsUrl = (value) => { try { return new URL(value).protocol === 'https:'; } catch { return false; } };
+if (options.mystra && !isFile(options.mystra) && !isHttpsUrl(options.mystra)) {
+  try {
+    assertRef('--mystra', options.mystra);
+  } catch {
+    throw new Error(`--mystra: "${options.mystra}" is neither a bundle file, an https URL, a MySTRA checkout, nor a git ref`);
+  }
 }
 
 // --- helpers -----------------------------------------------------------------
@@ -237,7 +241,22 @@ function mystBinary() {
   return join(dirname(manifest), typeof bin === 'string' ? bin : bin.myst);
 }
 
-function exportSite(theme) {
+// A MySTRA checkout or ref is bundled the way its release workflow does it:
+// `npm run bundle` writes the single-file plugin MyST loads.
+function resolvePlugin() {
+  if (!options.mystra) return undefined;
+  if (isHttpsUrl(options.mystra)) return { plugin: options.mystra, label: options.mystra };
+  if (isFile(options.mystra)) return { plugin: resolve(options.mystra), label: resolve(options.mystra) };
+  const source = materialize('mystra', options.mystra, refs.mystra.repository);
+  ensureInstalled(source.dir);
+  log('mystra: npm run bundle');
+  run('npm', ['run', 'bundle'], { cwd: source.dir });
+  const plugin = join(source.dir, 'dist/mystra.mjs');
+  if (!isFile(plugin)) throw new Error(`MySTRA bundle did not produce ${rel(plugin)}`);
+  return { plugin, label: source.label };
+}
+
+function exportSite(theme, plugin) {
   const content = materialize('content', options.content, refs.content.repository);
   const configPath = join(content.dir, 'myst.yml');
   if (!isFile(configPath)) throw new Error(`no myst.yml in ${rel(content.dir)}`);
@@ -246,9 +265,9 @@ function exportSite(theme) {
   const plugins = config.getIn(['project', 'plugins']);
   const isMystra = (item) => typeof item?.value === 'string' && item.value.includes('mystra');
   let mystra = plugins?.items?.find(isMystra)?.value ?? 'none';
-  if (options.mystra) {
-    mystra = isFile(options.mystra) ? resolve(options.mystra) : options.mystra;
-    const node = config.createNode(mystra);
+  if (plugin) {
+    mystra = plugin.label;
+    const node = config.createNode(plugin.plugin);
     if (plugins?.items?.some(isMystra)) plugins.items = plugins.items.map((item) => (isMystra(item) ? node : item));
     else config.addIn(['project', 'plugins'], node);
   }
@@ -338,7 +357,8 @@ const started = Date.now();
 mkdirSync(work, { recursive: true });
 const ui = packUi();
 const theme = buildTheme(ui.tarball);
-const content = exportSite(theme);
+const plugin = resolvePlugin();
+const content = exportSite(theme, plugin);
 const manifest = finalize({ ui, theme, content });
 console.log(`\n✔ ${manifest.summary}`);
 console.log(`✔ static site in ${rel(options.out)} after ${Math.round((Date.now() - started) / 1000)} s`);
