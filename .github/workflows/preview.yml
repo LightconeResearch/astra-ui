@@ -1,0 +1,137 @@
+name: Preview
+
+# Renders the demo paper (packages/preview/refs.json pins the theme, content and
+# MySTRA plugin) against the @astra-spec/ui built from the current commit and
+# deploys the static export to Vercel: one preview URL per pull request, the
+# production URL on main. Other repositories can call this workflow with their
+# own refs (workflow_call) so one pipeline serves astra-ui, astra-theme and MySTRA.
+#
+# One-time setup is described in packages/preview/README.md: create the Vercel
+# project and add VERCEL_TOKEN, VERCEL_ORG_ID and VERCEL_PROJECT_ID as secrets.
+# Without them (and for pull requests from forks, which never see secrets) the
+# job still builds the site and uploads it as a workflow artifact.
+
+on:
+  pull_request:
+    paths-ignore: ['**.md']
+  push:
+    branches: [main]
+    paths-ignore: ['**.md']
+  workflow_call:
+    inputs:
+      ui:
+        description: astra-ui git ref to pack
+        type: string
+        default: main
+      theme:
+        description: astra-theme git ref (default packages/preview/refs.json)
+        type: string
+        default: ''
+      content:
+        description: MyST project git ref (default packages/preview/refs.json)
+        type: string
+        default: ''
+      mystra:
+        description: MySTRA bundle URL (default the content's own pin)
+        type: string
+        default: ''
+    secrets:
+      VERCEL_TOKEN:
+        required: false
+      VERCEL_ORG_ID:
+        required: false
+      VERCEL_PROJECT_ID:
+        required: false
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: preview-${{ github.repository }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    env:
+      HAS_VERCEL: ${{ secrets.VERCEL_TOKEN != '' && secrets.VERCEL_ORG_ID != '' && secrets.VERCEL_PROJECT_ID != '' }}
+      # Only astra-ui's own main is promoted; a caller's push builds a preview.
+      PRODUCTION: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'LightconeResearch/astra-ui' }}
+    steps:
+      # Called from another repository, `inputs.ui` names the astra-ui ref to
+      # build; run here directly it is empty and the triggering commit is used.
+      - name: Checkout astra-ui
+        uses: actions/checkout@v7
+        with:
+          repository: ${{ inputs.ui && 'LightconeResearch/astra-ui' || github.repository }}
+          ref: ${{ inputs.ui }}
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Cache astra-theme dependencies
+        uses: actions/cache@v6
+        with:
+          path: packages/preview/.cache/theme/node_modules
+          key: preview-theme-${{ runner.os }}-${{ inputs.theme || hashFiles('packages/preview/refs.json') }}
+
+      - name: Build the demo paper against this @astra-spec/ui
+        env:
+          PREVIEW_THEME: ${{ inputs.theme }}
+          PREVIEW_CONTENT: ${{ inputs.content }}
+          PREVIEW_MYSTRA: ${{ inputs.mystra }}
+        run: node packages/preview/build.mjs
+
+      - name: Read the build manifest
+        id: manifest
+        run: |
+          echo "summary=$(jq -r .summary packages/preview/dist/_preview.json)" >> "$GITHUB_OUTPUT"
+          du -sh packages/preview/dist
+
+      - name: Deploy to Vercel
+        if: env.HAS_VERCEL == 'true'
+        id: deploy
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          args=(deploy packages/preview/dist --yes --archive=tgz --token "$VERCEL_TOKEN"
+                --meta "repo=$GITHUB_REPOSITORY" --meta "sha=$HEAD_SHA")
+          if [ "$PRODUCTION" = "true" ]; then args+=(--prod); fi
+          if [ -n "$PR_NUMBER" ]; then args+=(--meta "pr=$PR_NUMBER"); fi
+          url=$(npx --yes vercel@59.11.7 "${args[@]}")
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          {
+            echo "## Preview"
+            echo
+            echo "$url"
+            echo
+            echo "${{ steps.manifest.outputs.summary }}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Comment on the pull request
+        if: env.HAS_VERCEL == 'true' && github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v3
+        with:
+          header: preview
+          message: |
+            **Demo paper rendered with this pull request's `@astra-spec/ui`:** ${{ steps.deploy.outputs.url }}
+
+            <sub>${{ github.event.pull_request.head.sha }} · ${{ steps.manifest.outputs.summary }}</sub>
+
+      - name: Upload the static site
+        if: env.HAS_VERCEL != 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: preview-site
+          path: packages/preview/dist
+          retention-days: 7

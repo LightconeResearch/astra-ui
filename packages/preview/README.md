@@ -1,0 +1,104 @@
+# Preview
+
+Renders the demo paper through [astra-theme](https://github.com/LightconeResearch/astra-theme)
+against **this checkout's** `@astra-spec/ui` and exports it as a static site. CI runs it for
+every pull request and posts the URL, so a UI change can be reviewed inside a real
+[MyST](https://mystmd.org/) publication rather than in isolation.
+
+```text
+packages/react ──npm pack──▶ tarball ──npm install──▶ astra-theme/packages/astra
+                                                          │ npm run build:article
+                                                          ▼
+myst_proto (astra.yaml + index.md) ──myst build --html──▶ dist/  (static site)
+        with the MySTRA plugin              ▲
+                                            └── site.template = the built theme
+```
+
+The theme bundles `@astra-spec/ui` into its Remix build, which is why a preview must rebuild
+the theme rather than swap a package at runtime. The static export needs no server.
+
+## Local use
+
+```bash
+npm run preview                  # build against your working tree, then serve on :4310
+npm run preview:build            # build only, into packages/preview/dist
+node packages/preview/build.mjs --theme ../astra-theme --content ../myst_proto --serve
+```
+
+Flags: `--ui`, `--theme`, `--content` take a local directory or a git ref; `--mystra` takes a
+bundle file or URL; `--out`, `--cache`, `--base-url`, `--port`, `--keep-artifacts`, `--serve`.
+Local checkouts are copied into the cache directory (`packages/preview/.cache/` unless `--cache`
+or `PREVIEW_CACHE` says otherwise) and never modified. Dependencies and MyST's
+cache in `.cache/` survive between runs, so a second build takes about a minute, dominated by
+the theme's Remix build. The first run also clones the pinned theme and content and installs the
+theme's dependencies.
+
+## Pinned refs
+
+`refs.json` fixes what the preview is built with:
+
+| Field | Meaning |
+| --- | --- |
+| `theme.ref` | astra-theme tag, branch or commit; `theme.template` is the template directory to build |
+| `content.ref` | commit of the MyST project (its `astra.yaml`, pages and `results/`) |
+| `mystra` | MySTRA bundle URL, or `null` to keep the pin in the content's `myst.yml` |
+| `ui.repository` | only used when `--ui` names a ref instead of a checkout |
+
+Bump a ref in a normal pull request; the preview for that PR shows the effect. A theme ref
+must build with `npm` (the vendored astra-theme shells do) and its overlay must accept the UI
+tarball installed over its published `@astra-spec/ui` dependency. If a UI change breaks the
+theme's compile, the preview job fails, which is the intended signal: pass `--theme` (or the
+workflow's `theme` input) a compatible astra-theme branch until it is released.
+
+## What the export contains
+
+`dist/` is `_build/html` from `myst build --html` plus:
+
+- `robots.txt` disallowing everything and a `vercel.json` sending `X-Robots-Tag: noindex`,
+  so previews are never indexed as a copy of the real publication;
+- `trailingSlash: false` in `vercel.json`, because MyST links to `/page` and writes
+  `page/index.html`; the local server in `serve.mjs` resolves paths the same way;
+- `_preview.json`, a manifest naming the UI, theme, content and plugin that were built;
+- font urls in the CSS bundles rewritten from the theme's `/myst_assets_folder/` public path to
+  `/build/`, which `myst build --html` does for html, js and json but not for stylesheets;
+- no binary science artifacts (`.npy`, `.h5`, `.fits`, ...): MyST copies every bound artifact,
+  but the browser only loads images and tables, and the rest was 46 MB of the 77 MB export.
+  `--keep-artifacts` keeps them, at the cost of download links in artifact cards.
+
+## CI and Vercel
+
+`.github/workflows/preview.yml` builds on every pull request and on pushes to `main`, then runs
+`vercel deploy` from the static directory: pull requests get a preview URL in a sticky comment,
+`main` is promoted to the project's production URL. Without the secrets below, and for pull
+requests from forks, the job still builds and uploads `dist/` as a workflow artifact.
+
+One-time setup:
+
+1. Create a Vercel project in the team, for example
+   `vercel project add astra-preview --scope lightcone-research`. No framework, build command or
+   root directory is needed: the CLI uploads the finished static site.
+2. Decide who may open previews. New projects protect preview deployments with Vercel
+   Authentication by default; turn it off under *Settings → Deployment Protection* if reviewers
+   without a Vercel account should be able to follow the links.
+3. Create a token under *Account Settings → Tokens* scoped to the team, and read the ids from
+   `vercel project ls` / the project settings (or run `vercel link` once and copy
+   `.vercel/project.json`).
+4. Add `VERCEL_TOKEN`, `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID` as GitHub secrets. Organization
+   secrets let astra-theme and MySTRA reuse the workflow with `secrets: inherit`.
+
+Plan notes: the Hobby plan is for non-commercial use and caps CLI uploads at 100 MB and 15,000
+files; the pruned export is about 31 MB in 1,350 files, uploaded as one archive.
+
+### Calling the workflow from another repository
+
+```yaml
+jobs:
+  preview:
+    uses: LightconeResearch/astra-ui/.github/workflows/preview.yml@main
+    with:
+      theme: ${{ github.event.pull_request.head.sha }}   # or content: / mystra:
+    secrets: inherit
+```
+
+The called workflow checks out astra-ui at the `ui` input (default `main`) and builds with the
+caller's ref substituted for the pinned one.

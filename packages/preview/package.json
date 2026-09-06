@@ -1,0 +1,15 @@
+{
+  "name": "astra-ui-preview",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Renders the demo paper through astra-theme against this checkout's @astra-spec/ui and exports it as a static site, for pull-request previews.",
+  "scripts": {
+    "build": "node build.mjs",
+    "serve": "node build.mjs --serve"
+  },
+  "devDependencies": {
+    "mystmd": "1.10.1",
+    "yaml": "^2.9.0"
+  }
+}

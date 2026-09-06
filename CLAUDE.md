@@ -3,8 +3,9 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 `@astra-spec/ui` — composable, themable React components that render a `ResolvedAnalysisDocument`
-from `@astra-spec/sdk`. npm workspaces: `packages/react` (the published package) and
-`packages/playground` (private Ladle workspace). Node >= 20.
+from `@astra-spec/sdk`. npm workspaces: `packages/react` (the published package),
+`packages/playground` (private Ladle workspace) and `packages/preview` (private; renders the demo
+paper against the local package). Node >= 20.
 
 ## Commands
 
@@ -43,7 +44,14 @@ node packages/playground/scripts/screenshot.mjs <outDir> --filter <substring> --
 npm run check:consumers                # typecheck ../jupyterlab-astra and ../astra-theme against this dist
 npm run fixture --workspace astra-ui-playground [projectRoot] [universeId]   # regenerate fixtures/desi.json
 node scripts/tokens-doc.mjs            # regenerate packages/react/TOKENS.md from styles/tokens.css
+npm run preview                        # demo paper via astra-theme + MySTRA against the working tree, on :4310
+node packages/preview/build.mjs --theme ../astra-theme --content ../myst_proto --serve   # local checkouts
 ```
+
+`packages/preview/build.mjs` packs `@astra-spec/ui`, installs the tarball into a copy of astra-theme,
+builds the article template, points the demo project's `myst.yml` at it and runs `myst build --html`.
+`packages/preview/refs.json` pins the theme, content and plugin; `.github/workflows/preview.yml` runs
+the same script on every PR and deploys the export to Vercel (see `packages/preview/README.md`).
 
 Screenshots need `npx playwright install chromium` once and ImageMagick on the path. The baseline
 directory is gitignored and exists only locally.
