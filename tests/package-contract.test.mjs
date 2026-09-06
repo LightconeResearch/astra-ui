@@ -157,7 +157,10 @@ test('source contains no parallel resolver, session, storage, or integration lay
   const floatingImports = [...source.matchAll(/from ['"]@floating-ui\/react['"]/g)].length;
   assert.equal(floatingImports, 1, 'Floating UI is imported once, by primitives/preview-popover.tsx');
   assert.match(await readFile(new URL('primitives/preview-popover.tsx', sourceDirectory), 'utf8'), /from '@floating-ui\/react'/);
-  assert.doesNotMatch(source, /PaperPdfViewer|pdf\.mjs|pdf\.worker/);
+  // The optional viewer accepts a runtime loader; hosts own PDF.js assets and I/O setup.
+  assert.doesNotMatch(source, /pdf\.mjs|pdf\.worker|from ['"]pdfjs-dist/);
+  const viewer = await readFile(new URL('components/paper-pdf-viewer.tsx', sourceDirectory), 'utf8');
+  assert.match(viewer, /loadPdfJs: \(\) => Promise<PdfJs>/);
   assert.match(source, /indexAnalysis\(document\)/);
 });
 
