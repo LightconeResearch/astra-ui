@@ -23,6 +23,14 @@ try {
   browser = await chromium.launch();
   for (const width of [1280, 640]) {
     const page = await browser.newPage({ viewport: { width, height: 900 } });
+    // Exercise the exact missing API on older supported browsers in both realms.
+    await page.addInitScript(() => { Reflect.deleteProperty(Promise, 'withResolvers'); });
+    await page.route(/pdf\.worker.*\.mjs$/, async (route) => {
+      const response = await route.fetch();
+      await route.fulfill({ response, body: `delete Promise.withResolvers;
+        globalThis.astraMissingPromiseResolvers = typeof Promise.withResolvers === 'undefined';
+        ${await response.text()}` });
+    });
     const errors = [];
     const workers = [];
     page.on('pageerror', (error) => errors.push(error.message));
@@ -36,6 +44,7 @@ try {
     assert.equal(await mark.textContent(), quote);
     assert.equal(await page.getByRole('status').textContent(), 'Quote highlighted on page 3 of 3');
     assert.equal(workers.length, 1, 'A real worker is created for the document');
+    assert.equal(await workers[0].evaluate(() => globalThis.astraMissingPromiseResolvers), true, 'The worker initialized without native Promise.withResolvers');
     const visible = () => mark.evaluate((node) => {
       const bounds = node.getBoundingClientRect();
       const scroll = node.closest('.astra-paper-pdf__scroll').getBoundingClientRect();
@@ -68,6 +77,43 @@ try {
     assert.equal(await page.locator('[data-slot="paper-pdf-viewer"]').count(), 0);
     assert.deepEqual(errors, [], 'No browser runtime errors');
     console.log(`PDF reading, highlighting, zoom, repeated locate and worker disposal passed at ${width}px.`);
+    await page.close();
+  }
+  for (const rotation of [90, 180, 270]) {
+    const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+    const errors = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+    await page.goto(`${base}/?story=papers--rotated${rotation}&mode=preview`);
+    const mark = page.locator('[data-page="3"] mark');
+    await mark.waitFor();
+    assert.equal(await mark.textContent(), quote);
+    const aligned = () => mark.evaluate((node) => {
+      const canvas = node.closest('[data-page]').querySelector('canvas');
+      const bounds = canvas.getBoundingClientRect();
+      const highlight = node.getBoundingClientRect();
+      const scaleX = canvas.width / bounds.width;
+      const scaleY = canvas.height / bounds.height;
+      const x = Math.round((highlight.left - bounds.left) * scaleX);
+      const y = Math.round((highlight.top - bounds.top) * scaleY);
+      const width = Math.round(highlight.width * scaleX);
+      const height = Math.round(highlight.height * scaleY);
+      if (width <= 0 || height <= 0) return false;
+      const pixels = canvas.getContext('2d').getImageData(x, y, width, height).data;
+      let referencePixels = 0;
+      for (let index = 0; index < pixels.length; index += 4) {
+        if (pixels[index] > 200 && pixels[index + 1] < 80 && pixels[index + 2] > 200) referencePixels++;
+      }
+      return referencePixels / (width * height) > 0.5;
+    });
+    assert.ok(await aligned(), `The ${rotation} degree highlight overlaps the quote's canvas reference`);
+    const before = await page.locator('[data-page="3"] canvas').evaluate((node) => node.width);
+    await page.getByRole('button', { name: 'Zoom PDF in' }).click();
+    await page.waitForFunction((oldWidth) => document.querySelector('[data-page="3"] canvas').width > oldWidth, before);
+    await mark.waitFor();
+    assert.ok(await aligned(), `The ${rotation} degree highlight stays aligned after zoom`);
+    await page.screenshot({ path: new URL(`rotation-${rotation}.png`, output).pathname });
+    assert.deepEqual(errors, []);
+    console.log(`Rotated PDF highlight alignment passed at ${rotation} degrees.`);
     await page.close();
   }
 } finally {

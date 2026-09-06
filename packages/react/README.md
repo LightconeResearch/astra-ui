@@ -283,9 +283,14 @@ and `createTextLayer({ textContentSource, container, viewport })`. The latter
 receives the original PDF.js text content and viewport objects without
 serialization or alteration. These small structural types are exported from
 `components/pdf-runtime`; the package has no PDF.js dependency. A complete,
-type-checked adapter using PDF.js 4.8.69 and a bundled module worker is in
+type-checked adapter using the PDF.js 4.8.69 legacy runtime and matching bundled
+module worker is in
 [`packages/playground/src/pdf-runtime.ts`](../playground/src/pdf-runtime.ts).
-Other PDF.js releases need adapter and browser validation before adoption.
+The legacy pair supplies compatibility polyfills in both the window and worker,
+including `Promise.withResolvers`, for the supported browser floor. Use matching
+legacy assets for both; switching only the main runtime leaves older workers
+unable to initialize. Other PDF.js releases need adapter and browser validation
+before adoption.
 
 Initialize the module inside the loader, keeping browser APIs out of server
 rendering. The shared viewer is loaded lazily when a paper with a URL and loader
@@ -332,6 +337,20 @@ or use quote prefix/suffix context to disambiguate repeated text. Scanned PDFs
 and quotes spanning pages may therefore fall back to the cited page. Matching
 is navigation assistance, not evidence verification.
 
+All viewer messages and accessible names are overridable through `labels.pdf`
+on `Inventory`, or through `LabelsProvider` for standalone paper components.
+Dynamic entries receive page numbers, counts, paper titles, or zoom percentages:
+
+```tsx
+<LabelsProvider labels={{ pdf: {
+  loading: 'Chargement…',
+  zoomIn: 'Agrandir',
+  quoteHighlighted: (page, total) => `Citation sur la page ${page}/${total}`,
+} }}>
+  <PaperDialog record={paper} loadPdfJs={loadPdfJs} onClose={close} />
+</LabelsProvider>
+```
+
 **Migration:** `renderPaper`, `PaperRenderer`, and `PaperRenderOptions` have been
 removed. Replace the viewer callback with `loadPdfJs`; remove downstream page
 rendering, quote matching and PDF CSS. Keep downstream acquisition, runtime and
@@ -339,7 +358,9 @@ worker delivery, and external opening. The `papers--reader` and
 `papers--focused-passage` playground stories use a synthetic PDF to exercise
 this interface with a real worker. Run `npm run test:pdf` from the repository
 root (after `npx playwright install chromium`) to check the built playground
-in Chromium at desktop and mobile widths.
+in Chromium at desktop and mobile widths. The browser tests also remove native
+`Promise.withResolvers` from the window and worker before initialization and
+check highlight alignment against canvas pixels for 90°, 180°, and 270° pages.
 
 ## Styling and theming
 

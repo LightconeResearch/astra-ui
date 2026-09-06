@@ -15,12 +15,16 @@ const paper: InventoryPaper = {
   decisions: [],
 };
 
-function Example({ focused = false }: { focused?: boolean }) {
+function Example({ focused = false, rotation = 0 }: { focused?: boolean; rotation?: number }) {
   const [open, setOpen] = useState(true);
   return open
-    ? <PaperDialog record={paper} loadPdfJs={loadPdfJs} focusInsight={focused ? paper.insights[0] : undefined} onClose={() => { setOpen(false); }} />
+    ? <PaperDialog record={rotation ? { ...paper, pdfUrl: `/papers/rotation-${rotation}.pdf` } : paper} loadPdfJs={loadPdfJs} focusInsight={focused ? paper.insights[0] : undefined} onClose={() => { setOpen(false); }} />
     : <button type="button" onClick={() => { setOpen(true); }}>Open reader</button>;
 }
 
 export const Reader = () => <Example />;
 export const FocusedPassage = () => <Example focused />;
+
+export const Rotated90 = () => <Example focused rotation={90} />;
+export const Rotated180 = () => <Example focused rotation={180} />;
+export const Rotated270 = () => <Example focused rotation={270} />;

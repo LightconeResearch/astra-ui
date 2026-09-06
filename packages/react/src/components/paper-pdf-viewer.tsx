@@ -1,6 +1,7 @@
 import { forwardRef, useCallback, useEffect, useRef, useState, type HTMLAttributes } from 'react';
 import type { PaperFocusEvidence } from '../model/papers.js';
 import { cn } from '../lib/cn.js';
+import { useLabels } from '../lib/labels.js';
 import { highlightMatch } from './pdf-quote.js';
 import { locateQuote, type PdfQuoteLocation, type PdfTextCache } from './pdf-search.js';
 import type { PdfDocument, PdfJs, PdfJsLoader, PdfLoadingTask, PdfRenderTask, PdfTextLayer } from './pdf-runtime.js';
@@ -24,6 +25,7 @@ function Page({ pdf, runtime, number, width, zoom, focus }: {
   zoom: number;
   focus: FocusLocation | undefined;
 }) {
+  const { pdf: labels } = useLabels();
   const shellRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
@@ -31,7 +33,7 @@ function Page({ pdf, runtime, number, width, zoom, focus }: {
   const [aspectRatio, setAspectRatio] = useState(612 / 792);
   const [layer, setLayer] = useState<PdfTextLayer>();
   const renderedLayer = useRef<PdfTextLayer>();
-  const [error, setError] = useState<string>();
+  const [failed, setFailed] = useState(false);
   const scrolledRequest = useRef<string>();
   const active = nearby || focus !== undefined;
 
@@ -66,7 +68,7 @@ function Page({ pdf, runtime, number, width, zoom, focus }: {
     let task: PdfRenderTask | undefined;
     let textLayer: PdfTextLayer | undefined;
     setLayer(undefined);
-    setError(undefined);
+    setFailed(false);
     void (async () => {
       try {
         const page = await pdf.getPage(number);
@@ -93,7 +95,7 @@ function Page({ pdf, runtime, number, width, zoom, focus }: {
           setLayer(textLayer);
         }
       } catch {
-        if (!disposed) setError(`Page ${number} could not be rendered.`);
+        if (!disposed) setFailed(true);
       }
     })();
     return () => {
@@ -126,10 +128,10 @@ function Page({ pdf, runtime, number, width, zoom, focus }: {
 
   return (
     <div ref={shellRef} className="astra-paper-pdf__page" data-page={number}
-      aria-label={`Page ${number}`} style={{ width: width * zoom, aspectRatio }}>
+      aria-label={labels.page(number)} style={{ width: width * zoom, aspectRatio }}>
       <canvas ref={canvasRef} aria-hidden="true" />
       <div ref={textRef} className="astra-paper-pdf__text" />
-      {error ? <p role="status">{error}</p> : null}
+      {failed ? <p role="status">{labels.pageError(number)}</p> : null}
     </div>
   );
 }
@@ -143,6 +145,7 @@ export const PaperPdfViewer = forwardRef<HTMLDivElement, PaperPdfViewerProps>(fu
 const DocumentViewer = forwardRef<HTMLDivElement, PaperPdfViewerProps>(function DocumentViewer({
   pdfUrl, title, focusEvidence, loadPdfJs, className, ...props
 }, ref) {
+  const { pdf: labels } = useLabels();
   interface Loaded { pdf: PdfDocument; runtime: PdfJs; cache: PdfTextCache }
   const [loadResult, setLoadResult] = useState<{ loader: PdfJsLoader; loaded?: Loaded; failed?: boolean }>();
   const loaded = loadResult?.loader === loadPdfJs ? loadResult.loaded : undefined;
@@ -226,13 +229,13 @@ const DocumentViewer = forwardRef<HTMLDivElement, PaperPdfViewerProps>(function 
     && searchResult?.quote === quote && searchResult?.page === page ? searchResult : undefined;
   const focus = currentSearch?.focus;
   const status = !loaded
-    ? (loadResult?.loader === loadPdfJs && loadResult.failed ? 'The PDF could not be loaded.' : 'Loading PDF…')
-    : requestKey === undefined ? `${loaded.pdf.numPages} pages`
-      : !currentSearch ? 'Locating quote in the PDF…'
-        : !focus ? 'The quoted passage was not found in the PDF text.'
+    ? (loadResult?.loader === loadPdfJs && loadResult.failed ? labels.loadError : labels.loading)
+    : requestKey === undefined ? labels.pageCount(loaded.pdf.numPages)
+      : !currentSearch ? labels.searching
+        : !focus ? labels.quoteNotFound
           : focus.match
-            ? `${focus.match.complete ? 'Quote' : 'Partial quote'} highlighted on page ${focus.page} of ${loaded.pdf.numPages}`
-            : `Exact quote not found; showing cited page ${focus.page} of ${loaded.pdf.numPages}`;
+            ? (focus.match.complete ? labels.quoteHighlighted : labels.partialQuoteHighlighted)(focus.page, loaded.pdf.numPages)
+            : labels.citedPageFallback(focus.page, loaded.pdf.numPages);
   useEffect(() => {
     if (!loaded || requestKey === undefined) return;
     const abort = new AbortController();
@@ -244,19 +247,19 @@ const DocumentViewer = forwardRef<HTMLDivElement, PaperPdfViewerProps>(function 
   }, [loaded, requestKey, quote, page]);
 
   return (
-    <div data-slot="paper-pdf-viewer" aria-label={`PDF viewer for ${title}`} {...props} ref={ref}
+    <div data-slot="paper-pdf-viewer" aria-label={labels.viewer(title)} {...props} ref={ref}
       className={cn('astra-paper-pdf', className)}>
       <div className="astra-paper-pdf__toolbar">
         <span role="status" aria-live="polite">{status}</span>
-        <button type="button" disabled={!loaded || zoom <= 0.5} aria-label="Zoom PDF out"
+        <button type="button" disabled={!loaded || zoom <= 0.5} aria-label={labels.zoomOut}
           onClick={() => { rememberPosition(); setZoom((value) => value - 0.25); }}>−</button>
-        <span>{Math.round(zoom * 100)}%</span>
-        <button type="button" disabled={!loaded || zoom >= 2} aria-label="Zoom PDF in"
+        <span>{labels.zoomLevel(Math.round(zoom * 100))}</span>
+        <button type="button" disabled={!loaded || zoom >= 2} aria-label={labels.zoomIn}
           onClick={() => { rememberPosition(); setZoom((value) => value + 0.25); }}>+</button>
       </div>
       {/* Keyboard focus lets readers scroll the PDF with arrows and Page Up/Down. */}
       {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */}
-      <div ref={scrollRef} className="astra-paper-pdf__scroll" role="region" tabIndex={0} aria-label="PDF pages">
+      <div ref={scrollRef} className="astra-paper-pdf__scroll" role="region" tabIndex={0} aria-label={labels.pages}>
         {loaded ? Array.from({ length: loaded.pdf.numPages }, (_, index) => (
           <Page key={index} pdf={loaded.pdf} runtime={loaded.runtime} number={index + 1} width={width} zoom={zoom}
             focus={focus?.page === index + 1 ? focus : undefined} />

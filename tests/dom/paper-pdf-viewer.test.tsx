@@ -8,6 +8,7 @@ import type { PdfJs, PdfTextContent } from '../../packages/react/src/components/
 import { collectInventoryPapers, type PaperFocusEvidence } from '../../packages/react/src/model/papers.js';
 import { fixtureDocument as fixture } from '../fixture.mjs';
 import { mockPdfBrowser, runtime } from './pdf-test-runtime.js';
+import { LabelsProvider } from '../../packages/react/src/lib/labels.js';
 import { highlightMatch } from '../../packages/react/src/components/pdf-quote.js';
 
 const document = fixture as unknown as ResolvedAnalysisDocument;
@@ -159,4 +160,98 @@ it('routes external opening through Inventory while keeping the action usable af
   fireEvent.click(screen.getByRole('button', { name: 'Open' }));
   expect(open).toHaveBeenCalledWith(expect.objectContaining({ doi: paper.doi, pdfUrl: '/paper.pdf' }));
   expect(screen.queryByRole('link', { name: 'Open' })).toBeNull();
+});
+
+const pdfLabels = {
+  loading: 'Chargement…',
+  loadError: 'Lecture impossible.',
+  unavailable: 'Aperçu indisponible.',
+  searching: 'Recherche…',
+  quoteNotFound: 'Citation introuvable.',
+  pages: 'Pages du document',
+  zoomIn: 'Agrandir',
+  zoomOut: 'Réduire',
+  zoomLevel: (percent: number) => `Échelle ${percent}`,
+  viewer: (title: string) => `Lecteur : ${title}`,
+  page: (page: number) => `Feuille ${page}`,
+  pageError: (page: number) => `Erreur feuille ${page}`,
+  pageCount: (count: number) => `${count} feuilles`,
+  quoteHighlighted: (page: number, count: number) => `Citation ${page}/${count}`,
+  partialQuoteHighlighted: (page: number, count: number) => `Extrait ${page}/${count}`,
+  citedPageFallback: (page: number, count: number) => `Page citée ${page}/${count}`,
+  locatePassage: (passage: number) => `Trouver le passage ${passage}`,
+};
+
+it.each([
+  [undefined, '3 feuilles'],
+  [focus(), 'Citation 3/3'],
+  [focus('The final scientific result is reproducible. An absent continuation.'), 'Extrait 3/3'],
+  [focus('Completely absent quotation', 'fallback', 2), 'Page citée 2/3'],
+  [focus('Completely absent quotation'), 'Citation introuvable.'],
+] as const)('uses localized PDF statuses and accessible names for request %j', async (request, expected) => {
+  const mock = runtime();
+  render(<LabelsProvider labels={{ pdf: pdfLabels }}>
+    <PaperPdfViewer pdfUrl="/paper.pdf" title="Article" loadPdfJs={mock.load} focusEvidence={request} />
+  </LabelsProvider>);
+  expect(screen.getByText('Chargement…')).toBeTruthy();
+  await screen.findByText(expected);
+  expect(screen.getByLabelText('Lecteur : Article')).toBeTruthy();
+  expect(screen.getByRole('region', { name: 'Pages du document' })).toBeTruthy();
+  expect(screen.getByLabelText('Feuille 1')).toBeTruthy();
+  expect(screen.getByRole('button', { name: 'Agrandir' })).toBeTruthy();
+  expect(screen.getByRole('button', { name: 'Réduire' })).toBeTruthy();
+  expect(screen.getByText('Échelle 100')).toBeTruthy();
+});
+
+it('inherits PDF labels in paper dialogs and localizes loading, errors, and unavailable content', async () => {
+  const load = vi.fn(async (): Promise<PdfJs> => { throw new Error('Missing runtime'); });
+  const content = (loader?: () => Promise<PdfJs>) => <LabelsProvider labels={{ pdf: pdfLabels }}>
+    <LabelsProvider labels={{ pdf: { loading: undefined } }}>
+      <PaperDialog record={paper} loadPdfJs={loader} onClose={() => {}} />
+    </LabelsProvider>
+  </LabelsProvider>;
+  const { rerender } = render(content(load));
+  expect(screen.getByText('Chargement…')).toBeTruthy();
+  await screen.findByText('Lecture impossible.');
+  expect(screen.getByRole('button', { name: 'Trouver le passage 1' })).toBeTruthy();
+  rerender(content());
+  expect(screen.getByText('Aperçu indisponible.')).toBeTruthy();
+});
+
+it('updates localized search results without restarting search or loading the document', async () => {
+  const mock = runtime();
+  let finish!: (value: PdfTextContent) => void;
+  mock.getText.mockImplementation(async (n) => n === 3
+    ? new Promise((resolve) => { finish = resolve; })
+    : { items: [{ str: 'Other text' }] });
+  const request = focus();
+  const content = (labels = pdfLabels) => <LabelsProvider labels={{ pdf: labels }}>
+    <PaperPdfViewer pdfUrl="/paper.pdf" title="Article" loadPdfJs={mock.load} focusEvidence={request} />
+  </LabelsProvider>;
+  const { rerender } = render(content());
+  await screen.findByText('Recherche…');
+  await waitFor(() => expect(finish).toBeTypeOf('function'));
+  // Search and page rendering share the same mock page content after release.
+  mock.getText.mockResolvedValue({ items: [{ str: 'The final scientific result is reproducible.' }] });
+  await act(async () => { finish({ items: [{ str: 'The final scientific result is reproducible.' }] }); });
+  await screen.findByText('Citation 3/3');
+  await waitFor(() => expect(browser.scroll).toHaveBeenCalledTimes(1));
+  const calls = mock.getText.mock.calls.length;
+  rerender(content({ ...pdfLabels, quoteHighlighted: (page, total) => `Citation traduite ${page}/${total}` }));
+  expect(screen.getByText('Citation traduite 3/3')).toBeTruthy();
+  expect(mock.getText).toHaveBeenCalledTimes(calls);
+  expect(mock.load).toHaveBeenCalledTimes(1);
+});
+
+it('localizes page render failures and updates them when labels change', async () => {
+  vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null);
+  const mock = runtime();
+  const content = (pageError = pdfLabels.pageError) => <LabelsProvider labels={{ pdf: { ...pdfLabels, pageError } }}>
+    <PaperPdfViewer pdfUrl="/paper.pdf" title="Article" loadPdfJs={mock.load} />
+  </LabelsProvider>;
+  const { rerender } = render(content());
+  await screen.findByText('Erreur feuille 1');
+  rerender(content((page) => `Erreur traduite ${page}`));
+  expect(screen.getByText('Erreur traduite 1')).toBeTruthy();
+  expect(mock.load).toHaveBeenCalledTimes(1);
 });

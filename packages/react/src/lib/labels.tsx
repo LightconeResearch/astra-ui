@@ -44,6 +44,26 @@ export interface AstraLabels {
     openPaper: string;
     locate: string;
   };
+  /** PDF reading, evidence navigation, and accessible viewer controls. */
+  pdf: {
+    loading: string;
+    loadError: string;
+    unavailable: string;
+    searching: string;
+    quoteNotFound: string;
+    pages: string;
+    zoomIn: string;
+    zoomOut: string;
+    zoomLevel: (percent: number) => string;
+    viewer: (title: string) => string;
+    page: (page: number) => string;
+    pageError: (page: number) => string;
+    pageCount: (count: number) => string;
+    quoteHighlighted: (page: number, count: number) => string;
+    partialQuoteHighlighted: (page: number, count: number) => string;
+    citedPageFallback: (page: number, count: number) => string;
+    locatePassage: (passage: number) => string;
+  };
   /** Copy used only by the compact RecordPreview surface. */
   preview: {
     optionDetail: string;
@@ -109,6 +129,25 @@ export const defaultLabels: AstraLabels = {
     openPaper: 'Open',
     locate: 'Locate',
   },
+  pdf: {
+    loading: 'Loading PDF…',
+    loadError: 'The PDF could not be loaded.',
+    unavailable: 'Embedded PDF viewing is unavailable. Open the PDF to read it.',
+    searching: 'Locating quote in the PDF…',
+    quoteNotFound: 'The quoted passage was not found in the PDF text.',
+    pages: 'PDF pages',
+    zoomIn: 'Zoom PDF in',
+    zoomOut: 'Zoom PDF out',
+    zoomLevel: (percent) => `${percent}%`,
+    viewer: (title) => `PDF viewer for ${title}`,
+    page: (page) => `Page ${page}`,
+    pageError: (page) => `Page ${page} could not be rendered.`,
+    pageCount: (count) => `${count} pages`,
+    quoteHighlighted: (page, count) => `Quote highlighted on page ${page} of ${count}`,
+    partialQuoteHighlighted: (page, count) => `Partial quote highlighted on page ${page} of ${count}`,
+    citedPageFallback: (page, count) => `Exact quote not found; showing cited page ${page} of ${count}`,
+    locatePassage: (passage) => `Locate source passage ${passage} in paper`,
+  },
   preview: {
     optionDetail: 'Option detail',
     supportedBy: 'Supported by',
@@ -148,6 +187,7 @@ function merge(base: AstraLabels, overrides: AstraLabelOverrides): AstraLabels {
     kinds: { ...base.kinds, ...defined(overrides.kinds ?? {}) },
     empty: { ...base.empty, ...defined(overrides.empty ?? {}) },
     actions: { ...base.actions, ...defined(overrides.actions ?? {}) },
+    pdf: { ...base.pdf, ...defined(overrides.pdf ?? {}) },
     preview: { ...base.preview, ...defined(overrides.preview ?? {}) },
   } as AstraLabels;
 }

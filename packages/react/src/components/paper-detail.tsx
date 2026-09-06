@@ -79,7 +79,7 @@ export const PaperDetail = forwardRef<HTMLDivElement, PaperDetailProps>(function
     <div data-slot="paper-detail" {...props} ref={ref} className={cn('astra-paper-detail__layout', className)}>
       <div className="astra-paper-detail__artifact">
         {paper.pdfUrl && loadPdfJs ? (
-          <Suspense fallback={<p role="status">Loading PDF…</p>}>
+          <Suspense fallback={<p role="status">{labels.pdf.loading}</p>}>
             <PaperPdfViewer pdfUrl={paper.pdfUrl} title={paper.title} focusEvidence={focusEvidence} loadPdfJs={loadPdfJs} />
           </Suspense>
         ) : (
@@ -98,7 +98,7 @@ export const PaperDetail = forwardRef<HTMLDivElement, PaperDetailProps>(function
             ) : (
               <p>
                 {paper.pdfUrl
-                  ? 'Embedded PDF viewing is unavailable. Open the PDF to read it.'
+                  ? labels.pdf.unavailable
                   : 'Follow the DOI for the published version.'}
               </p>
             )}
@@ -134,7 +134,7 @@ export const PaperDetail = forwardRef<HTMLDivElement, PaperDetailProps>(function
                               type="button"
                               className="astra-paper-insight__locate"
                               onClick={() => { locate(insight, source); }}
-                              aria-label={`Locate source passage ${index + 1} in paper`}
+                              aria-label={labels.pdf.locatePassage(index + 1)}
                             >
                               {labels.actions.locate}{evidence.length > 1 ? ` ${index + 1}` : ''}
                             </button>
