@@ -1,0 +1,15 @@
+{
+  "ui": {
+    "repository": "https://github.com/LightconeResearch/astra-ui.git"
+  },
+  "theme": {
+    "repository": "https://github.com/LightconeResearch/astra-theme.git",
+    "ref": "v0.0.9",
+    "template": "themes/article"
+  },
+  "content": {
+    "repository": "https://github.com/EiffL/myst_proto.git",
+    "ref": "3735fcc965e3aa56fb088d25177dea3d3ea1bf9f"
+  },
+  "mystra": null
+}

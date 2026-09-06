@@ -4,3 +4,6 @@ dist/
 *.tsbuildinfo
 *.tgz
 .DS_Store
+.vercel
+.env*
+.vercel/
