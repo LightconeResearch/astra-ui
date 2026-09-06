@@ -33,7 +33,7 @@ export interface InventoryPaperMetadata {
 export type InventoryPaperMetadataMap = Readonly<Record<string, InventoryPaperMetadata>>;
 
 export interface PaperFocusEvidence {
-  /** Changes on every locate request, including a repeat of the same passage, so a host can react to each one. */
+  /** Changes on every locate request, including a repeat of the same passage, so the viewer can react to each one. */
   key: string;
   insight: ResolvedInsight;
   evidence: ResolvedEvidence;

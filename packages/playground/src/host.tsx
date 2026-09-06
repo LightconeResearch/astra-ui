@@ -70,14 +70,7 @@ export const paperMetadata = {
   '10.48550/arxiv.2404.03000': {
     title: 'DESI 2024 III: Baryon Acoustic Oscillations from Galaxies and Quasars',
     authors: 'DESI Collaboration',
-    pdfUrl: '/papers/desi-2024-iii.pdf',
   },
 };
 
-export function renderPaper() {
-  return (
-    <div style={{ display: 'grid', placeItems: 'center', height: '100%', color: 'var(--astra-color-text-subtle)' }}>
-      Host paper renderer (PDF viewer would mount here)
-    </div>
-  );
-}
+export { loadPdfJs } from './pdf-runtime';

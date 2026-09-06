@@ -1,5 +1,5 @@
 import type { ResolvedDecision, ResolvedInsight } from '@astra-spec/sdk';
-import { forwardRef, useCallback, useMemo, useRef, useState, type HTMLAttributes, type ReactNode } from 'react';
+import { forwardRef, lazy, Suspense, useCallback, useMemo, useRef, useState, type HTMLAttributes } from 'react';
 import { doiHref } from '../model/doi.js';
 import { countLabel } from '../model/records.js';
 import { paperEvidence, type InventoryPaper, type InventoryPaperMetadata, type PaperFocusEvidence } from '../model/papers.js';
@@ -12,12 +12,14 @@ import { RelationList } from '../primitives/relation-list.js';
 import { InsightTrigger } from './insight-trigger.js';
 import { relationItemForRecord } from './relation-items.js';
 
-export interface PaperRenderOptions {
-  focusEvidence?: PaperFocusEvidence | undefined;
-}
+import type { PdfJsLoader } from './pdf-runtime.js';
 
-/** Host slot for PDF, HTML, or any other paper presentation. */
-export type PaperRenderer = (paper: InventoryPaper, options: PaperRenderOptions) => ReactNode;
+const PaperPdfViewer = lazy(async () => {
+  const module = await import('./paper-pdf-viewer.js');
+  return { default: module.PaperPdfViewer };
+});
+
+export type OpenPaperFileHandler = (paper: InventoryPaper) => void | Promise<void>;
 
 export interface PaperDetailProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
   record: InventoryPaper;
@@ -26,7 +28,8 @@ export interface PaperDetailProps extends Omit<HTMLAttributes<HTMLDivElement>, '
   /** Insight whose first quoted passage is focused initially. */
   focusInsight?: ResolvedInsight | undefined;
   renderText?: TextRenderer | undefined;
-  renderPaper?: PaperRenderer | undefined;
+  /** Initializes the PDF.js runtime; the shared viewer renders and locates evidence. */
+  loadPdfJs?: PdfJsLoader | undefined;
   /** Notify the host to fetch this DOI; refreshed metadata returns through props. */
   onFetchPaper?: ((doi: string) => void) | undefined;
   onOpenInsight?: ((insight: ResolvedInsight) => void) | undefined;
@@ -39,13 +42,13 @@ function initialFocus(paper: InventoryPaper, focusInsight: ResolvedInsight | und
   return evidence?.quote ? { key: `${focusInsight.canonicalPath}-source`, insight: focusInsight, evidence } : undefined;
 }
 
-/** Host-rendered paper content beside the insights and decisions it supports. */
+/** PDF paper content beside the insights and decisions it supports. */
 export const PaperDetail = forwardRef<HTMLDivElement, PaperDetailProps>(function PaperDetail({
   record: paper,
   metadata,
   focusInsight,
   renderText,
-  renderPaper,
+  loadPdfJs,
   onFetchPaper,
   onOpenInsight,
   onOpenDecision,
@@ -62,21 +65,23 @@ export const PaperDetail = forwardRef<HTMLDivElement, PaperDetailProps>(function
   }
   // One object per request, kept across unrelated re-renders, with a key
   // that changes on every locate click so a repeat of the same passage is
-  // still a new request to the host.
+  // still a new request to the viewer.
   const focusEvidence = useMemo(() => override ?? initialFocus(paper, focusInsight), [override, paper, focusInsight]);
   const sequence = useRef(0);
   const locate = useCallback((insight: ResolvedInsight, evidence: PaperFocusEvidence['evidence']) => {
     sequence.current += 1;
     setOverride({ key: `${insight.canonicalPath}-${sequence.current}`, insight, evidence });
   }, []);
-  const canRender = Boolean(paper.pdfUrl && renderPaper);
+  const canRender = Boolean(paper.pdfUrl && loadPdfJs);
   const fetching = metadata?.status === 'fetching';
 
   return (
     <div data-slot="paper-detail" {...props} ref={ref} className={cn('astra-paper-detail__layout', className)}>
       <div className="astra-paper-detail__artifact">
-        {canRender && renderPaper ? (
-          <>{renderPaper(paper, { focusEvidence })}</>
+        {paper.pdfUrl && loadPdfJs ? (
+          <Suspense fallback={<p role="status">Loading PDF…</p>}>
+            <PaperPdfViewer pdfUrl={paper.pdfUrl} title={paper.title} focusEvidence={focusEvidence} loadPdfJs={loadPdfJs} />
+          </Suspense>
         ) : (
           <div className="astra-paper-detail__unavailable" {...(fetching ? { 'aria-busy': true } : {})}>
             {!paper.pdfUrl && onFetchPaper ? (
@@ -93,7 +98,7 @@ export const PaperDetail = forwardRef<HTMLDivElement, PaperDetailProps>(function
             ) : (
               <p>
                 {paper.pdfUrl
-                  ? 'This host has not supplied an embedded paper renderer.'
+                  ? 'Embedded PDF viewing is unavailable. Open the PDF to read it.'
                   : 'Follow the DOI for the published version.'}
               </p>
             )}
@@ -159,16 +164,25 @@ export const PaperDetail = forwardRef<HTMLDivElement, PaperDetailProps>(function
   );
 });
 
-export interface PaperDialogProps extends Pick<DetailDialogProps, 'mode' | 'backText' | 'className' | 'onBack' | 'onClose'>, Omit<PaperDetailProps, 'className'> {}
+export interface PaperDialogProps extends Pick<DetailDialogProps, 'mode' | 'backText' | 'className' | 'onBack' | 'onClose'>, Omit<PaperDetailProps, 'className'> {
+  onOpenPaperFile?: OpenPaperFileHandler | undefined;
+}
 
 /** Header action linking to the paper's hosted content, when there is one. */
 export interface PaperDialogActionsProps {
   record: InventoryPaper;
+  onOpenPaperFile?: OpenPaperFileHandler | undefined;
 }
 
-export function PaperDialogActions({ record: paper }: PaperDialogActionsProps) {
+export function PaperDialogActions({ record: paper, onOpenPaperFile }: PaperDialogActionsProps) {
   const labels = useLabels();
   if (!paper.pdfUrl) return null;
+  if (onOpenPaperFile) return (
+    <DialogAction onClick={() => { void onOpenPaperFile(paper); }}>
+      <span aria-hidden="true">↗</span>
+      <span>{labels.actions.openPaper}</span>
+    </DialogAction>
+  );
   return (
     <DialogAction asChild>
       <a href={paper.pdfUrl} target="_blank" rel="noreferrer">
@@ -184,10 +198,11 @@ export function PaperDialog({
   metadata,
   focusInsight,
   renderText,
-  renderPaper,
+  loadPdfJs,
   onFetchPaper,
   onOpenInsight,
   onOpenDecision,
+  onOpenPaperFile,
   ...dialog
 }: PaperDialogProps) {
   const labels = useLabels();
@@ -199,14 +214,14 @@ export function PaperDialog({
       kindLabel={labels.kinds.paper}
       title={paper.title}
       closeLabel={labels.closeRecord(labels.kinds.paper)}
-      actions={<PaperDialogActions record={paper} />}
+      actions={<PaperDialogActions record={paper} onOpenPaperFile={onOpenPaperFile} />}
     >
       <PaperDetail
         record={paper}
         metadata={metadata}
         focusInsight={focusInsight}
         renderText={renderText}
-        renderPaper={renderPaper}
+        loadPdfJs={loadPdfJs}
         onFetchPaper={onFetchPaper}
         onOpenInsight={onOpenInsight}
         onOpenDecision={onOpenDecision}

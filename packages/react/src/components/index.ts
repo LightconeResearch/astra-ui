@@ -20,7 +20,7 @@ export type { InsightDetailProps, InsightDialogProps } from './insight-detail.js
 export { InsightEvidenceTitle, InsightTrigger } from './insight-trigger.js';
 export type { InsightEvidenceTitleProps, InsightTriggerProps } from './insight-trigger.js';
 export { PaperDetail, PaperDialog, PaperDialogActions } from './paper-detail.js';
-export type { PaperDetailProps, PaperDialogActionsProps, PaperDialogProps, PaperRenderOptions, PaperRenderer } from './paper-detail.js';
+export type { PaperDetailProps, PaperDialogActionsProps, PaperDialogProps, OpenPaperFileHandler } from './paper-detail.js';
 export { RecordDialog } from './record-dialog.js';
 export type { RecordDialogProps } from './record-dialog.js';
 export { RecordPreview } from './record-preview.js';
@@ -52,3 +52,5 @@ export type {
   TextPreviewData,
   UnavailablePreviewData,
 } from './artifact-preview.js';
+
+export type { PdfJs, PdfJsLoader, PdfLoadingTask } from './pdf-runtime.js';

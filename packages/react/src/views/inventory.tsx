@@ -12,7 +12,8 @@ import { locateRecord } from '../model/locate-record.js';
 import { cn } from '../lib/cn.js';
 import { LabelsProvider, useLabels, type AstraLabelOverrides } from '../lib/labels.js';
 import type { DetailEntry } from '../components/detail-entry.js';
-import type { PaperRenderer } from '../components/paper-detail.js';
+import type { OpenPaperFileHandler } from '../components/paper-detail.js';
+import type { PdfJsLoader } from '../components/pdf-runtime.js';
 import { RecordDialog } from '../components/record-dialog.js';
 import { useDetailStack } from '../components/use-detail-stack.js';
 import type { ArtifactRenderer } from '../components/artifact-preview.js';
@@ -42,7 +43,8 @@ export interface InventoryProps extends Omit<HTMLAttributes<HTMLDivElement>, 'ch
   labels?: AstraLabelOverrides | undefined;
   renderArtifact?: ArtifactRenderer | undefined;
   renderText?: TextRenderer | undefined;
-  renderPaper?: PaperRenderer | undefined;
+  loadPdfJs?: PdfJsLoader | undefined;
+  onOpenPaperFile?: OpenPaperFileHandler | undefined;
   onOpenArtifact?: ((output: ResolvedOutput) => void | Promise<void>) | undefined;
   paperMetadata?: InventoryPaperMetadataMap | undefined;
   /** Notify the host to fetch this DOI; update paperMetadata when complete. */
@@ -87,7 +89,8 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(
   showOutline = true,
   renderArtifact,
   renderText,
-  renderPaper,
+  loadPdfJs,
+  onOpenPaperFile,
   onOpenArtifact,
   paperMetadata = EMPTY_PAPER_METADATA,
   onFetchPaper,
@@ -209,7 +212,8 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(
             paperMetadata={paperMetadata}
             renderArtifact={renderArtifact}
             renderText={renderText}
-            renderPaper={renderPaper}
+            loadPdfJs={loadPdfJs}
+            onOpenPaperFile={onOpenPaperFile}
             onOpenArtifact={onOpenArtifact}
             onFetchPaper={onFetchPaper}
             onOpenRecord={stack.pushRecord}

@@ -9,9 +9,10 @@
     "fixture": "node scripts/resolve-fixture.mjs"
   },
   "devDependencies": {
-    "@ladle/react": "^5.0.0",
     "@astra-spec/ui": "file:../react",
+    "@ladle/react": "^5.0.0",
     "@lightcone-research/brand": "^0.0.2",
+    "pdfjs-dist": "4.8.69",
     "playwright": "^1.62.1"
   }
 }

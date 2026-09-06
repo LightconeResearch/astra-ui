@@ -23,7 +23,8 @@ import { FindingDetail } from './finding-detail.js';
 import { InputDetail } from './input-detail.js';
 import { InsightDetail, primaryLiteratureEvidence } from './insight-detail.js';
 import { OutputDetail, OutputDialogActions, useOutputExpanded } from './output-detail.js';
-import { PaperDetail, PaperDialogActions, type PaperRenderer } from './paper-detail.js';
+import { PaperDetail, PaperDialogActions, type OpenPaperFileHandler } from './paper-detail.js';
+import type { PdfJsLoader } from './pdf-runtime.js';
 
 export interface RecordDialogProps extends Pick<DetailDialogProps, 'mode' | 'backText' | 'className' | 'onBack' | 'onClose'> {
   entry: DetailEntry;
@@ -34,7 +35,8 @@ export interface RecordDialogProps extends Pick<DetailDialogProps, 'mode' | 'bac
   paperMetadata?: InventoryPaperMetadataMap | undefined;
   renderArtifact?: ArtifactRenderer | undefined;
   renderText?: TextRenderer | undefined;
-  renderPaper?: PaperRenderer | undefined;
+  loadPdfJs?: PdfJsLoader | undefined;
+  onOpenPaperFile?: OpenPaperFileHandler | undefined;
   onOpenArtifact?: ((output: ResolvedOutput) => void | Promise<void>) | undefined;
   onFetchPaper?: ((doi: string) => void) | undefined;
   /** Navigation to another record from within the detail (drill-down). */
@@ -66,7 +68,8 @@ export function RecordDialog({
   paperMetadata = {},
   renderArtifact,
   renderText,
-  renderPaper,
+  loadPdfJs,
+  onOpenPaperFile,
   onOpenArtifact,
   onFetchPaper,
   onOpenRecord,
@@ -101,14 +104,14 @@ export function RecordDialog({
       kindLabel: labels.kinds.paper,
       title: paper.title,
       layout: 'reader',
-      actions: <PaperDialogActions record={paper} />,
+      actions: <PaperDialogActions record={paper} onOpenPaperFile={onOpenPaperFile} />,
       body: (
         <PaperDetail
           record={paper}
           metadata={paperMetadataFor(paper.doi, paperMetadata)}
           focusInsight={isInsight(focusRecord) ? focusRecord : undefined}
           renderText={renderText}
-          renderPaper={renderPaper}
+          loadPdfJs={loadPdfJs}
           onFetchPaper={onFetchPaper}
           onOpenInsight={openInsight}
           onOpenDecision={openDecision}

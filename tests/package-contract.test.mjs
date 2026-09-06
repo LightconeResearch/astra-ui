@@ -157,7 +157,9 @@ test('source contains no parallel resolver, session, storage, or integration lay
   const floatingImports = [...source.matchAll(/from ['"]@floating-ui\/react['"]/g)].length;
   assert.equal(floatingImports, 1, 'Floating UI is imported once, by primitives/preview-popover.tsx');
   assert.match(await readFile(new URL('primitives/preview-popover.tsx', sourceDirectory), 'utf8'), /from '@floating-ui\/react'/);
-  assert.doesNotMatch(source, /PaperPdfViewer|pdf\.mjs|pdf\.worker/);
+  // Shared presentation is first-class; integrations still supply the runtime.
+  assert.doesNotMatch(source, /pdf\.mjs|pdf\.worker|from ['"]pdfjs-dist/);
+  assert.doesNotMatch(source, /PaperRenderer|PaperRenderOptions|renderPaper/);
   assert.match(source, /indexAnalysis\(document\)/);
 });
 
@@ -222,7 +224,7 @@ test('the colour-scheme contract is explicit and host-neutral', async () => {
 
   const readme = await readFile(new URL('README.md', packageRoot), 'utf8');
   const tokenDocs = await readFile(new URL('TOKENS.md', packageRoot), 'utf8');
-  for (const [name, documentation] of [['README.md', readme], ['TOKENS.md', tokenDocs]]) {
+  for (const [name, documentation] of [['README.md', readme.slice(readme.indexOf('## Styling and theming'))], ['TOKENS.md', tokenDocs]]) {
     assert.match(documentation, /data-astra-color-scheme="light"/,
       `${name} documents the explicit light scheme`);
     assert.match(documentation, /or `"dark"`/,

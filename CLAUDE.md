@@ -83,7 +83,7 @@ or `{kind: 'paper', doi, analysisPath, focusInsightPath?}` — paths, never obje
 document refresh can prune entries that stopped resolving.
 
 **Host extension points**, all optional props: `renderArtifact`, `renderText` (replaces the built-in
-KaTeX/inline-code prose), `renderPaper`, `onFetchPaper` + `paperMetadata`, `onOpenArtifact`,
+KaTeX/inline-code prose), `loadPdfJs` (built-in PDF reading), `onOpenPaperFile`, `onFetchPaper` + `paperMetadata`, `onOpenArtifact`,
 `labels` (every user-facing string, via `LabelsProvider`/`useLabels`).
 
 **Component conventions.** `forwardRef`, spread the rest onto the root, `className` merged with

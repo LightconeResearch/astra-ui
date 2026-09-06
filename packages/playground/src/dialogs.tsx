@@ -17,7 +17,7 @@ import {
 } from '@astra-spec/ui/model';
 import type { ReactNode } from 'react';
 import { byPath } from './derive';
-import { analysisDocument, paperMetadata, renderArtifact, renderPaper } from './host';
+import { analysisDocument, paperMetadata, renderArtifact, loadPdfJs } from './host';
 
 const noop = () => undefined;
 const analysis = analysisDocument.analysis;
@@ -75,7 +75,7 @@ const stories = {
     );
   },
   Paper: () => (
-    <PaperDialog record={paper(0)} renderPaper={renderPaper} onFetchPaper={noop} onOpenInsight={noop} onOpenDecision={noop} onClose={noop} />
+    <PaperDialog record={paper(0)} loadPdfJs={loadPdfJs} onFetchPaper={noop} onOpenInsight={noop} onOpenDecision={noop} onClose={noop} />
   ),
   PaperWithoutContent: () => (
     <PaperDialog record={{ ...paper(1), pdfUrl: undefined }} onFetchPaper={noop} onOpenInsight={noop} onOpenDecision={noop} onClose={noop} />

@@ -84,7 +84,8 @@ Its most useful options are:
 - `analysisPath` selects a nested analysis (`$` is the project root).
 - `sections` changes which inventory sections appear and their order.
 - `showOutline` and `idPrefix` control outline navigation.
-- `renderArtifact`, `renderText`, and `renderPaper` replace host-owned content.
+- `renderArtifact` and `renderText` replace host-owned content.
+- `loadPdfJs` enables the built-in PDF viewer; `onOpenPaperFile` overrides external PDF opening.
 - `paperMetadata` and `onFetchPaper` connect paper loading to host state.
 - `detail`, `defaultDetail`, and `onDetailChange` control the detail stack.
 - `detailMode="embedded"` renders details as an inline panel instead of a modal.
@@ -251,15 +252,94 @@ and their public types.
   default understands inline code, `$inline$` math, and `$$display$$` math.
   Hosts that only need custom math commands can reuse that renderer with
   `renderProse(text, { macros })`; macro values are KaTeX expansion strings.
-- `renderPaper(paper, { focusEvidence })` renders host-owned paper content.
+- `loadPdfJs()` supplies the runtime for shared PDF reading and passage highlighting.
+- `onOpenPaperFile(paper)` opens a PDF through the host; otherwise the dialog uses a normal link.
 - `onFetchPaper(doi)` asks the host to load paper data. Feed the result and
   `status: 'fetching' | 'error'` back through `paperMetadata`.
 - `labels` on `Inventory`, or `LabelsProvider` around lower-level components,
   overrides the default UI copy.
 
-These are render callbacks and events: the package never fetches a URL, reads a
-file, resolves an ASTRA project, or stores application state on the host's
-behalf.
+The host owns paper discovery, downloading, authentication and resource URLs.
+The shared PDF viewer loads the supplied URL through its runtime; it does not
+resolve projects or maintain application state.
+
+## PDF reading and passage navigation
+
+PDF viewing is built into `Inventory`, `RecordDialog`, `PaperDialog`, and
+`PaperDetail`. Supply a stable `loadPdfJs` callback and a usable `pdfUrl` in
+`paperMetadata`; no render callback is needed:
+
+```tsx
+<Inventory
+  document={document}
+  paperMetadata={paperMetadata}
+  loadPdfJs={loadPdfJs}
+  onFetchPaper={fetchPaper}
+/>
+```
+
+`loadPdfJs(): Promise<PdfJs>` returns two operations: `getDocument({ url })`
+and `createTextLayer({ textContentSource, container, viewport })`. The latter
+receives the original PDF.js text content and viewport objects without
+serialization or alteration. These small structural types are exported from
+`components/pdf-runtime`; the package has no PDF.js dependency. A complete,
+type-checked adapter using PDF.js 4.8.69 and a bundled module worker is in
+[`packages/playground/src/pdf-runtime.ts`](../playground/src/pdf-runtime.ts).
+Other PDF.js releases need adapter and browser validation before adoption.
+
+Initialize the module inside the loader, keeping browser APIs out of server
+rendering. The shared viewer is loaded lazily when a paper with a URL and loader
+is displayed. An unavailable runtime or PDF leaves the dialog's external-open
+action available. Without a loader, paper metadata, relations, fetch controls
+and external links still work.
+
+**Ownership:** each `getDocument` call returns a loading task with `promise` and
+`destroy()`. The viewer destroys that task on unmount or source/runtime changes,
+including while loading. The adapter must release any worker it creates for
+that task, even if loading fails. Prefer one worker per open document. Avoid a
+global shared worker port whose destruction can affect another viewer. Cache
+module imports, not documents or task-owned workers. For blob workers, release
+both the worker and its object URL. Deliver runtime and worker from the same
+PDF.js release; asset URLs, credentials, CSP and optional font/CMap resources
+remain the integration's responsibility.
+
+`onOpenPaperFile(paper)` overrides the header's external-open action, for example
+to send a message to a VS Code extension host. It is distinct from `onOpenPaper`,
+which navigates to paper details. Without an override the header renders a PDF
+link. `onFetchPaper` remains an explicit acquisition request, with status and
+errors returned through `paperMetadata`; opening a dialog never downloads a
+missing paper through that callback.
+
+For a standalone reading surface, import `PaperPdfViewer` from
+`@astra-spec/ui/components/paper-pdf-viewer` with `pdfUrl`, `title`, `loadPdfJs`,
+and optional `focusEvidence: PaperFocusEvidence`. Give it a container with a
+defined height and import `components.css` (or a higher stylesheet bundle).
+The component handles zoom, selectable text, nearby-page rendering, and
+releases distant canvases while retaining page geometry.
+
+Locate requests use the existing `PaperFocusEvidence.key`: change it to locate
+the same passage again. Equivalent requests do not restart search. The viewer
+searches the cited physical page first, prefers a complete normalized match
+anywhere in the document to a shortened prefix, and labels partial results. If
+no match is found it shows the valid cited page, or reports that the quote was
+not found. Pages are one-based PDF page indices, not printed page labels.
+Matching tolerates split text runs, ligatures, whitespace and hyphenation, and
+marks original text safely. Text is cached only for the open document; obsolete
+searches cannot update a newer request.
+
+The initial implementation searches individual pages and does not perform OCR
+or use quote prefix/suffix context to disambiguate repeated text. Scanned PDFs
+and quotes spanning pages may therefore fall back to the cited page. Matching
+is navigation assistance, not evidence verification.
+
+**Migration:** `renderPaper`, `PaperRenderer`, and `PaperRenderOptions` have been
+removed. Replace the viewer callback with `loadPdfJs`; remove downstream page
+rendering, quote matching and PDF CSS. Keep downstream acquisition, runtime and
+worker delivery, and external opening. The `papers--reader` and
+`papers--focused-passage` playground stories use a synthetic PDF to exercise
+this interface with a real worker. Run `npm run test:pdf` from the repository
+root (after `npx playwright install chromium`) to check the built playground
+in Chromium at desktop and mobile widths.
 
 ## Styling and theming
 
