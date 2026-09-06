@@ -261,6 +261,10 @@ These are render callbacks and events: the package never fetches a URL, reads a
 file, resolves an ASTRA project, or stores application state on the host's
 behalf.
 
+`RecordDetails` provides the inventory's detail stack without any section or
+page layout. It accepts the same document, index, renderers, metadata, and
+controlled `detail` / `onDetailChange` props as `Inventory`.
+
 ## Styling and theming
 
 Import exactly one bundle for the highest layer you render:

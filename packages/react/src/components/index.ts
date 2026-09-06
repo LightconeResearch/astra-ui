@@ -52,3 +52,6 @@ export type {
   TextPreviewData,
   UnavailablePreviewData,
 } from './artifact-preview.js';
+
+export { RecordDetails } from './record-details.js';
+export type { RecordDetailsProps } from './record-details.js';

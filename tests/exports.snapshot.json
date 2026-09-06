@@ -55,6 +55,7 @@
     "PaperDetail",
     "PaperDialog",
     "PaperDialogActions",
+    "RecordDetails",
     "RecordDialog",
     "RecordPreview",
     "inputSourceLabel",
