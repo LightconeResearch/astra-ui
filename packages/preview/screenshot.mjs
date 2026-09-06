@@ -79,7 +79,8 @@ try {
         if (await trigger.count()) {
           await trigger.scrollIntoViewIfNeeded();
           await trigger.hover();
-          await page.locator('.astra-ui').first().waitFor({ timeout: 5000 }).catch(() => console.warn('no hover preview appeared'));
+          // `.astra-ui` is only the scoping wrapper; the popover surface is what must be on screen.
+          await page.locator('.astra-preview-popover').first().waitFor({ timeout: 5000 }).catch(() => console.warn('no hover preview appeared'));
           await page.waitForTimeout(300);
           await page.screenshot({ path: join(out, `index--hover--${scheme}--${width}.png`) });
           count += 1;
