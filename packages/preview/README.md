@@ -26,7 +26,7 @@ node packages/preview/build.mjs --theme ../astra-theme --content ../myst_proto -
 ```
 
 Flags: `--ui`, `--theme`, `--content` take a local directory or a git ref; `--mystra` takes a
-bundle file or URL; `--out`, `--cache`, `--base-url`, `--port`, `--keep-artifacts`, `--serve`.
+bundle file or https URL, or a MySTRA checkout or git ref to bundle from source (`npm run bundle`); `--out`, `--cache`, `--base-url`, `--port`, `--keep-artifacts`, `--serve`.
 Local checkouts are copied into the cache directory (`packages/preview/.cache/` unless `--cache`
 or `PREVIEW_CACHE` says otherwise) and never modified. Dependencies and MyST's
 cache in `.cache/` survive between runs, so a second build takes about a minute, dominated by
@@ -41,7 +41,7 @@ theme's dependencies.
 | --- | --- |
 | `theme.ref` | astra-theme tag, branch or commit; `theme.template` is the template directory to build |
 | `content.ref` | commit of the MyST project (its `astra.yaml`, pages and `results/`) |
-| `mystra` | MySTRA bundle URL, or `null` to keep the pin in the content's `myst.yml` |
+| `mystra.ref` | MySTRA git ref to bundle, or `null` to keep the pin in the content's `myst.yml` |
 | `ui.repository` | only used when `--ui` names a ref instead of a checkout |
 
 Bump a ref in a normal pull request; the preview for that PR shows the effect. A theme ref
@@ -64,6 +64,28 @@ workflow's `theme` input) a compatible astra-theme branch until it is released.
 - no binary science artifacts (`.npy`, `.h5`, `.fits`, ...): MyST copies every bound artifact,
   but the browser only loads images and tables, and the rest was 46 MB of the 77 MB export.
   `--keep-artifacts` keeps them, at the cost of download links in artifact cards.
+
+## Screenshots and Argos
+
+`screenshot.mjs paper` captures every page of `dist/` in light and dark mode at 1280, 960 and
+640 px, plus the hover preview and the record dialog each reference kind opens, into
+`screenshots/paper/`. `screenshot.mjs stories` builds the playground once and captures every
+story in both themes into `screenshots/stories/`:
+
+```bash
+npm run preview:build && npm run preview:screenshots   # the paper
+npm run screenshots                                    # the playground stories
+```
+
+The workflow runs both after the build, regenerating the playground fixture and artifact copies
+from the pinned content clone first so the stories show the same analysis as the paper, and
+uploads both directories to [Argos](https://argos-ci.com/) when an `ARGOS_TOKEN` secret exists. Argos compares
+against the pull request's merge base, posts a status check and a comment, and offers a review UI;
+the default branch is auto-approved as the baseline. Without the token the PNGs are uploaded as a
+workflow artifact instead. Setup: create the project on argos-ci.com for this repository (installing
+the Argos GitHub App), copy its token from *Settings → General* into the `ARGOS_TOKEN` secret.
+Argos uploads only happen for astra-ui's own runs; callers keep the artifact. The free tier allows
+5,000 screenshots a month; a build uploads 60.
 
 ## CI and Vercel
 
@@ -92,13 +114,19 @@ files; the pruned export is about 31 MB in 1,350 files, uploaded as one archive.
 ### Calling the workflow from another repository
 
 ```yaml
+on:
+  pull_request:
+permissions:
+  contents: read
+  pull-requests: write
 jobs:
   preview:
     uses: LightconeResearch/astra-ui/.github/workflows/preview.yml@main
     with:
-      theme: ${{ github.event.pull_request.head.sha }}   # or content: / mystra:
+      theme: ${{ github.event.pull_request.head.sha }}   # astra-theme; MySTRA passes mystra:
     secrets: inherit
 ```
 
 The called workflow checks out astra-ui at the `ui` input (default `main`) and builds with the
-caller's ref substituted for the pinned one.
+caller's ref substituted for the pinned one: `theme` is fetched and built, `mystra` is fetched and
+bundled. The caller needs the three `VERCEL_*` secrets to deploy; otherwise it gets the artifact.

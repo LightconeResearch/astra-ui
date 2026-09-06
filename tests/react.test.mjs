@@ -14,7 +14,7 @@ import {
 } from '../packages/react/dist/components/index.js';
 import { indexAnalysis } from '@astra-spec/sdk';
 import { collectInventoryPapers } from '../packages/react/dist/model/index.js';
-import { AnalysisTree, OutputCard } from '../packages/react/dist/blocks/index.js';
+import { AnalysisTree, OutputCard, OutputsList } from '../packages/react/dist/blocks/index.js';
 import { Inventory } from '../packages/react/dist/views/index.js';
 import { fixtureDocument } from './fixture.mjs';
 
@@ -197,6 +197,11 @@ test('missing paper content exposes only a host fetch event', () => {
 
   assert.match(html, /Fetch paper/);
   assert.doesNotMatch(html, /Loading|Fetching|pdf\.mjs/);
+  // Without a hosted copy the header action falls back to the DOI.
+  assert.match(html, /class="astra-dialog__action"[^>]*href="https:\/\/doi\.org\/10\.1234\/example"|href="https:\/\/doi\.org\/10\.1234\/example"[^>]*class="astra-dialog__action"/);
+
+  const unfetchable = withinUi(React.createElement(PaperDialog, { record: paper, onClose: () => {} }));
+  assert.match(unfetchable, /Follow the <a href="https:\/\/doi\.org\/10\.1234\/example"[^>]*>DOI<\/a> for the published version\./);
 
   const fetching = withinUi(React.createElement(PaperDialog, {
     record: paper,
@@ -297,8 +302,9 @@ test('output dialogs list indirect decision dependencies reached through upstrea
   const relations = { inputs: [], decisions: [], indirectDecisions: [{ canonicalPath: method.canonicalPath, record: method, analysis: fixtureDocument.analysis }] };
   const html = withinUi(React.createElement(OutputDetail, { record: figure, relations }));
   assert.match(html, /Indirect decision dependencies/);
-  assert.match(html, /Through upstream outputs\./);
   assert.match(html, /Method choice/);
+  // Titles stand alone: no canonical-path subtitle under resolved records.
+  assert.doesNotMatch(html, /decisions\.method/);
 });
 
 test('output cards carry an accessible name instead of their preview cells', () => {
@@ -314,7 +320,7 @@ test('a paper fetch error is announced', () => {
   assert.match(html, /<p role="alert">Not in cache<\/p>/);
 });
 
-test('an insight opened from another analysis still offers its source paper', () => {
+test('an insight opened from another analysis still offers its source passage', () => {
   const index = indexAnalysis(fixtureDocument);
   const clustering = fixtureDocument.analysis.analyses[0];
   const papersOfClustering = collectInventoryPapers(fixtureDocument, index, clustering);
@@ -328,7 +334,53 @@ test('an insight opened from another analysis still offers its source paper', ()
     onClose: () => undefined,
   }));
   assert.match(html, /Locate passage in paper/);
-  assert.match(html, /<button type="button">https:\/\/doi\.org\/10\.1234\/EXAMPLE/);
+  assert.match(html, /<blockquote>The fiducial method performs well\.<\/blockquote>/);
+  // The DOI pill is gone: the passage and its locate action carry the source.
+  assert.doesNotMatch(html, /Source paper/);
+});
+
+test('an insight whose host cannot open papers links its source on doi.org', () => {
+  const index = indexAnalysis(fixtureDocument);
+  const html = withinUi(React.createElement(RecordDialog, {
+    entry: recordEntry('prior_insights.published_method', '$'),
+    document: fixtureDocument,
+    index,
+    papers: [],
+    onClose: () => undefined,
+  }));
+  assert.match(html, /<blockquote>The fiducial method performs well\.<\/blockquote>/);
+  assert.match(html, /<figcaption><a class="astra-insight-detail__open-source" href="https:\/\/doi\.org\/10\.1234\/example"/);
+  assert.doesNotMatch(html, /Locate passage in paper/);
+});
+
+test('metric previews round numbers, keep strings verbatim, and drop a blank uncertainty', () => {
+  const index = indexAnalysis(fixtureDocument);
+  const output = index.recordByPath.get('outputs.headline');
+  const rounded = withinUi(React.createElement(ArtifactPreview, { output, preview: { kind: 'metric', value: 1.012345678, uncertainty: 0.024567891 }, locale: 'en-US' }));
+  assert.match(rounded, /1\.0123<\/strong>/);
+  assert.match(rounded, /± 0\.024568</);
+  const verbatim = withinUi(React.createElement(ArtifactPreview, { output, preview: { kind: 'metric', value: '5.00', uncertainty: '0.010' } }));
+  assert.match(verbatim, />5\.00<\/strong>/);
+  assert.match(verbatim, /± 0\.010</);
+  const blank = withinUi(React.createElement(ArtifactPreview, { output, preview: { kind: 'metric', value: 5, uncertainty: '' } }));
+  assert.doesNotMatch(blank, /±|Value unavailable/);
+});
+
+test('metric tiles carry an accessible name and consult the host renderer like the gallery', () => {
+  const headline = fixtureDocument.analysis.outputs[0];
+  const metric = { ...headline, id: 'neff', canonicalPath: 'outputs.neff', label: 'Effective sample size', type: 'metric', format: 'json', artifact: undefined };
+  const analysis = { ...fixtureDocument.analysis, outputs: [metric] };
+  const rendered = [];
+  const html = withinUi(React.createElement(OutputsList, {
+    analysis,
+    renderArtifact: (output) => { rendered.push(output.canonicalPath); return React.createElement('span', null, 'Host preview'); },
+    onOpenRecord: () => undefined,
+  }));
+  assert.match(html, /<button[^>]*aria-label="Open metric: Effective sample size"/);
+  assert.deepEqual(rendered, ['outputs.neff']);
+  assert.match(html, /Host preview/);
+  const hostless = withinUi(React.createElement(OutputsList, { analysis, onOpenRecord: () => undefined }));
+  assert.match(hostless, /Not yet generated/);
 });
 
 test('table previews say whether their total is exact or unknown, and stay quiet when compact', () => {

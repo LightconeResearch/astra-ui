@@ -78,6 +78,9 @@ Every token is declared on `:where(.astra-ui)` at zero specificity in the `astra
 | `--astra-font-body` | `"Source Serif 4", Georgia, "Times New Roman", serif` | — |
 | `--astra-font-heading` | `"Source Serif 4", Georgia, "Times New Roman", serif` | — |
 | `--astra-font-mono` | `ui-monospace, "SF Mono", Menlo, Consolas, monospace` | — |
+| `--astra-font-size-2xs` | `0.6875rem` | — |
+| `--astra-font-size-xs` | `0.75rem` | — |
+| `--astra-font-size-sm` | `0.8125rem` | — |
 | `--astra-font-size` | `0.875rem` | — |
 
 ## Geometry

@@ -38,7 +38,7 @@
   :where(.astra-ui) .astra-detail__section > span {
     color: var(--astra-color-accent);
     font-family: var(--astra-font-ui);
-    font-size: 0.68rem;
+    font-size: var(--astra-font-size-2xs);
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -123,7 +123,7 @@
   :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-detail__section > span,
   :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-detail__relations h4 {
     color: var(--astra-color-text);
-    font: 700 0.8125rem/1.25 var(--astra-font-ui);
+    font: 700 var(--astra-font-size-sm)/1.25 var(--astra-font-ui);
     letter-spacing: 0;
     text-transform: none;
   }
@@ -165,7 +165,7 @@
 
   :where(.astra-ui) .astra-detail__section > span {
     color: var(--astra-color-text-subtle);
-    font: 700 0.75rem/1 var(--astra-font-ui);
+    font: 700 var(--astra-font-size-xs)/1 var(--astra-font-ui);
     letter-spacing: 0.09em;
     text-transform: uppercase;
   }
@@ -185,12 +185,12 @@
   :where(.astra-ui) .astra-detail__relations h4 {
     margin: 0 0 0.5rem;
     color: var(--astra-color-text);
-    font: 700 0.875rem/1.2 var(--astra-font-ui);
+    font: 700 var(--astra-font-size)/1.2 var(--astra-font-ui);
   }
 
   :where(.astra-ui) .astra-detail__section.astra-detail__section:where([data-heading="section"]) > span {
     color: var(--astra-color-text);
-    font: 700 0.875rem/1.2 var(--astra-font-ui);
+    font: 700 var(--astra-font-size)/1.2 var(--astra-font-ui);
     letter-spacing: 0;
     text-transform: none;
   }

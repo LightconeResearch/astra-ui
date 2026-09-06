@@ -116,15 +116,6 @@ export const OutputDetail = forwardRef<HTMLDivElement, OutputDetailProps>(functi
           </div>
         </section>
       ) : null}
-      {output.recipe?.command ? (
-        <section className="astra-output-detail__recipe">
-          <h4>Recipe</h4>
-          <pre><code>{output.recipe.command}</code></pre>
-          {output.recipe.container
-            ? <p>Container: <code>{output.recipe.container}</code></p>
-            : null}
-        </section>
-      ) : null}
       {output.resolvedFrom ? (
         <RelationList
           className="astra-detail__relations"
@@ -143,7 +134,6 @@ export const OutputDetail = forwardRef<HTMLDivElement, OutputDetailProps>(functi
         <RelationList
           className="astra-detail__relations"
           title="Indirect decision dependencies"
-          description="Through upstream outputs."
           items={relationItemsForLinks(relations.indirectDecisions, onOpenRecord)}
           empty={null}
         />
@@ -151,9 +141,20 @@ export const OutputDetail = forwardRef<HTMLDivElement, OutputDetailProps>(functi
       <RelationList
         className="astra-detail__relations"
         title="Inputs and upstream outputs"
-        items={relationItemsForLinks(relations.inputs, onOpenRecord)}
+        items={relationItemsForLinks(relations.inputs, onOpenRecord).map((item) => (
+          item.kind === 'output' ? { ...item, detail: 'intermediate output' } : item
+        ))}
         empty="No upstream dependencies are declared for this output."
       />
+      {output.recipe?.command ? (
+        <section className="astra-output-detail__recipe">
+          <h4>Recipe</h4>
+          <pre><code>{output.recipe.command}</code></pre>
+          {output.recipe.container
+            ? <p>Container: <code>{output.recipe.container}</code></p>
+            : null}
+        </section>
+      ) : null}
     </aside>
   );
 

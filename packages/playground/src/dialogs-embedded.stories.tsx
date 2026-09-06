@@ -1,36 +1,63 @@
+import { indexAnalysis, type ResolvedDecision, type ResolvedOutput } from '@astra-spec/sdk';
 import type { Story } from '@ladle/react';
+import { DecisionDialog, OutputDialog, PaperDialog } from '@astra-spec/ui/components';
+import { collectInventoryPapers, decisionInsights, outputRelations } from '@astra-spec/ui/model';
 import { DialogProvider } from '@astra-spec/ui/primitives';
-import { dialogStories } from './dialogs';
+import { byPath } from './derive';
+import { analysisDocument, paperMetadata, renderArtifact, loadPdfJs } from './host';
 
+// The embedded shell is what jupyterlab-astra mounts. The demo paper preview
+// opens every record kind as a modal, so only what is specific to embedding
+// stays here: an artifact-bearing output, the paper body, and the back trail.
 export default { title: 'Dialogs / Embedded' };
 
-export const OutputFigure: Story = () => (
-  <DialogProvider mode="embedded">{dialogStories.OutputFigure()}</DialogProvider>
-);
-export const OutputTable: Story = () => (
-  <DialogProvider mode="embedded">{dialogStories.OutputTable()}</DialogProvider>
-);
-export const OutputData: Story = () => (
-  <DialogProvider mode="embedded">{dialogStories.OutputData()}</DialogProvider>
-);
-export const Decision: Story = () => (
-  <DialogProvider mode="embedded">{dialogStories.Decision()}</DialogProvider>
-);
-export const Finding: Story = () => (
-  <DialogProvider mode="embedded">{dialogStories.Finding()}</DialogProvider>
-);
-export const Input: Story = () => (
-  <DialogProvider mode="embedded">{dialogStories.Input()}</DialogProvider>
-);
-export const Insight: Story = () => (
-  <DialogProvider mode="embedded">{dialogStories.Insight()}</DialogProvider>
-);
-export const Paper: Story = () => (
-  <DialogProvider mode="embedded">{dialogStories.Paper()}</DialogProvider>
-);
-export const PaperWithoutContent: Story = () => (
-  <DialogProvider mode="embedded">{dialogStories.PaperWithoutContent()}</DialogProvider>
-);
-export const WithBackTrail: Story = () => (
-  <DialogProvider mode="embedded">{dialogStories.WithBackTrail()}</DialogProvider>
-);
+const noop = () => undefined;
+const index = indexAnalysis(analysisDocument);
+
+export const OutputFigure: Story = () => {
+  const record = byPath<ResolvedOutput>(analysisDocument, 'outputs.bao_fit_plot');
+  return (
+    <DialogProvider mode="embedded">
+      <OutputDialog
+        record={record}
+        relations={outputRelations(index, record)}
+        renderArtifact={renderArtifact}
+        onOpenArtifact={noop}
+        onOpenRecord={noop}
+        onClose={noop}
+      />
+    </DialogProvider>
+  );
+};
+
+export const Paper: Story = () => {
+  const [paper] = collectInventoryPapers(analysisDocument, index, analysisDocument.analysis, paperMetadata);
+  if (!paper) throw new Error('Fixture has no papers');
+  return (
+    <DialogProvider mode="embedded">
+      <PaperDialog
+        record={paper}
+        loadPdfJs={loadPdfJs}
+        onFetchPaper={noop}
+        onOpenInsight={noop}
+        onOpenDecision={noop}
+        onClose={noop}
+      />
+    </DialogProvider>
+  );
+};
+
+export const WithBackTrail: Story = () => {
+  const record = byPath<ResolvedDecision>(analysisDocument, 'decisions.broadband');
+  return (
+    <DialogProvider mode="embedded" backText="BAO fit plot">
+      <DecisionDialog
+        record={record}
+        insights={decisionInsights(index, record)}
+        onOpenInsight={noop}
+        onBack={noop}
+        onClose={noop}
+      />
+    </DialogProvider>
+  );
+};

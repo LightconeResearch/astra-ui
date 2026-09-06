@@ -3,7 +3,8 @@ import type { ResolvedAnalysisDocument, ResolvedOutput } from '@astra-spec/sdk';
 import { indexAnalysis } from '@astra-spec/sdk';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Button } from '../../packages/react/src/primitives/index.js';
-import { OutputDialog, useDetailStack } from '../../packages/react/src/components/index.js';
+import { OutputDialog, PaperDetail, useDetailStack } from '../../packages/react/src/components/index.js';
+import { collectInventoryPapers } from '../../packages/react/src/model/papers.js';
 import { fixtureDocument as untypedFixture } from '../fixture.mjs';
 
 const fixtureDocument = untypedFixture as unknown as ResolvedAnalysisDocument;
@@ -48,5 +49,28 @@ describe('Slot prop merging', () => {
     expect(onClick).toHaveBeenCalledTimes(1);
     render(<Button asChild type="submit"><button type={undefined}>Go</button></Button>);
     expect(screen.getByRole('button', { name: 'Go' }).getAttribute('type')).toBe('submit');
+  });
+});
+
+describe('PaperDetail decision filter', () => {
+  it('narrows the insights to one decision and only then offers to open it', () => {
+    const paper = collectInventoryPapers(fixtureDocument, index, fixtureDocument.analysis)[0];
+    if (!paper) throw new Error('fixture paper missing');
+    const onOpenDecision = vi.fn();
+    render(<PaperDetail record={paper} onOpenDecision={onOpenDecision} />);
+
+    expect(screen.queryByRole('button', { name: /^Open Method choice/ })).toBeNull();
+    const chip = screen.getByRole('button', { name: 'Method choice' });
+    fireEvent.click(chip);
+    expect(chip.getAttribute('aria-pressed')).toBe('true');
+    expect(screen.getByText('Insights for Method choice')).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: /^Open Method choice/ }));
+    expect(onOpenDecision).toHaveBeenCalledWith(paper.decisions[0]);
+
+    fireEvent.click(chip);
+    expect(chip.getAttribute('aria-pressed')).toBe('false');
+    expect(screen.queryByRole('button', { name: /^Open Method choice/ })).toBeNull();
+    expect(screen.getByText('Insights from this paper')).toBeTruthy();
   });
 });

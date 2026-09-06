@@ -4,7 +4,7 @@ import { recordTitle } from '../model/records.js';
 import { cn } from '../lib/cn.js';
 import { useLabels } from '../lib/labels.js';
 import type { ArtifactRenderer } from '../components/artifact-preview.js';
-import { EmptyState, RecordIdentity, RecordList } from '../primitives/record-list.js';
+import { EmptyState } from '../primitives/record-list.js';
 import { OutputPreview } from '../components/output-detail.js';
 
 export interface OutputsListProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
@@ -19,7 +19,7 @@ export interface OutputCardProps extends Omit<HTMLAttributes<HTMLButtonElement>,
   onOpen: () => void;
 }
 
-/** A gallery card: compact preview, type, and title. */
+/** A gallery card: compact preview and title, with a type label for non-figures. */
 export const OutputCard = forwardRef<HTMLButtonElement, OutputCardProps>(function OutputCard({
   output,
   renderArtifact,
@@ -44,7 +44,7 @@ export const OutputCard = forwardRef<HTMLButtonElement, OutputCardProps>(functio
         <span className="astra-output-card__open" aria-hidden="true">Open ↗</span>
       </span>
       <span className="astra-output-card__body">
-        <span className="astra-output-card__kind">{output.type}</span>
+        {output.type !== 'figure' ? <span className="astra-output-card__kind">{output.type}</span> : null}
         <strong>{recordTitle(output)}</strong>
         {output.label ? <code>{output.id}</code> : null}
       </span>
@@ -84,40 +84,61 @@ function OutputGallery({
   );
 }
 
-function OutputFiles({ outputs, onOpen }: { outputs: ResolvedOutput[]; onOpen: (output: ResolvedOutput) => void }) {
+function CompactOutputs({
+  title,
+  outputs,
+  renderArtifact,
+  onOpen,
+}: {
+  title: string;
+  outputs: ResolvedOutput[];
+  renderArtifact?: ArtifactRenderer | undefined;
+  onOpen: (output: ResolvedOutput) => void;
+}) {
   const id = useId();
   if (!outputs.length) return null;
   return (
-    <section className="astra-inventory-outputs__group astra-inventory-outputs__files" aria-labelledby={id}>
+    <section className="astra-inventory-outputs__group" aria-labelledby={id}>
       <h3 id={id} className="astra-inventory-outputs__group-heading">
-        <span>Other outputs</span>
+        <span>{title}</span>
       </h3>
-      <RecordList
-        label="Other outputs"
-        columnTemplate="minmax(14rem, 1fr) 1.5rem"
-        columns={[
-          { label: 'Output', className: 'astra-record-list__primary' },
-          { className: 'astra-record-list__arrow' },
-        ]}
-        rows={outputs.map((output) => ({
-          key: output.canonicalPath,
-          accessibleLabel: recordTitle(output),
-          onOpen: () => { onOpen(output); },
-          cells: [
-            <RecordIdentity
-              kind="output"
-              title={recordTitle(output)}
-              subtitle={output.label ? output.id : output.format?.toUpperCase()}
-            />,
-            <span aria-hidden="true">→</span>,
-          ],
-        }))}
-      />
+      <ul className="astra-inventory-outputs__compact-grid" data-layout={outputs[0]?.type === 'metric' ? 'tiles' : 'grid'}>
+        {outputs.map((output) => {
+          const metric = output.type === 'metric';
+          const status = !output.active ? 'Inactive' : !output.artifact ? 'Not yet generated' : undefined;
+          return (
+            <li key={output.canonicalPath}>
+              <button
+                type="button"
+                className="astra-output-entry"
+                data-kind={metric ? 'metric' : 'file'}
+                aria-label={`Open ${output.type}: ${recordTitle(output)}`}
+                onClick={() => { onOpen(output); }}
+              >
+                <span className="astra-output-entry__name">
+                  {recordTitle(output)}
+                  {!metric && status ? <span className="astra-output-entry__status">{status}</span> : null}
+                </span>
+                {metric ? (
+                  <span className="astra-output-entry__value">
+                    {renderArtifact?.(output, { compact: true })
+                      ?? <span className="astra-output-entry__status">{status ?? 'Preview unavailable'}</span>}
+                  </span>
+                ) : (
+                  <span className="astra-output-entry__format">{output.format ? output.format.replace(/^\./, '').toUpperCase() : 'FILE'}</span>
+                )}
+              </button>
+            </li>
+          );
+        })}
+      </ul>
     </section>
   );
 }
 
-/** Figures and tables as galleries, everything else as a list. */
+const GROUPED_TYPES = new Set<ResolvedOutput['type']>(['figure', 'table', 'metric']);
+
+/** Figures and tables as galleries, metrics as compact tiles, files as a compact grid. */
 export const OutputsList = forwardRef<HTMLDivElement, OutputsListProps>(function OutputsList({
   analysis,
   renderArtifact,
@@ -128,7 +149,8 @@ export const OutputsList = forwardRef<HTMLDivElement, OutputsListProps>(function
   const labels = useLabels();
   const figures = analysis.outputs.filter(({ type }) => type === 'figure');
   const tables = analysis.outputs.filter(({ type }) => type === 'table');
-  const files = analysis.outputs.filter(({ type }) => type !== 'figure' && type !== 'table');
+  const metrics = analysis.outputs.filter(({ type }) => type === 'metric');
+  const files = analysis.outputs.filter(({ type }) => !GROUPED_TYPES.has(type));
   if (!analysis.outputs.length) {
     return <EmptyState data-slot="outputs-list" {...props} ref={ref} className={className}>{labels.empty.outputs}</EmptyState>;
   }
@@ -137,7 +159,8 @@ export const OutputsList = forwardRef<HTMLDivElement, OutputsListProps>(function
     <div data-slot="outputs-list" {...props} ref={ref} className={cn('astra-inventory-outputs', className)}>
       <OutputGallery title="Figures" outputs={figures} renderArtifact={renderArtifact} onOpen={open} />
       <OutputGallery title="Tables" outputs={tables} renderArtifact={renderArtifact} onOpen={open} />
-      <OutputFiles outputs={files} onOpen={open} />
+      <CompactOutputs title="Metrics" outputs={metrics} renderArtifact={renderArtifact} onOpen={open} />
+      <CompactOutputs title="Output files" outputs={files} onOpen={open} />
     </div>
   );
 });
