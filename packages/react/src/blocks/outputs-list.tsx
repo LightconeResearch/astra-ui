@@ -105,25 +105,24 @@ function CompactOutputs({
       <ul className="astra-inventory-outputs__compact-grid" data-layout={outputs[0]?.type === 'metric' ? 'tiles' : 'grid'}>
         {outputs.map((output) => {
           const metric = output.type === 'metric';
-          const pending = !output.active ? 'Inactive' : !output.artifact ? 'Not yet generated' : undefined;
+          const status = !output.active ? 'Inactive' : !output.artifact ? 'Not yet generated' : undefined;
           return (
             <li key={output.canonicalPath}>
               <button
                 type="button"
                 className="astra-output-entry"
                 data-kind={metric ? 'metric' : 'file'}
+                aria-label={`Open ${output.type}: ${recordTitle(output)}`}
                 onClick={() => { onOpen(output); }}
               >
                 <span className="astra-output-entry__name">
                   {recordTitle(output)}
-                  {!metric && pending ? <span className="astra-output-entry__status">{pending}</span> : null}
+                  {!metric && status ? <span className="astra-output-entry__status">{status}</span> : null}
                 </span>
                 {metric ? (
                   <span className="astra-output-entry__value">
-                    {pending
-                      ? <span className="astra-output-entry__status">{pending}</span>
-                      : renderArtifact?.(output, { compact: true })
-                        ?? <span className="astra-output-entry__status">Preview unavailable</span>}
+                    {renderArtifact?.(output, { compact: true })
+                      ?? <span className="astra-output-entry__status">{status ?? 'Preview unavailable'}</span>}
                   </span>
                 ) : (
                   <span className="astra-output-entry__format">{output.format ? output.format.replace(/^\./, '').toUpperCase() : 'FILE'}</span>

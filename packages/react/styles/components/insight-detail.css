@@ -1,6 +1,8 @@
 /* insight-detail — emitted by src/components/insight-detail.tsx */
 @layer astra.tokens, astra.base, astra.components, astra.views;
 @layer astra.components {
+  /* __paper is FindingDetail's; the insight popup itself no longer emits it. */
+  :where(.astra-ui) .astra-insight-detail__paper,
   :where(.astra-ui) .astra-insight-detail__source-quote,
   :where(.astra-ui) .astra-insight-detail__notes {
     margin: 1.625rem 0 0;

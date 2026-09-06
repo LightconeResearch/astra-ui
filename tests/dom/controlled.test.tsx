@@ -52,6 +52,29 @@ describe('Slot prop merging', () => {
   });
 });
 
+describe('PaperDetail decision filter', () => {
+  it('narrows the insights to one decision and only then offers to open it', () => {
+    const paper = collectInventoryPapers(fixtureDocument, index, fixtureDocument.analysis)[0];
+    if (!paper) throw new Error('fixture paper missing');
+    const onOpenDecision = vi.fn();
+    render(<PaperDetail record={paper} onOpenDecision={onOpenDecision} />);
+
+    expect(screen.queryByRole('button', { name: /^Open Method choice/ })).toBeNull();
+    const chip = screen.getByRole('button', { name: 'Method choice' });
+    fireEvent.click(chip);
+    expect(chip.getAttribute('aria-pressed')).toBe('true');
+    expect(screen.getByText('Insights for Method choice')).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: /^Open Method choice/ }));
+    expect(onOpenDecision).toHaveBeenCalledWith(paper.decisions[0]);
+
+    fireEvent.click(chip);
+    expect(chip.getAttribute('aria-pressed')).toBe('false');
+    expect(screen.queryByRole('button', { name: /^Open Method choice/ })).toBeNull();
+    expect(screen.getByText('Insights from this paper')).toBeTruthy();
+  });
+});
+
 describe('PaperDetail focus requests', () => {
   it('keeps one focus object across unrelated re-renders and issues a new key per locate click', () => {
     const paper = collectInventoryPapers(fixtureDocument, index, fixtureDocument.analysis, { '10.1234/example': { pdfUrl: '/x.pdf' } })[0];

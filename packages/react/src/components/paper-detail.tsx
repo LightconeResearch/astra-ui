@@ -1,5 +1,6 @@
 import type { ResolvedDecision, ResolvedInsight } from '@astra-spec/sdk';
 import { forwardRef, useCallback, useMemo, useRef, useState, type HTMLAttributes, type ReactNode } from 'react';
+import { doiHref } from '../model/doi.js';
 import { countLabel, recordTitle } from '../model/records.js';
 import { decisionInsightPaths } from '../model/relations.js';
 import { paperEvidence, type InventoryPaper, type InventoryPaperMetadata, type PaperFocusEvidence } from '../model/papers.js';
@@ -101,7 +102,7 @@ export const PaperDetail = forwardRef<HTMLDivElement, PaperDetailProps>(function
               <p>
                 {paper.pdfUrl
                   ? 'This host has not supplied an embedded paper renderer.'
-                  : 'Follow the DOI for the published version.'}
+                  : <>Follow the <a href={doiHref(paper.doi)} target="_blank" rel="noreferrer">DOI</a> for the published version.</>}
               </p>
             )}
           </div>
@@ -195,17 +196,16 @@ export const PaperDetail = forwardRef<HTMLDivElement, PaperDetailProps>(function
 
 export interface PaperDialogProps extends Pick<DetailDialogProps, 'mode' | 'backText' | 'className' | 'onBack' | 'onClose'>, Omit<PaperDetailProps, 'className'> {}
 
-/** Header action linking to the paper's hosted content, when there is one. */
+/** Header action linking to the paper's hosted content, or to its DOI when there is none. */
 export interface PaperDialogActionsProps {
   record: InventoryPaper;
 }
 
 export function PaperDialogActions({ record: paper }: PaperDialogActionsProps) {
   const labels = useLabels();
-  if (!paper.pdfUrl) return null;
   return (
     <DialogAction asChild>
-      <a href={paper.pdfUrl} target="_blank" rel="noreferrer">
+      <a href={paper.pdfUrl ?? doiHref(paper.doi)} target="_blank" rel="noreferrer">
         <span aria-hidden="true">↗</span>
         <span>{labels.actions.openPaper}</span>
       </a>

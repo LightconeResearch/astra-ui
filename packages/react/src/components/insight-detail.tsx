@@ -40,6 +40,18 @@ export const InsightDetail = forwardRef<HTMLDivElement, InsightDetailProps>(func
   ...props
 }, ref) {
   const source = primaryLiteratureEvidence(insight);
+  // The way to the paper: through the host when it can show it, else doi.org.
+  const sourceAction = source?.doi ? (
+    onOpenSource ? (
+      <button type="button" className="astra-insight-detail__open-source" onClick={onOpenSource}>
+        {source.quote ? 'Locate passage in paper' : 'Open source paper'} <span aria-hidden="true">→</span>
+      </button>
+    ) : (
+      <a className="astra-insight-detail__open-source" href={doiHref(source.doi)} target="_blank" rel="noreferrer">
+        Open source paper <span aria-hidden="true">↗</span>
+      </a>
+    )
+  ) : null;
   return (
     <DetailLayout data-slot="insight-detail" {...props} ref={ref} layout="single" className={cn('astra-insight-detail', className)}>
       <DetailMain>
@@ -51,26 +63,9 @@ export const InsightDetail = forwardRef<HTMLDivElement, InsightDetailProps>(func
         {source?.quote ? (
           <figure className="astra-insight-detail__source-quote">
             <blockquote><Prose text={source.quote.exact} field="quote" renderText={renderText} /></blockquote>
-            {source.doi && onOpenSource ? (
-              <figcaption>
-                <button type="button" className="astra-insight-detail__open-source" onClick={onOpenSource}>
-                  Locate passage in paper <span aria-hidden="true">→</span>
-                </button>
-              </figcaption>
-            ) : null}
+            {sourceAction ? <figcaption>{sourceAction}</figcaption> : null}
           </figure>
-        ) : source?.doi ? (
-          // Evidence with a DOI but no quote still needs a way to the paper.
-          onOpenSource ? (
-            <button type="button" className="astra-insight-detail__open-source" onClick={onOpenSource}>
-              Open source paper <span aria-hidden="true">→</span>
-            </button>
-          ) : (
-            <a className="astra-insight-detail__open-source" href={doiHref(source.doi)} target="_blank" rel="noreferrer">
-              Open source paper <span aria-hidden="true">↗</span>
-            </a>
-          )
-        ) : null}
+        ) : sourceAction}
         {insight.notes ? (
           <section className="astra-insight-detail__notes">
             <h4>Notes</h4>

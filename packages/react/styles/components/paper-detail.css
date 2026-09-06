@@ -17,6 +17,10 @@
     margin: 0;
   }
 
+  :where(.astra-ui) .astra-paper-detail__unavailable a {
+    color: var(--astra-color-link);
+  }
+
   :where(.astra-ui) .astra-paper-detail__unavailable button {
     border: 1px solid var(--astra-color-border-strong);
     border-radius: 0.3rem;
@@ -189,7 +193,7 @@
     color: var(--astra-color-text);
   }
 
-  :where(.astra-ui) .astra-paper-decisions__filter[aria-pressed="true"] {
+  :where(.astra-ui) .astra-paper-decisions__filter:where([aria-pressed="true"]) {
     border-color: var(--astra-color-link);
     background: color-mix(in srgb, var(--astra-color-link) 12%, transparent);
     color: var(--astra-color-text);
