@@ -32,13 +32,6 @@ export interface InventoryPaperMetadata {
 
 export type InventoryPaperMetadataMap = Readonly<Record<string, InventoryPaperMetadata>>;
 
-export interface PaperFocusEvidence {
-  /** Changes on every locate request, including a repeat of the same passage, so the viewer can react to each one. */
-  key: string;
-  insight: ResolvedInsight;
-  evidence: ResolvedEvidence;
-}
-
 /** Looks up metadata by DOI, whichever spelling the host used as the key. */
 export function paperMetadataFor(doi: string, metadata: InventoryPaperMetadataMap): InventoryPaperMetadata | undefined {
   const direct = metadata[normalizeDoi(doi)] ?? metadata[doi];

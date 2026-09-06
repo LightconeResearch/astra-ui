@@ -53,4 +53,7 @@ export type {
   UnavailablePreviewData,
 } from './artifact-preview.js';
 
-export type { PdfJs, PdfJsLoader, PdfLoadingTask } from './pdf-runtime.js';
+export { PaperPdfViewer } from './paper-pdf-viewer.js';
+export type { PaperPdfViewerProps, PdfLoadState, PdfPassage } from './paper-pdf-viewer.js';
+export { pdfJsWithWorker } from './pdf-runtime.js';
+export type { PdfJs, PdfJsLoader } from './pdf-runtime.js';

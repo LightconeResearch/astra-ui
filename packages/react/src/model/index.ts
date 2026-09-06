@@ -27,6 +27,5 @@ export type {
   InventoryPaperMetadata,
   InventoryPaperMetadataMap,
   PaperFetchStatus,
-  PaperFocusEvidence,
 } from './papers.js';
 export { doiHref } from './doi.js';

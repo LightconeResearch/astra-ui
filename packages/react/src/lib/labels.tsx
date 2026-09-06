@@ -142,7 +142,7 @@ export const defaultLabels: AstraLabels = {
     viewer: (title) => `PDF viewer for ${title}`,
     page: (page) => `Page ${page}`,
     pageError: (page) => `Page ${page} could not be rendered.`,
-    pageCount: (count) => `${count} pages`,
+    pageCount: (count) => (count === 1 ? '1 page' : `${count} pages`),
     quoteHighlighted: (page, count) => `Quote highlighted on page ${page} of ${count}`,
     partialQuoteHighlighted: (page, count) => `Partial quote highlighted on page ${page} of ${count}`,
     citedPageFallback: (page, count) => `Exact quote not found; showing cited page ${page} of ${count}`,

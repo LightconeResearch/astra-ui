@@ -5,7 +5,6 @@ import {
   useContext,
   useEffect,
   useId,
-  useLayoutEffect,
   useMemo,
   useRef,
   type FocusEvent,
@@ -16,6 +15,7 @@ import {
   type SyntheticEvent,
 } from 'react';
 import { cn } from '../lib/cn.js';
+import { useIsomorphicLayoutEffect } from '../lib/use-isomorphic-layout-effect.js';
 import { useLabels } from '../lib/labels.js';
 import { Slot } from '../lib/slot.js';
 import { IconButton } from './button.js';
@@ -24,8 +24,6 @@ import { SurfaceHeader, type SurfaceHeadingLevel } from './surface-header.js';
 
 export type DialogMode = 'modal' | 'embedded';
 export type DialogLayout = 'single' | 'reader';
-
-const useIsomorphicLayoutEffect = typeof document === 'undefined' ? useEffect : useLayoutEffect;
 
 /* ------------------------------------------------------------------ */
 /* Presentation defaults shared by a subtree (mode, back trail)         */

@@ -1,5 +1,6 @@
 import { vi } from 'vitest';
-import { textStrings, type PdfJs, type PdfTextContent } from '../../packages/react/src/components/pdf-runtime.js';
+import { textStrings } from '../../packages/react/src/components/pdf-quote.js';
+import type { PdfJs, PdfTextContent, PdfTextLayerOptions } from '../../packages/react/src/components/pdf-runtime.js';
 
 export function runtime(texts = ['An introductory result appears', 'An unrelated page', 'The final scientific result is reproducible.']) {
   const rendered: number[] = [];
@@ -15,23 +16,22 @@ export function runtime(texts = ['An introductory result appears', 'An unrelated
     })),
   };
   const getDocument = vi.fn(() => ({ promise: Promise.resolve(pdf), destroy }));
-  const load = vi.fn(async (): Promise<PdfJs> => ({
-    getDocument,
-    createTextLayer({ textContentSource, container }) {
-      const strings = textStrings(textContentSource as PdfTextContent);
-      return {
-        textContentItemsStr: strings,
-        textDivs: strings.map((text) => {
-          const span = document.createElement('span');
-          span.textContent = text;
-          container.append(span);
-          return span;
-        }),
-        render: async () => {},
-        cancel,
-      };
-    },
-  }));
+  class TextLayer {
+    readonly textContentItemsStr: string[];
+    readonly textDivs: HTMLElement[];
+    constructor({ textContentSource, container }: PdfTextLayerOptions) {
+      this.textContentItemsStr = textStrings(textContentSource as PdfTextContent);
+      this.textDivs = this.textContentItemsStr.map((text) => {
+        const span = document.createElement('span');
+        span.textContent = text;
+        container.append(span);
+        return span;
+      });
+    }
+    async render() {}
+    cancel() { cancel(); }
+  }
+  const load = vi.fn(async (): Promise<PdfJs> => ({ getDocument, TextLayer }));
   return { load, rendered, destroy, cancel, getDocument, getText, pdf };
 }
 

@@ -69,6 +69,12 @@
     border-color: var(--astra-color-link);
   }
 
+  :where(.astra-ui) .astra-paper-insight__locate:where([aria-disabled="true"]) {
+    cursor: default;
+    border-color: transparent;
+    color: var(--astra-color-text-subtle);
+  }
+
   :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-paper-detail__rail {
     padding: 1.125rem 1rem 1.5rem;
     background: var(--astra-color-canvas);

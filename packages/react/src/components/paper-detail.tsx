@@ -1,9 +1,9 @@
-import type { ResolvedDecision, ResolvedInsight } from '@astra-spec/sdk';
-import { forwardRef, lazy, Suspense, useCallback, useMemo, useRef, useState, type HTMLAttributes } from 'react';
+import type { ResolvedDecision, ResolvedEvidence, ResolvedInsight } from '@astra-spec/sdk';
+import { forwardRef, useCallback, useMemo, useRef, useState, type HTMLAttributes } from 'react';
 import { doiHref } from '../model/doi.js';
 import { countLabel, recordTitle } from '../model/records.js';
 import { decisionInsightPaths } from '../model/relations.js';
-import { paperEvidence, type InventoryPaper, type InventoryPaperMetadata, type PaperFocusEvidence } from '../model/papers.js';
+import { paperEvidence, type InventoryPaper, type InventoryPaperMetadata } from '../model/papers.js';
 import { cn } from '../lib/cn.js';
 import { useLabels } from '../lib/labels.js';
 import { CountHeading } from '../primitives/detail-layout.js';
@@ -11,13 +11,8 @@ import { DetailDialog, DialogAction, type DetailDialogProps } from '../primitive
 import { surfaceGlyph } from '../primitives/kind.js';
 import type { TextRenderer } from '../primitives/prose.js';
 import { InsightTrigger } from './insight-trigger.js';
-
+import { PaperPdfViewer, type PdfPassage } from './paper-pdf-viewer.js';
 import type { PdfJsLoader } from './pdf-runtime.js';
-
-const PaperPdfViewer = lazy(async () => {
-  const module = await import('./paper-pdf-viewer.js');
-  return { default: module.PaperPdfViewer };
-});
 
 export type OpenPaperFileHandler = (paper: InventoryPaper) => void | Promise<void>;
 
@@ -25,10 +20,10 @@ export interface PaperDetailProps extends Omit<HTMLAttributes<HTMLDivElement>, '
   record: InventoryPaper;
   /** Fetch state for this DOI, if the host tracks it. */
   metadata?: Pick<InventoryPaperMetadata, 'status' | 'error'> | undefined;
-  /** Insight whose first quoted passage is focused initially. */
+  /** Insight whose first quoted passage is located initially. */
   focusInsight?: ResolvedInsight | undefined;
   renderText?: TextRenderer | undefined;
-  /** Initializes the PDF.js runtime; the shared viewer renders and locates evidence. */
+  /** Supplies pdf.js; with it and a `pdfUrl`, the paper is read in place and its passages located. */
   loadPdfJs?: PdfJsLoader | undefined;
   /** Notify the host to fetch this DOI; refreshed metadata returns through props. */
   onFetchPaper?: ((doi: string) => void) | undefined;
@@ -36,10 +31,13 @@ export interface PaperDetailProps extends Omit<HTMLAttributes<HTMLDivElement>, '
   onOpenDecision?: ((decision: ResolvedDecision) => void) | undefined;
 }
 
-function initialFocus(paper: InventoryPaper, focusInsight: ResolvedInsight | undefined): PaperFocusEvidence | undefined {
-  if (!focusInsight) return undefined;
-  const evidence = paperEvidence(focusInsight, paper.doi)[0];
-  return evidence?.quote ? { key: `${focusInsight.canonicalPath}-source`, insight: focusInsight, evidence } : undefined;
+function passageFor(key: string, evidence: ResolvedEvidence): PdfPassage {
+  return { key, quote: evidence.quote?.exact, page: evidence.location?.page };
+}
+
+function initialPassage(paper: InventoryPaper, focusInsight: ResolvedInsight | undefined): PdfPassage | undefined {
+  const evidence = focusInsight ? paperEvidence(focusInsight, paper.doi)[0] : undefined;
+  return focusInsight && evidence ? passageFor(`${focusInsight.canonicalPath}-source`, evidence) : undefined;
 }
 
 /** PDF paper content beside the insights and decisions it supports. */
@@ -57,24 +55,26 @@ export const PaperDetail = forwardRef<HTMLDivElement, PaperDetailProps>(function
 }, ref) {
   const labels = useLabels();
   const [focusKey, setFocusKey] = useState<string | undefined>(undefined);
-  const [override, setOverride] = useState<PaperFocusEvidence | undefined>(undefined);
+  const [override, setOverride] = useState<PdfPassage | undefined>(undefined);
   const [decisionFilter, setDecisionFilter] = useState<string | undefined>(undefined);
+  // Keyed by URL so a failure for one paper never outlives it inside a persistent dialog.
+  const [failedPdfUrl, setFailedPdfUrl] = useState<string | undefined>(undefined);
   const key = `${paper.doi}|${focusInsight?.canonicalPath ?? ''}`;
   if (focusKey !== key) {
     setFocusKey(key);
     setOverride(undefined);
     setDecisionFilter(undefined);
   }
-  // One object per request, kept across unrelated re-renders, with a key
-  // that changes on every locate click so a repeat of the same passage is
-  // still a new request to the viewer.
-  const focusEvidence = useMemo(() => override ?? initialFocus(paper, focusInsight), [override, paper, focusInsight]);
+  // One passage object per request, kept across unrelated re-renders, with a
+  // key that changes on every locate click so repeating a passage is still a
+  // new request to the viewer.
+  const passage = useMemo(() => override ?? initialPassage(paper, focusInsight), [override, paper, focusInsight]);
   const sequence = useRef(0);
-  const locate = useCallback((insight: ResolvedInsight, evidence: PaperFocusEvidence['evidence']) => {
+  const canLocate = Boolean(paper.pdfUrl && loadPdfJs) && failedPdfUrl !== paper.pdfUrl;
+  const locate = useCallback((insight: ResolvedInsight, evidence: ResolvedEvidence) => {
     sequence.current += 1;
-    setOverride({ key: `${insight.canonicalPath}-${sequence.current}`, insight, evidence });
+    setOverride(passageFor(`${insight.canonicalPath}-${sequence.current}`, evidence));
   }, []);
-  const canRender = Boolean(paper.pdfUrl && loadPdfJs);
   const fetching = metadata?.status === 'fetching';
   const filterDecision = paper.decisions.find((decision) => decision.canonicalPath === decisionFilter);
   const visibleInsights = useMemo(() => {
@@ -87,9 +87,13 @@ export const PaperDetail = forwardRef<HTMLDivElement, PaperDetailProps>(function
     <div data-slot="paper-detail" {...props} ref={ref} className={cn('astra-paper-detail__layout', className)}>
       <div className="astra-paper-detail__artifact">
         {paper.pdfUrl && loadPdfJs ? (
-          <Suspense fallback={<p role="status">{labels.pdf.loading}</p>}>
-            <PaperPdfViewer pdfUrl={paper.pdfUrl} title={paper.title} focusEvidence={focusEvidence} loadPdfJs={loadPdfJs} />
-          </Suspense>
+          <PaperPdfViewer
+            pdfUrl={paper.pdfUrl}
+            title={paper.title}
+            passage={passage}
+            loadPdfJs={loadPdfJs}
+            onLoadStateChange={(state) => { setFailedPdfUrl(state === 'error' ? paper.pdfUrl : undefined); }}
+          />
         ) : (
           <div className="astra-paper-detail__unavailable" {...(fetching ? { 'aria-busy': true } : {})}>
             {!paper.pdfUrl && onFetchPaper ? (
@@ -172,14 +176,16 @@ export const PaperDetail = forwardRef<HTMLDivElement, PaperDetailProps>(function
                   {evidence.length ? (
                     <div className="astra-paper-insight__sources">
                       <span>{countLabel(evidence.length, 'passage')}</span>
-                      {canRender ? (
+                      {paper.pdfUrl && loadPdfJs ? (
                         <div>
                           {evidence.map((source, index) => (
+                            // Kept focusable after a load failure so keyboard focus never drops out of the dialog.
                             <button
                               key={`${insight.canonicalPath}-${index}`}
                               type="button"
                               className="astra-paper-insight__locate"
-                              onClick={() => { locate(insight, source); }}
+                              aria-disabled={canLocate ? undefined : true}
+                              onClick={() => { if (canLocate) locate(insight, source); }}
                               aria-label={labels.pdf.locatePassage(index + 1)}
                             >
                               {labels.actions.locate}{evidence.length > 1 ? ` ${index + 1}` : ''}

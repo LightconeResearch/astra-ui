@@ -11,13 +11,17 @@ paper against the local package). Node >= 20.
 
 ```bash
 npm install              # installs the published Lightcone brand used by the playground
-npm run check            # the CI gate: lint + typecheck (+react19) + node tests + vitest
+npm run check            # lint + typecheck (+react19) + node tests + vitest; CI runs this, then test:pdf
+npm run test:pdf         # build + static playground + Playwright: PDF reading with a real worker in Chromium
 npm run build            # tsc only, packages/react/src -> dist (CSS is hand-written, never built)
 npm test                 # build + node --test tests/*.test.mjs + vitest run
 npm run typecheck        # build, then package + playground + tests/dom typecheck
 npm run typecheck:react19 # same sources against @types/react@19 (package supports React 18 and 19)
 npm run lint             # eslint . (typed rules on packages/react/src, plain rules elsewhere)
 ```
+
+`test:pdf` needs `npx playwright install chromium` once; it drives `packages/playground/scripts/test-pdf.mjs`
+against the built Ladle playground and asserts on the default English `labels.pdf` strings.
 
 Two test runners, both importing the **built** `dist`, so build first when invoking them directly:
 
@@ -41,7 +45,7 @@ VITE_ASTRA_THEME=none npm run playground   # unthemed, package defaults only
 npm run screenshots                    # build + static Ladle build + Playwright: every story light+dark @1280x900
 node packages/preview/screenshot.mjs stories --filter <substring> --width 960
 npm run preview:screenshots            # every page of packages/preview/dist, light+dark, 1280/960/640, hover + dialogs
-npm run check:consumers                # typecheck ../jupyterlab-astra and ../astra-theme against this dist
+npm run check:consumers                # typecheck ../jupyterlab-lightcone, ../vscode-astra, ../astra-theme2 against this dist
 npm run fixture --workspace astra-ui-playground [projectRoot] [universeId]   # regenerate fixtures/desi.json (default: the preview's pinned content clone)
 node scripts/tokens-doc.mjs            # regenerate packages/react/TOKENS.md from styles/tokens.css
 npm run preview                        # demo paper via astra-theme + MySTRA against the working tree, on :4310
@@ -86,7 +90,8 @@ or `{kind: 'paper', doi, analysisPath, focusInsightPath?}` — paths, never obje
 document refresh can prune entries that stopped resolving.
 
 **Host extension points**, all optional props: `renderArtifact`, `renderText` (replaces the built-in
-KaTeX/inline-code prose), `loadPdfJs` (built-in PDF reading), `onOpenPaperFile`, `onFetchPaper` + `paperMetadata`, `onOpenArtifact`,
+KaTeX/inline-code prose), `loadPdfJs` (returns pdf.js with `workerSrc` set, or `pdfJsWithWorker(...)` for bundler-made
+workers; the viewer is `components/paper-pdf-viewer`), `onOpenPaperFile`, `onFetchPaper` + `paperMetadata`, `onOpenArtifact`,
 `labels` (every user-facing string, via `LabelsProvider`/`useLabels`).
 
 **Component conventions.** `forwardRef`, spread the rest onto the root, `className` merged with

@@ -160,6 +160,8 @@ test('source contains no parallel resolver, session, storage, or integration lay
   // Shared presentation is first-class; integrations still supply the runtime.
   assert.doesNotMatch(source, /pdf\.mjs|pdf\.worker|from ['"]pdfjs-dist/);
   assert.doesNotMatch(source, /PaperRenderer|PaperRenderOptions|renderPaper/);
+  // PdfTextLayer is an ambient class declaration: a value import or re-export would fail at ESM link time.
+  assert.doesNotMatch(source, /(?:import|export)\s*\{[^}]*(?<!\btype\s)\bPdfTextLayer\b/, 'PdfTextLayer is type-only; import or export it with `type`');
   assert.match(source, /indexAnalysis\(document\)/);
 });
 
@@ -224,7 +226,7 @@ test('the colour-scheme contract is explicit and host-neutral', async () => {
 
   const readme = await readFile(new URL('README.md', packageRoot), 'utf8');
   const tokenDocs = await readFile(new URL('TOKENS.md', packageRoot), 'utf8');
-  for (const [name, documentation] of [['README.md', readme.slice(readme.indexOf('## Styling and theming'))], ['TOKENS.md', tokenDocs]]) {
+  for (const [name, documentation] of [['README.md', readme], ['TOKENS.md', tokenDocs]]) {
     assert.match(documentation, /data-astra-color-scheme="light"/,
       `${name} documents the explicit light scheme`);
     assert.match(documentation, /or `"dark"`/,
@@ -273,6 +275,10 @@ test('styles are layered, scoped with :where, and free of theme or host selector
     assert.match(css, /^@layer astra\.(tokens|base|components|views) \{/m, `${url.pathname} wraps its rules in a layer`);
     assert.doesNotMatch(css, /__DEAD__/, `${url.pathname} has no placeholder selectors`);
     assert.doesNotMatch(css, /^\s*\.astra-ui[\s.]/m, `${url.pathname} scopes with :where(.astra-ui)`);
+    // pdf.js appends its glyph-measuring canvas to <body>, outside any scope, so one rule must reach it there.
+    const unscoped = rules(css).map(([selector]) => selector).filter((selector) => !selector.includes('.astra-ui'));
+    assert.deepEqual(unscoped, url.pathname.endsWith('/components/paper-pdf-viewer.css') ? ['.hiddenCanvasElement'] : [],
+      `${url.pathname}: every rule is scoped under :where(.astra-ui), except the one hiding pdf.js's measuring canvas`);
     assert.doesNotMatch(css, /lightcone-brand|data-astra-theme|inventory-detail-dialog|astra-record-detail|astra-result-viewer/, `${url.pathname} has no legacy or theme selectors`);
     assert.doesNotMatch(css, /data-jp-|--jp-|\.jp-|vscode|--vscode-|forced-colors/i, `${url.pathname} has no host-specific selectors or tokens`);
   }
@@ -385,4 +391,9 @@ test('no temporary specification is included in the package workspace', async ()
   assert.equal(entries.includes('SPEC.md'), false);
   const packageEntries = await readdir(packageRoot);
   assert.equal(packageEntries.includes('SPEC.md'), false);
+});
+
+test('the pdf.js contract is types plus one adapter; the ambient TextLayer declaration has no runtime binding', async () => {
+  const runtime = await import('../packages/react/dist/components/pdf-runtime.js');
+  assert.deepEqual(Object.keys(runtime), ['pdfJsWithWorker']);
 });

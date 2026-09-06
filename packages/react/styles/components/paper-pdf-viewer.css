@@ -107,4 +107,14 @@
     );
   }
 
+  /* pdf.js appends its glyph-measuring canvas to <body>, outside any scope;
+     unstyled it lays out as a 300x150 element on pages without text. */
+  .hiddenCanvasElement {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    display: none;
+  }
 }

@@ -1,7 +1,7 @@
-import { PaperDialog } from '@astra-spec/ui/components';
+import { PaperDialog, type PdfJsLoader } from '@astra-spec/ui/components';
 import type { InventoryPaper } from '@astra-spec/ui/model';
 import { useState } from 'react';
-import { loadPdfJs } from './pdf-runtime';
+import { loadPdfJs, loadPdfJsWithWorker } from './pdf-runtime';
 
 const paper: InventoryPaper = {
   doi: '10.1234/example',
@@ -15,14 +15,15 @@ const paper: InventoryPaper = {
   decisions: [],
 };
 
-function Example({ focused = false, rotation = 0 }: { focused?: boolean; rotation?: number }) {
+function Example({ focused = false, rotation = 0, load = loadPdfJs }: { focused?: boolean; rotation?: number; load?: PdfJsLoader }) {
   const [open, setOpen] = useState(true);
   return open
-    ? <PaperDialog record={rotation ? { ...paper, pdfUrl: `/papers/rotation-${rotation}.pdf` } : paper} loadPdfJs={loadPdfJs} focusInsight={focused ? paper.insights[0] : undefined} onClose={() => { setOpen(false); }} />
+    ? <PaperDialog record={rotation ? { ...paper, pdfUrl: `/papers/rotation-${rotation}.pdf` } : paper} loadPdfJs={load} focusInsight={focused ? paper.insights[0] : undefined} onClose={() => { setOpen(false); }} />
     : <button type="button" onClick={() => { setOpen(true); }}>Open reader</button>;
 }
 
 export const Reader = () => <Example />;
+export const ReaderWithWorker = () => <Example load={loadPdfJsWithWorker} />;
 export const FocusedPassage = () => <Example focused />;
 
 export const Rotated90 = () => <Example focused rotation={90} />;

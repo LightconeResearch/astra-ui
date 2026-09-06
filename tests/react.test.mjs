@@ -180,6 +180,9 @@ test('paper dialogs render on the server without initializing PDF.js', () => {
   assert.match(html, /Loading PDF/);
   assert.match(html, /Locate/);
   assert.match(html, /href="\/paper.pdf"/);
+  const withoutRuntime = withinUi(React.createElement(PaperDialog, { record: paper, onClose: () => {} }));
+  assert.doesNotMatch(withoutRuntime, /astra-paper-pdf/);
+  assert.match(withoutRuntime, /Embedded PDF viewing is unavailable/);
 });
 
 test('missing paper content exposes only a host fetch event', () => {
