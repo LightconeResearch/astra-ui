@@ -15,7 +15,7 @@
 
   :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-input-source h4 {
     color: var(--astra-color-text);
-    font: 700 0.8125rem/1.25 var(--astra-font-ui);
+    font: 700 var(--astra-font-size-sm)/1.25 var(--astra-font-ui);
     letter-spacing: 0;
     text-transform: none;
   }
@@ -36,12 +36,12 @@
   :where(.astra-ui) .astra-input-source h4 {
     margin: 0 0 0.5rem;
     color: var(--astra-color-text);
-    font: 700 0.875rem/1.2 var(--astra-font-ui);
+    font: 700 var(--astra-font-size)/1.2 var(--astra-font-ui);
   }
 
   :where(.astra-ui) .astra-input-source code {
     overflow-wrap: anywhere;
-    font-size: 0.63rem;
+    font-size: var(--astra-font-size-2xs);
     display: block;
     box-sizing: border-box;
     width: 100%;
@@ -51,7 +51,7 @@
     background: var(--astra-color-canvas);
     color: var(--astra-color-link);
     padding: 0.5625rem 1rem;
-    font: 0.6875rem/1.6 var(--astra-font-mono);
+    font: var(--astra-font-size-2xs)/1.6 var(--astra-font-mono);
     text-align: left;
     text-decoration: none;
     white-space: nowrap;

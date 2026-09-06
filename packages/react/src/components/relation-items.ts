@@ -24,8 +24,15 @@ export function relationItemForRecord(
 }
 
 /** Builds relation-list items for linked records; unresolved links show their path. */
-export function relationItemsForLinks(links: LinkedRecord[], onOpen: OpenRecordHandler | undefined): RelationItem[] {
-  return links.map((link) => (link.record
-    ? relationItemForRecord(link.record, link.analysis, onOpen, { identifier: link.canonicalPath })
-    : { key: link.canonicalPath, label: link.canonicalPath, identifier: link.canonicalPath }));
+export function relationItemsForLinks(
+  links: LinkedRecord[],
+  onOpen: OpenRecordHandler | undefined,
+): RelationItem[] {
+  return links.map((link) => {
+    const { record, analysis } = link;
+    if (!record) {
+      return { key: link.canonicalPath, label: link.canonicalPath, identifier: link.canonicalPath };
+    }
+    return relationItemForRecord(record, analysis, onOpen);
+  });
 }

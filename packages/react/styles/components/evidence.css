@@ -30,7 +30,7 @@
   :where(.astra-ui) .astra-evidence__title {
     font-family: var(--astra-font-ui);
     font-weight: 500;
-    font-size: 14px;
+    font-size: var(--astra-font-size);
     color: var(--astra-color-text);
     display: flex;
     align-items: baseline;
@@ -45,7 +45,7 @@
 
   :where(.astra-ui) .astra-evidence__tag {
     font-family: var(--astra-font-ui);
-    font-size: 11px;
+    font-size: var(--astra-font-size-2xs);
     font-weight: 400;
     color: var(--astra-color-text-subtle);
   }

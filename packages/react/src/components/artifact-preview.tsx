@@ -74,6 +74,7 @@ export interface ArtifactPreviewProps extends Omit<HTMLAttributes<HTMLElement>, 
   locale?: string | undefined;
 }
 
+/** Numbers are rounded for display; strings are the host's exact choice and pass through. */
 function compactValue(value: string | number | undefined, locale: string | undefined): string {
   if (value == null || value === '') return 'Value unavailable';
   return typeof value === 'number'
@@ -190,10 +191,10 @@ export const ArtifactPreview = forwardRef<HTMLElement, ArtifactPreviewProps>(fun
   if (preview.kind === 'metric') {
     return (
       <div {...shared} ref={ref as never} className={cn(rootClass, 'astra-artifact__metric')}>
-        {preview.label ? <span>{preview.label}</span> : null}
+        {preview.label ? <span className="astra-artifact__metric-label">{preview.label}</span> : null}
         <strong className="astra-artifact__metric-value">{compactValue(preview.value, locale)}</strong>
-        {preview.uncertainty !== undefined ? (
-          <span className="astra-artifact__metric-uncertainty">± {preview.uncertainty}</span>
+        {preview.uncertainty != null && preview.uncertainty !== '' ? (
+          <span className="astra-artifact__metric-uncertainty">± {compactValue(preview.uncertainty, locale)}</span>
         ) : null}
         {preview.unit ? <span className="astra-artifact__metric-unit">{preview.unit}</span> : null}
       </div>
