@@ -75,6 +75,7 @@
   ],
   "blocks": [
     "ALL_TAGS",
+    "AnalysisSelector",
     "AnalysisTree",
     "DecisionsList",
     "FindingsList",

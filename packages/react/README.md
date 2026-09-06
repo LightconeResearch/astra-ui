@@ -263,7 +263,8 @@ behalf.
 
 `RecordDetails` provides the inventory's detail stack without any section or
 page layout. It accepts the same document, index, renderers, metadata, and
-controlled `detail` / `onDetailChange` props as `Inventory`.
+controlled `detail` / `onDetailChange` props as `Inventory`. `AnalysisSelector`
+in the blocks layer provides the analysis-tree dropdown for custom page headers.
 The components layer also exports `parseInventoryOpenReference` and
 `detailEntryForOpenReference` for translating external record links into detail
 entries; integrations still validate their message origin or command boundary.
