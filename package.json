@@ -21,6 +21,8 @@
     "test:dom": "vitest run",
     "check:consumers": "node scripts/check-consumers.mjs",
     "playground": "npm run dev --workspace astra-ui-playground",
+    "preview": "node packages/preview/build.mjs --serve",
+    "preview:build": "node packages/preview/build.mjs",
     "screenshots": "npm run build && node packages/playground/scripts/screenshot.mjs packages/playground/screenshots/current",
     "screenshots:compare": "node packages/playground/scripts/compare.mjs packages/playground/screenshots/baseline packages/playground/screenshots/current",
     "check": "npm run lint && npm run typecheck && npm run typecheck:react19 && node --test tests/*.test.mjs && vitest run"
