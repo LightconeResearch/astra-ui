@@ -8,10 +8,11 @@ import { FindingsList } from '../blocks/findings-list.js';
 import { InputsList } from '../blocks/inputs-list.js';
 import { OutputsList } from '../blocks/outputs-list.js';
 import { PapersList } from '../blocks/papers-list.js';
-import { PriorInsightsList } from '../blocks/prior-insights-list.js';
 import { InventoryOutline, InventorySection, sectionKind, type InventorySectionId } from '../blocks/section.js';
 
-export const DEFAULT_SECTIONS: readonly InventorySectionId[] = ['outputs', 'decisions', 'inputs', 'findings', 'prior_insights', 'papers'];
+// Prior insights are not an inventory section; they are reached through the
+// decisions and papers that cite them.
+export const DEFAULT_SECTIONS: readonly InventorySectionId[] = ['outputs', 'decisions', 'inputs', 'findings', 'papers'];
 
 export interface InventoryProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'>, RecordDetailsProps {
   /** Which sections to show, in order. */
@@ -82,10 +83,6 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(
     findings: {
       count: analysis.findings.length,
       content: <FindingsList analysis={analysis} onOpenRecord={openRecord} />,
-    },
-    prior_insights: {
-      count: analysis.prior_insights.length,
-      content: <PriorInsightsList analysis={analysis} onOpenRecord={openRecord} />,
     },
     papers: {
       count: papers.length,

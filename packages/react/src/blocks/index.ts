@@ -17,8 +17,6 @@ export { InputsList } from './inputs-list.js';
 export type { InputsListProps } from './inputs-list.js';
 export { FindingsList } from './findings-list.js';
 export type { FindingsListProps } from './findings-list.js';
-export { PriorInsightsList } from './prior-insights-list.js';
-export type { PriorInsightsListProps } from './prior-insights-list.js';
 export { PaperRows, PapersList } from './papers-list.js';
 export type { PaperRowsProps, PapersListProps } from './papers-list.js';
 

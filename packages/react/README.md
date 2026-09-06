@@ -76,8 +76,9 @@ Every public file also has a direct subpath, such as
 ### Full view
 
 `Inventory` is the highest-level component. It renders the selected analysis as
-outputs, decisions, inputs, findings, prior insights, and cited papers, with an
-optional outline and a drill-down detail stack.
+outputs, decisions, inputs, findings, and cited papers, with an optional outline
+and a drill-down detail stack. Prior insights have no section of their own; they
+open from the decisions and papers that cite them.
 
 Its most useful options are:
 
@@ -102,7 +103,6 @@ Use blocks when your application owns the page layout or routing:
 | `DecisionsList` | Decision rows, selected options, and a controlled or uncontrolled tag filter |
 | `InputsList` | Inputs with their source and declared type |
 | `FindingsList` | Findings with claims and evidence counts |
-| `PriorInsightsList` | Prior insights with claims and source counts |
 | `PapersList`, `PaperRows` | Cited papers derived with `collectInventoryPapers` |
 | `InventorySection`, `InventoryRecords`, `InventoryOutline` | Section chrome, kind-aware record layout, and anchor navigation for custom inventories |
 

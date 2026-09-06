@@ -3,7 +3,7 @@ import { cn } from '../lib/cn.js';
 import { surfaceGlyph, type SurfaceKind } from '../primitives/kind.js';
 import { useLabels } from '../lib/labels.js';
 
-export type InventorySectionId = 'outputs' | 'decisions' | 'inputs' | 'findings' | 'prior_insights' | 'papers';
+export type InventorySectionId = 'outputs' | 'decisions' | 'inputs' | 'findings' | 'papers';
 
 export interface InventorySectionProps extends Omit<HTMLAttributes<HTMLElement>, 'title'> {
   /** Anchor id for the heading; also the outline link target. */
@@ -53,7 +53,6 @@ export function sectionKind(section: InventorySectionId): SurfaceKind {
     case 'decisions': return 'decision';
     case 'inputs': return 'input';
     case 'findings': return 'finding';
-    case 'prior_insights': return 'prior_insight';
     case 'papers': return 'paper';
   }
 }
