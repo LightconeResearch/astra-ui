@@ -114,8 +114,8 @@ a committed resolved ASTRA project. Run
 | `npm test` | Build and run the Node and Vitest suites |
 | `npm run playground` | Start the Ladle component explorer |
 | `npm run preview` | Build the demo paper against the working tree and serve it (see [`packages/preview`](packages/preview)) |
-| `npm run screenshots` | Capture every story in light and dark mode with Playwright |
-| `npm run preview:screenshots` | Capture every page of a built preview in light and dark mode at three widths |
+| `npm run screenshots` | Capture every playground story in light and dark mode with Playwright |
+| `npm run preview:screenshots` | Capture every page of a built preview in light and dark mode at three widths, plus the hover preview and record dialogs |
 | `npm run check:consumers` | Type-check sibling consumers against the local package build |
 
 Screenshot capture requires Playwright Chromium (`npx playwright install chromium`).

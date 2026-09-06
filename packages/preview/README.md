@@ -67,22 +67,25 @@ workflow's `theme` input) a compatible astra-theme branch until it is released.
 
 ## Screenshots and Argos
 
-`screenshot.mjs` captures every page of `dist/` in light and dark mode at 1280, 960 and 640 px,
-plus the hover preview at 1280 px, into `screenshots/paper/`:
+`screenshot.mjs paper` captures every page of `dist/` in light and dark mode at 1280, 960 and
+640 px, plus the hover preview and the record dialog each reference kind opens, into
+`screenshots/paper/`. `screenshot.mjs stories` builds the playground once and captures every
+story in both themes into `screenshots/stories/`:
 
 ```bash
-npm run preview:build && npm run preview:screenshots
+npm run preview:build && npm run preview:screenshots   # the paper
+npm run screenshots                                    # the playground stories
 ```
 
-The workflow runs it after the build, captures the remaining playground stories with
-`packages/playground/scripts/screenshot.mjs` into `screenshots/stories/`, and uploads both
-directories to [Argos](https://argos-ci.com/) when an `ARGOS_TOKEN` secret exists. Argos compares
+The workflow runs both after the build, regenerating the playground fixture and artifact copies
+from the pinned content clone first so the stories show the same analysis as the paper, and
+uploads both directories to [Argos](https://argos-ci.com/) when an `ARGOS_TOKEN` secret exists. Argos compares
 against the pull request's merge base, posts a status check and a comment, and offers a review UI;
 the default branch is auto-approved as the baseline. Without the token the PNGs are uploaded as a
 workflow artifact instead. Setup: create the project on argos-ci.com for this repository (installing
 the Argos GitHub App), copy its token from *Settings → General* into the `ARGOS_TOKEN` secret.
 Argos uploads only happen for astra-ui's own runs; callers keep the artifact. The free tier allows
-5,000 screenshots a month; a build uploads about 66.
+5,000 screenshots a month; a build uploads 60.
 
 ## CI and Vercel
 

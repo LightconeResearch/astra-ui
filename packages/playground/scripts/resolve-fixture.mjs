@@ -4,6 +4,10 @@
 //
 //   node scripts/resolve-fixture.mjs [projectRoot] [universeId]
 //
+// projectRoot defaults to the content the preview pipeline pins (cloned into
+// packages/preview/.cache/content by `npm run preview:build`, or under
+// PREVIEW_CACHE), so the playground shows the same analysis as the paper.
+//
 import { cpSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -11,7 +15,11 @@ import { resolveAnalysis } from '@astra-spec/sdk';
 import { createNodeProjectReader } from '@astra-spec/sdk/node';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const projectRoot = resolve(process.argv[2] ?? join(here, '../../../../desi-myst-proto'));
+const previewCache = process.env.PREVIEW_CACHE ?? join(here, '../../preview/.cache');
+const projectRoot = resolve(process.argv[2] ?? join(previewCache, 'content'));
+if (!existsSync(join(projectRoot, 'astra.yaml'))) {
+  throw new Error(`no astra.yaml in ${projectRoot}: run \`npm run preview:build\` first, or pass a project root`);
+}
 const universeId = process.argv[3] ?? 'baseline';
 const fixturesDir = join(here, '../fixtures');
 const artifactsDir = join(here, '../public/artifacts');

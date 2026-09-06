@@ -7,7 +7,7 @@
   "scripts": {
     "build": "node build.mjs",
     "serve": "node build.mjs --serve",
-    "screenshots": "node screenshot.mjs"
+    "screenshots": "node screenshot.mjs paper"
   },
   "devDependencies": {
     "mystmd": "1.10.1",

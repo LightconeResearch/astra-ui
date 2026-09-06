@@ -157,13 +157,18 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Screenshot the paper
-        run: node packages/preview/screenshot.mjs
+        run: node packages/preview/screenshot.mjs paper
 
       # The playground covers the surfaces the paper never mounts (inventory
-      # blocks, embedded detail, primitives, tokens). `npm pack` above already
-      # built packages/react/dist, which the stories import.
+      # blocks, embedded detail, primitives, tokens). Its fixture and artifact
+      # copies are regenerated from the content clone the build just made, so
+      # the stories show the same analysis as the paper, thumbnails included.
+      # `npm pack` above already built packages/react/dist, which they import.
+      - name: Regenerate the playground fixture from the pinned content
+        run: node packages/playground/scripts/resolve-fixture.mjs
+
       - name: Screenshot the playground stories
-        run: node packages/playground/scripts/screenshot.mjs packages/preview/screenshots/stories
+        run: node packages/preview/screenshot.mjs stories
 
       - name: Upload screenshots to Argos
         if: env.HAS_ARGOS == 'true'

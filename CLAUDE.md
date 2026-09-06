@@ -38,11 +38,11 @@ Playground, screenshots, and the sibling consumers:
 ```bash
 npm run playground                     # Ladle on http://localhost:61000, with the Lightcone brand
 VITE_ASTRA_THEME=none npm run playground   # unthemed, package defaults only
-npm run screenshots                    # build + Ladle + Playwright, every story light+dark @1280x900
-node packages/playground/scripts/screenshot.mjs <outDir> --filter <substring> --width 960
-npm run preview:screenshots            # every page of packages/preview/dist, light+dark, 1280/960/640 + hover
+npm run screenshots                    # build + static Ladle build + Playwright: every story light+dark @1280x900
+node packages/preview/screenshot.mjs stories --filter <substring> --width 960
+npm run preview:screenshots            # every page of packages/preview/dist, light+dark, 1280/960/640, hover + dialogs
 npm run check:consumers                # typecheck ../jupyterlab-astra and ../astra-theme against this dist
-npm run fixture --workspace astra-ui-playground [projectRoot] [universeId]   # regenerate fixtures/desi.json
+npm run fixture --workspace astra-ui-playground [projectRoot] [universeId]   # regenerate fixtures/desi.json (default: the preview's pinned content clone)
 node scripts/tokens-doc.mjs            # regenerate packages/react/TOKENS.md from styles/tokens.css
 npm run preview                        # demo paper via astra-theme + MySTRA against the working tree, on :4310
 node packages/preview/build.mjs --theme ../astra-theme --content ../myst_proto --serve   # local checkouts
@@ -56,8 +56,8 @@ Argos for a diff against the merge base (see `packages/preview/README.md`). `--m
 MySTRA checkout or git ref and bundles it. `continuous-release.yml` publishes every commit to
 pkg.pr.new (`npm install https://pkg.pr.new/@astra-spec/ui@<pr>`).
 
-Screenshots need `npx playwright install chromium` once. There is no local baseline: Argos on the PR
-is the comparison.
+Screenshots need `npx playwright install chromium` once and land under `packages/preview/screenshots/`.
+There is no local baseline: Argos on the PR is the comparison.
 
 ## Architecture
 
