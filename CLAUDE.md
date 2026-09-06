@@ -38,11 +38,11 @@ Playground, screenshots, and the sibling consumers:
 ```bash
 npm run playground                     # Ladle on http://localhost:61000, with the Lightcone brand
 VITE_ASTRA_THEME=none npm run playground   # unthemed, package defaults only
-npm run screenshots                    # build + Ladle + Playwright, every story light+dark @1280x900
-npm run screenshots:compare            # ImageMagick diff vs packages/playground/screenshots/baseline
-node packages/playground/scripts/screenshot.mjs <outDir> --filter <substring> --width 960
+npm run screenshots                    # build + static Ladle build + Playwright: every story light+dark @1280x900
+node packages/preview/screenshot.mjs stories --filter <substring> --width 960
+npm run preview:screenshots            # every page of packages/preview/dist, light+dark, 1280/960/640, hover + dialogs
 npm run check:consumers                # typecheck ../jupyterlab-astra and ../astra-theme against this dist
-npm run fixture --workspace astra-ui-playground [projectRoot] [universeId]   # regenerate fixtures/desi.json
+npm run fixture --workspace astra-ui-playground [projectRoot] [universeId]   # regenerate fixtures/desi.json (default: the preview's pinned content clone)
 node scripts/tokens-doc.mjs            # regenerate packages/react/TOKENS.md from styles/tokens.css
 npm run preview                        # demo paper via astra-theme + MySTRA against the working tree, on :4310
 node packages/preview/build.mjs --theme ../astra-theme --content ../myst_proto --serve   # local checkouts
@@ -51,10 +51,13 @@ node packages/preview/build.mjs --theme ../astra-theme --content ../myst_proto -
 `packages/preview/build.mjs` packs `@astra-spec/ui`, installs the tarball into a copy of astra-theme,
 builds the article template, points the demo project's `myst.yml` at it and runs `myst build --html`.
 `packages/preview/refs.json` pins the theme, content and plugin; `.github/workflows/preview.yml` runs
-the same script on every PR and deploys the export to Vercel (see `packages/preview/README.md`).
+the same script on every PR, deploys the export to Vercel, and uploads paper + story screenshots to
+Argos for a diff against the merge base (see `packages/preview/README.md`). `--mystra` also takes a
+MySTRA checkout or git ref and bundles it. `continuous-release.yml` publishes every commit to
+pkg.pr.new (`npm install https://pkg.pr.new/@astra-spec/ui@<pr>`).
 
-Screenshots need `npx playwright install chromium` once and ImageMagick on the path. The baseline
-directory is gitignored and exists only locally.
+Screenshots need `npx playwright install chromium` once and land under `packages/preview/screenshots/`.
+There is no local baseline: Argos on the PR is the comparison.
 
 ## Architecture
 
@@ -151,8 +154,9 @@ there (not CI's 22) because OIDC publishing needs npm >= 11.5.1.
 ## Working conventions
 
 - **Parity first.** Surfaces are meant to render exactly as before; pre-existing visual bugs are
-  preserved rather than fixed, except in a clearly separate commit. Verify CSS or markup changes
-  with `npm run screenshots && npm run screenshots:compare`, and at `--width 960/640` too.
+  preserved rather than fixed, except in a clearly separate commit. The PR's Argos check shows every
+  pixel that changed in the paper (three widths) and the stories; `npm run preview` and
+  `npm run screenshots` are the local equivalents.
 - CSS rules were converted 1:1 from an older markup; when changing a component's markup, grep its
   stylesheet for element-type and child-position selectors (`> img`, `> span + *`, grid track
   counts) that silently go dead or capture the wrong element.
