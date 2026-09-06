@@ -55,3 +55,5 @@ export type {
 
 export { RecordDetails } from './record-details.js';
 export type { RecordDetailsProps } from './record-details.js';
+export { parseInventoryOpenReference, detailEntryForOpenReference } from './open-reference.js';
+export type { InventoryOpenReference, InventoryRecordKind, InventoryRecordOpenReference, InventoryPaperOpenReference } from './open-reference.js';
