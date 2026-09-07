@@ -8,10 +8,14 @@ const base = 'http://127.0.0.1:61002';
 const output = new URL('../../../.cache/pdf-browser/', import.meta.url);
 const quote = 'A reproducible result appears on the final page.';
 
+// Detached, so the whole process group (npx, its shell, Ladle) can be killed at the end;
+// npm does not always forward a signal to the server it started.
 const server = spawn('npx', ['ladle', 'preview', '--port', '61002', '--host', '127.0.0.1'], {
-  cwd: new URL('..', import.meta.url), stdio: ['ignore', 'ignore', 'pipe'], shell: process.platform === 'win32',
+  cwd: new URL('..', import.meta.url), stdio: ['ignore', 'ignore', 'pipe'], shell: process.platform === 'win32', detached: process.platform !== 'win32',
 });
 server.stderr.on('data', (chunk) => process.stderr.write(chunk));
+// A hang anywhere fails the run instead of holding a CI runner until its job limit.
+setTimeout(() => { console.error('test-pdf: timed out after 10 minutes'); process.exit(1); }, 600_000).unref();
 
 const passageVisible = (mark) => mark.evaluate((node) => {
   const bounds = node.getBoundingClientRect();
@@ -133,5 +137,7 @@ try {
   for (const rotation of [90, 180, 270]) await checkRotation(browser, rotation);
 } finally {
   await browser?.close();
-  server.kill('SIGTERM');
+  if (process.platform === 'win32' || server.pid === undefined) server.kill('SIGTERM');
+  else process.kill(-server.pid, 'SIGTERM');
+  server.stderr.destroy();
 }

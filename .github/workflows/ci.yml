@@ -20,6 +20,7 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Verify PDF reading with the packaged runtime and worker
         run: npm run test:pdf
+        timeout-minutes: 15
       - name: Package hygiene
         run: |
           npx --yes publint packages/react
