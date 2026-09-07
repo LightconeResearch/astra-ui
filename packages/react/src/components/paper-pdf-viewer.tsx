@@ -296,7 +296,7 @@ const DocumentViewer = forwardRef<HTMLDivElement, PaperPdfViewerProps>(function 
   const zoomBy = (step: number) => { rememberPosition(); setZoom((value) => value + step); };
 
   return (
-    <div data-slot="paper-pdf-viewer" aria-label={labels.viewer(title)} {...props} ref={ref}
+    <div data-slot="paper-pdf-viewer" role="group" aria-label={labels.viewer(title)} {...props} ref={ref}
       className={cn('astra-paper-pdf', className)}>
       <div className="astra-paper-pdf__toolbar">
         <span role="status">{status}</span>

@@ -254,7 +254,7 @@ it.each([
   </LabelsProvider>);
   expect(screen.getByText('Chargement…')).toBeTruthy();
   await screen.findByText(expected);
-  expect(screen.getByLabelText('Lecteur : Article')).toBeTruthy();
+  expect(screen.getByRole('group', { name: 'Lecteur : Article' })).toBeTruthy();
   expect(screen.getByRole('region', { name: 'Pages du document' })).toBeTruthy();
   expect(screen.getByRole('group', { name: 'Feuille 1' })).toBeTruthy();
   expect(screen.getByRole('button', { name: 'Agrandir' })).toBeTruthy();
