@@ -481,7 +481,7 @@
 
 :where(.astra-ui) .astra-record-preview[data-value-product] .astra-record-preview__selection > span:last-child {
   color: var(--astra-color-text-subtle);
-  font: 400 var(--astra-font-size-xs)/1.5 var(--astra-font-ui);
+  font: 400 var(--astra-font-size-xs)/1.5 var(--astra-font-body);
   font-style: italic;
 }
   :where(.astra-ui) .astra-record-preview__option-status {

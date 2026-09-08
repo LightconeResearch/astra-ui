@@ -55,7 +55,7 @@ body.vscode-dark { font-family: sans-serif; font-size: 13px; } a { color: purple
 for (const [name, sheets] of Object.entries(styles)) {
   const css = [join(siblings, 'brand/adapters/astra.css'), join(root, 'packages/react/styles.css'), join(root, 'packages/react/isolate.css'), ...sheets].map(path => `@import ${JSON.stringify(path)};`).join('\n');
   await build({ stdin: { contents: css, loader: 'css', resolveDir: root }, bundle: true, outfile: join(temp, `${name}.css`), loader: { '.woff2': 'dataurl', '.woff': 'dataurl', '.ttf': 'dataurl', '.svg': 'dataurl' }, logLevel: 'silent' });
-  await writeFile(join(temp, `${name}.html`), `<!doctype html><html class="lightcone-brand"><head><meta charset="utf-8"><style>${reset}</style><link rel="stylesheet" href="/${name}.css"></head><body class="jp-ThemedContainer vscode-dark"><article><div id="root" class="astra-ui lightcone-brand astra-isolate ${name === 'jupyter' ? 'jp-jupyterlab-lightcone-InventoryPanel' : ''}" style="padding:24px">${content}</div></article></body></html>`);
+  await writeFile(join(temp, `${name}.html`), `<!doctype html><html class="lightcone-brand"><head><meta charset="utf-8"><style>${reset}</style><link rel="stylesheet" href="/${name}.css"></head><body class="jp-ThemedContainer vscode-dark"><article><p id="brand-prose" style="color:var(--astra-color-text);background:var(--astra-color-canvas)">Branded article prose</p><div id="root" class="astra-ui lightcone-brand astra-isolate ${name === 'jupyter' ? 'jp-jupyterlab-lightcone-InventoryPanel' : ''}" style="padding:24px">${content}</div></article></body></html>`);
 }
 const server = createServer(async (request, response) => {
   try { const path = join(temp, request.url === '/' ? 'shared.html' : request.url.slice(1)); response.setHeader('Content-Type', path.endsWith('.css') ? 'text/css' : 'text/html'); response.end(await readFile(path)); }
@@ -82,7 +82,7 @@ try {
         await page.evaluate(() => document.fonts.ready);
         assert.equal(await page.evaluate(() => [...document.fonts].some(face => face.family.includes('Lightcone Brand Newsreader') && face.style === 'italic' && face.status === 'loaded')), true, 'bundled italic font must load');
         const metrics = await page.evaluate(() => {
-          const selectors = ['#inline .astra-inline-reference', '#inline .astra-kind-glyph', '.astra-record-preview__header .astra-surface-header__title', '.astra-record-preview__header .astra-surface-header__eyebrow', '.astra-record-preview__relation-trigger', '.astra-record-preview__relation-glyph', '.astra-record-preview__quote', '.astra-record-preview__source', '.astra-record-preview[data-entry-kind="value"] .astra-surface-header__eyebrow', '.astra-record-list__name strong', '.astra-record-list__glyph', '.astra-relation-item__label', '.astra-relation-item__glyph .astra-kind-glyph', '#details .astra-surface-header__title', '#details .astra-dialog__actions button'];
+          const selectors = ['#inline .astra-inline-reference', '#inline .astra-kind-glyph', '.astra-record-preview__header .astra-surface-header__title', '.astra-record-preview__header .astra-surface-header__eyebrow', '.astra-record-preview__relation-trigger', '.astra-record-preview__relation-glyph', '.astra-record-preview__quote', '.astra-record-preview[data-value-product] .astra-record-preview__selection > span:last-child', '.astra-record-preview__source', '.astra-record-preview[data-entry-kind="value"] .astra-surface-header__eyebrow', '.astra-record-list__name strong', '.astra-record-list__glyph', '.astra-relation-item__label', '.astra-relation-item__glyph .astra-kind-glyph', '#details .astra-surface-header__title', '#details .astra-dialog__actions button'];
           return Object.fromEntries(selectors.map(selector => {
             const element = document.querySelector(selector); if (!element) throw new Error(`Missing ${selector}`);
             const style = getComputedStyle(element);
@@ -92,6 +92,10 @@ try {
         results[`${name}-${scheme}-${rootSize}`] = metrics;
         if (expected) assert.deepEqual(metrics, expected, `${name}/${scheme}/${rootSize} differs from shared UI`);
         else expected = metrics;
+        const annotation = metrics['.astra-record-preview[data-value-product] .astra-record-preview__selection > span:last-child'];
+        assert.match(annotation.fontFamily, /Lightcone Brand Newsreader/);
+        assert.equal(annotation.fontStyle, 'italic');
+        assert.match(metrics['.astra-record-preview__source'].fontFamily, /IBM Plex Mono/);
         assert.equal(metrics['#inline .astra-inline-reference'].fontSize, '17px');
         assert.equal(metrics['.astra-record-preview__header .astra-surface-header__title'].fontSize, '20px');
         assert.equal(metrics['.astra-record-preview__header .astra-surface-header__eyebrow'].fontSize, '10px');
@@ -99,6 +103,23 @@ try {
         assert.equal(metrics['.astra-record-preview[data-entry-kind="value"] .astra-surface-header__eyebrow'].color, scheme === 'dark' ? 'rgb(111, 160, 174)' : 'rgb(63, 114, 128)');
         assert.equal(await page.locator('.astra-record-preview__option-status').first().evaluate(node => getComputedStyle(node).width), '1px');
         if (rootSize === 16) await page.locator('#previews').screenshot({ path: join(output, `${name}-${scheme}.png`) });
+        // Article prose and nested UI must also work when only the document
+        // carries the scheme; UI defaults must not reset inherited brand colours.
+        const colours = await page.evaluate(() => {
+          for (const node of document.querySelectorAll('body .lightcone-brand')) {
+            delete node.dataset.lightconeColorScheme;
+            delete node.dataset.astraColorScheme;
+          }
+          return ['#brand-prose', '#root'].map(selector => {
+            const style = getComputedStyle(document.querySelector(selector));
+            return [style.color, style.getPropertyValue('--astra-color-canvas').trim().toLowerCase()];
+          });
+        });
+        assert.deepEqual(colours, Array(2).fill([
+          scheme === 'dark' ? 'rgb(241, 239, 233)' : 'rgb(34, 31, 32)',
+          scheme === 'dark' ? '#221f20' : '#ffffff',
+        ]), `${name}: prose and UI share document-level brand tokens`);
+
       }
     }
     assert.deepEqual(results[`shared-${scheme}-16`], results[`shared-${scheme}-20`], 'UI sizing must not depend on host root font size');
