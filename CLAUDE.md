@@ -57,8 +57,8 @@ builds the article template, points the demo project's `myst.yml` at it and runs
 `packages/preview/refs.json` pins the theme, content and plugin; `.github/workflows/preview.yml` runs
 the same script on every PR, deploys the export to Vercel, and uploads paper + story screenshots to
 Argos for a diff against the merge base (see `packages/preview/README.md`). `--mystra` also takes a
-MySTRA checkout or git ref and bundles it. `continuous-release.yml` publishes every commit to
-pkg.pr.new (`npm install https://pkg.pr.new/@astra-spec/ui@<pr>`).
+MySTRA checkout or git ref and bundles it. `continuous-release.yml` produces installable
+review builds. Consumer dependencies use published npm versions.
 
 Screenshots need `npx playwright install chromium` once and land under `packages/preview/screenshots/`.
 There is no local baseline: Argos on the PR is the comparison.
