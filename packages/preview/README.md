@@ -20,8 +20,7 @@ the theme rather than swap a package at runtime. The static export needs no serv
 use the exact Lightcone brand dependency selected in `packages/playground/package.json`;
 the build installs that same dependency into its temporary theme checkout and records
 it in `_preview.json`, together with a fingerprint of all CSS and font bytes. The
-build fails if the two installations differ. To review coordinated PRs, pin the immutable brand preview URL
-there and a compatible theme commit in `refs.json`.
+build fails if the two installations differ. Select a published brand version there and a compatible theme commit in `refs.json`.
 
 ## Local use
 

@@ -123,13 +123,7 @@ Screenshot capture requires Playwright Chromium (`npx playwright install chromiu
 Every pull request gets a preview of the demo paper rendered with its
 `@astra-spec/ui`, posted as a comment by the `Preview` workflow, which also
 uploads screenshots of the paper and the playground to
-[Argos](https://argos-ci.com/) for a visual diff against the merge base. An
-installable build of every commit is published to
-[pkg.pr.new](https://pkg.pr.new/):
-
-```bash
-npm install https://pkg.pr.new/@astra-spec/ui@<pr-number-or-sha>
-```
+[Argos](https://argos-ci.com/) for a visual diff against the merge base.
 
 ## Releases
 

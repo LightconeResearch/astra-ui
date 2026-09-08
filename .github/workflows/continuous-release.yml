@@ -1,13 +1,7 @@
 name: Continuous release
 
-# Publishes @astra-spec/ui for every commit and pull request to pkg.pr.new, so a
-# consumer can try an unreleased build with one line, for example
-#
-#   npm install https://pkg.pr.new/@astra-spec/ui@<pr-number>
-#
-# pkg.pr.new posts (and keeps updating) that install line as a PR comment. The
-# pkg.pr.new GitHub App must be installed on this repository for publishing to
-# work: https://github.com/apps/pkg-pr-new. Nothing is published to npm.
+# Publishes review builds for commits and pull requests. Consumer dependencies
+# use npm releases; this workflow remains available for testing future changes.
 
 on:
   push:
