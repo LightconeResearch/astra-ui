@@ -1,3 +1,4 @@
+import { KindGlyph } from '../primitives/kind-glyph.js';
 import type {
   AnalysisIndex,
   ResolvedAnalysisDocument,
@@ -22,7 +23,7 @@ import { analysisTitle, recordTitle } from '../model/records.js';
 import { decisionInsights } from '../model/relations.js';
 import { Prose } from '../primitives/prose.js';
 import type { TextRenderer } from '../lib/prose.js';
-import { surfaceGlyph, type SurfaceKind } from '../model/kind.js';
+import { type SurfaceKind } from '../model/kind.js';
 import { SurfaceHeader } from '../primitives/surface-header.js';
 import type { ArtifactRenderer } from './artifact-preview.js';
 import { primaryLiteratureEvidence } from '../model/papers.js';
@@ -115,7 +116,7 @@ function relationTitle(record: ResolvedRecord): string {
 function KindEyebrow({ kind, label }: { kind: SurfaceKind; label: ReactNode }) {
   return (
     <span className="astra-record-preview__kind">
-      <span aria-hidden="true">{surfaceGlyph(kind)}</span>
+      <KindGlyph kind={kind} />
       {label}
     </span>
   );
@@ -126,7 +127,7 @@ function PreviewHeader({
   kindLabel,
   title,
 }: {
-  kind: SurfaceKind;
+  kind?: SurfaceKind | undefined;
   kindLabel: ReactNode;
   title?: ReactNode | undefined;
 }) {
@@ -135,7 +136,7 @@ function PreviewHeader({
       density="compact"
       kind={kind}
       titleAs="h3"
-      eyebrow={<KindEyebrow kind={kind} label={kindLabel} />}
+      eyebrow={kind ? <KindEyebrow kind={kind} label={kindLabel} /> : kindLabel}
       title={title}
       className="astra-record-preview__header"
     />
@@ -184,9 +185,7 @@ function RelatedRecord({
   const label = relationTitle(record);
   const copy = (
     <>
-      <span className="astra-record-preview__relation-glyph" aria-hidden="true">
-        {surfaceGlyph(record.kind)}
-      </span>
+      <KindGlyph className="astra-record-preview__relation-glyph" kind={record.kind} />
       <span className="astra-record-preview__relation-label">{label}</span>
       {detail != null ? (
         <small className="astra-record-preview__relation-detail">{detail}</small>
@@ -370,12 +369,7 @@ function FindingPreview({
                         className="astra-record-preview__relation-trigger"
                         data-kind="output"
                       >
-                        <span
-                          className="astra-record-preview__relation-glyph"
-                          aria-hidden="true"
-                        >
-                          {surfaceGlyph('output')}
-                        </span>
+                        <KindGlyph className="astra-record-preview__relation-glyph" kind="output" />
                         <span className="astra-record-preview__relation-label">
                           {evidence.artifact}
                         </span>
@@ -653,7 +647,6 @@ function ValuePreview({
   return (
     <>
       <PreviewHeader
-        kind={record.kind}
         kindLabel={kindLabel}
         title={
           <span className="astra-record-preview__value">
@@ -735,6 +728,7 @@ export const RecordPreview = forwardRef<HTMLElement, RecordPreviewProps>(
       <article
         data-slot="record-preview"
         data-entry-kind={entry.kind}
+        data-value-product={entry.kind === 'value' && entry.product ? '' : undefined}
         data-kind={previewKind(entry)}
         {...props}
         ref={ref}

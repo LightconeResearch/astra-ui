@@ -26,28 +26,30 @@
     "screenshots": "npm run build && node packages/preview/screenshot.mjs stories",
     "check": "npm run lint && npm run typecheck && npm run typecheck:react19 && node --test tests/*.test.mjs && vitest run",
     "preview:screenshots": "node packages/preview/screenshot.mjs paper",
-    "test:pdf": "npm run build && npm run build --workspace astra-ui-playground && node packages/playground/scripts/test-pdf.mjs"
+    "test:pdf": "npm run build && npm run build --workspace astra-ui-playground && node packages/playground/scripts/test-pdf.mjs",
+    "test:rendering": "npm run build && node scripts/check-rendering.mjs"
   },
   "devDependencies": {
+    "@argos-ci/cli": "6.9.2",
     "@astra-spec/sdk": "^0.1.1",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.6",
     "@types/react": "^18.3.31",
+    "@types/react-19": "npm:@types/react@^19",
     "@types/react-dom": "^18.3.0",
+    "esbuild": "^0.25.12",
     "eslint": "^9.39.5",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^16.0.0",
     "happy-dom": "^20.11.8",
+    "pkg-pr-new": "0.0.88",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "typescript": "^5.7.0",
     "typescript-eslint": "^8.68.0",
-    "vitest": "^4.1.11",
-    "@types/react-19": "npm:@types/react@^19",
-    "globals": "^16.0.0",
-    "@argos-ci/cli": "6.9.2",
-    "pkg-pr-new": "0.0.88"
+    "vitest": "^4.1.11"
   },
   "allowScripts": {
     "esbuild@0.25.12": true

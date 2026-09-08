@@ -3,21 +3,21 @@
 @layer astra.components {
   :where(.astra-ui) .astra-relation-list__header {
     display: flex;
-    gap: 0.75rem;
+    gap: 12px;
     align-items: center;
     justify-content: space-between;
   }
 
   :where(.astra-ui) .astra-relation-list li {
     display: grid;
-    grid-template-columns: 0.9rem minmax(0, 1fr) auto;
-    column-gap: 0.55rem;
+    grid-template-columns: 14.4px minmax(0, 1fr) auto;
+    column-gap: 8.8px;
     align-items: center;
     border: 0;
     border-bottom: 1px solid var(--astra-color-border);
     border-radius: 0;
     background: transparent;
-    padding: 0.62rem 0.08rem;
+    padding: 9.92px 1.28px;
   }
 
   :where(.astra-ui) .astra-relation-list li[data-interactive] {
@@ -27,16 +27,16 @@
 
   :where(.astra-ui) .astra-relation-list__trigger {
     display: grid;
-    grid-template-columns: 0.9rem minmax(0, 1fr) auto;
+    grid-template-columns: 14.4px minmax(0, 1fr) auto;
     width: 100%;
-    column-gap: 0.55rem;
+    column-gap: 8.8px;
     align-items: center;
     cursor: pointer;
     border: 0;
     border-radius: 0;
     background: transparent;
     color: inherit;
-    padding: 0.62rem 0.08rem;
+    padding: 9.92px 1.28px;
     text-align: left;
   }
 
@@ -55,39 +55,17 @@
     grid-column: 1;
     grid-row: 1 / span 2;
     align-self: start;
-    color: var(--astra-color-text-subtle);
-    line-height: 1.2;
   }
 
   :where(.astra-ui) .astra-relation-item__glyph[data-empty] {
     visibility: hidden;
   }
 
-  :where(.astra-ui) .astra-relation-list [data-kind="decision"] .astra-relation-item__glyph {
-    color: var(--astra-color-kind-decision);
-  }
-
-  :where(.astra-ui) .astra-relation-list [data-kind="input"] .astra-relation-item__glyph {
-    color: var(--astra-color-kind-input);
-  }
-
-  :where(.astra-ui) .astra-relation-list [data-kind="output"] .astra-relation-item__glyph {
-    color: var(--astra-color-kind-output);
-  }
-
-  :where(.astra-ui) .astra-relation-list [data-kind="finding"] .astra-relation-item__glyph {
-    color: var(--astra-color-kind-finding);
-  }
-
-  :where(.astra-ui) .astra-relation-list [data-kind="prior_insight"] .astra-relation-item__glyph {
-    color: var(--astra-color-kind-insight);
-  }
-
   :where(.astra-ui) .astra-relation-item__copy {
     display: grid;
     grid-column: 2;
     min-width: 0;
-    gap: 0.1rem;
+    gap: 1.6px;
   }
 
   :where(.astra-ui) .astra-relation-list li > small {
@@ -118,7 +96,7 @@
   }
 
   :where(.astra-ui) .astra-relation-list > .astra-relation-list__description {
-    margin: 0.22rem 0 0.62rem;
+    margin: 3.52px 0 9.92px;
     color: var(--astra-color-text-subtle);
     font-size: var(--astra-font-size-xs);
     line-height: 1.45;
@@ -127,7 +105,7 @@
   :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-relation-list li,
   :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-relation-list__trigger {
     min-height: 0;
-    padding-block: 0.5rem;
+    padding-block: 8px;
   }
 
   :where(.astra-ui) .astra-relation-list ul {
@@ -135,7 +113,7 @@
     list-style: none;
     display: grid;
     gap: 0;
-    margin: 0.5rem 0 0;
+    margin: 8px 0 0;
     border: 0;
     padding: 0;
   }
@@ -157,8 +135,8 @@
 
   :where(.astra-ui) .astra-relation-list__trigger,
   :where(.astra-ui) .astra-relation-list li:where(:not([data-interactive])) {
-    grid-template-columns: 1.375rem minmax(0, 1fr) 1rem;
-    padding: 0.625rem 0.25rem;
+    grid-template-columns: 22px minmax(0, 1fr) 16px;
+    padding: 10px 4px;
   }
 
   :where(.astra-ui) .astra-relation-item__label {
@@ -166,7 +144,7 @@
   }
 
   :where(.astra-ui) .astra-relation-list small {
-    margin-top: 0.125rem;
+    margin-top: 2px;
     color: var(--astra-color-text-subtle);
     font-size: var(--astra-font-size-2xs);
   }

@@ -21,10 +21,10 @@
 
   }
   :where(.astra-ui) .astra-inventory-outputs__group-heading {
-    margin: 0 0 0.85rem;
+    margin: 0 0 13.6px;
     color: var(--astra-color-text);
     font-family: var(--astra-font-ui);
-    font-size: 1rem;
+    font-size: 16px;
     font-weight: 700;
     line-height: 1.4;
   }
@@ -37,7 +37,7 @@
     flex-direction: column;
     overflow: hidden;
     border: 1px solid var(--astra-color-border);
-    border-radius: 0.45rem;
+    border-radius: 7.2px;
     background: var(--astra-color-surface-raised);
     color: var(--astra-color-text);
     transition: border-color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
@@ -56,12 +56,12 @@
 
   :where(.astra-ui) .astra-output-card__open {
     position: absolute;
-    top: 0.55rem;
-    right: 0.55rem;
+    top: 8.8px;
+    right: 8.8px;
     border-radius: 99px;
     background: color-mix(in srgb, var(--astra-color-surface) 88%, transparent);
     color: var(--astra-color-text-muted);
-    padding: 0.25rem 0.5rem;
+    padding: 4px 8px;
     font-family: var(--astra-font-ui);
     font-size: var(--astra-font-size-2xs);
     font-weight: 700;
@@ -86,7 +86,7 @@
   :where(.astra-ui) .astra-output-card__body strong {
     overflow: hidden;
     font-family: var(--astra-font-ui);
-    font-size: 0.92rem;
+    font-size: 14.72px;
     line-height: 1.2;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -139,7 +139,7 @@
   }
 
   :where(.astra-ui) .astra-inventory-outputs__group-heading {
-    margin: 0 0 0.625rem;
+    margin: 0 0 10px;
     color: var(--astra-color-text-subtle);
     font-family: var(--astra-font-ui);
     font-size: var(--astra-font-size-2xs);
@@ -150,7 +150,7 @@
 
   :where(.astra-ui) .astra-inventory-outputs__gallery {
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 0.875rem;
+    gap: 14px;
   }
 
   :where(.astra-ui) .astra-output-card {
@@ -180,7 +180,7 @@
     object-fit: contain;
     max-height: none;
     margin: 0;
-    padding: 0.45rem;
+    padding: 7.2px;
   }
 
   :where(.astra-ui) .astra-output-card__preview > .astra-artifact:where([data-type="image"]) {
@@ -201,8 +201,8 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 0.35rem;
-    padding: 0.6rem;
+    gap: 5.6px;
+    padding: 9.6px;
     text-align: center;
   }
 
@@ -218,7 +218,7 @@
 
   :where(.astra-ui) .astra-output-card__preview > .astra-artifact:where([data-type="metric"]) .astra-artifact__metric-value {
     max-width: 100%;
-    font-size: clamp(1.25rem, 3cqw, 1.75rem);
+    font-size: clamp(var(--astra-font-size-title), 3cqw, 28px);
   }
 
   :where(.astra-ui) .astra-output-card__preview > .astra-artifact:where([data-type="metric"]) .astra-artifact__metric-uncertainty,
@@ -227,16 +227,16 @@
   }
 
   :where(.astra-ui) .astra-output-card__open {
-    top: 0.45rem;
-    right: 0.45rem;
+    top: 7.2px;
+    right: 7.2px;
     border: 0;
     background: color-mix(in srgb, var(--astra-color-surface-raised) 92%, transparent);
   }
 
   :where(.astra-ui) .astra-output-card__body {
     display: grid;
-    gap: 0.125rem;
-    padding: 0.55rem 0.6875rem 0.65rem;
+    gap: 2px;
+    padding: 8.8px 11px 10.4px;
   }
 
   :where(.astra-ui) .astra-output-card__kind {
@@ -253,13 +253,13 @@
     font-size: var(--astra-font-size-2xs);
   }
 
-  @container (max-width: 58rem) {
+  @container (max-width: 928px) {
     :where(.astra-ui) .astra-inventory-outputs__gallery {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
   }
-  @container (max-width: 38rem) {
+  @container (max-width: 608px) {
     :where(.astra-ui) .astra-inventory-outputs__gallery {
       grid-template-columns: minmax(0, 1fr);
     }
@@ -274,11 +274,11 @@
   }
 
   :where(.astra-ui) .astra-inventory-outputs__group + .astra-inventory-outputs__group {
-    margin-top: 1.5rem;
+    margin-top: 24px;
   }
 
   :where(.astra-ui) .astra-inventory-outputs__group-heading {
-    margin: 0 0 0.625rem;
+    margin: 0 0 10px;
     color: var(--astra-color-text-subtle);
     font-family: var(--astra-font-ui);
     font-size: var(--astra-font-size-2xs);
@@ -290,7 +290,7 @@
   :where(.astra-ui) .astra-inventory-outputs__gallery {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 0.875rem;
+    gap: 14px;
   }
 
   :where(.astra-ui) .astra-output-card {
@@ -321,13 +321,13 @@
     box-sizing: border-box;
     width: 100%;
     height: 100%;
-    padding: 0.35rem;
+    padding: 5.6px;
     object-fit: contain;
   }
 
   :where(.astra-ui) .astra-output-card__open {
-    top: 0.45rem;
-    right: 0.45rem;
+    top: 7.2px;
+    right: 7.2px;
     padding: 0;
     border: 0;
     background: color-mix(in srgb, var(--astra-color-surface-raised) 92%, transparent);
@@ -337,12 +337,12 @@
 
   :where(.astra-ui) .astra-output-card__body {
     display: block;
-    padding: 0.5625rem 0.6875rem;
+    padding: 9px 11px;
   }
 
   :where(.astra-ui) .astra-output-card__kind {
     display: block;
-    margin-bottom: 0.125rem;
+    margin-bottom: 2px;
     color: var(--astra-color-kind-output);
     font: 700 var(--astra-font-size-2xs)/1.2 var(--astra-font-ui);
     letter-spacing: 0.08em;
@@ -361,13 +361,13 @@
     display: none;
   }
 
-  @container (max-width: 48rem) {
+  @container (max-width: 768px) {
     :where(.astra-ui) .astra-inventory-outputs__gallery {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
   }
-  @container (max-width: 34rem) {
+  @container (max-width: 544px) {
     :where(.astra-ui) .astra-inventory-outputs__gallery {
       grid-template-columns: minmax(0, 1fr);
     }
@@ -409,7 +409,7 @@
     gap: var(--astra-space-3);
     width: 100%;
     min-width: 0;
-    min-height: 2.75rem;
+    min-height: 44px;
     margin: 0;
     padding: var(--astra-space-3) var(--astra-space-2);
     border: 0;
@@ -493,7 +493,7 @@
     display: none;
   }
 
-  @container (min-width: 42rem) {
+  @container (min-width: 672px) {
     :where(.astra-ui) .astra-inventory-outputs__compact-grid:where([data-layout="grid"]) {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
@@ -503,7 +503,7 @@
     }
   }
 
-  @container (min-width: 72rem) {
+  @container (min-width: 1152px) {
     :where(.astra-ui) .astra-inventory-outputs__compact-grid:where([data-layout="grid"]) {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
@@ -534,7 +534,7 @@
     gap: calc(0.5 * var(--astra-space-2));
     width: auto;
     max-width: 100%;
-    min-height: 3.25rem;
+    min-height: 52px;
     padding: var(--astra-space-2) var(--astra-space-3);
     border: 1px solid var(--astra-color-border);
     border-radius: calc(2 * var(--astra-radius-preview));
@@ -559,7 +559,7 @@
   }
 
   :where(.astra-ui) .astra-output-entry:where([data-kind="metric"]) .astra-artifact__metric-value {
-    font-size: 1rem;
+    font-size: 16px;
     line-height: 1.25;
   }
 

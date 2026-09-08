@@ -123,13 +123,7 @@ Screenshot capture requires Playwright Chromium (`npx playwright install chromiu
 Every pull request gets a preview of the demo paper rendered with its
 `@astra-spec/ui`, posted as a comment by the `Preview` workflow, which also
 uploads screenshots of the paper and the playground to
-[Argos](https://argos-ci.com/) for a visual diff against the merge base. An
-installable build of every commit is published to
-[pkg.pr.new](https://pkg.pr.new/):
-
-```bash
-npm install https://pkg.pr.new/@astra-spec/ui@<pr-number-or-sha>
-```
+[Argos](https://argos-ci.com/) for a visual diff against the merge base.
 
 ## Releases
 
@@ -141,3 +135,34 @@ npm trusted publishing. Package versions are not edited by hand.
 ## License
 
 BSD-3-Clause. See [LICENSE](LICENSE).
+
+### Rendering consistently across applications
+
+`@astra-spec/ui` owns component structure, type roles, geometry and the canonical
+kind marks. `InlineReference` and `KindGlyph` are the same primitives used by
+record previews and inventory/detail relations. Inline references inherit their
+surrounding prose size; kind glyphs use the shared body-size token and upright
+body font in every context. A glyph's own kind selects its symbol and colour,
+including when it is nested inside a record of another kind. Compact labels
+and detail titles use their own UI roles.
+
+Import `@lightcone-research/brand/adapters/astra.css` for the common Lightcone
+appearance. The brand package owns serif fonts, the monospace stack,
+colours and branded type values. Applications should not redefine those values
+or reproduce component rules. Geometry uses CSS pixels so an application's root
+font size cannot silently rescale a component; browser zoom remains available.
+
+When an application has global element rules, also import
+`@astra-spec/ui/isolate.css` and add `astra-isolate` to each owned `.astra-ui`
+root, including portal roots. This opt-in boundary restores the component layers
+for native text and controls. Put application chrome in a named layer declared
+after `astra.views`; keep intentional custom renderers outside the reset or give
+them layered styles. The stylesheet does not isolate arbitrary CSS or replace
+an application's responsibility for portal mounting and colour-scheme attributes.
+
+`node scripts/check-rendering.mjs /path/to/sibling/checkouts` compares representative
+records under the shared, article, JupyterLab and VS Code stylesheets in Chromium,
+in both colour schemes and with 16px/20px document roots. It writes screenshots
+and computed styles to ignored `rendering-artifacts/`. It compares every glyph
+with its inline counterpart and checks its kind colour. This checks CSS integration;
+full application interaction tests remain in each consumer.

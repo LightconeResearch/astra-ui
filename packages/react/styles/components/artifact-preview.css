@@ -43,7 +43,7 @@
 
   :where(.astra-ui) .astra-artifact:where([data-type="metric"]) strong {
     color: var(--astra-color-kind-output);
-    font-size: 2rem;
+    font-size: 32px;
   }
 
   :where(.astra-ui) .astra-artifact:where([data-type="text"]) pre {
@@ -76,12 +76,12 @@
   }
 
   :where(.astra-ui) .astra-artifact:where([data-type="image"]) img {
-    padding: clamp(0.75rem, 2vw, 1.5rem);
+    padding: clamp(12px, 2vw, 24px);
   }
 
   :where(.astra-ui) .astra-artifact:where([data-type="image"]) figcaption {
     margin: 0;
-    padding: 0.55rem 0.75rem;
+    padding: 8.8px 12px;
     border-block-start: 1px solid var(--astra-color-border);
     font-family: var(--astra-font-ui);
     font-size: var(--astra-font-size-xs);
@@ -120,7 +120,7 @@
   :where(.astra-ui) .astra-artifact__placeholder {
     display: grid;
     place-items: center;
-    gap: 0.35rem;
+    gap: 5.6px;
     color: var(--astra-color-text-subtle);
     font-family: var(--astra-font-ui);
     font-size: var(--astra-font-size-xs);
@@ -128,7 +128,7 @@
 
   :where(.astra-ui) .astra-artifact__placeholder > span:first-child {
     color: var(--astra-color-text-muted);
-    font-size: 1.75rem;
+    font-size: 28px;
   }
 
   :where(.astra-ui) .astra-artifact__table {
@@ -142,15 +142,15 @@
     width: 100%;
     margin: 0;
     border-collapse: collapse;
-    font-size: 0.74rem;
+    font-size: 11.84px;
   }
 
   :where(.astra-ui) .astra-artifact__table th,
   :where(.astra-ui) .astra-artifact__table td {
-    max-width: 12rem;
+    max-width: 192px;
     overflow: hidden;
     border-bottom: 1px solid color-mix(in srgb, var(--astra-color-artifact-ink) 13%, var(--astra-color-artifact-paper));
-    padding: 0.38rem 0.55rem;
+    padding: 6.08px 8.8px;
     text-align: left;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -178,7 +178,7 @@
   }
 
   :where(.astra-ui) .astra-artifact__table > p {
-    margin: 0.65rem 0 0;
+    margin: 10.4px 0 0;
     color: var(--astra-color-text-subtle);
     font-family: var(--astra-font-ui);
     font-size: var(--astra-font-size-xs);
@@ -187,7 +187,7 @@
   :where(.astra-ui) .astra-artifact__table[data-compact] {
     height: 100%;
     overflow: hidden;
-    padding: 0.6rem;
+    padding: 9.6px;
   }
 
   :where(.astra-ui) .astra-artifact__table[data-compact] table {
@@ -197,21 +197,21 @@
 
   :where(.astra-ui) .astra-artifact__table[data-compact] th,
   :where(.astra-ui) .astra-artifact__table[data-compact] td {
-    padding: 0.25rem 0.35rem;
+    padding: 4px 5.6px;
   }
 
   :where(.astra-ui) .astra-artifact__metric {
     display: flex;
     align-items: baseline;
     justify-content: center;
-    gap: 0.4rem;
+    gap: 6.4px;
     color: var(--astra-color-text);
     font-family: var(--astra-font-ui);
   }
 
   :where(.astra-ui) .astra-artifact__metric-value {
-    max-width: 13rem;
-    font-size: clamp(1.45rem, 4vw, 2.5rem);
+    max-width: 208px;
+    font-size: clamp(23.2px, 4vw, 40px);
     font-weight: 600;
     line-height: 1;
     text-align: center;
@@ -220,7 +220,7 @@
   :where(.astra-ui) .astra-artifact__metric-uncertainty,
   :where(.astra-ui) .astra-artifact__metric-unit {
     color: var(--astra-color-text-subtle);
-    font-size: 0.8rem;
+    font-size: 12.8px;
   }
 
   /* Inside a dialog the table sits on the canvas, so its text follows the

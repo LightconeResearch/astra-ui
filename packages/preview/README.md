@@ -15,7 +15,12 @@ myst_proto (astra.yaml + index.md) ──myst build --html──▶ dist/  (stat
 ```
 
 The theme bundles `@astra-spec/ui` into its Remix build, which is why a preview must rebuild
-the theme rather than swap a package at runtime. The static export needs no server.
+the theme rather than swap a package at runtime. The static export needs no server. It also includes the interactive playground at
+`/playground/`, covering inventory, viewers, dialogs and inline glyphs. Both surfaces
+use the exact Lightcone brand dependency selected in `packages/playground/package.json`;
+the build installs that same dependency into its temporary theme checkout and records
+it in `_preview.json`, together with a fingerprint of all CSS and font bytes. The
+build fails if the two installations differ. Select a published brand version there and a compatible theme commit in `refs.json`.
 
 ## Local use
 
@@ -58,7 +63,8 @@ workflow's `theme` input) a compatible astra-theme branch until it is released.
   so previews are never indexed as a copy of the real publication;
 - `trailingSlash: false` in `vercel.json`, because MyST links to `/page` and writes
   `page/index.html`; the local server in `serve.mjs` resolves paths the same way;
-- `_preview.json`, a manifest naming the UI, theme, content and plugin that were built;
+- `playground/`, the interactive stories built with the same content and brand;
+- `_preview.json`, a manifest naming the UI, brand, theme, content and plugin that were built;
 - font urls in the CSS bundles rewritten from the theme's `/myst_assets_folder/` public path to
   `/build/`, which `myst build --html` does for html, js and json but not for stylesheets;
 - no binary science artifacts (`.npy`, `.h5`, `.fits`, ...): MyST copies every bound artifact,
@@ -77,8 +83,12 @@ npm run preview:build && npm run preview:screenshots   # the paper
 npm run screenshots                                    # the playground stories
 ```
 
-The workflow runs both after the build, regenerating the playground fixture and artifact copies
-from the pinned content clone first so the stories show the same analysis as the paper, and
+The build regenerates the playground fixture and artifact copies from the pinned content.
+The workflow captures the deployed playground with
+`node packages/preview/screenshot.mjs stories --dir packages/preview/dist/playground`,
+so Argos and the interactive preview show the same files. The capture checks that visible
+glyphs inherit the Lightcone scope and use their semantic colour. It also checks the
+19px/20px card inset, catching older host padding that would double it. It
 uploads both directories to [Argos](https://argos-ci.com/) when an `ARGOS_TOKEN` secret exists. Argos compares
 against the pull request's merge base, posts a status check and a comment, and offers a review UI;
 the default branch is auto-approved as the baseline. Without the token the PNGs are uploaded as a

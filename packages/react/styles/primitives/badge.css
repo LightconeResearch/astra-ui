@@ -46,7 +46,7 @@
     border: 1px solid var(--astra-color-border-strong);
     background: var(--astra-color-surface-raised);
     color: var(--astra-color-text-muted);
-    padding: 0.15rem 0.4rem;
+    padding: 2.4px 6.4px;
     font: 700 var(--astra-font-size-2xs)/1.4 var(--astra-font-ui);
     letter-spacing: 0.06em;
     text-transform: uppercase;

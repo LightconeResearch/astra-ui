@@ -181,6 +181,16 @@ function ensureInstalled(dir) {
   writeFileSync(marker, hash);
 }
 
+function brandFingerprint(packageJson) {
+  const adapter = createRequire(packageJson).resolve('@lightcone-research/brand/adapters/astra.css');
+  const dir = resolve(dirname(adapter), '..');
+  const hash = createHash('sha256');
+  for (const file of readdirSync(dir, { recursive: true }).filter(file => /\.(css|woff2?|ttf)$/.test(file)).sort()) {
+    hash.update(file).update(readFileSync(join(dir, file)));
+  }
+  return hash.digest('hex');
+}
+
 // --- 1. pack @astra-spec/ui ---------------------------------------------------
 
 function packUi() {
@@ -208,11 +218,11 @@ function packUi() {
 
 // --- 2. build astra-theme against it ------------------------------------------
 
-function buildTheme(tarball) {
+function buildTheme(tarball, brand) {
   const theme = materialize('theme', options.theme, refs.theme.repository);
   ensureInstalled(theme.dir);
-  log('theme: installing the packed @astra-spec/ui into packages/astra');
-  run('npm', ['install', tarball, '--workspace', 'packages/astra', '--no-audit', '--no-fund'], { cwd: theme.dir });
+  log('theme: installing the packed UI and the playground’s exact Lightcone brand');
+  run('npm', ['install', tarball, `@lightcone-research/brand@${brand}`, '--workspace', 'packages/astra', '--no-audit', '--no-fund'], { cwd: theme.dir });
   const script = `build:${basename(refs.theme.template)}`;
   log(`theme: npm run ${script}`);
   try {
@@ -326,7 +336,7 @@ function rewriteAssetPaths(dir) {
   if (count) console.log(`  rewrote /myst_assets_folder/ to ${prefix} in ${count} stylesheets`);
 }
 
-function finalize({ ui, theme, content }) {
+function finalize({ ui, theme, content, brand, brandIntegrity }) {
   log(`writing ${rel(options.out)}`);
   rmSync(options.out, { recursive: true, force: true });
   cpSync(content.html, options.out, { recursive: true });
@@ -343,10 +353,12 @@ function finalize({ ui, theme, content }) {
     builtAt: new Date().toISOString(),
     ui: clean(ui.label),
     theme: clean(theme.label),
+    brand: clean(brand),
+    brandIntegrity,
     content: clean(content.label),
     mystra: clean(content.mystra),
   };
-  manifest.summary = `@astra-spec/ui ${manifest.ui} · astra-theme ${manifest.theme} · content ${manifest.content} · MySTRA ${manifest.mystra}`;
+  manifest.summary = `@astra-spec/ui ${manifest.ui} · Lightcone brand ${manifest.brand} · astra-theme ${manifest.theme} · content ${manifest.content} · MySTRA ${manifest.mystra}`;
   writeFileSync(join(options.out, '_preview.json'), `${JSON.stringify(manifest, null, 2)}\n`);
   return manifest;
 }
@@ -356,10 +368,24 @@ function finalize({ ui, theme, content }) {
 const started = Date.now();
 mkdirSync(work, { recursive: true });
 const ui = packUi();
-const theme = buildTheme(ui.tarball);
+// The playground dependency is the single brand selection for both surfaces.
+const playground = join(ui.dir, 'packages/playground');
+const brand = JSON.parse(readFileSync(join(playground, 'package.json'), 'utf8')).devDependencies['@lightcone-research/brand'];
+const theme = buildTheme(ui.tarball, brand);
+const brandIntegrity = brandFingerprint(join(playground, 'package.json'));
+if (brandIntegrity !== brandFingerprint(join(theme.dir, 'packages/astra/package.json'))) {
+  throw new Error('Paper and playground resolved different Lightcone CSS or fonts');
+}
 const plugin = resolvePlugin();
 const content = exportSite(theme, plugin);
-const manifest = finalize({ ui, theme, content });
+const manifest = finalize({ ui, theme, content, brand, brandIntegrity });
+log('playground: building the same analysis and brand beside the paper');
+run(process.execPath, [join(playground, 'scripts/resolve-fixture.mjs'), content.dir], { cwd: ui.dir });
+run('npm', ['exec', '--', 'ladle', 'build', '--outDir', 'build', '--base', './'], {
+  cwd: playground,
+  env: { VITE_ASTRA_THEME: 'lightcone' },
+});
+cpSync(join(playground, 'build'), join(options.out, 'playground'), { recursive: true });
 console.log(`\n✔ ${manifest.summary}`);
 console.log(`✔ static site in ${rel(options.out)} after ${Math.round((Date.now() - started) / 1000)} s`);
 if (options.serve) serve(options.out, options.port);

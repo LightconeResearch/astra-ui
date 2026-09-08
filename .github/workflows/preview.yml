@@ -88,12 +88,25 @@ jobs:
           path: packages/preview/.cache/theme/node_modules
           key: preview-theme-${{ runner.os }}-${{ inputs.theme || hashFiles('packages/preview/refs.json') }}
 
-      - name: Build the demo paper against this @astra-spec/ui
+      - name: Build the paper and playground against this @astra-spec/ui
         env:
           PREVIEW_THEME: ${{ inputs.theme }}
           PREVIEW_CONTENT: ${{ inputs.content }}
           PREVIEW_MYSTRA: ${{ inputs.mystra }}
         run: node packages/preview/build.mjs
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Test the preview rendering checks
+        run: node --test packages/preview/check-rendering.test.mjs
+
+      - name: Screenshot the paper
+        run: node packages/preview/screenshot.mjs paper
+
+      - name: Screenshot the playground stories
+        run: node packages/preview/screenshot.mjs stories --dir packages/preview/dist/playground
+
 
       # The manifest summary embeds caller-supplied refs and URLs, so it is
       # treated as untrusted: written through a delimited block here, and only
@@ -141,7 +154,7 @@ jobs:
         with:
           header: preview
           message: |
-            **Demo paper preview for this pull request:** ${{ steps.deploy.outputs.url }}
+            **Lightcone previews:** [Paper](${{ steps.deploy.outputs.url }}) · [Playground — inventory, viewers, dialogs and glyphs](${{ steps.deploy.outputs.url }}/playground/)
 
             <sub>${{ github.event.pull_request.head.sha }} · ${{ steps.manifest.outputs.summary }}</sub>
 
@@ -152,23 +165,6 @@ jobs:
           name: preview-site
           path: packages/preview/dist
           retention-days: 7
-
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
-
-      - name: Screenshot the paper
-        run: node packages/preview/screenshot.mjs paper
-
-      # The playground covers the surfaces the paper never mounts (inventory
-      # blocks, embedded detail, primitives, tokens). Its fixture and artifact
-      # copies are regenerated from the content clone the build just made, so
-      # the stories show the same analysis as the paper, thumbnails included.
-      # `npm pack` above already built packages/react/dist, which they import.
-      - name: Regenerate the playground fixture from the pinned content
-        run: node packages/playground/scripts/resolve-fixture.mjs
-
-      - name: Screenshot the playground stories
-        run: node packages/preview/screenshot.mjs stories
 
       - name: Upload screenshots to Argos
         if: env.HAS_ARGOS == 'true'

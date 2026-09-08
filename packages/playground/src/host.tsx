@@ -13,7 +13,12 @@ export interface FixtureArtifact {
 }
 
 export const analysisDocument = fixture.document as unknown as ResolvedAnalysisDocument;
-export const artifacts = fixture.artifacts as Record<string, FixtureArtifact>;
+export const artifacts: Record<string, FixtureArtifact> = Object.fromEntries(
+  Object.entries(fixture.artifacts).map(([path, artifact]) => [path, {
+    ...artifact,
+    url: `${import.meta.env.BASE_URL}${artifact.url.replace(/^\//, '')}`,
+  }]),
+);
 
 const IMAGE_FORMATS = new Set(['png', 'jpg', 'jpeg', 'svg', 'gif', 'webp']);
 

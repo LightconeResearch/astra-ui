@@ -10,7 +10,7 @@
   :where(.astra-ui) .astra-preview-popover {
     z-index: var(--astra-z-preview);
     width: var(--astra-width-preview);
-    max-width: calc(100vw - 1rem);
+    max-width: calc(100vw - 32px);
     color: var(--astra-color-text);
     font-family: var(--astra-font-body);
     font-size: var(--astra-font-size);
@@ -21,16 +21,11 @@
     position: relative;
     display: flex;
     max-height: min(
-      var(--astra-preview-available-height, calc(100dvh - 1.5rem)),
-      calc(100dvh - 1.5rem)
+      var(--astra-preview-available-height, calc(100dvh - 24px)),
+      calc(100dvh - 24px)
     );
     flex-direction: column;
-    border: 1px solid var(--astra-color-border);
-    border-top-color: color-mix(
-      in srgb,
-      var(--astra-kind, var(--astra-color-border-strong)) 55%,
-      var(--astra-color-border)
-    );
+    border: 1px solid color-mix(in srgb, var(--astra-kind) 55%, transparent);
     border-radius: var(--astra-radius-preview);
     background: var(--astra-color-surface-muted);
     box-shadow: var(--astra-shadow-preview);
@@ -62,8 +57,8 @@
   }
 
   :where(.astra-ui) .astra-preview-popover__arrow {
-    fill: var(--astra-color-surface-muted);
-    stroke: var(--astra-color-border);
+    fill: var(--astra-color-preview-pointer);
+    stroke: none;
     stroke-width: 1px;
   }
 

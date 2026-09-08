@@ -1,0 +1,31 @@
+@layer astra.tokens, astra.base, astra.components, astra.views;
+
+@layer astra.components {
+  /* A kind mark has the same typography in prose, compact rows and viewers.
+   * Its own data-kind selects its colour through kind.css, independently of
+   * the surrounding record, link state or label's font size.
+   */
+  :where(.astra-ui) .astra-kind-glyph {
+    display: inline-block;
+    flex: none;
+    color: var(--astra-kind);
+    font-family: var(--astra-font-body);
+    font-size: var(--astra-font-size);
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: 0;
+    text-decoration: none;
+  }
+  :where(.astra-ui) .astra-kind-glyph[data-kind="paper"] {
+    width: 1em;
+    height: 1em;
+    vertical-align: -0.125em;
+  }
+
+  :where(.astra-ui) .astra-kind-glyph > svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+}

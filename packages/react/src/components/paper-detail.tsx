@@ -1,3 +1,4 @@
+import { KindGlyph } from '../primitives/kind-glyph.js';
 import type { ResolvedDecision, ResolvedEvidence, ResolvedInsight } from '@astra-spec/sdk';
 import { forwardRef, useCallback, useMemo, useRef, useState, type HTMLAttributes } from 'react';
 import { doiHref } from '../model/doi.js';
@@ -8,7 +9,6 @@ import { cn } from '../lib/cn.js';
 import { useLabels } from '../lib/labels.js';
 import { CountHeading } from '../primitives/detail-layout.js';
 import { DetailDialog, DialogAction, type DetailDialogProps } from '../primitives/dialog.js';
-import { surfaceGlyph } from '../model/kind.js';
 import type { TextRenderer } from '../lib/prose.js';
 import { InsightTrigger } from './insight-trigger.js';
 import { PaperPdfViewer, type PdfPassage } from './paper-pdf-viewer.js';
@@ -138,7 +138,7 @@ export const PaperDetail = forwardRef<HTMLDivElement, PaperDetailProps>(function
                       setDecisionFilter(active ? undefined : decision.canonicalPath);
                     }}
                   >
-                    <span aria-hidden="true">{surfaceGlyph('decision')}</span>
+                    <KindGlyph kind="decision" />
                     <span>{recordTitle(decision)}</span>
                   </button>
                 );

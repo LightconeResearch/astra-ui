@@ -1,7 +1,8 @@
+import { KindGlyph } from './kind-glyph.js';
 import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
 import { cn } from '../lib/cn.js';
 import { CountHeading } from './detail-layout.js';
-import { surfaceGlyph, type SurfaceKind } from '../model/kind.js';
+import { type SurfaceKind } from '../model/kind.js';
 
 export interface RelationItem {
   key: string;
@@ -25,12 +26,8 @@ export interface RelationListProps extends Omit<HTMLAttributes<HTMLElement>, 'ti
 function RelationItemContent({ item }: { item: RelationItem }) {
   return (
     <>
-      <span
-        className="astra-relation-item__glyph"
-        {...(item.kind ? {} : { 'data-empty': '' })}
-        aria-hidden="true"
-      >
-        {item.kind ? surfaceGlyph(item.kind) : ''}
+      <span className="astra-relation-item__glyph" data-empty={!item.kind ? '' : undefined} aria-hidden="true">
+        {item.kind ? <KindGlyph kind={item.kind} /> : null}
       </span>
       <span className="astra-relation-item__copy">
         <span className="astra-relation-item__label">{item.label}</span>

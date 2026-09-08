@@ -18,6 +18,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 import { serve } from './serve.mjs';
+import { checkRendering } from './check-rendering.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const playground = resolve(here, '../playground');
@@ -41,6 +42,7 @@ async function settle(page) {
     ));
   });
   await page.waitForTimeout(400);
+  await checkRendering(page);
 }
 
 function resetDirectory(dir) {
@@ -77,7 +79,7 @@ async function capturePaper() {
   if (!existsSync(join(dir, 'index.html'))) throw new Error(`no export in ${dir}; run npm run preview:build first`);
 
   // Every directory holding an index.html is a page; MyST writes <slug>/index.html.
-  const SKIP = new Set(['build', '_assets', 'gallery']);
+  const SKIP = new Set(['build', '_assets', 'gallery', 'playground']);
   const pages = ['/', ...readdirSync(dir, { withFileTypes: true })
     .filter((entry) => entry.isDirectory() && !SKIP.has(entry.name) && existsSync(join(dir, entry.name, 'index.html')))
     .map((entry) => `/${entry.name}`)
@@ -118,8 +120,8 @@ async function capturePaper() {
             await page.mouse.move(0, 0);
           }
           // Clicking a reference opens its record in a dialog; capture one per kind.
-          for (const kind of ['decision', 'finding', 'prior_insight', 'value']) {
-            const opener = page.locator(`.astra-ref-trigger:has(.astra-ref--${kind})`).first();
+          for (const kind of ['input', 'decision', 'finding', 'prior_insight', 'output', 'value']) {
+            const opener = page.locator(`.astra-ref-trigger.astra-ref--${kind}, .astra-ref-trigger:has(.astra-ref--${kind})`).first();
             if (!(await opener.count())) continue;
             await opener.scrollIntoViewIfNeeded();
             await opener.click();
@@ -146,19 +148,20 @@ async function capturePaper() {
 // --- stories --------------------------------------------------------------------
 
 async function captureStories() {
+  const dir = option('--dir', undefined);
   const out = resolve(option('--out', join(here, 'screenshots/stories')));
   const filter = option('--filter', undefined);
   const width = Number(option('--width', '1280'));
   if (args.length) throw new Error(`unknown arguments: ${args.join(' ')}`);
 
   // Ladle resolves --outDir against its working directory, so keep it relative.
-  const build = spawnSync('npx', ['ladle', 'build', '--outDir', 'build'], {
+  const build = dir ? { status: 0 } : spawnSync('npx', ['ladle', 'build', '--outDir', 'build'], {
     cwd: playground,
     stdio: 'inherit',
     // npx is a .cmd shim on Windows, which only a shell can start.
     shell: process.platform === 'win32',
   });
-  const buildDir = join(playground, 'build');
+  const buildDir = dir ? resolve(dir) : join(playground, 'build');
   if (build.status !== 0 || !existsSync(join(buildDir, 'meta.json'))) throw new Error('ladle build failed');
   const meta = JSON.parse(readFileSync(join(buildDir, 'meta.json'), 'utf8'));
   const ids = Object.keys(meta.stories).filter((id) => !filter || id.includes(filter));
@@ -171,6 +174,8 @@ async function captureStories() {
     for (const id of ids) {
       for (const theme of ['light', 'dark']) {
         await page.goto(`${base}/?story=${id}&mode=preview&theme=${theme}`, { waitUntil: 'load' });
+        await page.locator('.playground-root').waitFor();
+        if (id.startsWith('papers--')) await page.locator('.astra-paper-pdf__page canvas').first().waitFor();
         await settle(page);
         await page.screenshot({ path: join(out, `${id}--${theme}.png`), fullPage: true });
         taken += 1;

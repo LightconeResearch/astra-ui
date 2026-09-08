@@ -1,3 +1,4 @@
+import { KindGlyph } from '../primitives/kind-glyph.js';
 import type { ResolvedAnalysisNode, ResolvedInsight } from '@astra-spec/sdk';
 import { forwardRef, type HTMLAttributes } from 'react';
 import { recordTitle } from '../model/records.js';
@@ -44,7 +45,7 @@ export const FindingsList = forwardRef<HTMLDivElement, FindingsListProps>(functi
             onOpen: () => { onOpenRecord(record, analysis); },
             cells: [
               <span className="astra-record-list__name" data-variant="claim">
-                <span className="astra-record-list__glyph" aria-hidden="true">●</span>
+                <KindGlyph className="astra-record-list__glyph" kind="finding" />
                 <span>
                   {record.label ? <small>{record.label}</small> : null}
                   <strong>{record.claim}</strong>

@@ -4,14 +4,14 @@
   :where(.astra-ui) .astra-decision-insights {
     display: grid;
     gap: 0;
-    margin: 0.2rem 0 0;
+    margin: 3.2px 0 0;
     padding: 0;
     list-style: none;
   }
 
   :where(.astra-ui) .astra-decision-insights > li {
     border-bottom: 1px solid var(--astra-color-border);
-    padding: 0.72rem 0;
+    padding: 11.52px 0;
   }
 
   :where(.astra-ui) .astra-decision-insights > li:last-child {
@@ -19,10 +19,10 @@
   }
 
   :where(.astra-ui) .astra-decision-options h4 {
-    margin: 0 0 0.55rem;
+    margin: 0 0 8.8px;
     color: var(--astra-color-text);
     font-family: var(--astra-font-ui);
-    font-size: 0.82rem;
+    font-size: 13.var(--astra-font-size-xs);
   }
 
   :where(.astra-ui) .astra-decision-options__marker {
@@ -36,18 +36,18 @@
   :where(.astra-ui) .astra-decision-options li > span:nth-child(2) {
     display: grid;
     min-width: 0;
-    gap: 0.12rem;
+    gap: 1.92px;
   }
 
   :where(.astra-ui) .astra-decision-options strong {
     font-family: var(--astra-font-ui);
-    font-size: 0.8rem;
+    font-size: 12.8px;
   }
 
   :where(.astra-ui) .astra-decision-options small {
     color: var(--astra-color-accent);
     font-family: var(--astra-font-ui);
-    font-size: 0.6875rem;
+    font-size: var(--astra-font-size-2xs);
     font-weight: 700;
     letter-spacing: 0.05em;
     text-transform: uppercase;
@@ -62,65 +62,65 @@
     border-block-end: 1px solid var(--astra-color-border);
     border-radius: 0;
     background: transparent;
-    padding: 0.75rem 0.25rem;
+    padding: 12px 4px;
   }
 
   :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-decision-options {
-    padding-block: 0.875rem;
+    padding-block: 14px;
     border-block-start: 1px solid var(--astra-color-border);
   }
 
   :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-decision-options h4 {
     color: var(--astra-color-text);
-    font: 700 0.8125rem/1.25 var(--astra-font-ui);
+    font: 700 var(--astra-font-size-sm)/1.25 var(--astra-font-ui);
     letter-spacing: 0;
     text-transform: none;
   }
 
   :where(.astra-ui) .astra-decision-options {
-    margin-top: 1.625rem;
+    margin-top: 26px;
     border-top: 0;
     padding-top: 0;
   }
 
   :where(.astra-ui) .astra-decision-options h4 {
-    margin: 0 0 0.5rem;
+    margin: 0 0 8px;
     color: var(--astra-color-text);
-    font: 700 0.875rem/1.2 var(--astra-font-ui);
+    font: 700 var(--astra-font-size)/1.2 var(--astra-font-ui);
   }
 
   :where(.astra-ui) .astra-decision-options ul {
     list-style: none;
     display: grid;
-    gap: 0.4375rem;
+    gap: 7px;
     margin: 0;
     padding: 0;
   }
 
   :where(.astra-ui) .astra-decision-options li {
     display: grid;
-    grid-template-columns: 1.375rem minmax(0, 1fr) auto;
-    gap: 0.6875rem;
+    grid-template-columns: 22px minmax(0, 1fr) auto;
+    gap: 11px;
     align-items: center;
     border: 1px solid var(--astra-color-border);
-    border-radius: 0.625rem;
+    border-radius: 10px;
     background: var(--astra-color-canvas);
-    padding: 0.6875rem 0.875rem;
+    padding: 11px 14px;
   }
 
   :where(.astra-ui) .astra-decision-options strong {
-    font: 700 0.875rem/1.2 var(--astra-font-ui);
+    font: 700 var(--astra-font-size)/1.2 var(--astra-font-ui);
   }
 
   :where(.astra-ui) .astra-decision-options code {
-    margin-top: 0.125rem;
+    margin-top: 2px;
     color: var(--astra-color-text-subtle);
-    font-size: 0.6875rem;
+    font-size: var(--astra-font-size-2xs);
   }
 
   :where(.astra-ui) .astra-decision-options small {
     color: var(--astra-color-kind-decision-ink);
-    font-size: 0.6875rem;
+    font-size: var(--astra-font-size-2xs);
   }
 
   :where(.astra-ui) .astra-decision-insights > li {
@@ -145,7 +145,7 @@
 
   :where(.astra-ui) .astra-decision-options li {
     border-color: var(--astra-color-border);
-    border-radius: 0.625rem;
+    border-radius: 10px;
     background: var(--astra-color-canvas);
   }
 

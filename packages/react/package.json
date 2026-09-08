@@ -91,7 +91,8 @@
     "./components.css": "./components.css",
     "./primitives.css": "./primitives.css",
     "./styles/*": "./styles/*",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./isolate.css": "./isolate.css"
   },
   "files": [
     "dist",
@@ -104,7 +105,8 @@
     "primitives.css",
     "README.md",
     "TOKENS.md",
-    "LICENSE"
+    "LICENSE",
+    "isolate.css"
   ],
   "scripts": {
     "clean": "node --input-type=module -e \"import { rmSync } from 'node:fs'; rmSync('dist', { recursive: true, force: true })\" && tsc -b tsconfig.json --clean",

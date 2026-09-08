@@ -2,7 +2,7 @@
 @layer astra.tokens, astra.base, astra.components, astra.views;
 @layer astra.components {
   :where(.astra-ui) .astra-paper-doi h4 {
-    margin: 0 0 0.5rem;
+    margin: 0 0 8px;
     color: var(--astra-color-text);
     font: 700 var(--astra-font-size)/1.2 var(--astra-font-ui);
   }
@@ -17,7 +17,7 @@
     border-radius: 999px;
     background: var(--astra-color-canvas);
     color: var(--astra-color-link);
-    padding: 0.5625rem 1rem;
+    padding: 9px 16px;
     font: var(--astra-font-size-2xs)/1.6 var(--astra-font-mono);
     text-align: left;
     text-decoration: none;

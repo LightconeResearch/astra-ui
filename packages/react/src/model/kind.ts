@@ -5,15 +5,15 @@ export type SurfaceKind = ResolvedRecord['kind'] | 'analysis' | 'paper';
 
 const SURFACE_GLYPHS: Record<SurfaceKind, string> = {
   analysis: '◐',
-  input: '↳',
+  input: '▤',
   decision: '◇',
   output: '◆',
   finding: '●',
   prior_insight: '◈',
-  paper: '▧',
+  paper: '📄',
 };
 
-/** The glyph that identifies a kind in lists, relations, and headers. */
+/** Plain-text kind mark. Use KindGlyph for consistent, themed UI rendering. */
 export function surfaceGlyph(kind: SurfaceKind): string {
   return SURFACE_GLYPHS[kind];
 }

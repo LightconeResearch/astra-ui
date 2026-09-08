@@ -50,12 +50,12 @@
   }
 
   :where(.astra-ui) .astra-surface-header[data-density="regular"] {
-    min-height: 4.5rem;
-    padding: 0.85rem 1rem;
+    min-height: 72px;
+    padding: 13.6px 16px;
   }
 
   :where(.astra-ui) .astra-surface-header[data-density="compact"] {
-    padding: 0.72rem 0.8rem;
+    padding: 11.52px 12.8px;
   }
 
   :where(.astra-ui) .astra-surface-header[data-density="inline"] {
@@ -69,7 +69,7 @@
   :where(.astra-ui) .astra-surface-header .astra-surface-header__content {
     display: grid;
     min-width: 0;
-    gap: 0.2rem;
+    gap: 3.2px;
   }
 
   :where(.astra-ui) .astra-surface-header[data-density="inline"] .astra-surface-header__content {
@@ -97,14 +97,14 @@
     margin: 0;
     color: var(--astra-color-text);
     font-family: var(--astra-font-heading);
-    font-size: clamp(1.05rem, 2vw, 1.4rem);
+    font-size: clamp(16.8px, 2vw, 22.4px);
     font-weight: 650;
     line-height: 1.2;
   }
 
   :where(.astra-ui) .astra-surface-header[data-density="compact"] .astra-surface-header__title {
-    margin-block-start: 0.15rem;
-    font-size: 0.86rem;
+    margin-block-start: 2.4px;
+    font-size: 13.76px;
     line-height: 1.25;
   }
 
@@ -120,7 +120,7 @@
     display: flex;
     flex: 0 0 auto;
     align-items: center;
-    gap: 0.35rem;
+    gap: 5.6px;
   }
 
   :where(.astra-ui) .astra-surface-header .astra-surface-header__eyebrow {
@@ -134,7 +134,7 @@
   :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-surface-header__content {
     display: grid;
     min-width: 0;
-    gap: 0.5rem;
+    gap: 8px;
   }
 
   :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-surface-header__eyebrow {
@@ -143,7 +143,7 @@
 
   :where(.astra-ui) .astra-dialog__header .astra-surface-header__leading {
     flex: 0 0 auto;
-    margin-top: 0.1875rem;
+    margin-top: 3px;
   }
 
   :where(.astra-ui) .astra-dialog__header .astra-surface-header__eyebrow {
@@ -163,7 +163,7 @@
     flex: 1 1 auto;
     display: grid;
     min-width: 0;
-    gap: 0.3rem;
+    gap: 4.8px;
   }
 
   :where(.astra-ui) .astra-dialog__header .astra-surface-header__eyebrow,
@@ -180,4 +180,8 @@
     font-size: var(--astra-font-size-2xs);
   }
 
+  :where(.astra-ui) .astra-dialog .astra-dialog__header .astra-surface-header__title {
+    font: 600 var(--astra-font-size-title)/1.25 var(--astra-font-ui);
+    letter-spacing: -0.01em;
+  }
 }
