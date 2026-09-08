@@ -46,3 +46,7 @@ export { CountHeading, DetailLayout, DetailMain, DetailRail, DetailSection } fro
 export type { CountHeadingProps, DetailLayoutMode, DetailLayoutProps, DetailRailProps, DetailSectionProps } from './detail-layout.js';
 export { Prose } from './prose.js';
 export type { ProseProps } from './prose.js';
+export { KindGlyph } from './kind-glyph.js';
+export type { KindGlyphProps } from './kind-glyph.js';
+export { InlineReference } from './inline-reference.js';
+export type { InlineReferenceProps } from './inline-reference.js';

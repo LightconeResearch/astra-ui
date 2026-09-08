@@ -38,4 +38,12 @@
     --astra-kind-ink: var(--astra-color-kind-insight-ink);
     --astra-kind-soft: var(--astra-color-kind-insight-soft);
   }
+  :where(.astra-ui) [data-kind="value"],
+  :where(.astra-ui) [data-entry-kind="value"] {
+    --astra-color-kind-output: var(--astra-color-kind-value);
+    --astra-color-kind-output-soft: color-mix(in srgb, var(--astra-color-kind-value) 10%, transparent);
+    --astra-kind: var(--astra-color-kind-value);
+    --astra-kind-ink: var(--astra-color-kind-value);
+    --astra-kind-soft: color-mix(in srgb, var(--astra-color-kind-value) 10%, transparent);
+  }
 }

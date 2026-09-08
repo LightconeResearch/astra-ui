@@ -5,7 +5,7 @@ export type SurfaceKind = ResolvedRecord['kind'] | 'analysis' | 'paper';
 
 const SURFACE_GLYPHS: Record<SurfaceKind, string> = {
   analysis: '◐',
-  input: '↳',
+  input: '▤',
   decision: '◇',
   output: '◆',
   finding: '●',

@@ -72,21 +72,31 @@
 
     /* Type scale. --astra-font-size is the default (md) step; the smaller
        steps cover chrome text — labels (sm), body-adjacent metadata (xs)
-       and badges/eyebrows/meta (2xs). 0.6875rem (11px) is the floor:
+       and badges/eyebrows/meta (2xs). The neutral theme uses an 11px floor:
        nothing legible renders below it. */
-    --astra-font-size-2xs: 0.6875rem;
-    --astra-font-size-xs: 0.75rem;
-    --astra-font-size-sm: 0.8125rem;
-    --astra-font-size: 0.875rem;
+    --astra-font-size-2xs: 11px;
+    --astra-font-size-xs: 12px;
+    --astra-font-size-sm: 13px;
+    --astra-font-size: 14px;
+
+    --astra-color-surface-inset: color-mix(in srgb, var(--astra-color-text) 4%, var(--astra-color-surface-muted));
+    --astra-color-accent-soft: color-mix(in srgb, var(--astra-color-accent) 12%, transparent);
+    --astra-color-kind-value: var(--astra-color-kind-analysis);
+    --astra-color-preview-pointer: var(--astra-color-text);
+    --astra-color-citation: var(--astra-kind);
+    --astra-color-citation-hover: var(--astra-color-link);
+    --astra-font-size-meta: 11px;
+    --astra-font-size-title: 20px;
+    --astra-font-size-claim: 19px;
 
     /* Geometry */
     --astra-radius-control: 0;
-    --astra-radius-preview: 0.1875rem;
+    --astra-radius-preview: 3px;
     --astra-shadow-raised: none;
     --astra-shadow-preview: 0 6px 18px rgb(34 31 32 / 0.1);
-    --astra-width-preview: 27.5rem;
-    --astra-space-2: 0.5rem;
-    --astra-space-3: 0.75rem;
+    --astra-width-preview: 440px;
+    --astra-space-2: 8px;
+    --astra-space-3: 12px;
     --astra-z-dialog: 1000;
     --astra-z-preview: 1100;
     --astra-z-fullscreen: 10000;

@@ -15,6 +15,7 @@ Every token is declared on `:where(.astra-ui)` at zero specificity in the `astra
 | `--astra-color-header` | `#f8f7f3` | `#302d27` |
 | `--astra-color-artifact-paper` | `#ffffff` | `#f8f7f3` |
 | `--astra-color-artifact-ink` | `#221f20` | `#221f20` |
+| `--astra-color-surface-inset` | `color-mix(in srgb, var(--astra-color-text) 4%, var(--astra-color-surface-muted))` | — |
 
 ## Text
 
@@ -44,6 +45,7 @@ Every token is declared on `:where(.astra-ui)` at zero specificity in the `astra
 | `--astra-color-focus` | `#3f7280` | `#86adb7` |
 | `--astra-color-danger` | `#a45a43` | `#d6927d` |
 | `--astra-color-danger-soft` | `rgb(164 90 67 / 0.09)` | `rgb(214 146 125 / 0.13)` |
+| `--astra-color-accent-soft` | `color-mix(in srgb, var(--astra-color-accent) 12%, transparent)` | — |
 
 ## Record kinds
 
@@ -63,6 +65,7 @@ Every token is declared on `:where(.astra-ui)` at zero specificity in the `astra
 | `--astra-color-kind-decision-soft` | `rgb(166 124 60 / 0.11)` | `rgb(216 180 119 / 0.14)` |
 | `--astra-color-kind-finding-soft` | `rgb(164 90 67 / 0.1)` | `rgb(214 146 125 / 0.15)` |
 | `--astra-color-kind-insight-soft` | `rgb(139 125 112 / 0.11)` | `rgb(194 181 169 / 0.15)` |
+| `--astra-color-kind-value` | `var(--astra-color-kind-analysis)` | — |
 
 ## Kind indirection
 
@@ -78,22 +81,25 @@ Every token is declared on `:where(.astra-ui)` at zero specificity in the `astra
 | `--astra-font-body` | `"Source Serif 4", Georgia, "Times New Roman", serif` | — |
 | `--astra-font-heading` | `"Source Serif 4", Georgia, "Times New Roman", serif` | — |
 | `--astra-font-mono` | `ui-monospace, "SF Mono", Menlo, Consolas, monospace` | — |
-| `--astra-font-size-2xs` | `0.6875rem` | — |
-| `--astra-font-size-xs` | `0.75rem` | — |
-| `--astra-font-size-sm` | `0.8125rem` | — |
-| `--astra-font-size` | `0.875rem` | — |
+| `--astra-font-size-2xs` | `11px` | — |
+| `--astra-font-size-xs` | `12px` | — |
+| `--astra-font-size-sm` | `13px` | — |
+| `--astra-font-size` | `14px` | — |
+| `--astra-font-size-meta` | `11px` | — |
+| `--astra-font-size-title` | `20px` | — |
+| `--astra-font-size-claim` | `19px` | — |
 
 ## Geometry
 
 | Token | Light default | Dark default |
 | --- | --- | --- |
 | `--astra-radius-control` | `0` | — |
-| `--astra-radius-preview` | `0.1875rem` | — |
+| `--astra-radius-preview` | `3px` | — |
 | `--astra-shadow-raised` | `none` | `0 5px 18px rgb(0 0 0 / 0.38)` |
 | `--astra-shadow-preview` | `0 6px 18px rgb(34 31 32 / 0.1)` | `0 6px 18px rgb(0 0 0 / 0.45)` |
-| `--astra-width-preview` | `27.5rem` | — |
-| `--astra-space-2` | `0.5rem` | — |
-| `--astra-space-3` | `0.75rem` | — |
+| `--astra-width-preview` | `440px` | — |
+| `--astra-space-2` | `8px` | — |
+| `--astra-space-3` | `12px` | — |
 | `--astra-z-dialog` | `1000` | — |
 | `--astra-z-preview` | `1100` | — |
 | `--astra-z-fullscreen` | `10000` | — |

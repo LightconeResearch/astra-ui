@@ -297,7 +297,7 @@ test('styles are layered, scoped with :where, and free of theme or host selector
   // primitives.css follows the legacy source order (surface-header before dialog, ...).
   const primitives = await readFile(new URL('primitives.css', packageRoot), 'utf8');
   const imports = [...primitives.matchAll(/@import "\.\/styles\/primitives\/([a-z-]+)\.css"/g)].map(([, name]) => name);
-  assert.deepEqual(imports, ['kind', 'surface-header', 'badge', 'button', 'preview-popover', 'dialog', 'detail-layout', 'relation-list', 'count-heading', 'record-list', 'empty-state', 'prose'], 'primitives.css import order is part of the cascade');
+  assert.deepEqual(imports, ['kind', 'surface-header', 'badge', 'button', 'preview-popover', 'dialog', 'detail-layout', 'relation-list', 'count-heading', 'record-list', 'empty-state', 'prose', 'kind-glyph', 'inline-reference'], 'primitives.css import order is part of the cascade');
   const components = await readFile(new URL('components.css', packageRoot), 'utf8');
   assert.match(components, /@import "\.\/styles\/components\/record-preview\.css";/, 'components.css ships record preview styles');
 });
@@ -316,7 +316,7 @@ test('the intentionally low-contrast faint token is decorative only', async () =
   }
   assert.ok(consumers.length > 0, 'text-faint remains a documented decorative role');
   for (const [pathname, selector] of consumers) {
-    assert.match(selector, /__arrow\b/, `${pathname}: ${selector} uses text-faint for user-facing text; use text-subtle or split the role`);
+    assert.match(selector, /__arrow\b|\[aria-hidden="true"\]|__flow > li:not\(:last-child\)::after/, `${pathname}: ${selector} uses text-faint for user-facing text; use text-subtle or split the role`);
   }
 });
 

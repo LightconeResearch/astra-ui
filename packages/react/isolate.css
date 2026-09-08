@@ -1,0 +1,7 @@
+/* Opt in on each owned UI root and portal with `astra-isolate`.
+ * Restore shared layers where an embedding application styles native elements.
+ * Host chrome should use its own layer; inline styles and user-important rules remain effective.
+ */
+.astra-ui.astra-isolate :is(a, button, input, select, textarea, code, kbd, pre, samp, tt, p, li, blockquote, h1, h2, h3, h4, h5, h6) {
+  all: revert-layer;
+}

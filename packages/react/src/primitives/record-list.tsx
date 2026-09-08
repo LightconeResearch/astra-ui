@@ -1,6 +1,7 @@
+import { KindGlyph } from './kind-glyph.js';
 import { forwardRef, type CSSProperties, type HTMLAttributes, type ReactNode } from 'react';
 import { cn } from '../lib/cn.js';
-import { surfaceGlyph, type SurfaceKind } from '../model/kind.js';
+import { type SurfaceKind } from '../model/kind.js';
 
 export interface RecordListColumn {
   label?: string | undefined;
@@ -85,9 +86,7 @@ export const RecordIdentity = forwardRef<HTMLSpanElement, RecordIdentityProps>(f
 }, ref) {
   return (
     <span data-slot="record-identity" {...props} ref={ref} className={cn('astra-record-list__name', className)}>
-      <span className="astra-record-list__glyph" data-kind={kind} aria-hidden="true">
-        {surfaceGlyph(kind)}
-      </span>
+      <KindGlyph className="astra-record-list__glyph" kind={kind} />
       <span>
         <strong>{title}</strong>
         {subtitle != null ? <small>{subtitle}</small> : null}

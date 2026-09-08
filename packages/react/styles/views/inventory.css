@@ -7,12 +7,12 @@
     }
 
     :where(.astra-ui) .astra-inventory__sections {
-      gap: 3rem;
+      gap: 48px;
     }
 
   }
   :where(.astra-ui) .astra-inventory__section h2 {
-    scroll-margin-top: 2rem;
+    scroll-margin-top: 32px;
   }
 
   :where(.astra-ui) .astra-inventory__section:first-child > h2 {
@@ -29,20 +29,20 @@
   }
 
   :where(.astra-ui) .astra-inventory__sections {
-    gap: 2.75rem;
+    gap: 44px;
   }
 
   :where(.astra-ui) .astra-inventory {
     container-type: inline-size;
     min-height: 0;
-    padding-bottom: 4rem;
+    padding-bottom: 64px;
     background: var(--astra-color-canvas);
     color: var(--astra-color-text);
     font-family: var(--astra-font-body);
   }
 
   :where(.astra-ui) .astra-inventory__sections {
-    gap: 2.75rem;
+    gap: 44px;
   }
 
   :where(.astra-ui) .astra-inventory__section {
@@ -50,13 +50,13 @@
   }
 
   :where(.astra-ui) .astra-inventory__section > h2 {
-    margin-bottom: 0.65rem;
-    margin: 0 0 1rem;
-    padding: 0 0 0.5rem;
+    margin-bottom: 10.4px;
+    margin: 0 0 16px;
+    padding: 0 0 8px;
     border-block-end: 1px solid var(--astra-color-border-strong);
     color: var(--astra-color-text);
     font-family: var(--astra-font-heading);
-    font-size: 1.1875rem;
+    font-size: var(--astra-font-size-claim);
     font-weight: 700;
     line-height: 1.2;
   }
@@ -67,8 +67,8 @@
 
   :where(.astra-ui) .astra-inventory__layout {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 11.25rem;
-    gap: 3rem;
+    grid-template-columns: minmax(0, 1fr) 180px;
+    gap: 48px;
     align-items: start;
   }
 
@@ -76,7 +76,7 @@
     display: flex;
     min-width: 0;
     flex-direction: column;
-    gap: 2.75rem;
+    gap: 44px;
   }
 
   /* Sections are block-flow, and the per-kind blocks inside them keep their
@@ -91,9 +91,9 @@
     display: flex;
     align-items: baseline;
     justify-content: space-between;
-    gap: 1.125rem;
-    margin-bottom: 1rem;
-    padding-bottom: 0.5rem;
+    gap: 18px;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
     border-bottom: 1px solid var(--astra-color-border-strong);
   }
 
@@ -105,27 +105,27 @@
     color: var(--astra-color-text);
     background: transparent;
     font-family: var(--astra-font-heading);
-    font-size: 1.1875rem;
+    font-size: var(--astra-font-size-claim);
     font-weight: 700;
     line-height: 1.2;
-    scroll-margin-top: 4.5rem;
+    scroll-margin-top: 72px;
   }
 
   :where(.astra-ui) .astra-inventory__heading > span {
     flex: 0 0 auto;
     color: var(--astra-color-text-subtle);
     font-family: var(--astra-font-ui);
-    font-size: 0.78125rem;
+    font-size: 12.5px;
   }
 
   :where(.astra-ui) .astra-inventory-outline {
     position: sticky;
-    top: 4.5rem;
+    top: 72px;
     min-width: 0;
   }
 
   :where(.astra-ui) .astra-inventory-outline h3 {
-    margin: 0 0 0.5rem;
+    margin: 0 0 8px;
     color: var(--astra-color-text-subtle);
     font-family: var(--astra-font-ui);
     font-size: var(--astra-font-size-2xs);
@@ -141,10 +141,10 @@
 
   :where(.astra-ui) .astra-inventory-outline a {
     display: grid;
-    grid-template-columns: 0.75rem minmax(0, 1fr) auto;
-    gap: 0.5625rem;
+    grid-template-columns: 12px minmax(0, 1fr) auto;
+    gap: 9px;
     align-items: baseline;
-    padding: 0.4375rem 0;
+    padding: 7px 0;
     border-bottom: 1px solid var(--astra-color-border-subtle);
     color: var(--astra-color-text-subtle);
     font-family: var(--astra-font-ui);
@@ -167,7 +167,7 @@
     color: var(--astra-color-text);
   }
 
-  @container (max-width: 62rem) {
+  @container (max-width: 992px) {
     :where(.astra-ui) .astra-inventory__layout {
       grid-template-columns: minmax(0, 1fr);
     }
@@ -177,7 +177,7 @@
     }
 
   }
-  @container (max-width: 34rem) {
+  @container (max-width: 544px) {
     :where(.astra-ui) .astra-inventory__heading {
       align-items: flex-start;
     }

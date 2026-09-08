@@ -57,7 +57,7 @@ export interface PreviewPopoverProps
   children: ReactNode;
   /** Accessible name for the non-modal preview dialog. */
   label: string;
-  kind?: SurfaceKind | undefined;
+  kind?: SurfaceKind | 'value' | undefined;
   disabled?: boolean | undefined;
   open?: boolean | undefined;
   defaultOpen?: boolean | undefined;

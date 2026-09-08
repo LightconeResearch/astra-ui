@@ -3,7 +3,7 @@
 @layer astra.components {
   :where(.astra-ui) .astra-empty-state,
   :where(.astra-ui) .astra-empty-state {
-    margin: 1.5rem 0;
+    margin: 24px 0;
     color: var(--astra-color-text-subtle);
   }
 

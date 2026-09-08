@@ -18,6 +18,8 @@
     "DialogProvider",
     "EmptyState",
     "IconButton",
+    "InlineReference",
+    "KindGlyph",
     "PreviewPopover",
     "Prose",
     "RecordIdentity",

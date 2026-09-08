@@ -5,10 +5,10 @@
     display: grid;
     width: 100%;
     height: auto;
-    max-height: min(44rem, calc(100vh - 8rem));
+    max-height: min(704px, calc(100vh - 128px));
     min-height: 0;
     overflow: hidden;
-    grid-template-columns: minmax(0, 1.55fr) minmax(18rem, 0.85fr);
+    grid-template-columns: minmax(0, 1.55fr) minmax(288px, 0.85fr);
   }
 
   :where(.astra-ui) .astra-detail__layout:where([data-layout="single"]) {
@@ -21,7 +21,7 @@
     overflow-y: auto;
     overscroll-behavior: contain;
     scrollbar-gutter: stable;
-    padding: clamp(1rem, 2.6vw, 2rem);
+    padding: clamp(16px, 2.6vw, 32px);
   }
 
   :where(.astra-ui) .astra-detail__aside {
@@ -32,7 +32,7 @@
     scrollbar-gutter: stable;
     border-left: 1px solid var(--astra-color-border);
     background: var(--astra-color-surface-raised);
-    padding: 1.35rem 1.2rem;
+    padding: 21.6px 19.2px;
   }
 
   :where(.astra-ui) .astra-detail__section > span {
@@ -47,16 +47,16 @@
   :where(.astra-ui) .astra-detail__section > div {
     width: 100%;
     max-width: none;
-    margin-top: 0.45rem;
+    margin-top: 7.2px;
     color: var(--astra-color-text-muted);
-    font-size: 0.92rem;
+    font-size: 14.72px;
   }
 
   :where(.astra-ui) .astra-detail__relations h4 {
-    margin: 0 0 0.55rem;
+    margin: 0 0 8.8px;
     color: var(--astra-color-text);
     font-family: var(--astra-font-ui);
-    font-size: 0.82rem;
+    font-size: 13.var(--astra-font-size-xs);
   }
 
   @media (max-width: 640px) {
@@ -83,13 +83,13 @@
   }
 
   :where(.astra-ui) .astra-detail__main {
-    padding: clamp(1.5rem, 3.2vw, 2.75rem);
+    padding: clamp(24px, 3.2vw, 44px);
   }
 
   :where(.astra-ui) .astra-detail__section > div {
     color: var(--astra-color-text);
     font-family: var(--astra-font-body);
-    font-size: 1rem;
+    font-size: 16px;
     line-height: 1.6;
   }
 
@@ -109,14 +109,14 @@
     box-sizing: border-box;
     width: 100%;
     max-width: none;
-    min-height: 18rem;
+    min-height: 288px;
     overflow: visible;
-    padding: 1.25rem 1.625rem 2rem;
+    padding: 20px 26px 32px;
     background: var(--astra-color-canvas);
   }
 
   :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-detail__section {
-    padding-block: 0.875rem;
+    padding-block: 14px;
     border-block-start: 1px solid var(--astra-color-border);
   }
 
@@ -130,7 +130,7 @@
 
   :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-detail__section > div {
     color: var(--astra-color-text-muted);
-    font: 400 0.84375rem/1.55 var(--astra-font-body);
+    font: 400 13.5px/1.55 var(--astra-font-body);
   }
 
   :where(.astra-ui) .astra-dialog:where([data-kind="input"]) .astra-detail__layout:where([data-layout="single"]),
@@ -160,7 +160,7 @@
     min-height: 0;
     overflow: visible;
     background: var(--astra-color-canvas);
-    padding: 1.5rem 1.625rem 1.875rem;
+    padding: 24px 26px 30px;
   }
 
   :where(.astra-ui) .astra-detail__section > span {
@@ -173,17 +173,17 @@
   :where(.astra-ui) .astra-detail__section > div {
     width: 100%;
     max-width: none;
-    margin-top: 0.5rem;
+    margin-top: 8px;
     color: var(--astra-color-text-muted);
-    font: 1rem/1.55 var(--astra-font-body);
+    font: 16px/1.55 var(--astra-font-body);
   }
 
   :where(.astra-ui) .astra-detail__relations {
-    margin-top: 1.625rem;
+    margin-top: 26px;
   }
 
   :where(.astra-ui) .astra-detail__relations h4 {
-    margin: 0 0 0.5rem;
+    margin: 0 0 8px;
     color: var(--astra-color-text);
     font: 700 var(--astra-font-size)/1.2 var(--astra-font-ui);
   }
@@ -196,7 +196,7 @@
   }
 
   :where(.astra-ui) .astra-paper-detail__rail .astra-detail__relations {
-    margin-top: 1.375rem;
+    margin-top: 22px;
   }
 
   :where(.astra-ui) .astra-detail__main {

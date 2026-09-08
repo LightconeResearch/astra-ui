@@ -1,6 +1,7 @@
+import { KindGlyph } from '../primitives/kind-glyph.js';
 import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
 import { cn } from '../lib/cn.js';
-import { surfaceGlyph, type InventorySectionId, type SurfaceKind } from '../model/kind.js';
+import { type InventorySectionId, type SurfaceKind } from '../model/kind.js';
 import { useLabels } from '../lib/labels.js';
 
 export interface InventorySectionProps extends Omit<HTMLAttributes<HTMLElement>, 'title'> {
@@ -79,7 +80,7 @@ export const InventoryOutline = forwardRef<HTMLElement, InventoryOutlineProps>(f
         {entries.map((entry) => (
           <a key={entry.id} href={`#${entry.id}`}>
             <span className="astra-inventory-outline__glyph" {...(entry.kind ? { 'data-kind': entry.kind } : {})} aria-hidden="true">
-              {entry.kind ? surfaceGlyph(entry.kind) : null}
+              {entry.kind ? <KindGlyph kind={entry.kind} /> : null}
             </span>
             <span>{entry.label}</span>
             {entry.count !== undefined ? <span>{entry.count}</span> : null}

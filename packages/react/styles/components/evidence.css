@@ -15,12 +15,12 @@
   }
 
   :where(.astra-ui) .astra-insight-trigger:where([data-variant="claim"]) .astra-evidence__glyph--insight {
-    margin-top: 0.22rem;
+    margin-top: 3.52px;
   }
 
   :where(.astra-ui) .astra-evidence {
     list-style: none;
-    margin: 0.15rem 0 0;
+    margin: 2.4px 0 0;
     padding: 0;
     display: flex;
     flex-direction: column;

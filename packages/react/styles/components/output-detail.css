@@ -5,10 +5,10 @@
     display: grid;
     width: 100%;
     height: auto;
-    max-height: min(44rem, calc(100vh - 8rem));
+    max-height: min(704px, calc(100vh - 128px));
     min-height: 0;
     overflow: hidden;
-    grid-template-columns: minmax(0, 1fr) clamp(17.5rem, 27%, 20rem);
+    grid-template-columns: minmax(0, 1fr) clamp(280px, 27%, 320px);
     align-items: stretch;
   }
 
@@ -18,17 +18,17 @@
     overflow-y: auto;
     overscroll-behavior: contain;
     scrollbar-gutter: stable;
-    padding: clamp(1rem, 2.6vw, 2rem);
+    padding: clamp(16px, 2.6vw, 32px);
   }
 
   :where(.astra-ui) .astra-output-detail__fullscreen-header {
     display: none;
-    min-height: 2.25rem;
+    min-height: 36px;
     align-items: center;
-    gap: 0.75rem;
+    gap: 12px;
     justify-content: space-between;
     background: var(--astra-color-header);
-    padding: 0.35rem 0.5rem 0.35rem 0.75rem;
+    padding: 5.6px 8px 5.6px 12px;
     color: var(--astra-color-text-subtle);
     font-family: var(--astra-font-ui);
     font-size: var(--astra-font-size-2xs);
@@ -38,20 +38,20 @@
     display: flex;
     min-width: 0;
     align-items: baseline;
-    gap: 0.6rem;
+    gap: 9.6px;
   }
 
   :where(.astra-ui) .astra-output-detail__fullscreen-header button {
     display: inline-flex;
-    min-height: 1.5rem;
+    min-height: 24px;
     align-items: center;
-    gap: 0.35rem;
+    gap: 5.6px;
     cursor: pointer;
     border: 1px solid var(--astra-color-border-strong);
     border-radius: 0;
     background: var(--astra-color-surface-raised);
     color: var(--astra-color-accent);
-    padding: 0.18rem 0.45rem;
+    padding: 2.88px 7.2px;
     font: inherit;
     font-size: var(--astra-font-size-xs);
   }
@@ -73,7 +73,7 @@
     margin: 0;
     color: var(--astra-color-text-muted);
     font-family: var(--astra-font-body);
-    font-size: 1rem;
+    font-size: 16px;
     line-height: 1.6;
     white-space: normal;
   }
@@ -82,7 +82,7 @@
     cursor: pointer;
     color: var(--astra-color-text);
     font-family: var(--astra-font-ui);
-    font-size: 0.82rem;
+    font-size: 13.var(--astra-font-size-xs);
     font-weight: 700;
   }
 
@@ -120,20 +120,20 @@
 
   :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-output-detail__description-text {
     color: var(--astra-color-text-muted);
-    font: 400 0.84375rem/1.55 var(--astra-font-body);
+    font: 400 13.5px/1.55 var(--astra-font-body);
   }
 
   :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-output-detail__result {
     display: block;
     min-height: 0;
     overflow: visible;
-    padding: 1.5rem;
+    padding: 24px;
     background: var(--astra-color-canvas);
   }
 
   :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-output-detail__layout:where([data-layout="reader"]) {
-    grid-template-columns: minmax(0, 1fr) clamp(17.5rem, 27%, 20rem);
-    min-height: max(32rem, calc(100dvh - 13rem));
+    grid-template-columns: minmax(0, 1fr) clamp(280px, 27%, 320px);
+    min-height: max(512px, calc(100dvh - 208px));
   }
 
   :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-output-detail__layout:where([data-layout="reader"]) .astra-output-detail__result {
@@ -145,14 +145,14 @@
 
   :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-output-detail__layout:where([data-layout="reader"]) .astra-output-detail__preview {
     width: 100%;
-    min-height: 24rem;
+    min-height: 384px;
     margin: 0;
     border: 1px solid var(--astra-color-border);
     background: var(--astra-color-surface-raised);
   }
 
   :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-output-detail__preview[data-type="table"] {
-    --astra-table-preview-max-height: min(36rem, 65dvh);
+    --astra-table-preview-max-height: min(576px, 65dvh);
     display: block;
     width: 100%;
     min-height: 0;
@@ -171,7 +171,7 @@
     width: 100%;
     max-width: none;
     margin: 0;
-    padding: 1.25rem 1.625rem 2rem;
+    padding: 20px 26px 32px;
     border-block-start: 1px solid var(--astra-color-border);
     background: var(--astra-color-canvas);
   }
@@ -184,7 +184,7 @@
     scrollbar-gutter: stable;
     border-block-start: 0;
     border-inline-start: 1px solid var(--astra-color-border);
-    padding: 1.125rem 1rem 1.5rem;
+    padding: 18px 16px 24px;
   }
 
   :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-output-detail__artifact[data-expanded] .astra-output-detail__preview,
@@ -198,16 +198,16 @@
   :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-output-detail__layout:where([data-layout="single"]) .astra-output-detail__provenance {
     position: static;
     overflow: visible;
-    margin-top: 1.5rem;
+    margin-top: 24px;
     border-inline-start: 0;
     background: transparent;
-    padding: 1.25rem 0 0;
+    padding: 20px 0 0;
   }
 
   :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-output-detail__description,
   :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-output-detail__recipe {
     margin: 0;
-    padding-block: 0.875rem;
+    padding-block: 14px;
     border-block-start: 1px solid var(--astra-color-border);
   }
 
@@ -220,12 +220,12 @@
 
   @media (max-width: 760px) {
     :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-output-detail__result {
-      min-height: 20rem;
-      padding: 1rem;
+      min-height: 320px;
+      padding: 16px;
     }
 
     :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-output-detail__preview {
-      min-height: 17rem;
+      min-height: 272px;
     }
 
     :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-output-detail__layout:where([data-layout="reader"]) {
@@ -245,14 +245,14 @@
     }
 
   }
-  @container (max-width: 47.5rem) {
+  @container (max-width: 760px) {
     :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-output-detail__result {
-      min-height: 20rem;
-      padding: 1rem;
+      min-height: 320px;
+      padding: 16px;
     }
 
     :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-output-detail__preview {
-      min-height: 17rem;
+      min-height: 272px;
     }
 
     :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-output-detail__layout:where([data-layout="reader"]) {
@@ -289,14 +289,14 @@
 
   :where(.astra-ui) .astra-output-detail__description h4,
   :where(.astra-ui) .astra-output-detail__recipe h4 {
-    margin: 0 0 0.5rem;
+    margin: 0 0 8px;
     color: var(--astra-color-text);
     font: 700 var(--astra-font-size)/1.2 var(--astra-font-ui);
   }
 
   :where(.astra-ui) .astra-output-detail__layout:where([data-layout="reader"]) {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) clamp(19.5rem, 27%, 21rem);
+    grid-template-columns: minmax(0, 1fr) clamp(312px, 27%, 336px);
     align-items: stretch;
   }
 
@@ -318,7 +318,7 @@
     place-items: center;
     overflow: hidden;
     background: var(--astra-color-canvas);
-    padding: 1rem;
+    padding: 16px;
   }
 
   :where(.astra-ui) .astra-output-detail__preview {
@@ -358,7 +358,7 @@
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
-    padding: 0.75rem;
+    padding: 12px;
   }
 
   /* An image artifact fills the preview box as a column: the picture takes
@@ -417,13 +417,13 @@
     scrollbar-gutter: stable;
     border: 0;
     background: var(--astra-color-canvas);
-    padding: 1.25rem 1.125rem 1.875rem;
+    padding: 20px 18px 30px;
   }
 
   /* Recipe closes the rail; give it the same gap the relation lists carry. */
   :where(.astra-ui) .astra-output-detail__recipe {
-    margin: 1.625rem 0 0;
-    padding: 0 0 0.125rem;
+    margin: 26px 0 0;
+    padding: 0 0 2px;
     border: 0;
   }
 
@@ -432,10 +432,10 @@
     margin: 0;
     overflow: auto;
     border: 1px solid var(--astra-color-border);
-    border-radius: 0.25rem;
+    border-radius: 4px;
     background: var(--astra-color-canvas);
     color: var(--astra-color-text-muted);
-    padding: 0.625rem;
+    padding: 10px;
     white-space: pre-wrap;
     word-break: break-word;
   }
@@ -448,7 +448,7 @@
 
   :where(.astra-ui) .astra-output-detail__layout:where([data-layout="single"]) .astra-output-detail__result {
     overflow: visible;
-    padding: 1.5rem 1.625rem 1.875rem;
+    padding: 24px 26px 30px;
   }
 
 
@@ -461,13 +461,13 @@
   }
 
   :where(.astra-ui) .astra-output-detail__layout:where([data-layout="single"]) .astra-output-detail__description + * {
-    margin-top: 1.25rem;
+    margin-top: 20px;
   }
 
   :where(.astra-ui) .astra-output-detail__layout:where([data-layout="single"]) .astra-output-detail__provenance {
     position: static;
     overflow: visible;
-    margin-top: 1.625rem;
+    margin-top: 26px;
     border: 0;
     background: var(--astra-color-canvas);
     padding: 0;
@@ -492,23 +492,23 @@
   }
 
   :where(.astra-ui) .astra-output-detail__artifact[data-expanded] .astra-output-detail__fullscreen-header {
-    padding-inline: 1rem;
+    padding-inline: 16px;
     display: flex;
     box-sizing: border-box;
     width: 100%;
-    min-height: 3.25rem;
+    min-height: 52px;
     align-items: center;
     justify-content: space-between;
-    gap: 1rem;
+    gap: 16px;
     border-bottom: 1px solid var(--astra-color-border);
     background: var(--astra-color-canvas);
-    padding: 0.5625rem 0.875rem;
+    padding: 9px 14px;
   }
 
   :where(.astra-ui) .astra-output-detail__fullscreen-header > span {
     display: grid;
     min-width: 0;
-    gap: 0.125rem;
+    gap: 2px;
   }
 
   :where(.astra-ui) .astra-output-detail__fullscreen-header small {
@@ -522,7 +522,7 @@
     min-width: 0;
     overflow: hidden;
     color: var(--astra-color-text);
-    font: 700 1rem/1.2 var(--astra-font-ui);
+    font: 700 16px/1.2 var(--astra-font-ui);
     text-overflow: ellipsis;
     white-space: nowrap;
   }
@@ -543,10 +543,10 @@
     height: 100%;
     max-height: none;
     object-fit: contain;
-    padding: clamp(1rem, 3vw, 2.5rem);
+    padding: clamp(16px, 3vw, 40px);
   }
 
-  @media (max-width: 47.5rem) {
+  @media (max-width: 760px) {
     :where(.astra-ui) .astra-output-detail__layout:where([data-layout="reader"]) {
       display: block;
       height: auto;
@@ -559,7 +559,7 @@
     }
 
     :where(.astra-ui) .astra-output-detail__artifact {
-      min-height: 20rem;
+      min-height: 320px;
     }
 
     :where(.astra-ui) .astra-output-detail__provenance {

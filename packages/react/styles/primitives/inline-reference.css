@@ -1,0 +1,41 @@
+@layer astra.tokens, astra.base, astra.components, astra.views;
+
+@layer astra.components {
+  :where(.astra-ui).astra-inline-reference,
+  :where(.astra-ui) .astra-inline-reference {
+    display: inline;
+    background: transparent;
+    font: inherit;
+    font-weight: 600;
+    color: var(--astra-color-link);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-decoration-color: color-mix(in srgb, var(--astra-color-link) 55%, transparent);
+    text-underline-offset: 2px;
+    padding: 0.05em 0.1em;
+    border-radius: var(--astra-radius-control);
+    cursor: pointer;
+    transition: background-color 120ms ease;
+  }
+  :where(.astra-ui).astra-inline-reference > .astra-kind-glyph,
+  :where(.astra-ui) .astra-inline-reference > .astra-kind-glyph {
+    font-family: inherit;
+    font-weight: 400;
+    line-height: 1;
+    font-size: 0.9em;
+    margin-right: 0.32em;
+    vertical-align: 0.02em;
+  }
+  :where(.astra-ui).astra-inline-reference:hover,
+  :where(.astra-ui) .astra-inline-reference:hover {
+    background: var(--astra-color-accent-soft);
+    text-decoration-color: var(--astra-color-link);
+  }
+  :where(.astra-ui).astra-inline-reference[data-kind="value"],
+  :where(.astra-ui) .astra-inline-reference[data-kind="value"] {
+    color: var(--astra-color-text);
+    font-variant-numeric: tabular-nums;
+    text-decoration: underline dotted color-mix(in srgb, var(--astra-color-kind-value) 60%, transparent);
+    white-space: nowrap;
+  }
+}

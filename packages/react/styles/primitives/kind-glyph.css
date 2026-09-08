@@ -1,0 +1,18 @@
+@layer astra.tokens, astra.base, astra.components, astra.views;
+
+@layer astra.components {
+  :where(.astra-ui) .astra-kind-glyph {
+    display: inline-block;
+    flex: none;
+    color: var(--astra-kind);
+    font-family: var(--astra-font-ui);
+    font-size: 0.85em;
+    font-weight: inherit;
+    line-height: inherit;
+    letter-spacing: inherit;
+    text-decoration: none;
+  }
+  :where(.astra-ui) .astra-record-preview__kind > .astra-kind-glyph {
+    font-size: 1em;
+  }
+}
