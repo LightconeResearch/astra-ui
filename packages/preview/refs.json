@@ -4,7 +4,7 @@
   },
   "theme": {
     "repository": "https://github.com/LightconeResearch/astra-theme.git",
-    "ref": "d153c4fa1ee5317005ca253e6c5e58295d41eb6b",
+    "ref": "f4835c850fa73c087223e75a63f9224c8c3a3207",
     "template": "themes/article"
   },
   "content": {
