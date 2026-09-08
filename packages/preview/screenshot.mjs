@@ -175,6 +175,7 @@ async function captureStories() {
       for (const theme of ['light', 'dark']) {
         await page.goto(`${base}/?story=${id}&mode=preview&theme=${theme}`, { waitUntil: 'load' });
         await page.locator('.playground-root').waitFor();
+        if (id.startsWith('papers--')) await page.locator('.astra-paper-pdf__page canvas').first().waitFor();
         await settle(page);
         await page.screenshot({ path: join(out, `${id}--${theme}.png`), fullPage: true });
         taken += 1;
