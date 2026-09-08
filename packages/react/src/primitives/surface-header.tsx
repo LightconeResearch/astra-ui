@@ -1,6 +1,6 @@
 import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
 import { cn } from '../lib/cn.js';
-import type { SurfaceKind } from './kind.js';
+import type { SurfaceKind } from '../model/kind.js';
 
 export type SurfaceHeaderDensity = 'compact' | 'regular' | 'inline';
 export type SurfaceHeadingLevel = 'h1' | 'h2' | 'h3' | 'h4';

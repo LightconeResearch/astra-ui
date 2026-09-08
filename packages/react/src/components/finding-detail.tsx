@@ -7,9 +7,10 @@ import { cn } from '../lib/cn.js';
 import { useLabels } from '../lib/labels.js';
 import { DetailLayout, DetailMain } from '../primitives/detail-layout.js';
 import { DetailDialog, type DetailDialogProps } from '../primitives/dialog.js';
-import { Prose, type TextRenderer } from '../primitives/prose.js';
+import { Prose } from '../primitives/prose.js';
+import type { TextRenderer } from '../lib/prose.js';
 import { RelationList } from '../primitives/relation-list.js';
-import type { OpenRecordHandler } from './relation-items.js';
+import type { OpenRecordHandler } from '../lib/detail-stack.js';
 
 export interface FindingDetailProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
   record: ResolvedInsight;

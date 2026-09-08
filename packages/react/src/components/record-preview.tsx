@@ -20,12 +20,13 @@ import { useLabels } from '../lib/labels.js';
 import { doiHref } from '../model/doi.js';
 import { analysisTitle, recordTitle } from '../model/records.js';
 import { decisionInsights } from '../model/relations.js';
-import { Prose, type TextRenderer } from '../primitives/prose.js';
-import { surfaceGlyph, type SurfaceKind } from '../primitives/kind.js';
+import { Prose } from '../primitives/prose.js';
+import type { TextRenderer } from '../lib/prose.js';
+import { surfaceGlyph, type SurfaceKind } from '../model/kind.js';
 import { SurfaceHeader } from '../primitives/surface-header.js';
 import type { ArtifactRenderer } from './artifact-preview.js';
-import { primaryLiteratureEvidence } from './insight-detail.js';
-import type { OpenRecordHandler } from './relation-items.js';
+import { primaryLiteratureEvidence } from '../model/papers.js';
+import type { OpenRecordHandler } from '../lib/detail-stack.js';
 
 export interface RecordPreviewTarget {
   record: ResolvedRecord;

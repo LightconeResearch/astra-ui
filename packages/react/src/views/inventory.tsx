@@ -11,21 +11,21 @@ import { collectInventoryPapers, findPaper, paperForDoi, type InventoryPaper, ty
 import { locateRecord } from '../model/locate-record.js';
 import { cn } from '../lib/cn.js';
 import { LabelsProvider, useLabels, type AstraLabelOverrides } from '../lib/labels.js';
-import type { DetailEntry } from '../components/detail-entry.js';
 import type { OpenPaperFileHandler } from '../components/paper-detail.js';
 import type { PdfJsLoader } from '../lib/pdf-runtime.js';
 import { RecordDialog } from '../components/record-dialog.js';
-import { useDetailStack } from '../components/use-detail-stack.js';
+import { useDetailStack, type DetailEntry } from '../lib/detail-stack.js';
 import type { ArtifactRenderer } from '../components/artifact-preview.js';
 import { DialogProvider, type DialogMode } from '../primitives/dialog.js';
-import type { TextRenderer } from '../primitives/prose.js';
+import type { TextRenderer } from '../lib/prose.js';
 import { DecisionsList } from '../blocks/decisions-list.js';
 import { FindingsList } from '../blocks/findings-list.js';
 import { InputsList } from '../blocks/inputs-list.js';
 import { OutputsList } from '../blocks/outputs-list.js';
 import { PapersList } from '../blocks/papers-list.js';
 import { PriorInsightsList } from '../blocks/prior-insights-list.js';
-import { InventoryOutline, InventorySection, sectionKind, type InventorySectionId } from '../blocks/section.js';
+import { InventoryOutline, InventorySection } from '../blocks/section.js';
+import { sectionKind, type InventorySectionId } from '../model/kind.js';
 
 export const DEFAULT_SECTIONS: readonly InventorySectionId[] = ['outputs', 'decisions', 'inputs', 'findings', 'prior_insights', 'papers'];
 

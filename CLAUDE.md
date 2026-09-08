@@ -72,38 +72,42 @@ JupyterLab or MyST, or keep session/storage state — a contract test greps for 
 the SDK's `indexAnalysis(document)` themselves; there is no local index wrapper.
 
 **Layers.** No root entry; each entry is imported on its own, and every file is also a subpath
-(`@astra-spec/ui/components/output-dialog`). Imports may only point downwards:
+(`@astra-spec/ui/components/output-dialog`). Two kinds of layer, never mixed: machinery renders
+nothing, UI is React elements of increasing complexity and only that. Imports follow this graph:
 
 ```
-lib  <-  primitives  <-  model  <-  components  <-  blocks  <-  views
+model (SDK derivations)     lib (React and DOM machinery)
+        \                     /
+         primitives (lib; model only for record kinds)
+                 |
+             components (model, lib, primitives)
+                 |
+               blocks
+                 |
+               views
 ```
 
-Two kinds of layer, never mixed:
-
-- **Machinery renders nothing: `model/` and `lib/`.** `model/` is pure, React-free derivation over
-  the SDK's resolved document (paper collection, relations, record lookup, display labels) and imports
-  from no other layer, not even `lib`. `lib/` is every other non-UI part: `cn`, the labels context,
-  shared hooks, the pdf.js runtime contract with its `pdfJsWithWorker` adapter, quote matching and
-  search.
-- **UI is React elements of increasing complexity, and only that: `primitives/`, `components/`,
-  `blocks/`, `views/`.** A file in these layers exports elements and their prop types; whatever else
-  it needs, it imports from `lib/` or `model/`. `primitives/` are generic building blocks with no
-  ASTRA model dependency beyond record kinds (`Button`, `Dialog`, `DetailLayout`, `Prose`,
-  `PreviewPopover`). `components/` show one record or paper at a time (`OutputDetail`/`OutputDialog`,
-  `PaperDetail`, `PaperPdfViewer`, `RecordDialog`). `blocks/` are inventory page sections over an
-  analysis node (`OutputsList`, `AnalysisTree`, `InventorySection`). `views/` holds `Inventory`, a
-  ~100-line composition of exported blocks and components; hosts that own navigation compose the same
-  parts directly, so keep everything `Inventory` uses exported.
+- `model/` is pure, React-free derivation over the SDK's resolved document: paper collection,
+  relations, record lookup, display labels, the record-kind vocabulary (`kind.ts`). It imports from
+  no other layer, not even `lib`.
+- `lib/` is every other non-UI part: `cn`, the labels context, the detail stack (`DetailEntry`,
+  `useDetailStack`, `OpenRecordHandler`), the prose parser and KaTeX renderer, artifact preview data
+  and its builders, the output expanded-state hook, the pdf.js runtime contract with its
+  `pdfJsWithWorker` adapter, quote matching and search. It imports from no other layer.
+- `primitives/` are generic building blocks (`Button`, `Dialog`, `Slot`, `DetailLayout`, `Prose`,
+  `PreviewPopover`); `components/` show one record or paper at a time (`OutputDetail`/`OutputDialog`,
+  `PaperDetail`, `PaperPdfViewer`, `RecordDialog`); `blocks/` are inventory page sections over an
+  analysis node (`OutputsList`, `AnalysisTree`, `InventorySection`); `views/` holds `Inventory`, a
+  ~100-line composition of exported blocks and components — hosts that own navigation compose the same
+  parts directly, so keep everything `Inventory` uses exported. A file in these layers exports
+  elements and their prop types; whatever else it needs, it imports from `lib/` or `model/`.
 
 Where a new helper goes: SDK-typed derivation in `model/`; DOM, React or host-integration machinery
 in `lib/`. A hook that reads a compound element's context (`useDialog`) stays beside that element; a
-headless hook is machinery. A UI barrel may re-export a `lib` helper hosts need (`primitives`
-re-exports the label helpers, `components` re-exports `pdfJsWithWorker`) but never defines one.
-
-Not yet moved, from before this rule: `components/detail-entry.ts`, `use-detail-stack.ts` and
-`relation-items.ts`, the `*PreviewFrom*` builders in `artifact-preview.tsx`, `inputSourceLabel`,
-`primaryLiteratureEvidence` and `useOutputExpanded`; `primitives/kind.ts` and the prose parser in
-`prose.tsx`; `sectionKind` and `decisionTagLabel` in `blocks/`. Add nothing to that list.
+headless hook is machinery. A UI barrel re-exports the `lib` and `model` helpers hosts need (the
+detail stack and preview builders from `components`, the label helpers from `primitives`) but never
+defines one. The one acknowledged piece of glue is `components/relation-items.ts`: it builds the
+`RelationList` primitive's items from model records, which no lower layer can do, and says so.
 
 **Navigation state.** `useDetailStack` is headless and works controlled (`value` + `onChange`) or
 uncontrolled, like a React input; a `DetailEntry` is `{kind: 'record', canonicalPath, analysisPath}`

@@ -1,23 +1,16 @@
 import type { ResolvedDecision, ResolvedInsight } from '@astra-spec/sdk';
 import { forwardRef, type HTMLAttributes } from 'react';
 import { doiHref } from '../model/doi.js';
+import { primaryLiteratureEvidence } from '../model/papers.js';
 import { recordTitle } from '../model/records.js';
 import { cn } from '../lib/cn.js';
 import { useLabels } from '../lib/labels.js';
 import { DetailLayout, DetailMain, DetailSection } from '../primitives/detail-layout.js';
 import { DetailDialog, type DetailDialogProps } from '../primitives/dialog.js';
-import { Prose, type TextRenderer } from '../primitives/prose.js';
+import { Prose } from '../primitives/prose.js';
+import type { TextRenderer } from '../lib/prose.js';
 import { RelationList } from '../primitives/relation-list.js';
 import { relationItemForRecord } from './relation-items.js';
-
-/**
- * The literature evidence an insight is presented against: the first entry
- * with a DOI. A quote without a DOI names no paper to open, so it is skipped;
- * the passage shown and the paper opened always belong to this one entry.
- */
-export function primaryLiteratureEvidence(insight: ResolvedInsight) {
-  return insight.evidence.find((evidence) => Boolean(evidence.doi));
-}
 
 export interface InsightDetailProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
   record: ResolvedInsight;

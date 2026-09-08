@@ -100,7 +100,7 @@ test('every JS subpath resolves to a built module', async () => {
     await readFile(new URL(target.import, packageRoot));
     await readFile(new URL(target.types, packageRoot));
   }
-  for (const subpath of ['primitives/button', 'primitives/dialog', 'primitives/preview-popover', 'model/relations', 'components/output-dialog', 'components/record-preview', 'components/use-detail-stack', 'blocks/outputs-list', 'views/inventory']) {
+  for (const subpath of ['primitives/button', 'primitives/dialog', 'primitives/preview-popover', 'model/relations', 'components/output-dialog', 'components/record-preview', 'components/paper-pdf-viewer', 'blocks/outputs-list', 'views/inventory']) {
     const target = manifest.exports[`./${subpath.split('/')[0]}/*`].import.replace('*', subpath.split('/')[1]);
     await readFile(new URL(target, packageRoot));
   }
@@ -128,10 +128,10 @@ test('the public export lists are explicit and stable', async () => {
   assert.deepEqual(actual, snapshot, 'update tests/exports.snapshot.json deliberately when the public API changes');
 });
 
-test('layers only depend downwards: lib <- primitives <- model <- components <- blocks <- views', async () => {
+test('layers depend only on lower ones: model and lib are roots, primitives see lib and record kinds, components see all three', async () => {
   const rules = [
     ['lib', /from '\.\.\/(primitives|model|components|blocks|views)\//],
-    ['primitives', /from '\.\.\/(model|components|blocks|views)\//],
+    ['primitives', /from '\.\.\/(components|blocks|views)\//],
     ['model', /from '\.\.\/(lib|primitives|components|blocks|views)\//],
     ['components', /from '\.\.\/(blocks|views)\//],
     ['blocks', /from '\.\.\/views\//],
@@ -152,8 +152,8 @@ test('source contains no parallel resolver, session, storage, or integration lay
   assert.doesNotMatch(source, /from ['"](?:node:|@jupyter|myst-)/i);
   // Rendering dependencies stay confined to the primitives that own them.
   const katexImports = [...source.matchAll(/from ['"]katex['"]/g)].length;
-  assert.equal(katexImports, 1, 'katex is imported once, by primitives/prose.tsx');
-  assert.match(await readFile(new URL('primitives/prose.tsx', sourceDirectory), 'utf8'), /from 'katex'/);
+  assert.equal(katexImports, 1, 'katex is imported once, by lib/prose.tsx');
+  assert.match(await readFile(new URL('lib/prose.tsx', sourceDirectory), 'utf8'), /from 'katex'/);
   const floatingImports = [...source.matchAll(/from ['"]@floating-ui\/react['"]/g)].length;
   assert.equal(floatingImports, 1, 'Floating UI is imported once, by primitives/preview-popover.tsx');
   assert.match(await readFile(new URL('primitives/preview-popover.tsx', sourceDirectory), 'utf8'), /from '@floating-ui\/react'/);

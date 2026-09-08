@@ -1,7 +1,7 @@
 import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
 import { cn } from '../lib/cn.js';
 import { CountHeading } from './detail-layout.js';
-import { surfaceGlyph, type SurfaceKind } from './kind.js';
+import { surfaceGlyph, type SurfaceKind } from '../model/kind.js';
 
 export interface RelationItem {
   key: string;

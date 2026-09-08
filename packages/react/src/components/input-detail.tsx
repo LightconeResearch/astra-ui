@@ -4,11 +4,8 @@ import { recordTitle } from '../model/records.js';
 import { useLabels } from '../lib/labels.js';
 import { DetailLayout, DetailMain, DetailSection } from '../primitives/detail-layout.js';
 import { DetailDialog, type DetailDialogProps } from '../primitives/dialog.js';
-import { Prose, type TextRenderer } from '../primitives/prose.js';
-
-export function inputSourceLabel(record: ResolvedInput): string {
-  return record.source ?? record.ref ?? record.resolvedFrom ?? 'Source not declared';
-}
+import { Prose } from '../primitives/prose.js';
+import type { TextRenderer } from '../lib/prose.js';
 
 export interface InputDetailProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
   record: ResolvedInput;

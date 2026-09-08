@@ -4,9 +4,10 @@ import { isVisualOutput, recordTitle } from '../model/records.js';
 import { useLabels } from '../lib/labels.js';
 import type { ArtifactRenderer } from './artifact-preview.js';
 import { DetailDialog, type DetailDialogProps } from '../primitives/dialog.js';
-import type { TextRenderer } from '../primitives/prose.js';
-import { OutputDetail, OutputDialogActions, useOutputExpanded } from './output-detail.js';
-import type { OpenRecordHandler } from './relation-items.js';
+import type { TextRenderer } from '../lib/prose.js';
+import { OutputDetail, OutputDialogActions } from './output-detail.js';
+import { useOutputExpanded } from '../lib/use-output-expanded.js';
+import type { OpenRecordHandler } from '../lib/detail-stack.js';
 
 export interface OutputDialogProps extends Pick<DetailDialogProps, 'mode' | 'backText' | 'className' | 'onBack' | 'onClose'> {
   record: ResolvedOutput;

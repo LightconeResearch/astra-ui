@@ -2,8 +2,11 @@ import type { ResolvedAnalysisNode, ResolvedRecord } from '@astra-spec/sdk';
 import type { LinkedRecord } from '../model/relations.js';
 import { recordTitle } from '../model/records.js';
 import type { RelationItem } from '../primitives/relation-list.js';
+import type { OpenRecordHandler } from '../lib/detail-stack.js';
 
-export type OpenRecordHandler = (record: ResolvedRecord, analysis: ResolvedAnalysisNode) => void;
+// Glue between model records and the RelationList primitive: it needs both
+// `recordTitle` from model and the item shape from primitives, which no lower
+// layer can see together, so it stays here beside the components that use it.
 
 /** Builds a relation-list item for a record, with navigation when the caller handles it. */
 export function relationItemForRecord(

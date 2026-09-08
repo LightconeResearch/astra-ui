@@ -2,7 +2,7 @@ import type { ResolvedAnalysisNode, ResolvedInput } from '@astra-spec/sdk';
 import { forwardRef, type HTMLAttributes } from 'react';
 import { recordTitle } from '../model/records.js';
 import { useLabels } from '../lib/labels.js';
-import { inputSourceLabel } from '../components/input-detail.js';
+import { inputSourceLabel } from '../model/records.js';
 import { EmptyState, RecordIdentity, RecordList } from '../primitives/record-list.js';
 import { InventoryRecords } from './section.js';
 

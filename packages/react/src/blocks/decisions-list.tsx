@@ -1,6 +1,6 @@
 import type { ResolvedAnalysisNode, ResolvedDecision } from '@astra-spec/sdk';
 import { forwardRef, useState, type HTMLAttributes } from 'react';
-import { countLabel, recordTitle, selectedOptionLabel } from '../model/records.js';
+import { countLabel, decisionTagLabel, recordTitle, selectedOptionLabel } from '../model/records.js';
 import { useLabels } from '../lib/labels.js';
 import { EmptyState, RecordIdentity, RecordList } from '../primitives/record-list.js';
 import { InventoryRecords } from './section.js';
@@ -16,11 +16,6 @@ export interface DecisionsListProps extends Omit<HTMLAttributes<HTMLDivElement>,
   defaultTagFilter?: string | undefined;
   onTagFilterChange?: ((tag: string) => void) | undefined;
   onOpenRecord: (decision: ResolvedDecision, analysis: ResolvedAnalysisNode) => void;
-}
-
-export function decisionTagLabel(tag: string, labels: Readonly<Record<string, string>>): string {
-  return labels[tag]
-    ?? tag.replace(/_/g, ' ').replace(/^./, (character: string) => character.toUpperCase());
 }
 
 /** Decisions with a tag filter and the selected option of each. */

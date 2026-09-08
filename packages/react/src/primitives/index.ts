@@ -1,11 +1,11 @@
 /** Presentation primitives: generic UI with no ASTRA model beyond record kinds. */
 export { cn } from '../lib/cn.js';
-export { Slot } from '../lib/slot.js';
-export type { SlotProps } from '../lib/slot.js';
+export { Slot } from './slot.js';
+export type { SlotProps } from './slot.js';
 export { LabelsProvider, defaultLabels, mergeLabels, useLabels } from '../lib/labels.js';
 export type { AstraLabelOverrides, AstraLabels, LabelsProviderProps } from '../lib/labels.js';
-export { surfaceGlyph } from './kind.js';
-export type { SurfaceKind } from './kind.js';
+export { surfaceGlyph } from '../model/kind.js';
+export type { SurfaceKind } from '../model/kind.js';
 export { Button, IconButton } from './button.js';
 export type { ButtonProps, ButtonSize, ButtonTone, ButtonVariant, IconButtonProps } from './button.js';
 export { PreviewPopover } from './preview-popover.js';
@@ -49,13 +49,14 @@ export { RelationList } from './relation-list.js';
 export type { RelationItem, RelationListProps } from './relation-list.js';
 export { CountHeading, DetailLayout, DetailMain, DetailRail, DetailSection } from './detail-layout.js';
 export type { CountHeadingProps, DetailLayoutMode, DetailLayoutProps, DetailRailProps, DetailSectionProps } from './detail-layout.js';
-export { Prose, parseProse, renderProse } from './prose.js';
+export { Prose } from './prose.js';
+export type { ProseProps } from './prose.js';
+export { parseProse, renderProse } from '../lib/prose.js';
 export type {
   ProseContext,
   ProseField,
   ProseMathMacros,
-  ProseProps,
   ProseRenderOptions,
   ProseToken,
   TextRenderer,
-} from './prose.js';
+} from '../lib/prose.js';

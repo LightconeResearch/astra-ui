@@ -15,14 +15,16 @@ import { decisionInsights, findingEvidence, informedDecisions, outputRelations }
 import { useLabels } from '../lib/labels.js';
 import type { ArtifactRenderer } from './artifact-preview.js';
 import { DetailDialog, type DetailDialogProps, type DialogLayout } from '../primitives/dialog.js';
-import type { SurfaceKind } from '../primitives/kind.js';
-import type { TextRenderer } from '../primitives/prose.js';
+import type { SurfaceKind } from '../model/kind.js';
+import type { TextRenderer } from '../lib/prose.js';
 import { DecisionDetail } from './decision-detail.js';
-import type { DetailEntry } from './detail-entry.js';
+import type { DetailEntry } from '../lib/detail-stack.js';
 import { FindingDetail } from './finding-detail.js';
 import { InputDetail } from './input-detail.js';
-import { InsightDetail, primaryLiteratureEvidence } from './insight-detail.js';
-import { OutputDetail, OutputDialogActions, useOutputExpanded } from './output-detail.js';
+import { InsightDetail } from './insight-detail.js';
+import { primaryLiteratureEvidence } from '../model/papers.js';
+import { OutputDetail, OutputDialogActions } from './output-detail.js';
+import { useOutputExpanded } from '../lib/use-output-expanded.js';
 import { PaperDetail, PaperDialogActions, type OpenPaperFileHandler } from './paper-detail.js';
 import type { PdfJsLoader } from '../lib/pdf-runtime.js';
 

@@ -1,6 +1,6 @@
 import { forwardRef, type HTMLAttributes } from 'react';
 import { cn } from '../lib/cn.js';
-import type { SurfaceKind } from './kind.js';
+import type { SurfaceKind } from '../model/kind.js';
 
 export type BadgeTone = 'neutral' | 'kind' | 'status' | 'universe';
 export type BadgeStatus = 'available' | 'current' | 'materialized' | 'ready' | 'error' | 'missing' | 'stale';
