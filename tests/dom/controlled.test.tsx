@@ -3,7 +3,8 @@ import type { ResolvedAnalysisDocument, ResolvedOutput } from '@astra-spec/sdk';
 import { indexAnalysis } from '@astra-spec/sdk';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Button } from '../../packages/react/src/primitives/index.js';
-import { OutputDialog, PaperDetail, useDetailStack } from '../../packages/react/src/components/index.js';
+import { OutputDialog, PaperDetail } from '../../packages/react/src/components/index.js';
+import { useDetailStack } from '../../packages/react/src/lib/index.js';
 import { collectInventoryPapers } from '../../packages/react/src/model/papers.js';
 import { fixtureDocument as untypedFixture } from '../fixture.mjs';
 

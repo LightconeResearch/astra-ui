@@ -63,9 +63,10 @@ layer you need:
 | --- | --- | --- |
 | `@astra-spec/ui/views` | Complete, ready-made surfaces | `Inventory` |
 | `@astra-spec/ui/blocks` | Sections that can be assembled into a custom page | `AnalysisTree`, inventory lists, `InventorySection`, `InventoryOutline` |
-| `@astra-spec/ui/components` | One ASTRA record or paper at a time | `*Detail`, `*Dialog`, `RecordDialog`, `RecordPreview`, `ArtifactPreview`, `PaperPdfViewer`, `useDetailStack` |
-| `@astra-spec/ui/primitives` | Generic presentation with no resolved ASTRA model dependency beyond record kinds | Buttons, badges, dialogs, `PreviewPopover`, detail-layout compounds, lists, prose, labels |
-| `@astra-spec/ui/model` | Pure, React-free derivations over SDK data | Record lookup, relationships, paper collection, display labels, DOI helpers |
+| `@astra-spec/ui/components` | One ASTRA record or paper at a time | `*Detail`, `*Dialog`, `RecordDialog`, `RecordPreview`, `ArtifactPreview`, `PaperPdfViewer` |
+| `@astra-spec/ui/primitives` | Generic presentation with no resolved ASTRA model dependency beyond record kinds | Buttons, badges, dialogs, `PreviewPopover`, detail-layout compounds, lists, `Prose` |
+| `@astra-spec/ui/model` | Pure, React-free derivations over SDK data | Record lookup, relationships, paper collection, display labels, record kinds, DOI helpers |
+| `@astra-spec/ui/lib` | The machinery behind the elements | `useDetailStack`, `LabelsProvider`, `renderProse`, preview-data builders, `pdfJsWithWorker` |
 
 Every public file also has a direct subpath, such as
 `@astra-spec/ui/components/output-dialog` or
@@ -201,11 +202,8 @@ host-provided preview data in six states: table, image, metric, text, loading,
 or unavailable.
 
 ```tsx
-import {
-  ArtifactPreview,
-  type ArtifactPreviewData,
-  type ArtifactRenderer,
-} from '@astra-spec/ui/components';
+import { ArtifactPreview, type ArtifactRenderer } from '@astra-spec/ui/components';
+import type { ArtifactPreviewData } from '@astra-spec/ui/lib';
 
 export function createArtifactRenderer(
   previews: ReadonlyMap<string, ArtifactPreviewData>,
@@ -221,8 +219,8 @@ export function createArtifactRenderer(
 ```
 
 `tablePreviewFromDelimited`, `tablePreviewFromRows`, and
-`metricPreviewFromJson` turn already-loaded host data into preview values. They
-perform no I/O.
+`metricPreviewFromJson` from `@astra-spec/ui/lib` turn already-loaded host data
+into preview values. They perform no I/O.
 
 ### Primitives
 
@@ -239,10 +237,9 @@ The primitive layer is useful for building surfaces that match the library:
 | `RecordList`, `RecordIdentity`, `EmptyState` | Accessible, column-aligned record lists |
 | `RelationList` | Counted related-record lists with optional navigation triggers |
 | `Prose` | Authored text with built-in inline code and KaTeX math rendering |
-| `LabelsProvider` | Scoped user-facing label overrides |
 
-The layer also exports `Slot`, `cn`, prose parsers, label helpers, dialog hooks,
-and their public types.
+The layer also exports `Slot`, the dialog hooks, and their public types. Class
+name merging (`cn`), prose parsing and the label helpers are in `@astra-spec/ui/lib`.
 
 ## Host extension points
 
@@ -281,7 +278,7 @@ server rendering never touches browser APIs, and point
 `GlobalWorkerOptions.workerSrc` at the matching worker script:
 
 ```ts
-import type { PdfJsLoader } from '@astra-spec/ui/components';
+import type { PdfJsLoader } from '@astra-spec/ui/lib';
 import workerUrl from 'pdfjs-dist/legacy/build/pdf.worker.min.mjs?url';
 
 export const loadPdfJs: PdfJsLoader = async () => {
@@ -311,7 +308,7 @@ legacy runtime and worker together.
   bundler-native form and let `pdfJsWithWorker` do the rest:
 
   ```ts
-  import { pdfJsWithWorker, type PdfJsLoader } from '@astra-spec/ui/components';
+  import { pdfJsWithWorker, type PdfJsLoader } from '@astra-spec/ui/lib';
 
   export const loadPdfJs: PdfJsLoader = async () => pdfJsWithWorker(
     await import('pdfjs-dist/legacy/build/pdf.mjs'),

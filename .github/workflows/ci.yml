@@ -24,6 +24,6 @@ jobs:
       - name: Package hygiene
         run: |
           npx --yes publint packages/react
-          npx --yes @arethetypeswrong/cli --pack packages/react --profile esm-only --entrypoints ./primitives ./components ./blocks ./views ./model
+          npx --yes @arethetypeswrong/cli --pack packages/react --profile esm-only --entrypoints ./lib ./primitives ./components ./blocks ./views ./model
       - name: Type-check against React 19 typings
         run: npm run typecheck:react19

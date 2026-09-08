@@ -1,4 +1,5 @@
-import { PaperDialog, type PdfJsLoader } from '@astra-spec/ui/components';
+import { PaperDialog } from '@astra-spec/ui/components';
+import type { PdfJsLoader } from '@astra-spec/ui/lib';
 import type { InventoryPaper } from '@astra-spec/ui/model';
 import { useState } from 'react';
 import { loadPdfJs, loadPdfJsWithWorker } from './pdf-runtime';

@@ -80,7 +80,7 @@ test('the package depends on the SDK model, floating positioning, and host React
   assert.equal(manifest.publishConfig.access, 'public');
   assert.equal(manifest.exports['.'], undefined, 'no root entry: import a layer');
   assert.equal(manifest.exports['./core'], undefined);
-  for (const subpath of ['./primitives', './primitives/*', './components', './components/*', './blocks', './blocks/*', './views', './views/*', './model', './model/*', './styles/*', './package.json']) {
+  for (const subpath of ['./lib', './lib/*', './primitives', './primitives/*', './components', './components/*', './blocks', './blocks/*', './views', './views/*', './model', './model/*', './styles/*', './package.json']) {
     assert.ok(manifest.exports[subpath], `${subpath} is exported`);
   }
 });
@@ -100,29 +100,36 @@ test('every JS subpath resolves to a built module', async () => {
     await readFile(new URL(target.import, packageRoot));
     await readFile(new URL(target.types, packageRoot));
   }
-  for (const subpath of ['primitives/button', 'primitives/dialog', 'primitives/preview-popover', 'model/relations', 'components/output-dialog', 'components/record-preview', 'components/paper-pdf-viewer', 'blocks/outputs-list', 'views/inventory']) {
+  for (const subpath of ['lib/detail-stack', 'primitives/button', 'primitives/dialog', 'primitives/preview-popover', 'model/relations', 'components/output-dialog', 'components/record-preview', 'components/paper-pdf-viewer', 'blocks/outputs-list', 'views/inventory']) {
     const target = manifest.exports[`./${subpath.split('/')[0]}/*`].import.replace('*', subpath.split('/')[1]);
     await readFile(new URL(target, packageRoot));
   }
-  const layers = Object.fromEntries(await Promise.all(['primitives', 'components', 'blocks', 'views', 'model'].map(async (layer) => [layer, await import(`../packages/react/dist/${layer}/index.js`)])));
+  const layers = Object.fromEntries(await Promise.all(['lib', 'primitives', 'components', 'blocks', 'views', 'model'].map(async (layer) => [layer, await import(`../packages/react/dist/${layer}/index.js`)])));
   const expected = {
-    primitives: ['Button', 'Dialog', 'DetailDialog', 'PreviewPopover', 'RecordList', 'cn'],
-    components: ['ArtifactPreview', 'OutputDialog', 'OutputDetail', 'RecordDialog', 'RecordPreview', 'useDetailStack'],
+    lib: ['cn', 'LabelsProvider', 'useDetailStack', 'renderProse', 'tablePreviewFromDelimited', 'pdfJsWithWorker'],
+    primitives: ['Button', 'Dialog', 'DetailDialog', 'PreviewPopover', 'RecordList', 'Prose'],
+    components: ['ArtifactPreview', 'OutputDialog', 'OutputDetail', 'RecordDialog', 'RecordPreview', 'PaperPdfViewer'],
     blocks: ['OutputsList', 'InventorySection', 'InventoryOutline', 'AnalysisTree'],
     views: ['Inventory'],
-    model: ['locateRecord', 'outputRelations', 'collectInventoryPapers'],
+    model: ['locateRecord', 'outputRelations', 'collectInventoryPapers', 'surfaceGlyph'],
   };
   for (const [layer, names] of Object.entries(expected)) {
     for (const name of names) assert.ok(['function', 'object'].includes(typeof layers[layer][name]) && layers[layer][name], `${name} is a ${layer} export`);
   }
   assert.equal('Inventory' in layers.components, false);
+  // UI barrels carry elements and prop types only; machinery is reached through lib and model.
+  for (const layer of ['primitives', 'components', 'blocks', 'views']) {
+    for (const name of ['cn', 'useDetailStack', 'LabelsProvider', 'renderProse', 'tablePreviewFromDelimited', 'pdfJsWithWorker', 'surfaceGlyph']) {
+      assert.equal(name in layers[layer], false, `${name} is not exported from ${layer}`);
+    }
+  }
   assert.equal('Dialog' in layers.views, false);
 });
 
 test('the public export lists are explicit and stable', async () => {
   const snapshot = await parse(new URL('exports.snapshot.json', import.meta.url));
   const actual = {};
-  for (const layer of ['primitives', 'components', 'blocks', 'views', 'model']) {
+  for (const layer of ['lib', 'primitives', 'components', 'blocks', 'views', 'model']) {
     actual[layer] = Object.keys(await import(`../packages/react/dist/${layer}/index.js`)).sort();
   }
   assert.deepEqual(actual, snapshot, 'update tests/exports.snapshot.json deliberately when the public API changes');

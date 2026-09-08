@@ -1,4 +1,4 @@
-import { pdfJsWithWorker, type PdfJsLoader } from '@astra-spec/ui/components';
+import { pdfJsWithWorker, type PdfJsLoader } from '@astra-spec/ui/lib';
 import workerUrl from 'pdfjs-dist/legacy/build/pdf.worker.min.mjs?url';
 
 /**

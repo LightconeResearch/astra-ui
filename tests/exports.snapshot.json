@@ -18,7 +18,6 @@
     "DialogProvider",
     "EmptyState",
     "IconButton",
-    "LabelsProvider",
     "PreviewPopover",
     "Prose",
     "RecordIdentity",
@@ -26,15 +25,8 @@
     "RelationList",
     "Slot",
     "SurfaceHeader",
-    "cn",
-    "defaultLabels",
-    "mergeLabels",
-    "parseProse",
-    "renderProse",
-    "surfaceGlyph",
     "useDialog",
-    "useDialogDismissGuard",
-    "useLabels"
+    "useDialogDismissGuard"
   ],
   "components": [
     "ArtifactPreview",
@@ -57,20 +49,7 @@
     "PaperDialogActions",
     "PaperPdfViewer",
     "RecordDialog",
-    "RecordPreview",
-    "inputSourceLabel",
-    "metricPreviewFromJson",
-    "paperEntry",
-    "pdfJsWithWorker",
-    "primaryLiteratureEvidence",
-    "recordEntry",
-    "relationItemForRecord",
-    "relationItemsForLinks",
-    "sameEntry",
-    "tablePreviewFromDelimited",
-    "tablePreviewFromRows",
-    "useDetailStack",
-    "useOutputExpanded"
+    "RecordPreview"
   ],
   "blocks": [
     "ALL_TAGS",
@@ -85,9 +64,7 @@
     "OutputsList",
     "PaperRows",
     "PapersList",
-    "PriorInsightsList",
-    "decisionTagLabel",
-    "sectionKind"
+    "PriorInsightsList"
   ],
   "views": [
     "DEFAULT_SECTIONS",
@@ -100,12 +77,14 @@
     "countLabel",
     "decisionInsightPaths",
     "decisionInsights",
+    "decisionTagLabel",
     "doiHref",
     "findPaper",
     "findingEvidence",
     "findingLiterature",
     "indirectDecisionPaths",
     "informedDecisions",
+    "inputSourceLabel",
     "insightDois",
     "isInsight",
     "isVisualOutput",
@@ -115,7 +94,28 @@
     "paperEvidence",
     "paperForDoi",
     "paperMetadataFor",
+    "primaryLiteratureEvidence",
     "recordTitle",
-    "selectedOptionLabel"
+    "sectionKind",
+    "selectedOptionLabel",
+    "surfaceGlyph"
+  ],
+  "lib": [
+    "LabelsProvider",
+    "cn",
+    "defaultLabels",
+    "mergeLabels",
+    "metricPreviewFromJson",
+    "paperEntry",
+    "parseProse",
+    "pdfJsWithWorker",
+    "recordEntry",
+    "renderProse",
+    "sameEntry",
+    "tablePreviewFromDelimited",
+    "tablePreviewFromRows",
+    "useDetailStack",
+    "useLabels",
+    "useOutputExpanded"
   ]
 }

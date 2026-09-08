@@ -104,9 +104,9 @@ model (SDK derivations)     lib (React and DOM machinery)
 
 Where a new helper goes: SDK-typed derivation in `model/`; DOM, React or host-integration machinery
 in `lib/`. A hook that reads a compound element's context (`useDialog`) stays beside that element; a
-headless hook is machinery. A UI barrel re-exports the `lib` and `model` helpers hosts need (the
-detail stack and preview builders from `components`, the label helpers from `primitives`) but never
-defines one. The one acknowledged piece of glue is `components/relation-items.ts`: it builds the
+headless hook is machinery. `lib` and `model` are package entries in their own right
+(`@astra-spec/ui/lib`, `@astra-spec/ui/model`); a UI barrel exports elements and prop types only,
+never machinery. The one acknowledged piece of glue is `components/relation-items.ts`: it builds the
 `RelationList` primitive's items from model records, which no lower layer can do, and says so.
 
 **Navigation state.** `useDetailStack` is headless and works controlled (`value` + `onChange`) or

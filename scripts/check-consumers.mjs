@@ -51,7 +51,7 @@ for (const { name, dir } of consumers) {
       declaration: false,
       baseUrl: '.',
       paths: {
-        ...Object.fromEntries(['primitives', 'components', 'blocks', 'views', 'model'].map((layer) => [`@astra-spec/ui/${layer}`, [join(dist, layer, 'index.d.ts')]])),
+        ...Object.fromEntries(['lib', 'primitives', 'components', 'blocks', 'views', 'model'].map((layer) => [`@astra-spec/ui/${layer}`, [join(dist, layer, 'index.d.ts')]])),
         '@astra-spec/ui/*': [join(dist, '*')],
       },
     },

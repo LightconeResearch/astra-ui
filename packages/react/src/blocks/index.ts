@@ -8,12 +8,9 @@ export type {
   InventoryRecordsProps,
   InventorySectionProps,
 } from './section.js';
-export { sectionKind } from '../model/kind.js';
-export type { InventorySectionId } from '../model/kind.js';
 export { OutputCard, OutputsList } from './outputs-list.js';
 export type { OutputCardProps, OutputsListProps } from './outputs-list.js';
 export { ALL_TAGS, DecisionsList } from './decisions-list.js';
-export { decisionTagLabel } from '../model/records.js';
 export type { DecisionsListProps } from './decisions-list.js';
 export { InputsList } from './inputs-list.js';
 export type { InputsListProps } from './inputs-list.js';

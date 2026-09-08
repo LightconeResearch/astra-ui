@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import type { ResolvedAnalysisDocument, ResolvedInsight } from '@astra-spec/sdk';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import type { DetailEntry } from '../../packages/react/src/components/index.js';
+import type { DetailEntry } from '../../packages/react/src/lib/index.js';
 import { Inventory } from '../../packages/react/src/views/index.js';
 import { fixtureDocument as untypedFixture } from '../fixture.mjs';
 

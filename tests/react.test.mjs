@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { DetailDialog, DialogProvider, PreviewPopover, Prose, renderProse } from '../packages/react/dist/primitives/index.js';
+import { DetailDialog, DialogProvider, PreviewPopover, Prose } from '../packages/react/dist/primitives/index.js';
+import { renderProse } from '../packages/react/dist/lib/index.js';
 import {
   ArtifactPreview,
   OutputDetail,
@@ -10,8 +11,8 @@ import {
   PaperDialog,
   RecordDialog,
   RecordPreview,
-  recordEntry,
 } from '../packages/react/dist/components/index.js';
+import { recordEntry } from '../packages/react/dist/lib/index.js';
 import { indexAnalysis } from '@astra-spec/sdk';
 import { collectInventoryPapers } from '../packages/react/dist/model/index.js';
 import { AnalysisTree, OutputCard, OutputsList } from '../packages/react/dist/blocks/index.js';

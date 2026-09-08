@@ -10,7 +10,8 @@ import {
   DialogProvider,
   useDialogDismissGuard,
 } from '../../packages/react/src/primitives/index.js';
-import { OutputDetail, useDetailStack } from '../../packages/react/src/components/index.js';
+import { OutputDetail } from '../../packages/react/src/components/index.js';
+import { useDetailStack } from '../../packages/react/src/lib/index.js';
 import { Inventory } from '../../packages/react/src/views/index.js';
 import { renderHook, act } from '@testing-library/react';
 import type { ResolvedAnalysisDocument, ResolvedOutput } from '@astra-spec/sdk';

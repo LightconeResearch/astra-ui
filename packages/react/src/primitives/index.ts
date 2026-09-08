@@ -1,11 +1,6 @@
 /** Presentation primitives: generic UI with no ASTRA model beyond record kinds. */
-export { cn } from '../lib/cn.js';
 export { Slot } from './slot.js';
 export type { SlotProps } from './slot.js';
-export { LabelsProvider, defaultLabels, mergeLabels, useLabels } from '../lib/labels.js';
-export type { AstraLabelOverrides, AstraLabels, LabelsProviderProps } from '../lib/labels.js';
-export { surfaceGlyph } from '../model/kind.js';
-export type { SurfaceKind } from '../model/kind.js';
 export { Button, IconButton } from './button.js';
 export type { ButtonProps, ButtonSize, ButtonTone, ButtonVariant, IconButtonProps } from './button.js';
 export { PreviewPopover } from './preview-popover.js';
@@ -51,12 +46,3 @@ export { CountHeading, DetailLayout, DetailMain, DetailRail, DetailSection } fro
 export type { CountHeadingProps, DetailLayoutMode, DetailLayoutProps, DetailRailProps, DetailSectionProps } from './detail-layout.js';
 export { Prose } from './prose.js';
 export type { ProseProps } from './prose.js';
-export { parseProse, renderProse } from '../lib/prose.js';
-export type {
-  ProseContext,
-  ProseField,
-  ProseMathMacros,
-  ProseRenderOptions,
-  ProseToken,
-  TextRenderer,
-} from '../lib/prose.js';

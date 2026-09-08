@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { indexAnalysis } from '@astra-spec/sdk';
-import { tablePreviewFromDelimited } from '../packages/react/dist/components/index.js';
+import { tablePreviewFromDelimited } from '../packages/react/dist/lib/index.js';
 import {
   collectInventoryPapers,
   decisionInsights,
