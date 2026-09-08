@@ -78,7 +78,8 @@ the SDK's `indexAnalysis(document)` themselves; there is no local index wrapper.
 lib  <-  primitives  <-  model  <-  components  <-  blocks  <-  views
 ```
 
-`model/` is pure derivation over the SDK and imports from no other layer (not even `lib`);
+`lib/` is machinery, not UI: `cn`, the labels context, the pdf.js runtime contract with its `pdfJsWithWorker` adapter, and
+quote matching; the layers above re-export what hosts need. `model/` is pure derivation over the SDK and imports from no other layer (not even `lib`);
 `components/` is one record or paper at a time (`OutputDialog`/`OutputDetail`, …, `RecordDialog`,
 `useDetailStack`); `blocks/` are inventory page sections; `views/` holds `Inventory`, a ~100-line
 composition of exported blocks and components — hosts that own navigation compose the same parts
@@ -91,7 +92,7 @@ document refresh can prune entries that stopped resolving.
 
 **Host extension points**, all optional props: `renderArtifact`, `renderText` (replaces the built-in
 KaTeX/inline-code prose), `loadPdfJs` (returns pdf.js with `workerSrc` set, or `pdfJsWithWorker(...)` for bundler-made
-workers; the viewer is `components/paper-pdf-viewer`), `onOpenPaperFile`, `onFetchPaper` + `paperMetadata`, `onOpenArtifact`,
+workers), `onOpenPaperFile`, `onFetchPaper` + `paperMetadata`, `onOpenArtifact`,
 `labels` (every user-facing string, via `LabelsProvider`/`useLabels`).
 
 **Component conventions.** `forwardRef`, spread the rest onto the root, `className` merged with

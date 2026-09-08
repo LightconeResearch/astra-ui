@@ -24,7 +24,7 @@ import { InputDetail } from './input-detail.js';
 import { InsightDetail, primaryLiteratureEvidence } from './insight-detail.js';
 import { OutputDetail, OutputDialogActions, useOutputExpanded } from './output-detail.js';
 import { PaperDetail, PaperDialogActions, type OpenPaperFileHandler } from './paper-detail.js';
-import type { PdfJsLoader } from './pdf-runtime.js';
+import type { PdfJsLoader } from '../lib/pdf-runtime.js';
 
 export interface RecordDialogProps extends Pick<DetailDialogProps, 'mode' | 'backText' | 'className' | 'onBack' | 'onClose'> {
   entry: DetailEntry;

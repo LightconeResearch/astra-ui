@@ -1,6 +1,6 @@
 import { vi } from 'vitest';
-import { textStrings } from '../../packages/react/src/components/pdf-quote.js';
-import type { PdfJs, PdfTextContent, PdfTextLayerOptions } from '../../packages/react/src/components/pdf-runtime.js';
+import { textStrings } from '../../packages/react/src/lib/pdf-quote.js';
+import type { PdfJs, PdfTextContent, PdfTextLayerOptions } from '../../packages/react/src/lib/pdf-runtime.js';
 
 export function runtime(texts = ['An introductory result appears', 'An unrelated page', 'The final scientific result is reproducible.']) {
   const rendered: number[] = [];

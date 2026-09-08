@@ -394,6 +394,6 @@ test('no temporary specification is included in the package workspace', async ()
 });
 
 test('the pdf.js contract is types plus one adapter; the ambient TextLayer declaration has no runtime binding', async () => {
-  const runtime = await import('../packages/react/dist/components/pdf-runtime.js');
+  const runtime = await import('../packages/react/dist/lib/pdf-runtime.js');
   assert.deepEqual(Object.keys(runtime), ['pdfJsWithWorker']);
 });

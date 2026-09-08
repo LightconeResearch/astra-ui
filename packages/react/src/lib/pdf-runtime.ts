@@ -2,7 +2,8 @@
  * The pdf.js surface the viewer uses, as structural types. The `pdfjs-dist`
  * module satisfies `PdfJs`: a host's `loadPdfJs` imports the module, points
  * `GlobalWorkerOptions.workerSrc` at the matching worker script and returns
- * the module. Nothing here imports pdf.js.
+ * the module. Nothing here imports pdf.js or React; the components layer
+ * re-exports what hosts need.
  */
 
 /** Always the object `getViewport()` returned; pdf.js reads more of it than these fields. Never construct one. */

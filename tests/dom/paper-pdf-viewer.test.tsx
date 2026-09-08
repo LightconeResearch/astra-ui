@@ -5,12 +5,12 @@ import { indexAnalysis, type ResolvedAnalysisDocument } from '@astra-spec/sdk';
 import { PaperPdfViewer, type PdfLoadState, type PdfPassage } from '../../packages/react/src/components/paper-pdf-viewer.js';
 import { PaperDialog } from '../../packages/react/src/components/paper-detail.js';
 import { Inventory } from '../../packages/react/src/views/inventory.js';
-import type { PdfJs, PdfTextContent } from '../../packages/react/src/components/pdf-runtime.js';
+import type { PdfJs, PdfTextContent } from '../../packages/react/src/lib/pdf-runtime.js';
 import { collectInventoryPapers } from '../../packages/react/src/model/papers.js';
 import { fixtureDocument as fixture } from '../fixture.mjs';
 import { mockPdfBrowser, runtime } from './pdf-test-runtime.js';
 import { LabelsProvider } from '../../packages/react/src/lib/labels.js';
-import { findQuoteMatch, highlightMatch } from '../../packages/react/src/components/pdf-quote.js';
+import { findQuoteMatch, highlightMatch } from '../../packages/react/src/lib/pdf-quote.js';
 
 const document = fixture as unknown as ResolvedAnalysisDocument;
 const index = indexAnalysis(document);

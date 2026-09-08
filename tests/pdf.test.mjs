@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { findQuoteMatch, locateQuote, pageText } from '../packages/react/dist/components/pdf-quote.js';
-import { pdfJsWithWorker } from '../packages/react/dist/components/pdf-runtime.js';
+import { findQuoteMatch, locateQuote, pageText } from '../packages/react/dist/lib/pdf-quote.js';
+import { pdfJsWithWorker } from '../packages/react/dist/lib/pdf-runtime.js';
 
 const signal = new AbortController().signal;
 

@@ -12,7 +12,7 @@ import { surfaceGlyph } from '../primitives/kind.js';
 import type { TextRenderer } from '../primitives/prose.js';
 import { InsightTrigger } from './insight-trigger.js';
 import { PaperPdfViewer, type PdfPassage } from './paper-pdf-viewer.js';
-import type { PdfJsLoader } from './pdf-runtime.js';
+import type { PdfJsLoader } from '../lib/pdf-runtime.js';
 
 export type OpenPaperFileHandler = (paper: InventoryPaper) => void | Promise<void>;
 

@@ -55,5 +55,5 @@ export type {
 
 export { PaperPdfViewer } from './paper-pdf-viewer.js';
 export type { PaperPdfViewerProps, PdfLoadState, PdfPassage } from './paper-pdf-viewer.js';
-export { pdfJsWithWorker } from './pdf-runtime.js';
-export type { PdfJs, PdfJsLoader } from './pdf-runtime.js';
+export { pdfJsWithWorker } from '../lib/pdf-runtime.js';
+export type { PdfJs, PdfJsLoader } from '../lib/pdf-runtime.js';

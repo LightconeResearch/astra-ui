@@ -9,10 +9,10 @@ import {
   type PdfPassage,
   type PdfPassageLocation,
   type PdfTextCache,
-} from './pdf-quote.js';
-import type { PdfDocument, PdfJs, PdfJsLoader, PdfLoadingTask, PdfRenderTask, PdfTextLayer } from './pdf-runtime.js';
+} from '../lib/pdf-quote.js';
+import type { PdfDocument, PdfJs, PdfJsLoader, PdfLoadingTask, PdfRenderTask, PdfTextLayer } from '../lib/pdf-runtime.js';
 
-export type { PdfPassage } from './pdf-quote.js';
+export type { PdfPassage } from '../lib/pdf-quote.js';
 
 export type PdfLoadState = 'loading' | 'ready' | 'error';
 
