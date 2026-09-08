@@ -98,8 +98,8 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Test the preview colour check
-        run: node --test packages/preview/check-brand.test.mjs
+      - name: Test the preview rendering checks
+        run: node --test packages/preview/check-rendering.test.mjs
 
       - name: Screenshot the paper
         run: node packages/preview/screenshot.mjs paper

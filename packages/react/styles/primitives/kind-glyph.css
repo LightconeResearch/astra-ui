@@ -17,4 +17,15 @@
     letter-spacing: 0;
     text-decoration: none;
   }
+  :where(.astra-ui) .astra-kind-glyph[data-kind="paper"] {
+    width: 1em;
+    height: 1em;
+    vertical-align: -0.125em;
+  }
+
+  :where(.astra-ui) .astra-kind-glyph > svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
 }

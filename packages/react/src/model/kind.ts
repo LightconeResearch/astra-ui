@@ -10,10 +10,10 @@ const SURFACE_GLYPHS: Record<SurfaceKind, string> = {
   output: '◆',
   finding: '●',
   prior_insight: '◈',
-  paper: '▧',
+  paper: '📄',
 };
 
-/** The glyph that identifies a kind in lists, relations, and headers. */
+/** Plain-text kind mark. Use KindGlyph for consistent, themed UI rendering. */
 export function surfaceGlyph(kind: SurfaceKind): string {
   return SURFACE_GLYPHS[kind];
 }

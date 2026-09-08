@@ -88,7 +88,8 @@ The build regenerates the playground fixture and artifact copies from the pinned
 The workflow captures the deployed playground with
 `node packages/preview/screenshot.mjs stories --dir packages/preview/dist/playground`,
 so Argos and the interactive preview show the same files. The capture checks that visible
-glyphs inherit the Lightcone scope and use their semantic colour. It
+glyphs inherit the Lightcone scope and use their semantic colour. It also checks the
+19px/20px card inset, catching older host padding that would double it. It
 uploads both directories to [Argos](https://argos-ci.com/) when an `ARGOS_TOKEN` secret exists. Argos compares
 against the pull request's merge base, posts a status check and a comment, and offers a review UI;
 the default branch is auto-approved as the baseline. Without the token the PNGs are uploaded as a

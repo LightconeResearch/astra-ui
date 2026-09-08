@@ -18,7 +18,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 import { serve } from './serve.mjs';
-import { checkBrand } from './check-brand.mjs';
+import { checkRendering } from './check-rendering.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const playground = resolve(here, '../playground');
@@ -42,7 +42,7 @@ async function settle(page) {
     ));
   });
   await page.waitForTimeout(400);
-  await checkBrand(page);
+  await checkRendering(page);
 }
 
 function resetDirectory(dir) {

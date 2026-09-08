@@ -99,7 +99,14 @@ try {
             const kind = node.dataset.kind;
             const reference = document.querySelector(`#inline .astra-kind-glyph[data-kind="${kind}"]`);
             const properties = ['fontFamily', 'fontSize', 'fontStyle', 'fontWeight', 'lineHeight', 'letterSpacing', 'color'];
-            const read = element => Object.fromEntries(properties.map(key => [key, getComputedStyle(element)[key]]));
+            const read = element => {
+              const icon = element.querySelector('svg');
+              const style = icon ? getComputedStyle(icon) : undefined;
+              return {
+                ...Object.fromEntries(properties.map(key => [key, getComputedStyle(element)[key]])),
+                ...(style ? { iconStroke: style.stroke, iconWidth: style.width, iconHeight: style.height } : {}),
+              };
+            };
             const probe = document.createElement('span');
             probe.style.color = `var(--astra-color-kind-${roles[kind]})`;
             document.querySelector('#root').append(probe);
@@ -126,6 +133,11 @@ try {
         for (const glyph of glyphs) {
           assert.deepEqual(glyph.actual, glyph.reference, `${name}: ${glyph.kind} glyph in ${glyph.location} differs from article text`);
           assert.equal(glyph.actual.fontSize, '15px');
+          if (glyph.kind === 'paper') {
+            assert.equal(glyph.actual.iconStroke, glyph.expectedColor);
+            assert.equal(glyph.actual.iconWidth, '15px');
+            assert.equal(glyph.actual.iconHeight, '15px');
+          }
           assert.equal(glyph.actual.color, glyph.expectedColor, `${name}: ${glyph.kind} glyph must use its own kind colour`);
         }
         results[`${name}-${scheme}-${rootSize}`] = metrics;
