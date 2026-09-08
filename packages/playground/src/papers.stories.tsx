@@ -7,7 +7,7 @@ import { loadPdfJs, loadPdfJsWithWorker } from './pdf-runtime';
 const paper: InventoryPaper = {
   doi: '10.1234/example',
   title: 'Passage navigation (synthetic fixture)',
-  pdfUrl: '/papers/navigation.pdf',
+  pdfUrl: `${import.meta.env.BASE_URL}papers/navigation.pdf`,
   insights: [{
     id: 'result', created_at: '2026-01-01T00:00:00Z', kind: 'prior_insight', canonicalPath: 'prior_insights.result',
     claim: 'A reproducible result appears on the final page.',
@@ -19,7 +19,7 @@ const paper: InventoryPaper = {
 function Example({ focused = false, rotation = 0, load = loadPdfJs }: { focused?: boolean; rotation?: number; load?: PdfJsLoader }) {
   const [open, setOpen] = useState(true);
   return open
-    ? <PaperDialog record={rotation ? { ...paper, pdfUrl: `/papers/rotation-${rotation}.pdf` } : paper} loadPdfJs={load} focusInsight={focused ? paper.insights[0] : undefined} onClose={() => { setOpen(false); }} />
+    ? <PaperDialog record={rotation ? { ...paper, pdfUrl: `${import.meta.env.BASE_URL}papers/rotation-${rotation}.pdf` } : paper} loadPdfJs={load} focusInsight={focused ? paper.insights[0] : undefined} onClose={() => { setOpen(false); }} />
     : <button type="button" onClick={() => { setOpen(true); }}>Open reader</button>;
 }
 
