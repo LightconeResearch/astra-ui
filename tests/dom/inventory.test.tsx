@@ -27,9 +27,7 @@ describe('Inventory analysis selection', () => {
     render(<Inventory document={fixtureDocument} analysisPath="not.an.analysis" />);
     expect(screen.getByRole('button', { name: /Headline result/ })).toBeTruthy();
     expect(screen.queryByRole('button', { name: /Correlation function/ })).toBeNull();
-    expect(screen.queryByRole('button', { name: /Published method/ })).toBeNull();
-    expect(screen.queryByRole('heading', { name: /Prior Insights/ })).toBeNull();
-    expect(screen.queryByRole('link', { name: /Prior Insights/ })).toBeNull();
+    expect(screen.getByRole('button', { name: /Published method/ })).toBeTruthy();
     expect(screen.queryByRole('button', { name: /nested_source/ })).toBeNull();
   });
 
@@ -134,16 +132,6 @@ describe('Inventory document refresh', () => {
 });
 
 describe('Insight source evidence', () => {
-  it.each(['decision', 'paper'])('keeps prior insights reachable through a %s after removing their inventory section', (source) => {
-    render(<Inventory document={fixtureDocument} detailMode="embedded" />);
-    expect(screen.queryByRole('heading', { name: /Prior Insights/ })).toBeNull();
-    expect(screen.queryByRole('link', { name: /Prior Insights/ })).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: source === 'decision' ? /Method choice/ : /10.1234\/example/i }));
-    fireEvent.click(screen.getByRole('button', { name: 'Open insight details: Published method' }));
-    expect(screen.getByText('The fiducial method performs well.')).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Close insight details' })).toBeTruthy();
-  });
-
   const insightEntry: DetailEntry = { kind: 'record', canonicalPath: 'prior_insights.cited', analysisPath: '$' };
   const baseInsight = {
     id: 'cited',

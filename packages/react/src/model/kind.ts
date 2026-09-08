@@ -18,7 +18,7 @@ export function surfaceGlyph(kind: SurfaceKind): string {
   return SURFACE_GLYPHS[kind];
 }
 
-export type InventorySectionId = 'outputs' | 'decisions' | 'inputs' | 'findings' | 'papers';
+export type InventorySectionId = 'outputs' | 'decisions' | 'inputs' | 'findings' | 'prior_insights' | 'papers';
 
 /** The record kind each inventory section lists; drives the outline glyph and colour. */
 export function sectionKind(section: InventorySectionId): SurfaceKind {
@@ -27,6 +27,7 @@ export function sectionKind(section: InventorySectionId): SurfaceKind {
     case 'decisions': return 'decision';
     case 'inputs': return 'input';
     case 'findings': return 'finding';
+    case 'prior_insights': return 'prior_insight';
     case 'papers': return 'paper';
   }
 }

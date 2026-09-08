@@ -7,6 +7,7 @@ export interface AstraLabels {
     decisions: string;
     inputs: string;
     findings: string;
+    prior_insights: string;
     papers: string;
   };
   outline: string;
@@ -34,6 +35,7 @@ export interface AstraLabels {
     decisions: string;
     inputs: string;
     findings: string;
+    prior_insights: string;
     papers: string;
   };
   actions: {
@@ -83,6 +85,7 @@ const SECTION_NOUNS: Record<keyof AstraLabels['sections'], [string, string]> = {
   decisions: ['decision', 'decisions'],
   inputs: ['input', 'inputs'],
   findings: ['finding', 'findings'],
+  prior_insights: ['prior insight', 'prior insights'],
   papers: ['paper', 'papers'],
 };
 
@@ -92,6 +95,7 @@ export const defaultLabels: AstraLabels = {
     decisions: 'Decisions',
     inputs: 'Inputs',
     findings: 'Findings',
+    prior_insights: 'Prior Insights',
     papers: 'Papers',
   },
   outline: 'On this page',
@@ -118,6 +122,7 @@ export const defaultLabels: AstraLabels = {
     decisions: 'No decisions are declared in this analysis.',
     inputs: 'No inputs are declared in this analysis.',
     findings: 'No findings are declared in this analysis.',
+    prior_insights: 'No prior insights are declared in this analysis.',
     papers: 'No supporting papers are linked to this analysis.',
   },
   actions: {

@@ -105,6 +105,7 @@ Use blocks when your application owns the page layout or routing:
 | `DecisionsList` | Decision rows, selected options, and a controlled or uncontrolled tag filter |
 | `InputsList` | Inputs with their source and declared type |
 | `FindingsList` | Findings with claims and evidence counts |
+| `PriorInsightsList` | Prior insights with claims and source counts |
 | `PapersList`, `PaperRows` | Cited papers derived with `collectInventoryPapers` |
 | `InventorySection`, `InventoryRecords`, `InventoryOutline` | Section chrome, kind-aware record layout, and anchor navigation for custom inventories |
 
@@ -135,14 +136,6 @@ Escape, an outside click, or focus leaving the picker. Selection and Escape retu
 focus to the trigger. Wrap the header and inventory in `LabelsProvider` to override
 `currentAnalysis`, `selectAnalysis`, and `analysisTree` together. The block's styles
 are included in `blocks.css`, `views.css`, and `styles.css`.
-
-**Migration:** the standalone `PriorInsightsList` block and its subpath, the
-`'prior_insights'` inventory section ID, and `labels.sections.prior_insights` /
-`labels.empty.prior_insights` have been removed. Remove that ID from custom `sections`
-arrays and those label overrides. Prior-insight records remain in the SDK document;
-open them through the decisions and papers that cite them, or compose `InsightTrigger`
-and `InsightDetail` / `InsightDialog` in a custom host surface. Existing detail-stack
-entries for prior insights still resolve.
 
 ### Record and paper details
 

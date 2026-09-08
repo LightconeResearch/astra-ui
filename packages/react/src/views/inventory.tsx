@@ -23,10 +23,11 @@ import { FindingsList } from '../blocks/findings-list.js';
 import { InputsList } from '../blocks/inputs-list.js';
 import { OutputsList } from '../blocks/outputs-list.js';
 import { PapersList } from '../blocks/papers-list.js';
+import { PriorInsightsList } from '../blocks/prior-insights-list.js';
 import { InventoryOutline, InventorySection } from '../blocks/section.js';
 import { sectionKind, type InventorySectionId } from '../model/kind.js';
 
-export const DEFAULT_SECTIONS: readonly InventorySectionId[] = ['outputs', 'decisions', 'inputs', 'findings', 'papers'];
+export const DEFAULT_SECTIONS: readonly InventorySectionId[] = ['outputs', 'decisions', 'inputs', 'findings', 'prior_insights', 'papers'];
 
 export interface InventoryProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
   document: ResolvedAnalysisDocument;
@@ -153,6 +154,10 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(
     findings: {
       count: analysis.findings.length,
       content: <FindingsList analysis={analysis} onOpenRecord={openRecord} />,
+    },
+    prior_insights: {
+      count: analysis.prior_insights.length,
+      content: <PriorInsightsList analysis={analysis} onOpenRecord={openRecord} />,
     },
     papers: {
       count: papers.length,

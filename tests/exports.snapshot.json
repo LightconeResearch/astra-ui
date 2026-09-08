@@ -64,7 +64,8 @@
     "OutputCard",
     "OutputsList",
     "PaperRows",
-    "PapersList"
+    "PapersList",
+    "PriorInsightsList"
   ],
   "views": [
     "DEFAULT_SECTIONS",
