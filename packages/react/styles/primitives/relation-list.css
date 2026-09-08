@@ -52,36 +52,13 @@
   }
 
   :where(.astra-ui) .astra-relation-item__glyph {
-    font-size: var(--astra-font-size-sm);
     grid-column: 1;
     grid-row: 1 / span 2;
     align-self: start;
-    color: var(--astra-color-text-subtle);
-    line-height: 1.2;
   }
 
   :where(.astra-ui) .astra-relation-item__glyph[data-empty] {
     visibility: hidden;
-  }
-
-  :where(.astra-ui) .astra-relation-list [data-kind="decision"] .astra-relation-item__glyph {
-    color: var(--astra-color-kind-decision);
-  }
-
-  :where(.astra-ui) .astra-relation-list [data-kind="input"] .astra-relation-item__glyph {
-    color: var(--astra-color-kind-input);
-  }
-
-  :where(.astra-ui) .astra-relation-list [data-kind="output"] .astra-relation-item__glyph {
-    color: var(--astra-color-kind-output);
-  }
-
-  :where(.astra-ui) .astra-relation-list [data-kind="finding"] .astra-relation-item__glyph {
-    color: var(--astra-color-kind-finding);
-  }
-
-  :where(.astra-ui) .astra-relation-list [data-kind="prior_insight"] .astra-relation-item__glyph {
-    color: var(--astra-color-kind-insight);
   }
 
   :where(.astra-ui) .astra-relation-item__copy {

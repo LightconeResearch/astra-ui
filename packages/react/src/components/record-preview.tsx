@@ -127,7 +127,7 @@ function PreviewHeader({
   kindLabel,
   title,
 }: {
-  kind: SurfaceKind;
+  kind?: SurfaceKind | undefined;
   kindLabel: ReactNode;
   title?: ReactNode | undefined;
 }) {
@@ -136,7 +136,7 @@ function PreviewHeader({
       density="compact"
       kind={kind}
       titleAs="h3"
-      eyebrow={<KindEyebrow kind={kind} label={kindLabel} />}
+      eyebrow={kind ? <KindEyebrow kind={kind} label={kindLabel} /> : kindLabel}
       title={title}
       className="astra-record-preview__header"
     />
@@ -647,7 +647,6 @@ function ValuePreview({
   return (
     <>
       <PreviewHeader
-        kind={record.kind}
         kindLabel={kindLabel}
         title={
           <span className="astra-record-preview__value">

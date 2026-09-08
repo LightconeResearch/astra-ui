@@ -466,38 +466,38 @@
     min-height: min(700px, calc(100dvh - 128px));
   }
 
-  :where(.astra-ui) :is(.astra-record-list__glyph, .astra-dialog > .astra-dialog__panel)[data-kind="input"] {
+  :where(.astra-ui) .astra-dialog > .astra-dialog__panel[data-kind="input"] {
     --astra-kind: var(--astra-color-kind-input);
     --astra-kind-ink: var(--astra-color-kind-input);
     --astra-kind-soft: var(--astra-color-kind-input-soft);
   }
 
-  :where(.astra-ui) :is(.astra-record-list__glyph, .astra-dialog > .astra-dialog__panel)[data-kind="analysis"] {
+  :where(.astra-ui) .astra-dialog > .astra-dialog__panel[data-kind="analysis"] {
     --astra-kind: var(--astra-color-kind-analysis);
     --astra-kind-ink: var(--astra-color-kind-analysis);
     --astra-kind-soft: var(--astra-color-kind-analysis-soft);
   }
 
-  :where(.astra-ui) :is(.astra-record-list__glyph, .astra-dialog > .astra-dialog__panel)[data-kind="output"] {
+  :where(.astra-ui) .astra-dialog > .astra-dialog__panel[data-kind="output"] {
     --astra-kind: var(--astra-color-kind-output);
     --astra-kind-ink: var(--astra-color-kind-output);
     --astra-kind-soft: var(--astra-color-kind-output-soft);
   }
 
-  :where(.astra-ui) :is(.astra-record-list__glyph, .astra-dialog > .astra-dialog__panel)[data-kind="decision"] {
+  :where(.astra-ui) .astra-dialog > .astra-dialog__panel[data-kind="decision"] {
     --astra-kind: var(--astra-color-kind-decision);
     --astra-kind-ink: var(--astra-color-kind-decision-ink);
     --astra-kind-soft: var(--astra-color-kind-decision-soft);
   }
 
-  :where(.astra-ui) :is(.astra-record-list__glyph, .astra-dialog > .astra-dialog__panel)[data-kind="finding"] {
+  :where(.astra-ui) .astra-dialog > .astra-dialog__panel[data-kind="finding"] {
     --astra-kind: var(--astra-color-kind-finding);
     --astra-kind-ink: var(--astra-color-kind-finding);
     --astra-kind-soft: var(--astra-color-kind-finding-soft);
   }
 
-  :where(.astra-ui) :is(.astra-record-list__glyph, .astra-dialog > .astra-dialog__panel)[data-kind="prior_insight"],
-  :where(.astra-ui) :is(.astra-record-list__glyph, .astra-dialog > .astra-dialog__panel)[data-kind="paper"] {
+  :where(.astra-ui) .astra-dialog > .astra-dialog__panel[data-kind="prior_insight"],
+  :where(.astra-ui) .astra-dialog > .astra-dialog__panel[data-kind="paper"] {
     --astra-kind: var(--astra-color-kind-insight);
     --astra-kind-ink: var(--astra-color-kind-insight-ink);
     --astra-kind-soft: var(--astra-color-kind-insight-soft);

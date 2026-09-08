@@ -6,7 +6,7 @@ export interface KindGlyphProps extends HTMLAttributes<HTMLSpanElement> {
   kind: SurfaceKind;
 }
 
-/** Decorative kind mark. Its font, alignment and relative size are shared in every surface. */
+/** Decorative kind mark. Its kind selects both symbol and colour; typography is shared across surfaces. */
 export const KindGlyph = forwardRef<HTMLSpanElement, KindGlyphProps>(function KindGlyph({
   kind, className, ...props
 }, ref) {

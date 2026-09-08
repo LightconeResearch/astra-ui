@@ -45,7 +45,6 @@
 
   :where(.astra-ui) .astra-record-list__glyph {
     flex: 0 0 auto;
-    color: var(--astra-color-text-subtle);
   }
 
   :where(.astra-ui) .astra-record-list__name > span:last-child {
@@ -120,11 +119,6 @@
     align-items: flex-start;
   }
 
-  :where(.astra-ui) .astra-record-list__name:where([data-variant="claim"]) .astra-record-list__glyph {
-    color: var(--astra-color-kind-finding);
-    line-height: 21.6px;
-  }
-
   :where(.astra-ui) .astra-record-list__name:where([data-variant="claim"]) > span:last-child {
     gap: 3.2px;
   }
@@ -147,10 +141,6 @@
     line-height: 1.38;
     text-overflow: clip;
     white-space: normal;
-  }
-
-  :where(.astra-ui) .astra-record-list__glyph[data-kind] {
-    color: var(--astra-kind);
   }
 
   :where(.astra-ui) .astra-record-list__head {
@@ -195,7 +185,6 @@
     font-family: var(--astra-font-mono);
   }
 
-  :where(.astra-ui) .astra-record-list__name:where([data-variant="claim"]) .astra-record-list__glyph,
   :where(.astra-ui) .astra-record-list__name:where([data-variant="claim"]) small {
     color: var(--astra-color-kind-finding);
   }
@@ -383,10 +372,6 @@
   :where(.astra-ui) .astra-record-list__arrow {
     color: var(--astra-color-text-faint);
     text-align: right;
-  }
-
-  :where(.astra-ui) .astra-record-list__name:where([data-variant="claim"]) .astra-record-list__glyph {
-    color: var(--astra-color-kind-finding);
   }
 
   @container (max-width: 544px) {

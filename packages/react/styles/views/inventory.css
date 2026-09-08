@@ -157,8 +157,6 @@
   }
 
   :where(.astra-ui) .astra-inventory-outline__glyph {
-    color: var(--astra-kind, var(--astra-color-text-subtle));
-    font-size: var(--astra-font-size-2xs);
     text-align: center;
   }
 

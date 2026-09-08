@@ -17,7 +17,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { indexAnalysis } from '@astra-spec/sdk';
 import { fixtureDocument as document } from '../tests/fixture.mjs';
 import { RecordPreview, RecordDialog } from '../packages/react/dist/components/index.js';
-import { InlineReference, DialogProvider } from '../packages/react/dist/primitives/index.js';
+import { InlineReference, KindGlyph, DialogProvider } from '../packages/react/dist/primitives/index.js';
 import { Inventory } from '../packages/react/dist/views/index.js';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -33,11 +33,13 @@ const entries = kinds.map(kind => ({ kind: 'record', record: records.find(record
 entries.push({ kind: 'value', record: records.find(record => record.kind === 'output'), analysis: document.analysis, value: '0.42', unit: 'Mpc', product: 'Headline result', selection: 'bin = 1' });
 const content = renderToStaticMarkup(h(React.Fragment, {},
   h('p', { id: 'inline', style: { font: '17px/1.72 var(--lc-font-body)' } }, 'Compare ',
-    ...kinds.map(kind => h(InlineReference, { kind, key: kind }, kind)),
+    ...['analysis', ...kinds, 'paper'].map(kind => h(InlineReference, { kind, key: kind }, kind)),
     h(InlineReference, { kind: 'value' }, '0.42')),
   h('div', { id: 'previews', style: { display: 'grid', gridTemplateColumns: 'repeat(2, 440px)', gap: 24 } },
     ...entries.map(entry => h('div', { key: `${entry.kind}-${entry.record.kind}`, className: 'astra-preview-popover__surface', 'data-kind': entry.kind === 'value' ? 'value' : entry.record.kind },
       h(RecordPreview, { entry, document, index, onOpenRecord() {} })))),
+  h('div', { id: 'glyph-contexts', 'data-kind': 'value', style: { color: 'purple', font: 'italic 9px/2 sans-serif' } },
+    ...['analysis', ...kinds, 'paper'].map(kind => h(KindGlyph, { kind, key: kind }))),
   h('div', { id: 'inventory' }, h(Inventory, { document, index })),
   h('div', { id: 'details' }, h(DialogProvider, { mode: 'embedded' },
     ...entries.filter(entry => entry.kind === 'record').map(entry => h(RecordDialog, { key: entry.record.kind,
@@ -89,6 +91,43 @@ try {
             return [selector, Object.fromEntries(['fontFamily','fontSize','fontWeight','fontStyle','lineHeight','color','backgroundColor','borderRadius'].map(key => [key, style[key]]))];
           }));
         });
+        // Compare every actual glyph with its article counterpart, including
+        // output-viewer relations, evidence triggers, inventory and headers.
+        const glyphs = await page.evaluate(() => {
+          const roles = { analysis: 'analysis', input: 'input', decision: 'decision', output: 'output', finding: 'finding', prior_insight: 'insight', paper: 'insight' };
+          return [...document.querySelectorAll('.astra-kind-glyph')].map(node => {
+            const kind = node.dataset.kind;
+            const reference = document.querySelector(`#inline .astra-kind-glyph[data-kind="${kind}"]`);
+            const properties = ['fontFamily', 'fontSize', 'fontStyle', 'fontWeight', 'lineHeight', 'letterSpacing', 'color'];
+            const read = element => Object.fromEntries(properties.map(key => [key, getComputedStyle(element)[key]]));
+            const probe = document.createElement('span');
+            probe.style.color = `var(--astra-color-kind-${roles[kind]})`;
+            document.querySelector('#root').append(probe);
+            const expectedColor = getComputedStyle(probe).color;
+            probe.remove();
+            return { kind, location: node.parentElement.className, actual: read(node), reference: read(reference), expectedColor };
+          });
+        });
+        for (const selector of ['#inline .astra-inline-reference[data-kind="decision"]', '#details .astra-dialog[data-kind="output"] .astra-relation-list__trigger']) {
+          const trigger = page.locator(selector).first();
+          const glyph = trigger.locator('.astra-kind-glyph');
+          const colour = () => glyph.evaluate(node => getComputedStyle(node).color);
+          const original = await colour();
+          await trigger.hover();
+          assert.equal(await colour(), original, 'hover must preserve the glyph kind colour');
+          if (selector.includes('trigger')) {
+            await trigger.focus();
+            assert.equal(await colour(), original, 'focus must preserve the glyph kind colour');
+          }
+        }
+        await page.mouse.move(0, 0);
+        await page.evaluate(() => document.activeElement?.blur());
+        assert.ok(glyphs.length > 30, 'exercise glyphs throughout the rendered UI');
+        for (const glyph of glyphs) {
+          assert.deepEqual(glyph.actual, glyph.reference, `${name}: ${glyph.kind} glyph in ${glyph.location} differs from article text`);
+          assert.equal(glyph.actual.fontSize, '15px');
+          assert.equal(glyph.actual.color, glyph.expectedColor, `${name}: ${glyph.kind} glyph must use its own kind colour`);
+        }
         results[`${name}-${scheme}-${rootSize}`] = metrics;
         if (expected) assert.deepEqual(metrics, expected, `${name}/${scheme}/${rootSize} differs from shared UI`);
         else expected = metrics;
@@ -102,7 +141,10 @@ try {
         assert.equal(metrics['#details .astra-surface-header__title'].fontSize, '20px');
         assert.equal(metrics['.astra-record-preview[data-entry-kind="value"] .astra-surface-header__eyebrow'].color, scheme === 'dark' ? 'rgb(111, 160, 174)' : 'rgb(63, 114, 128)');
         assert.equal(await page.locator('.astra-record-preview__option-status').first().evaluate(node => getComputedStyle(node).width), '1px');
-        if (rootSize === 16) await page.locator('#previews').screenshot({ path: join(output, `${name}-${scheme}.png`) });
+        if (rootSize === 16) {
+          await page.locator('#previews').screenshot({ path: join(output, `${name}-${scheme}.png`) });
+          await page.locator('#details .astra-dialog[data-kind="output"]').screenshot({ path: join(output, `${name}-output-viewer-${scheme}.png`) });
+        }
         // Article prose and nested UI must also work when only the document
         // carries the scheme; UI defaults must not reset inherited brand colours.
         const colours = await page.evaluate(() => {
