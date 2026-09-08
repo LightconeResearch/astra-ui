@@ -4,7 +4,7 @@
   },
   "theme": {
     "repository": "https://github.com/LightconeResearch/astra-theme.git",
-    "ref": "v0.0.9",
+    "ref": "feat/astra-ui-lib-layout",
     "template": "themes/article"
   },
   "content": {
