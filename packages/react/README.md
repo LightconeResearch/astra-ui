@@ -62,7 +62,7 @@ layer you need:
 | Import | Use it for | Main exports |
 | --- | --- | --- |
 | `@astra-spec/ui/views` | Complete, ready-made surfaces | `Inventory` |
-| `@astra-spec/ui/blocks` | Sections that can be assembled into a custom page | `AnalysisTree`, inventory lists, `InventorySection`, `InventoryOutline` |
+| `@astra-spec/ui/blocks` | Sections that can be assembled into a custom page | `AnalysisSelector`, `AnalysisTree`, inventory lists, `InventorySection`, `InventoryOutline` |
 | `@astra-spec/ui/components` | One ASTRA record or paper at a time | `*Detail`, `*Dialog`, `RecordDialog`, `RecordPreview`, `ArtifactPreview`, `PaperPdfViewer` |
 | `@astra-spec/ui/primitives` | Generic presentation with no resolved ASTRA model dependency beyond record kinds | Buttons, badges, dialogs, `PreviewPopover`, detail-layout compounds, lists, `Prose` |
 | `@astra-spec/ui/model` | Pure, React-free derivations over SDK data | Record lookup, relationships, paper collection, display labels, record kinds, DOI helpers |
@@ -100,16 +100,49 @@ Use blocks when your application owns the page layout or routing:
 | Component | Purpose |
 | --- | --- |
 | `AnalysisTree` | Recursive picker for the root analysis and its sub-analyses |
+| `AnalysisSelector` | Compact dropdown around `AnalysisTree` for host headers |
 | `OutputsList`, `OutputCard` | Figure and table galleries plus a list of other outputs, with optional compact artifact previews |
 | `DecisionsList` | Decision rows, selected options, and a controlled or uncontrolled tag filter |
 | `InputsList` | Inputs with their source and declared type |
 | `FindingsList` | Findings with claims and evidence counts |
-| `PriorInsightsList` | Prior insights with claims and source counts |
 | `PapersList`, `PaperRows` | Cited papers derived with `collectInventoryPapers` |
 | `InventorySection`, `InventoryRecords`, `InventoryOutline` | Section chrome, kind-aware record layout, and anchor navigation for custom inventories |
 
 List components emit records through callbacks such as `onOpenRecord`; they do
 not own application navigation.
+
+`AnalysisSelector` wraps the hierarchy in a dropdown for a host header. Pass the
+same controlled path to it and `Inventory`:
+
+```tsx
+import { AnalysisSelector } from '@astra-spec/ui/blocks';
+import { Inventory } from '@astra-spec/ui/views';
+import { useState } from 'react';
+
+function AnalysisPage({ document }) {
+  const [analysisPath, setAnalysisPath] = useState('$');
+  return <>
+    <header style={{ display: 'flex', justifyContent: 'flex-end' }}>
+      <AnalysisSelector document={document} analysisPath={analysisPath} onSelectAnalysis={setAnalysisPath} />
+    </header>
+    <Inventory document={document} analysisPath={analysisPath} />
+  </>;
+}
+```
+
+The dropdown focuses the selected analysis on opening and closes on selection,
+Escape, an outside click, or focus leaving the picker. Selection and Escape return
+focus to the trigger. Wrap the header and inventory in `LabelsProvider` to override
+`currentAnalysis`, `selectAnalysis`, and `analysisTree` together. The block's styles
+are included in `blocks.css`, `views.css`, and `styles.css`.
+
+**Migration:** the standalone `PriorInsightsList` block and its subpath, the
+`'prior_insights'` inventory section ID, and `labels.sections.prior_insights` /
+`labels.empty.prior_insights` have been removed. Remove that ID from custom `sections`
+arrays and those label overrides. Prior-insight records remain in the SDK document;
+open them through the decisions and papers that cite them, or compose `InsightTrigger`
+and `InsightDetail` / `InsightDialog` in a custom host surface. Existing detail-stack
+entries for prior insights still resolve.
 
 ### Record and paper details
 

@@ -53,6 +53,7 @@
   ],
   "blocks": [
     "ALL_TAGS",
+    "AnalysisSelector",
     "AnalysisTree",
     "DecisionsList",
     "FindingsList",
@@ -63,8 +64,7 @@
     "OutputCard",
     "OutputsList",
     "PaperRows",
-    "PapersList",
-    "PriorInsightsList"
+    "PapersList"
   ],
   "views": [
     "DEFAULT_SECTIONS",

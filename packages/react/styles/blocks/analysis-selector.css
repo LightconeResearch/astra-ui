@@ -1,0 +1,70 @@
+/* analysis-selector — emitted by src/blocks/analysis-selector.tsx */
+@layer astra.tokens, astra.base, astra.components, astra.views;
+@layer astra.views {
+  :where(.astra-ui) .astra-analysis-selector {
+    position: relative;
+    width: fit-content;
+    max-width: 100%;
+    font-family: var(--astra-font-ui);
+  }
+
+  :where(.astra-ui) .astra-analysis-selector__trigger {
+    display: flex;
+    max-width: 100%;
+    min-height: 2rem;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.3rem 0.625rem;
+    border: 1px solid var(--astra-color-border-strong);
+    border-radius: var(--astra-radius-control);
+    color: var(--astra-color-text);
+    background: transparent;
+    font: inherit;
+    font-size: var(--astra-font-size-sm);
+    font-weight: 600;
+    text-align: start;
+    cursor: pointer;
+  }
+
+  :where(.astra-ui) .astra-analysis-selector__trigger:hover,
+  :where(.astra-ui) .astra-analysis-selector__trigger:where([aria-expanded="true"]) {
+    border-color: var(--astra-color-accent);
+    background: var(--astra-color-surface-raised);
+  }
+
+  :where(.astra-ui) .astra-analysis-selector__trigger:focus-visible {
+    outline: 2px solid var(--astra-color-focus);
+    outline-offset: 2px;
+  }
+
+  :where(.astra-ui) .astra-analysis-selector__trigger > svg {
+    flex: 0 0 auto;
+    width: 0.85rem;
+    height: 0.85rem;
+    fill: none;
+    stroke: var(--astra-color-text-subtle);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.5;
+    transition: transform 120ms ease;
+  }
+
+  :where(.astra-ui) .astra-analysis-selector__trigger:where([aria-expanded="true"]) > svg {
+    transform: rotate(180deg);
+  }
+
+  :where(.astra-ui) .astra-analysis-selector__popover {
+    position: absolute;
+    z-index: 30;
+    top: calc(100% + 0.45rem);
+    inset-inline-end: 0;
+    box-sizing: border-box;
+    width: min(28rem, calc(100vw - 2rem));
+    max-height: min(28rem, 55vh);
+    overflow: auto;
+    padding: 0.8rem 0.9rem 0.95rem;
+    border: 1px solid var(--astra-color-border-strong);
+    border-radius: var(--astra-radius-control);
+    background: var(--astra-color-surface-raised);
+  }
+}

@@ -1,5 +1,5 @@
 import type { Story } from '@ladle/react';
-import { AnalysisTree } from '@astra-spec/ui/blocks';
+import { AnalysisSelector, AnalysisTree } from '@astra-spec/ui/blocks';
 import { Inventory } from '@astra-spec/ui/views';
 import { useState } from 'react';
 import { analysisDocument, paperMetadata, renderArtifact, loadPdfJs } from './host';
@@ -40,6 +40,19 @@ export const Tree: Story = () => {
   return (
     <div className="playground-frame">
       <AnalysisTree document={analysisDocument} analysisPath={path} onSelectAnalysis={setPath} />
+    </div>
+  );
+};
+
+export const Selector: Story = () => {
+  const [path, setPath] = useState('$');
+  return (
+    <div className="playground-frame">
+      <header style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+        <AnalysisSelector document={analysisDocument} analysisPath={path} onSelectAnalysis={setPath} />
+      </header>
+      <Inventory document={analysisDocument} analysisPath={path} renderArtifact={renderArtifact}
+        loadPdfJs={loadPdfJs} paperMetadata={paperMetadata} />
     </div>
   );
 };
