@@ -1,9 +1,7 @@
 import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
 import { cn } from '../lib/cn.js';
-import { surfaceGlyph, type SurfaceKind } from '../primitives/kind.js';
+import { surfaceGlyph, type InventorySectionId, type SurfaceKind } from '../model/kind.js';
 import { useLabels } from '../lib/labels.js';
-
-export type InventorySectionId = 'outputs' | 'decisions' | 'inputs' | 'findings' | 'prior_insights' | 'papers';
 
 export interface InventorySectionProps extends Omit<HTMLAttributes<HTMLElement>, 'title'> {
   /** Anchor id for the heading; also the outline link target. */
@@ -46,17 +44,6 @@ export const InventorySection = forwardRef<HTMLElement, InventorySectionProps>(f
   );
 });
 
-/** The record kind each inventory section lists; drives the outline glyph and colour. */
-export function sectionKind(section: InventorySectionId): SurfaceKind {
-  switch (section) {
-    case 'outputs': return 'output';
-    case 'decisions': return 'decision';
-    case 'inputs': return 'input';
-    case 'findings': return 'finding';
-    case 'prior_insights': return 'prior_insight';
-    case 'papers': return 'paper';
-  }
-}
 
 export interface InventoryOutlineEntry {
   id: string;

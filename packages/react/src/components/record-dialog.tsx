@@ -15,15 +15,18 @@ import { decisionInsights, findingEvidence, informedDecisions, outputRelations }
 import { useLabels } from '../lib/labels.js';
 import type { ArtifactRenderer } from './artifact-preview.js';
 import { DetailDialog, type DetailDialogProps, type DialogLayout } from '../primitives/dialog.js';
-import type { SurfaceKind } from '../primitives/kind.js';
-import type { TextRenderer } from '../primitives/prose.js';
+import type { SurfaceKind } from '../model/kind.js';
+import type { TextRenderer } from '../lib/prose.js';
 import { DecisionDetail } from './decision-detail.js';
-import type { DetailEntry } from './detail-entry.js';
+import type { DetailEntry } from '../lib/detail-stack.js';
 import { FindingDetail } from './finding-detail.js';
 import { InputDetail } from './input-detail.js';
-import { InsightDetail, primaryLiteratureEvidence } from './insight-detail.js';
-import { OutputDetail, OutputDialogActions, useOutputExpanded } from './output-detail.js';
-import { PaperDetail, PaperDialogActions, type PaperRenderer } from './paper-detail.js';
+import { InsightDetail } from './insight-detail.js';
+import { primaryLiteratureEvidence } from '../model/papers.js';
+import { OutputDetail, OutputDialogActions } from './output-detail.js';
+import { useOutputExpanded } from '../lib/use-output-expanded.js';
+import { PaperDetail, PaperDialogActions, type OpenPaperFileHandler } from './paper-detail.js';
+import type { PdfJsLoader } from '../lib/pdf-runtime.js';
 
 export interface RecordDialogProps extends Pick<DetailDialogProps, 'mode' | 'backText' | 'className' | 'onBack' | 'onClose'> {
   entry: DetailEntry;
@@ -34,7 +37,8 @@ export interface RecordDialogProps extends Pick<DetailDialogProps, 'mode' | 'bac
   paperMetadata?: InventoryPaperMetadataMap | undefined;
   renderArtifact?: ArtifactRenderer | undefined;
   renderText?: TextRenderer | undefined;
-  renderPaper?: PaperRenderer | undefined;
+  loadPdfJs?: PdfJsLoader | undefined;
+  onOpenPaperFile?: OpenPaperFileHandler | undefined;
   onOpenArtifact?: ((output: ResolvedOutput) => void | Promise<void>) | undefined;
   onFetchPaper?: ((doi: string) => void) | undefined;
   /** Navigation to another record from within the detail (drill-down). */
@@ -66,7 +70,8 @@ export function RecordDialog({
   paperMetadata = {},
   renderArtifact,
   renderText,
-  renderPaper,
+  loadPdfJs,
+  onOpenPaperFile,
   onOpenArtifact,
   onFetchPaper,
   onOpenRecord,
@@ -101,14 +106,14 @@ export function RecordDialog({
       kindLabel: labels.kinds.paper,
       title: paper.title,
       layout: 'reader',
-      actions: <PaperDialogActions record={paper} />,
+      actions: <PaperDialogActions record={paper} onOpenPaperFile={onOpenPaperFile} />,
       body: (
         <PaperDetail
           record={paper}
           metadata={paperMetadataFor(paper.doi, paperMetadata)}
           focusInsight={isInsight(focusRecord) ? focusRecord : undefined}
           renderText={renderText}
-          renderPaper={renderPaper}
+          loadPdfJs={loadPdfJs}
           onFetchPaper={onFetchPaper}
           onOpenInsight={openInsight}
           onOpenDecision={openDecision}

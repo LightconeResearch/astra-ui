@@ -80,7 +80,7 @@ test('the package depends on the SDK model, floating positioning, and host React
   assert.equal(manifest.publishConfig.access, 'public');
   assert.equal(manifest.exports['.'], undefined, 'no root entry: import a layer');
   assert.equal(manifest.exports['./core'], undefined);
-  for (const subpath of ['./primitives', './primitives/*', './components', './components/*', './blocks', './blocks/*', './views', './views/*', './model', './model/*', './styles/*', './package.json']) {
+  for (const subpath of ['./lib', './lib/*', './primitives', './primitives/*', './components', './components/*', './blocks', './blocks/*', './views', './views/*', './model', './model/*', './styles/*', './package.json']) {
     assert.ok(manifest.exports[subpath], `${subpath} is exported`);
   }
 });
@@ -100,38 +100,45 @@ test('every JS subpath resolves to a built module', async () => {
     await readFile(new URL(target.import, packageRoot));
     await readFile(new URL(target.types, packageRoot));
   }
-  for (const subpath of ['primitives/button', 'primitives/dialog', 'primitives/preview-popover', 'model/relations', 'components/output-dialog', 'components/record-preview', 'components/use-detail-stack', 'blocks/outputs-list', 'views/inventory']) {
+  for (const subpath of ['lib/detail-stack', 'primitives/button', 'primitives/dialog', 'primitives/preview-popover', 'model/relations', 'components/output-dialog', 'components/record-preview', 'components/paper-pdf-viewer', 'blocks/outputs-list', 'views/inventory']) {
     const target = manifest.exports[`./${subpath.split('/')[0]}/*`].import.replace('*', subpath.split('/')[1]);
     await readFile(new URL(target, packageRoot));
   }
-  const layers = Object.fromEntries(await Promise.all(['primitives', 'components', 'blocks', 'views', 'model'].map(async (layer) => [layer, await import(`../packages/react/dist/${layer}/index.js`)])));
+  const layers = Object.fromEntries(await Promise.all(['lib', 'primitives', 'components', 'blocks', 'views', 'model'].map(async (layer) => [layer, await import(`../packages/react/dist/${layer}/index.js`)])));
   const expected = {
-    primitives: ['Button', 'Dialog', 'DetailDialog', 'PreviewPopover', 'RecordList', 'cn'],
-    components: ['ArtifactPreview', 'OutputDialog', 'OutputDetail', 'RecordDialog', 'RecordPreview', 'useDetailStack'],
+    lib: ['cn', 'LabelsProvider', 'useDetailStack', 'renderProse', 'tablePreviewFromDelimited', 'pdfJsWithWorker'],
+    primitives: ['Button', 'Dialog', 'DetailDialog', 'PreviewPopover', 'RecordList', 'Prose'],
+    components: ['ArtifactPreview', 'OutputDialog', 'OutputDetail', 'RecordDialog', 'RecordPreview', 'PaperPdfViewer'],
     blocks: ['OutputsList', 'InventorySection', 'InventoryOutline', 'AnalysisTree'],
     views: ['Inventory'],
-    model: ['locateRecord', 'outputRelations', 'collectInventoryPapers'],
+    model: ['locateRecord', 'outputRelations', 'collectInventoryPapers', 'surfaceGlyph'],
   };
   for (const [layer, names] of Object.entries(expected)) {
     for (const name of names) assert.ok(['function', 'object'].includes(typeof layers[layer][name]) && layers[layer][name], `${name} is a ${layer} export`);
   }
   assert.equal('Inventory' in layers.components, false);
+  // UI barrels carry elements and prop types only; machinery is reached through lib and model.
+  for (const layer of ['primitives', 'components', 'blocks', 'views']) {
+    for (const name of ['cn', 'useDetailStack', 'LabelsProvider', 'renderProse', 'tablePreviewFromDelimited', 'pdfJsWithWorker', 'surfaceGlyph']) {
+      assert.equal(name in layers[layer], false, `${name} is not exported from ${layer}`);
+    }
+  }
   assert.equal('Dialog' in layers.views, false);
 });
 
 test('the public export lists are explicit and stable', async () => {
   const snapshot = await parse(new URL('exports.snapshot.json', import.meta.url));
   const actual = {};
-  for (const layer of ['primitives', 'components', 'blocks', 'views', 'model']) {
+  for (const layer of ['lib', 'primitives', 'components', 'blocks', 'views', 'model']) {
     actual[layer] = Object.keys(await import(`../packages/react/dist/${layer}/index.js`)).sort();
   }
   assert.deepEqual(actual, snapshot, 'update tests/exports.snapshot.json deliberately when the public API changes');
 });
 
-test('layers only depend downwards: lib <- primitives <- model <- components <- blocks <- views', async () => {
+test('layers depend only on lower ones: model and lib are roots, primitives see lib and record kinds, components see all three', async () => {
   const rules = [
     ['lib', /from '\.\.\/(primitives|model|components|blocks|views)\//],
-    ['primitives', /from '\.\.\/(model|components|blocks|views)\//],
+    ['primitives', /from '\.\.\/(components|blocks|views)\//],
     ['model', /from '\.\.\/(lib|primitives|components|blocks|views)\//],
     ['components', /from '\.\.\/(blocks|views)\//],
     ['blocks', /from '\.\.\/views\//],
@@ -152,12 +159,16 @@ test('source contains no parallel resolver, session, storage, or integration lay
   assert.doesNotMatch(source, /from ['"](?:node:|@jupyter|myst-)/i);
   // Rendering dependencies stay confined to the primitives that own them.
   const katexImports = [...source.matchAll(/from ['"]katex['"]/g)].length;
-  assert.equal(katexImports, 1, 'katex is imported once, by primitives/prose.tsx');
-  assert.match(await readFile(new URL('primitives/prose.tsx', sourceDirectory), 'utf8'), /from 'katex'/);
+  assert.equal(katexImports, 1, 'katex is imported once, by lib/prose.tsx');
+  assert.match(await readFile(new URL('lib/prose.tsx', sourceDirectory), 'utf8'), /from 'katex'/);
   const floatingImports = [...source.matchAll(/from ['"]@floating-ui\/react['"]/g)].length;
   assert.equal(floatingImports, 1, 'Floating UI is imported once, by primitives/preview-popover.tsx');
   assert.match(await readFile(new URL('primitives/preview-popover.tsx', sourceDirectory), 'utf8'), /from '@floating-ui\/react'/);
-  assert.doesNotMatch(source, /PaperPdfViewer|pdf\.mjs|pdf\.worker/);
+  // Shared presentation is first-class; integrations still supply the runtime.
+  assert.doesNotMatch(source, /pdf\.mjs|pdf\.worker|from ['"]pdfjs-dist/);
+  assert.doesNotMatch(source, /PaperRenderer|PaperRenderOptions|renderPaper/);
+  // PdfTextLayer is an ambient class declaration: a value import or re-export would fail at ESM link time.
+  assert.doesNotMatch(source, /(?:import|export)\s*\{[^}]*(?<!\btype\s)\bPdfTextLayer\b/, 'PdfTextLayer is type-only; import or export it with `type`');
   assert.match(source, /indexAnalysis\(document\)/);
 });
 
@@ -271,6 +282,10 @@ test('styles are layered, scoped with :where, and free of theme or host selector
     assert.match(css, /^@layer astra\.(tokens|base|components|views) \{/m, `${url.pathname} wraps its rules in a layer`);
     assert.doesNotMatch(css, /__DEAD__/, `${url.pathname} has no placeholder selectors`);
     assert.doesNotMatch(css, /^\s*\.astra-ui[\s.]/m, `${url.pathname} scopes with :where(.astra-ui)`);
+    // pdf.js appends its glyph-measuring canvas to <body>, outside any scope, so one rule must reach it there.
+    const unscoped = rules(css).map(([selector]) => selector).filter((selector) => !selector.includes('.astra-ui'));
+    assert.deepEqual(unscoped, url.pathname.endsWith('/components/paper-pdf-viewer.css') ? ['.hiddenCanvasElement'] : [],
+      `${url.pathname}: every rule is scoped under :where(.astra-ui), except the one hiding pdf.js's measuring canvas`);
     assert.doesNotMatch(css, /lightcone-brand|data-astra-theme|inventory-detail-dialog|astra-record-detail|astra-result-viewer/, `${url.pathname} has no legacy or theme selectors`);
     assert.doesNotMatch(css, /data-jp-|--jp-|\.jp-|vscode|--vscode-|forced-colors/i, `${url.pathname} has no host-specific selectors or tokens`);
   }
@@ -383,4 +398,9 @@ test('no temporary specification is included in the package workspace', async ()
   assert.equal(entries.includes('SPEC.md'), false);
   const packageEntries = await readdir(packageRoot);
   assert.equal(packageEntries.includes('SPEC.md'), false);
+});
+
+test('the pdf.js contract is types plus one adapter; the ambient TextLayer declaration has no runtime binding', async () => {
+  const runtime = await import('../packages/react/dist/lib/pdf-runtime.js');
+  assert.deepEqual(Object.keys(runtime), ['pdfJsWithWorker']);
 });

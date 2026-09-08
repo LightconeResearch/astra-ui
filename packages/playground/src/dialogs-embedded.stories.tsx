@@ -4,7 +4,7 @@ import { DecisionDialog, OutputDialog, PaperDialog } from '@astra-spec/ui/compon
 import { collectInventoryPapers, decisionInsights, outputRelations } from '@astra-spec/ui/model';
 import { DialogProvider } from '@astra-spec/ui/primitives';
 import { byPath } from './derive';
-import { analysisDocument, paperMetadata, renderArtifact, renderPaper } from './host';
+import { analysisDocument, paperMetadata, renderArtifact, loadPdfJs } from './host';
 
 // The embedded shell is what jupyterlab-astra mounts. The demo paper preview
 // opens every record kind as a modal, so only what is specific to embedding
@@ -37,7 +37,7 @@ export const Paper: Story = () => {
     <DialogProvider mode="embedded">
       <PaperDialog
         record={paper}
-        renderPaper={renderPaper}
+        loadPdfJs={loadPdfJs}
         onFetchPaper={noop}
         onOpenInsight={noop}
         onOpenDecision={noop}

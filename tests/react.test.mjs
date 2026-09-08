@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { DetailDialog, DialogProvider, PreviewPopover, Prose, renderProse } from '../packages/react/dist/primitives/index.js';
+import { DetailDialog, DialogProvider, PreviewPopover, Prose } from '../packages/react/dist/primitives/index.js';
+import { renderProse } from '../packages/react/dist/lib/index.js';
 import {
   ArtifactPreview,
   OutputDetail,
@@ -10,8 +11,8 @@ import {
   PaperDialog,
   RecordDialog,
   RecordPreview,
-  recordEntry,
 } from '../packages/react/dist/components/index.js';
+import { recordEntry } from '../packages/react/dist/lib/index.js';
 import { indexAnalysis } from '@astra-spec/sdk';
 import { collectInventoryPapers } from '../packages/react/dist/model/index.js';
 import { AnalysisTree, OutputCard, OutputsList } from '../packages/react/dist/blocks/index.js';
@@ -165,37 +166,24 @@ test('authored prose accepts host-normalized custom math macros', () => {
   assert.doesNotMatch(html, /katex-error|mathcolor="#cc0000"/);
 });
 
-test('paper content and source focus are delegated to a host renderer', () => {
+test('paper dialogs render on the server without initializing PDF.js', () => {
   const index = indexAnalysis(fixtureDocument);
-  const paper = collectInventoryPapers(
-    fixtureDocument,
-    index,
-    fixtureDocument.analysis,
-    {
-      '10.1234/example': {
-        title: 'A useful paper',
-        pdfUrl: '/papers/example.pdf',
-      },
-    },
-  )[0];
-  let renderOptions;
+  const paper = collectInventoryPapers(fixtureDocument, index, fixtureDocument.analysis, {
+    '10.1234/example': { title: 'A useful paper', pdfUrl: '/paper.pdf' },
+  })[0];
+  let loads = 0;
   const html = withinUi(React.createElement(PaperDialog, {
     record: paper,
-    focusInsight: paper.insights[0],
-    renderPaper: (_paper, options) => {
-      renderOptions = options;
-      return React.createElement('div', { 'data-paper-renderer': true }, 'Host paper renderer');
-    },
+    loadPdfJs: async () => { loads++; throw new Error('Browser only'); },
     onClose: () => {},
   }));
-
-  assert.match(html, /Host paper renderer/);
+  assert.equal(loads, 0);
+  assert.match(html, /Loading PDF/);
   assert.match(html, /Locate/);
-  assert.match(html, /class="astra-dialog__action"/);
-  assert.equal(
-    renderOptions.focusEvidence.evidence.quote.exact,
-    'The fiducial method performs well.',
-  );
+  assert.match(html, /href="\/paper.pdf"/);
+  const withoutRuntime = withinUi(React.createElement(PaperDialog, { record: paper, onClose: () => {} }));
+  assert.doesNotMatch(withoutRuntime, /astra-paper-pdf/);
+  assert.match(withoutRuntime, /Embedded PDF viewing is unavailable/);
 });
 
 test('missing paper content exposes only a host fetch event', () => {

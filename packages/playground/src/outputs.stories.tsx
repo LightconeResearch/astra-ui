@@ -1,6 +1,7 @@
 import type { Story } from '@ladle/react';
 import type { ResolvedOutput } from '@astra-spec/sdk';
-import { ArtifactPreview, type ArtifactPreviewData, type ArtifactRenderer } from '@astra-spec/ui/components';
+import { ArtifactPreview, type ArtifactRenderer } from '@astra-spec/ui/components';
+import type { ArtifactPreviewData } from '@astra-spec/ui/lib';
 import { Inventory } from '@astra-spec/ui/views';
 import { analysisDocument } from './host';
 

@@ -11,6 +11,8 @@
   "devDependencies": {
     "@ladle/react": "^5.0.0",
     "@astra-spec/ui": "file:../react",
-    "@lightcone-research/brand": "^0.0.2"
+    "@lightcone-research/brand": "^0.0.2",
+    "pdfjs-dist": "4.8.69",
+    "playwright": "^1.62.1"
   }
 }

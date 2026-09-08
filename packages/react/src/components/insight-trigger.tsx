@@ -9,7 +9,8 @@ import {
 } from 'react';
 import { recordTitle } from '../model/records.js';
 import { cn } from '../lib/cn.js';
-import { Prose, type TextRenderer } from '../primitives/prose.js';
+import { Prose } from '../primitives/prose.js';
+import type { TextRenderer } from '../lib/prose.js';
 
 export interface InsightEvidenceTitleProps {
   name: string;

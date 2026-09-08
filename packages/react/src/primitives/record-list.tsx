@@ -1,6 +1,6 @@
 import { forwardRef, type CSSProperties, type HTMLAttributes, type ReactNode } from 'react';
 import { cn } from '../lib/cn.js';
-import { surfaceGlyph, type SurfaceKind } from './kind.js';
+import { surfaceGlyph, type SurfaceKind } from '../model/kind.js';
 
 export interface RecordListColumn {
   label?: string | undefined;

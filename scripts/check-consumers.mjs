@@ -4,43 +4,64 @@
 //
 //   npm run check:consumers
 //
+// Each consumer is checked with its own tsconfig and its own TypeScript, found
+// in the nearest node_modules at or above the checkout; one that is not
+// installed is skipped.
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-// npx is a .cmd shim on Windows, which only a shell can start.
-const shell = process.platform === 'win32';
 const dist = join(here, 'packages/react/dist');
 const consumers = [
-  { name: 'jupyterlab-astra', dir: resolve(here, '../jupyterlab-astra'), include: ['src/**/*'] },
-  { name: 'astra-theme', dir: resolve(here, '../astra-theme/packages/astra'), include: ['src/**/*'] },
+  { name: 'jupyterlab-lightcone', dir: resolve(here, '../jupyterlab-lightcone') },
+  { name: 'vscode-astra', dir: resolve(here, '../vscode-astra') },
+  { name: 'astra-theme', dir: resolve(here, '../astra-theme2/packages/astra') },
 ];
 
+function nearestTsc(dir) {
+  for (let candidate = dir; ; candidate = dirname(candidate)) {
+    const tsc = join(candidate, 'node_modules/typescript/bin/tsc');
+    if (existsSync(tsc)) return tsc;
+    if (dirname(candidate) === candidate) return undefined;
+  }
+}
+
 let failed = false;
-for (const { name, dir, include } of consumers) {
+for (const { name, dir } of consumers) {
   if (!existsSync(join(dir, 'tsconfig.json'))) {
     console.log(`skip     ${name} (not checked out at ${dir})`);
     continue;
   }
-  const scratch = join(here, '.cache', 'consumers');
-  mkdirSync(scratch, { recursive: true });
-  const config = join(scratch, `${name}.tsconfig.json`);
+  const tsc = nearestTsc(dir);
+  if (!tsc) {
+    console.log(`skip     ${name} (not installed)`);
+    continue;
+  }
+  // Written beside the consumer's own tsconfig so its `types`, `include` and
+  // module resolution apply unchanged; only @astra-spec/ui is redirected.
+  const config = join(dir, '.astra-ui-consumer-check.tsconfig.json');
   writeFileSync(config, JSON.stringify({
-    extends: join(dir, 'tsconfig.json'),
+    extends: './tsconfig.json',
     compilerOptions: {
       noEmit: true,
-      baseUrl: dir,
+      composite: false,
+      incremental: false,
+      declaration: false,
+      baseUrl: '.',
       paths: {
-        ...Object.fromEntries(['primitives', 'components', 'blocks', 'views', 'model'].map((layer) => [`@astra-spec/ui/${layer}`, [join(dist, layer, 'index.d.ts')]])),
+        ...Object.fromEntries(['lib', 'primitives', 'components', 'blocks', 'views', 'model'].map((layer) => [`@astra-spec/ui/${layer}`, [join(dist, layer, 'index.d.ts')]])),
         '@astra-spec/ui/*': [join(dist, '*')],
       },
     },
-    include: include.map((pattern) => join(dir, pattern)),
   }, null, 2));
-  const result = spawnSync('npx', ['tsc', '-p', config], { stdio: 'inherit', cwd: dir, shell });
-  if (result.status === 0) console.log(`ok       ${name}`);
-  else { failed = true; console.log(`FAILED   ${name}`); }
+  try {
+    const result = spawnSync(process.execPath, [tsc, '-p', config], { stdio: 'inherit', cwd: dir });
+    if (result.status === 0) console.log(`ok       ${name}`);
+    else { failed = true; console.log(`FAILED   ${name}`); }
+  } finally {
+    rmSync(config, { force: true });
+  }
 }
 process.exit(failed ? 1 : 0);

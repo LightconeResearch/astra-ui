@@ -8,7 +8,7 @@ import {
   type ReactNode,
   type Ref,
 } from 'react';
-import { cn } from './cn.js';
+import { cn } from '../lib/cn.js';
 
 export interface SlotProps extends HTMLAttributes<HTMLElement> {
   children?: ReactNode;

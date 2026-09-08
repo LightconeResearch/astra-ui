@@ -1,17 +1,16 @@
 /** Blocks: sections of the inventory page, composable into any layout. */
 export { AnalysisTree } from './analysis-tree.js';
 export type { AnalysisTreeProps } from './analysis-tree.js';
-export { InventoryOutline, sectionKind, InventoryRecords, InventorySection } from './section.js';
+export { InventoryOutline, InventoryRecords, InventorySection } from './section.js';
 export type {
   InventoryOutlineEntry,
   InventoryOutlineProps,
   InventoryRecordsProps,
-  InventorySectionId,
   InventorySectionProps,
 } from './section.js';
 export { OutputCard, OutputsList } from './outputs-list.js';
 export type { OutputCardProps, OutputsListProps } from './outputs-list.js';
-export { ALL_TAGS, DecisionsList, decisionTagLabel } from './decisions-list.js';
+export { ALL_TAGS, DecisionsList } from './decisions-list.js';
 export type { DecisionsListProps } from './decisions-list.js';
 export { InputsList } from './inputs-list.js';
 export type { InputsListProps } from './inputs-list.js';

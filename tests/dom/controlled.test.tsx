@@ -1,10 +1,11 @@
 import { act, cleanup, fireEvent, render, renderHook, screen } from '@testing-library/react';
-import type { ResolvedAnalysisDocument, ResolvedInsight, ResolvedOutput } from '@astra-spec/sdk';
+import type { ResolvedAnalysisDocument, ResolvedOutput } from '@astra-spec/sdk';
 import { indexAnalysis } from '@astra-spec/sdk';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Button } from '../../packages/react/src/primitives/index.js';
-import { OutputDialog, PaperDetail, useDetailStack, type PaperRenderOptions } from '../../packages/react/src/components/index.js';
-import { collectInventoryPapers } from '../../packages/react/src/model/index.js';
+import { OutputDialog, PaperDetail } from '../../packages/react/src/components/index.js';
+import { useDetailStack } from '../../packages/react/src/lib/index.js';
+import { collectInventoryPapers } from '../../packages/react/src/model/papers.js';
 import { fixtureDocument as untypedFixture } from '../fixture.mjs';
 
 const fixtureDocument = untypedFixture as unknown as ResolvedAnalysisDocument;
@@ -72,30 +73,5 @@ describe('PaperDetail decision filter', () => {
     expect(chip.getAttribute('aria-pressed')).toBe('false');
     expect(screen.queryByRole('button', { name: /^Open Method choice/ })).toBeNull();
     expect(screen.getByText('Insights from this paper')).toBeTruthy();
-  });
-});
-
-describe('PaperDetail focus requests', () => {
-  it('keeps one focus object across unrelated re-renders and issues a new key per locate click', () => {
-    const paper = collectInventoryPapers(fixtureDocument, index, fixtureDocument.analysis, { '10.1234/example': { pdfUrl: '/x.pdf' } })[0];
-    if (!paper) throw new Error('fixture paper missing');
-    const insight = record<ResolvedInsight>('prior_insights.published_method');
-    const seen: (PaperRenderOptions['focusEvidence'])[] = [];
-    const renderPaper = (_paper: unknown, options: PaperRenderOptions) => { seen.push(options.focusEvidence); return <div>paper</div>; };
-    const { rerender } = render(<PaperDetail record={paper} focusInsight={insight} renderPaper={renderPaper} metadata={{ status: 'idle' }} />);
-    rerender(<PaperDetail record={paper} focusInsight={insight} renderPaper={renderPaper} metadata={{ status: 'fetching' }} />);
-    expect(seen[0]).toBeDefined();
-    expect(seen[1]).toBe(seen[0]);
-    expect(seen[0]?.key).toBe('prior_insights.published_method-source');
-
-    const locate = screen.getAllByRole('button', { name: /Locate source passage/ })[0];
-    if (!locate) throw new Error('no locate button');
-    fireEvent.click(locate);
-    fireEvent.click(locate);
-    const keys = seen.map((focus) => focus?.key);
-    const last = keys.at(-1);
-    const previous = keys.at(-2);
-    expect(last).not.toBe(previous);
-    expect(seen.at(-1)?.evidence).toBe(seen.at(-2)?.evidence);
   });
 });

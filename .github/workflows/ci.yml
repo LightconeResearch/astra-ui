@@ -16,9 +16,14 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run check
+      - name: Install browser for PDF integration tests
+        run: npx playwright install --with-deps chromium
+      - name: Verify PDF reading with the packaged runtime and worker
+        run: npm run test:pdf
+        timeout-minutes: 15
       - name: Package hygiene
         run: |
           npx --yes publint packages/react
-          npx --yes @arethetypeswrong/cli --pack packages/react --profile esm-only --entrypoints ./primitives ./components ./blocks ./views ./model
+          npx --yes @arethetypeswrong/cli --pack packages/react --profile esm-only --entrypoints ./lib ./primitives ./components ./blocks ./views ./model
       - name: Type-check against React 19 typings
         run: npm run typecheck:react19

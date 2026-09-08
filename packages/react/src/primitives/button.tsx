@@ -1,6 +1,6 @@
 import { forwardRef, type ButtonHTMLAttributes } from 'react';
 import { cn } from '../lib/cn.js';
-import { Slot } from '../lib/slot.js';
+import { Slot } from './slot.js';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'quiet';
 export type ButtonSize = 'small' | 'medium';

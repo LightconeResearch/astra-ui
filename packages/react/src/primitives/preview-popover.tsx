@@ -36,9 +36,9 @@ import {
   type ReactNode,
 } from 'react';
 import { cn } from '../lib/cn.js';
-import { Slot } from '../lib/slot.js';
+import { Slot } from './slot.js';
 import { useDialogDismissGuard, useOptionalDialog } from './dialog.js';
-import type { SurfaceKind } from './kind.js';
+import type { SurfaceKind } from '../model/kind.js';
 
 const ARROW_HEIGHT = 7;
 const REFERENCE_GAP = 6;

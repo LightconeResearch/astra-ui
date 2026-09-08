@@ -1,0 +1,120 @@
+/* paper-pdf-viewer — shared canvas, text layer and controls. */
+@layer astra.tokens, astra.base, astra.components, astra.views;
+@layer astra.components {
+  :where(.astra-ui) .astra-paper-pdf {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    background: var(--astra-color-canvas);
+  }
+
+  :where(.astra-ui) .astra-paper-pdf__toolbar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--astra-color-border);
+    font-size: 0.8rem;
+  }
+
+  :where(.astra-ui) .astra-paper-pdf__toolbar > span:first-child {
+    flex: 1;
+  }
+
+  :where(.astra-ui) .astra-paper-pdf__toolbar button {
+    min-width: 1.5rem;
+    cursor: pointer;
+    border: 1px solid var(--astra-color-border);
+    border-radius: var(--astra-radius-control);
+    color: var(--astra-color-text);
+    background: var(--astra-color-surface);
+    font: inherit;
+  }
+
+  :where(.astra-ui) .astra-paper-pdf__toolbar button:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  :where(.astra-ui) .astra-paper-pdf__scroll {
+    box-sizing: border-box;
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    overflow: auto;
+    padding: 1rem;
+    overscroll-behavior: contain;
+  }
+
+  :where(.astra-ui) .astra-paper-pdf__page {
+    position: relative;
+    margin: 0 auto 1rem;
+    background: var(--astra-color-artifact-paper);
+    box-shadow: var(--astra-shadow-raised);
+  }
+
+  :where(.astra-ui) .astra-paper-pdf__page canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* PDF.js positions each text run over its canvas glyphs. */
+  :where(.astra-ui) .astra-paper-pdf__text {
+    position: absolute;
+    inset: 0;
+    overflow: clip;
+    text-align: initial;
+    line-height: 1;
+    text-size-adjust: none;
+    forced-color-adjust: none;
+    transform-origin: 0 0;
+  }
+
+  :where(.astra-ui) .astra-paper-pdf__text :is(span, br) {
+    position: absolute;
+    color: transparent;
+    cursor: text;
+    transform-origin: 0 0;
+    white-space: pre;
+  }
+
+  /* PDF.js sizes text in unrotated coordinates and supplies this attribute. */
+  :where(.astra-ui) .astra-paper-pdf__text:where([data-main-rotation="90"]) {
+    transform: rotate(90deg) translateY(-100%);
+  }
+
+  :where(.astra-ui) .astra-paper-pdf__text:where([data-main-rotation="180"]) {
+    transform: rotate(180deg) translate(-100%, -100%);
+  }
+
+  :where(.astra-ui) .astra-paper-pdf__text:where([data-main-rotation="270"]) {
+    transform: rotate(270deg) translateX(-100%);
+  }
+
+  :where(.astra-ui) .astra-paper-pdf__text ::selection,
+  :where(.astra-ui) .astra-paper-pdf__match {
+    color: transparent;
+    background: color-mix(
+      in srgb,
+      var(--astra-color-kind-decision) 45%,
+      transparent
+    );
+  }
+
+  /* pdf.js appends its glyph-measuring canvas to <body>, outside any scope;
+     unstyled it lays out as a 300x150 element on pages without text. */
+  .hiddenCanvasElement {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    display: none;
+  }
+}

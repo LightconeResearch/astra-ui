@@ -1,5 +1,7 @@
 /** Model: pure, React-free derivations over the SDK's resolved analysis. */
-export { analysisTitle, countLabel, isInsight, isVisualOutput, recordTitle, selectedOptionLabel } from './records.js';
+export { analysisTitle, countLabel, decisionTagLabel, inputSourceLabel, isInsight, isVisualOutput, recordTitle, selectedOptionLabel } from './records.js';
+export { sectionKind, surfaceGlyph } from './kind.js';
+export type { InventorySectionId, SurfaceKind } from './kind.js';
 export { locateRecord } from './locate-record.js';
 export type { LocatedRecord } from './locate-record.js';
 export {
@@ -21,12 +23,12 @@ export {
   paperEvidence,
   paperForDoi,
   paperMetadataFor,
+  primaryLiteratureEvidence,
 } from './papers.js';
 export type {
   InventoryPaper,
   InventoryPaperMetadata,
   InventoryPaperMetadataMap,
   PaperFetchStatus,
-  PaperFocusEvidence,
 } from './papers.js';
 export { doiHref } from './doi.js';

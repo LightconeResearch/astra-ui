@@ -63,9 +63,10 @@ layer you need:
 | --- | --- | --- |
 | `@astra-spec/ui/views` | Complete, ready-made surfaces | `Inventory` |
 | `@astra-spec/ui/blocks` | Sections that can be assembled into a custom page | `AnalysisTree`, inventory lists, `InventorySection`, `InventoryOutline` |
-| `@astra-spec/ui/components` | One ASTRA record or paper at a time | `*Detail`, `*Dialog`, `RecordDialog`, `RecordPreview`, `ArtifactPreview`, `useDetailStack` |
-| `@astra-spec/ui/primitives` | Generic presentation with no resolved ASTRA model dependency beyond record kinds | Buttons, badges, dialogs, `PreviewPopover`, detail-layout compounds, lists, prose, labels |
-| `@astra-spec/ui/model` | Pure, React-free derivations over SDK data | Record lookup, relationships, paper collection, display labels, DOI helpers |
+| `@astra-spec/ui/components` | One ASTRA record or paper at a time | `*Detail`, `*Dialog`, `RecordDialog`, `RecordPreview`, `ArtifactPreview`, `PaperPdfViewer` |
+| `@astra-spec/ui/primitives` | Generic presentation with no resolved ASTRA model dependency beyond record kinds | Buttons, badges, dialogs, `PreviewPopover`, detail-layout compounds, lists, `Prose` |
+| `@astra-spec/ui/model` | Pure, React-free derivations over SDK data | Record lookup, relationships, paper collection, display labels, record kinds, DOI helpers |
+| `@astra-spec/ui/lib` | The machinery behind the elements | `useDetailStack`, `LabelsProvider`, `renderProse`, preview-data builders, `pdfJsWithWorker` |
 
 Every public file also has a direct subpath, such as
 `@astra-spec/ui/components/output-dialog` or
@@ -84,7 +85,8 @@ Its most useful options are:
 - `analysisPath` selects a nested analysis (`$` is the project root).
 - `sections` changes which inventory sections appear and their order.
 - `showOutline` and `idPrefix` control outline navigation.
-- `renderArtifact`, `renderText`, and `renderPaper` replace host-owned content.
+- `renderArtifact` and `renderText` replace host-owned content.
+- `loadPdfJs` enables the built-in PDF viewer; `onOpenPaperFile` overrides external PDF opening.
 - `paperMetadata` and `onFetchPaper` connect paper loading to host state.
 - `detail`, `defaultDetail`, and `onDetailChange` control the detail stack.
 - `detailMode="embedded"` renders details as an inline panel instead of a modal.
@@ -120,7 +122,7 @@ Each ASTRA record kind has both a dialog and a dialog-free detail body:
 | `InputDialog`, `InputDetail` | Input type, source, and authored description |
 | `FindingDialog`, `FindingDetail` | Finding claim, artifact-backed evidence, and literature evidence |
 | `InsightDialog`, `InsightDetail`, `InsightTrigger`, `InsightEvidenceTitle` | Prior-insight claims, quoted sources, evidence labels, and decisions informed by the insight |
-| `PaperDialog`, `PaperDetail`, `PaperDialogActions` | Paper metadata, cited passages, related insights and decisions, and DOI actions |
+| `PaperDialog`, `PaperDetail`, `PaperDialogActions`, `PaperPdfViewer` | Paper metadata, in-place PDF reading with located passages, related insights and decisions, and DOI actions |
 
 Use a `*Dialog` when you already have the record and any derived relationship
 data. Use the corresponding `*Detail` inside a sidebar, route, or your own
@@ -200,11 +202,8 @@ host-provided preview data in six states: table, image, metric, text, loading,
 or unavailable.
 
 ```tsx
-import {
-  ArtifactPreview,
-  type ArtifactPreviewData,
-  type ArtifactRenderer,
-} from '@astra-spec/ui/components';
+import { ArtifactPreview, type ArtifactRenderer } from '@astra-spec/ui/components';
+import type { ArtifactPreviewData } from '@astra-spec/ui/lib';
 
 export function createArtifactRenderer(
   previews: ReadonlyMap<string, ArtifactPreviewData>,
@@ -220,8 +219,8 @@ export function createArtifactRenderer(
 ```
 
 `tablePreviewFromDelimited`, `tablePreviewFromRows`, and
-`metricPreviewFromJson` turn already-loaded host data into preview values. They
-perform no I/O.
+`metricPreviewFromJson` from `@astra-spec/ui/lib` turn already-loaded host data
+into preview values. They perform no I/O.
 
 ### Primitives
 
@@ -238,10 +237,9 @@ The primitive layer is useful for building surfaces that match the library:
 | `RecordList`, `RecordIdentity`, `EmptyState` | Accessible, column-aligned record lists |
 | `RelationList` | Counted related-record lists with optional navigation triggers |
 | `Prose` | Authored text with built-in inline code and KaTeX math rendering |
-| `LabelsProvider` | Scoped user-facing label overrides |
 
-The layer also exports `Slot`, `cn`, prose parsers, label helpers, dialog hooks,
-and their public types.
+The layer also exports `Slot`, the dialog hooks, and their public types. Class
+name merging (`cn`), prose parsing and the label helpers are in `@astra-spec/ui/lib`.
 
 ## Host extension points
 
@@ -251,15 +249,167 @@ and their public types.
   default understands inline code, `$inline$` math, and `$$display$$` math.
   Hosts that only need custom math commands can reuse that renderer with
   `renderProse(text, { macros })`; macro values are KaTeX expansion strings.
-- `renderPaper(paper, { focusEvidence })` renders host-owned paper content.
+- `loadPdfJs()` supplies pdf.js for reading papers in place and locating their quoted passages.
+- `onOpenPaperFile(paper)` opens a PDF through the host; otherwise the dialog uses a normal link.
 - `onFetchPaper(doi)` asks the host to load paper data. Feed the result and
   `status: 'fetching' | 'error'` back through `paperMetadata`.
 - `labels` on `Inventory`, or `LabelsProvider` around lower-level components,
   overrides the default UI copy.
 
-These are render callbacks and events: the package never fetches a URL, reads a
-file, resolves an ASTRA project, or stores application state on the host's
-behalf.
+The host owns paper discovery, downloading, authentication and resource URLs;
+the viewer only loads the URL it is given.
+
+## PDF reading and passage navigation
+
+`Inventory`, `RecordDialog`, `PaperDialog` and `PaperDetail` read a paper in
+place when its metadata carries a `pdfUrl` and the host supplies `loadPdfJs`:
+
+```tsx
+<Inventory
+  document={document}
+  paperMetadata={paperMetadata}
+  loadPdfJs={loadPdfJs}
+  onFetchPaper={fetchPaper}
+/>
+```
+
+`loadPdfJs` returns pdf.js itself. Import the module inside the callback, so
+server rendering never touches browser APIs, and point
+`GlobalWorkerOptions.workerSrc` at the matching worker script:
+
+```ts
+import type { PdfJsLoader } from '@astra-spec/ui/lib';
+import workerUrl from 'pdfjs-dist/legacy/build/pdf.worker.min.mjs?url';
+
+export const loadPdfJs: PdfJsLoader = async () => {
+  const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
+  pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
+  return pdfjs;
+};
+```
+
+pdf.js then starts one worker per open document, renders on the main thread
+if that worker cannot start, and terminates the worker when the viewer
+releases the document. The package has no pdf.js dependency: `PdfJs` is the
+structural subset of the module the viewer uses (`getDocument` and
+`TextLayer`), so any release whose module satisfies it can be supplied. The
+legacy build of pdf.js 4.8.69 is the one validated in the package's browser
+tests; it and its worker polyfill the supported browser floor, so use the
+legacy runtime and worker together.
+
+`workerSrc` is whatever URL your build serves the worker file from:
+
+- Vite: the `?url` import above.
+- webpack or rspack:
+  `new URL('pdfjs-dist/legacy/build/pdf.worker.min.mjs', import.meta.url).href`,
+  provided the build emits `.mjs` files referenced this way as assets. A build
+  whose rules process every `.mjs` file as JavaScript bundles the worker into
+  the main script instead. There, create the worker yourself with the
+  bundler-native form and let `pdfJsWithWorker` do the rest:
+
+  ```ts
+  import { pdfJsWithWorker, type PdfJsLoader } from '@astra-spec/ui/lib';
+
+  export const loadPdfJs: PdfJsLoader = async () => pdfJsWithWorker(
+    await import('pdfjs-dist/legacy/build/pdf.mjs'),
+    () => new Worker(new URL('pdfjs-dist/legacy/build/pdf.worker.min.mjs', import.meta.url), { type: 'module' }),
+  );
+  ```
+
+  It starts one worker per document, fails loading instead of hanging when
+  the script cannot start, and terminates the worker with the document.
+- A page served from a restricted origin, such as an editor's embedded web
+  view: copy `pdf.mjs` and the worker next to the page and import the runtime
+  by URL at load time. Start the worker from the document, where its origin
+  is known: fetch the worker script, wrap it in a blob URL, and hand that to
+  `pdfJsWithWorker` (`() => new Worker(blobUrl, { type: 'module' })`). This
+  needs only `worker-src blob:` in the page's content security policy. Using
+  the worker's resource URL as `workerSrc` also works where the host serves
+  fetches made from inside a worker, but pdf.js then starts it through a blob
+  wrapper that imports that URL, so `script-src` must cover the worker's
+  origin as well; under a strict policy there is no main-thread fallback
+  either way. Never set `GlobalWorkerOptions.workerPort`: it overrides
+  `workerSrc` and makes every document share one worker that is never
+  terminated.
+
+Decide the worker route once, before the first document opens: after a worker
+fails to start, pdf.js keeps every later document on the main thread for the
+lifetime of the page.
+
+Document options such as `cMapUrl`, `standardFontDataUrl`, `httpHeaders` or
+`withCredentials` are added by wrapping `getDocument`:
+
+```ts
+return {
+  TextLayer: pdfjs.TextLayer,
+  getDocument: (options) => pdfjs.getDocument({ ...options, cMapUrl, cMapPacked: true }),
+};
+```
+
+### Locating passages
+
+Each quoted passage in the paper's insight rail has a Locate control, and a
+dialog opened with `focusInsightPath` locates that insight's first passage on
+its own. The viewer searches the cited physical page first, prefers a
+complete match anywhere in the document to a shortened prefix, and labels
+partial results. When nothing matches it shows the cited page if the document
+has one, or reports that the quote was not found. Pages are one-based
+physical page indices, not printed labels. Matching tolerates split text runs,
+ligatures, whitespace, hyphenation, curly quotes and accents the PDF kept,
+decomposed or lost; it marks the original text without interpreting it. Text
+is extracted once per page for the open document and shared between the
+selectable text layer and search. There is no OCR and no use of a quote's
+prefix or suffix to disambiguate repeated text, so scanned PDFs and quotes
+spanning pages fall back to the cited page. Matching is navigation
+assistance, not evidence verification.
+
+### The viewer on its own
+
+`PaperPdfViewer` from `@astra-spec/ui/components` takes `pdfUrl`, `title`,
+`loadPdfJs`, an optional `passage` (`{ key, quote?, page? }`; repeat a passage
+under a new `key` to scroll to it again) and `onLoadStateChange(state, error?)`,
+which reports `'loading'`, `'ready'` or `'error'` with the failure reason.
+Neither callback needs a stable identity: `onLoadStateChange` always calls the
+latest function, and `loadPdfJs` is read once when a document mounts, so a
+replacement is ignored until `pdfUrl` changes or the viewer remounts. Give the
+viewer a container with a defined height and import `components.css` or a
+higher bundle; it handles zoom, selectable text, nearby-page rendering, and
+releases distant canvases while keeping page geometry. `PaperDetail` composes
+it with the insight rail and makes the Locate controls inert after a load
+failure. A host that mounts `PaperDetail` outside a dialog adds
+`PaperDialogActions`, or its own link, to open the file elsewhere.
+
+`onOpenPaperFile(paper)` overrides the dialog header's open action, for a host
+that cannot open the PDF URL in a browser tab. It receives the `InventoryPaper`
+with its `pdfUrl`. It is distinct from `onOpenPaper`, which navigates to paper
+details. `onFetchPaper` remains an explicit acquisition request, with status
+and errors returned through `paperMetadata`; opening a dialog never downloads
+a missing paper through that callback.
+
+All viewer messages and accessible names are overridable through `labels.pdf`
+on `Inventory`, or through `LabelsProvider` for standalone paper components.
+Dynamic entries receive page numbers, counts, paper titles, or zoom
+percentages:
+
+```tsx
+<LabelsProvider labels={{ pdf: {
+  loading: 'Chargement…',
+  zoomIn: 'Agrandir',
+  quoteHighlighted: (page, total) => `Citation sur la page ${page}/${total}`,
+} }}>
+  <PaperDialog record={paper} loadPdfJs={loadPdfJs} onClose={close} />
+</LabelsProvider>
+```
+
+### Migrating from `renderPaper`
+
+- Replace `renderPaper` with `loadPdfJs`, and delete the host's page
+  rendering, quote matching and viewer stylesheet.
+- Replace any interception of the paper link with `onOpenPaperFile`.
+- Remove any `GlobalWorkerOptions.workerPort` assignment and any module-level
+  worker; pdf.js, or `pdfJsWithWorker`, owns one worker per document.
+- `PaperRenderOptions.focusEvidence` has no successor: `PaperDetail` builds the
+  viewer's `passage` from the evidence itself.
 
 ## Styling and theming
 
@@ -307,7 +457,10 @@ Styled roots and internal parts expose `data-slot` attributes. Kinds and
 variants use attributes including `data-kind`, `data-mode`, `data-layout`,
 `data-density`, `data-variant`, `data-selected`, and `data-expanded`. Package
 rules live in CSS cascade layers and use zero-specificity `.astra-ui` scoping,
-so unlayered host CSS can override them predictably.
+so unlayered host CSS can override them predictably. The one exception is in
+`components.css` and the bundles above it: pdf.js appends its glyph-measuring
+canvas to `<body>`, outside any scope, so one layered rule hides that
+`hiddenCanvasElement` class wherever it appears.
 
 ## Platform support
 

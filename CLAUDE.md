@@ -11,13 +11,17 @@ paper against the local package). Node >= 20.
 
 ```bash
 npm install              # installs the published Lightcone brand used by the playground
-npm run check            # the CI gate: lint + typecheck (+react19) + node tests + vitest
+npm run check            # lint + typecheck (+react19) + node tests + vitest; CI runs this, then test:pdf
+npm run test:pdf         # build + static playground + Playwright: PDF reading with a real worker in Chromium
 npm run build            # tsc only, packages/react/src -> dist (CSS is hand-written, never built)
 npm test                 # build + node --test tests/*.test.mjs + vitest run
 npm run typecheck        # build, then package + playground + tests/dom typecheck
 npm run typecheck:react19 # same sources against @types/react@19 (package supports React 18 and 19)
 npm run lint             # eslint . (typed rules on packages/react/src, plain rules elsewhere)
 ```
+
+`test:pdf` needs `npx playwright install chromium` once; it drives `packages/playground/scripts/test-pdf.mjs`
+against the built Ladle playground and asserts on the default English `labels.pdf` strings.
 
 Two test runners, both importing the **built** `dist`, so build first when invoking them directly:
 
@@ -41,7 +45,7 @@ VITE_ASTRA_THEME=none npm run playground   # unthemed, package defaults only
 npm run screenshots                    # build + static Ladle build + Playwright: every story light+dark @1280x900
 node packages/preview/screenshot.mjs stories --filter <substring> --width 960
 npm run preview:screenshots            # every page of packages/preview/dist, light+dark, 1280/960/640, hover + dialogs
-npm run check:consumers                # typecheck ../jupyterlab-astra and ../astra-theme against this dist
+npm run check:consumers                # typecheck ../jupyterlab-lightcone, ../vscode-astra, ../astra-theme2 against this dist
 npm run fixture --workspace astra-ui-playground [projectRoot] [universeId]   # regenerate fixtures/desi.json (default: the preview's pinned content clone)
 node scripts/tokens-doc.mjs            # regenerate packages/react/TOKENS.md from styles/tokens.css
 npm run preview                        # demo paper via astra-theme + MySTRA against the working tree, on :4310
@@ -68,17 +72,42 @@ JupyterLab or MyST, or keep session/storage state — a contract test greps for 
 the SDK's `indexAnalysis(document)` themselves; there is no local index wrapper.
 
 **Layers.** No root entry; each entry is imported on its own, and every file is also a subpath
-(`@astra-spec/ui/components/output-dialog`). Imports may only point downwards:
+(`@astra-spec/ui/components/output-dialog`). Two kinds of layer, never mixed: machinery renders
+nothing, UI is React elements of increasing complexity and only that. Imports follow this graph:
 
 ```
-lib  <-  primitives  <-  model  <-  components  <-  blocks  <-  views
+model (SDK derivations)     lib (React and DOM machinery)
+        \                     /
+         primitives (lib; model only for record kinds)
+                 |
+             components (model, lib, primitives)
+                 |
+               blocks
+                 |
+               views
 ```
 
-`model/` is pure derivation over the SDK and imports from no other layer (not even `lib`);
-`components/` is one record or paper at a time (`OutputDialog`/`OutputDetail`, …, `RecordDialog`,
-`useDetailStack`); `blocks/` are inventory page sections; `views/` holds `Inventory`, a ~100-line
-composition of exported blocks and components — hosts that own navigation compose the same parts
-directly, so keep everything `Inventory` uses exported.
+- `model/` is pure, React-free derivation over the SDK's resolved document: paper collection,
+  relations, record lookup, display labels, the record-kind vocabulary (`kind.ts`). It imports from
+  no other layer, not even `lib`.
+- `lib/` is every other non-UI part: `cn`, the labels context, the detail stack (`DetailEntry`,
+  `useDetailStack`, `OpenRecordHandler`), the prose parser and KaTeX renderer, artifact preview data
+  and its builders, the output expanded-state hook, the pdf.js runtime contract with its
+  `pdfJsWithWorker` adapter, quote matching and search. It imports from no other layer.
+- `primitives/` are generic building blocks (`Button`, `Dialog`, `Slot`, `DetailLayout`, `Prose`,
+  `PreviewPopover`); `components/` show one record or paper at a time (`OutputDetail`/`OutputDialog`,
+  `PaperDetail`, `PaperPdfViewer`, `RecordDialog`); `blocks/` are inventory page sections over an
+  analysis node (`OutputsList`, `AnalysisTree`, `InventorySection`); `views/` holds `Inventory`, a
+  ~100-line composition of exported blocks and components — hosts that own navigation compose the same
+  parts directly, so keep everything `Inventory` uses exported. A file in these layers exports
+  elements and their prop types; whatever else it needs, it imports from `lib/` or `model/`.
+
+Where a new helper goes: SDK-typed derivation in `model/`; DOM, React or host-integration machinery
+in `lib/`. A hook that reads a compound element's context (`useDialog`) stays beside that element; a
+headless hook is machinery. `lib` and `model` are package entries in their own right
+(`@astra-spec/ui/lib`, `@astra-spec/ui/model`); a UI barrel exports elements and prop types only,
+never machinery. The one acknowledged piece of glue is `components/relation-items.ts`: it builds the
+`RelationList` primitive's items from model records, which no lower layer can do, and says so.
 
 **Navigation state.** `useDetailStack` is headless and works controlled (`value` + `onChange`) or
 uncontrolled, like a React input; a `DetailEntry` is `{kind: 'record', canonicalPath, analysisPath}`
@@ -86,7 +115,8 @@ or `{kind: 'paper', doi, analysisPath, focusInsightPath?}` — paths, never obje
 document refresh can prune entries that stopped resolving.
 
 **Host extension points**, all optional props: `renderArtifact`, `renderText` (replaces the built-in
-KaTeX/inline-code prose), `renderPaper`, `onFetchPaper` + `paperMetadata`, `onOpenArtifact`,
+KaTeX/inline-code prose), `loadPdfJs` (returns pdf.js with `workerSrc` set, or `pdfJsWithWorker(...)` for bundler-made
+workers), `onOpenPaperFile`, `onFetchPaper` + `paperMetadata`, `onOpenArtifact`,
 `labels` (every user-facing string, via `LabelsProvider`/`useLabels`).
 
 **Component conventions.** `forwardRef`, spread the rest onto the root, `className` merged with

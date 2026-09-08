@@ -4,7 +4,8 @@ import { recordTitle } from '../model/records.js';
 import { useLabels } from '../lib/labels.js';
 import { CountHeading, DetailLayout, DetailMain, DetailSection } from '../primitives/detail-layout.js';
 import { DetailDialog, type DetailDialogProps } from '../primitives/dialog.js';
-import { Prose, type TextRenderer } from '../primitives/prose.js';
+import { Prose } from '../primitives/prose.js';
+import type { TextRenderer } from '../lib/prose.js';
 import { InsightTrigger } from './insight-trigger.js';
 
 export interface DecisionDetailProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {

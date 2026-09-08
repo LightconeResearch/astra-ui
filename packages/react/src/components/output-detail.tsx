@@ -1,14 +1,16 @@
 import type { ResolvedOutput } from '@astra-spec/sdk';
-import { forwardRef, useCallback, useEffect, useRef, useState, type HTMLAttributes, type ReactNode } from 'react';
+import { forwardRef, useCallback, useEffect, useRef, type HTMLAttributes, type ReactNode } from 'react';
 import type { OutputRelations } from '../model/relations.js';
 import { isVisualOutput, recordTitle } from '../model/records.js';
 import { cn } from '../lib/cn.js';
 import { useLabels } from '../lib/labels.js';
 import { ArtifactPreview, type ArtifactRenderer } from './artifact-preview.js';
 import { DialogAction, useDialogDismissGuard, useOptionalDialog } from '../primitives/dialog.js';
-import { Prose, type TextRenderer } from '../primitives/prose.js';
+import { Prose } from '../primitives/prose.js';
+import type { TextRenderer } from '../lib/prose.js';
 import { RelationList } from '../primitives/relation-list.js';
-import { relationItemsForLinks, type OpenRecordHandler } from './relation-items.js';
+import { relationItemsForLinks } from './relation-items.js';
+import type { OpenRecordHandler } from '../lib/detail-stack.js';
 
 export interface OutputPreviewProps {
   output: ResolvedOutput;
@@ -233,27 +235,3 @@ export function OutputDialogActions({ record: output, onOpenArtifact, expanded, 
   );
 }
 
-/** Full-screen state for an output, reset whenever the output changes (a controlled host is asked to reset). */
-export function useOutputExpanded(output: ResolvedOutput, controlled?: { expanded?: boolean | undefined; onExpandedChange?: ((next: boolean) => void) | undefined }) {
-  const [internal, setInternal] = useState(false);
-  const [lastPath, setLastPath] = useState(output.canonicalPath);
-  if (lastPath !== output.canonicalPath) {
-    setLastPath(output.canonicalPath);
-    setInternal(false);
-  }
-  const isControlled = controlled?.expanded !== undefined;
-  const expanded = isControlled ? Boolean(controlled.expanded) : internal;
-  const onChange = controlled?.onExpandedChange;
-  const seenPath = useRef(output.canonicalPath);
-  const controlledExpanded = isControlled && Boolean(controlled.expanded);
-  useEffect(() => {
-    if (seenPath.current === output.canonicalPath) return;
-    seenPath.current = output.canonicalPath;
-    if (controlledExpanded) onChange?.(false);
-  }, [output.canonicalPath, controlledExpanded, onChange]);
-  const setExpanded = useCallback((next: boolean) => {
-    if (!isControlled) setInternal(next);
-    onChange?.(next);
-  }, [isControlled, onChange]);
-  return [expanded, setExpanded] as const;
-}

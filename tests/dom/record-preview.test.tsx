@@ -15,7 +15,7 @@ import {
 import {
   LabelsProvider,
   type AstraLabelOverrides,
-} from '../../packages/react/src/primitives/index.js';
+} from '../../packages/react/src/lib/index.js';
 import { fixtureDocument as untypedFixture } from '../fixture.mjs';
 
 const fixtureDocument = untypedFixture as unknown as ResolvedAnalysisDocument;
