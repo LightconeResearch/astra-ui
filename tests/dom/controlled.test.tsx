@@ -61,16 +61,14 @@ describe('PaperDetail decision filter', () => {
     render(<PaperDetail record={paper} onOpenDecision={onOpenDecision} />);
 
     expect(screen.queryByRole('button', { name: /^Open Method choice/ })).toBeNull();
-    const chip = screen.getByRole('button', { name: 'Method choice' });
-    fireEvent.click(chip);
-    expect(chip.getAttribute('aria-pressed')).toBe('true');
-    expect(screen.getByText('Insights for Method choice')).toBeTruthy();
+    const picker = screen.getByRole('combobox', { name: /inform a decision/ });
+    fireEvent.change(picker, { target: { value: paper.decisions[0]?.canonicalPath } });
+    expect((picker as HTMLSelectElement).value).toBe(paper.decisions[0]?.canonicalPath);
 
     fireEvent.click(screen.getByRole('button', { name: /^Open Method choice/ }));
     expect(onOpenDecision).toHaveBeenCalledWith(paper.decisions[0]);
 
-    fireEvent.click(chip);
-    expect(chip.getAttribute('aria-pressed')).toBe('false');
+    fireEvent.change(picker, { target: { value: '' } });
     expect(screen.queryByRole('button', { name: /^Open Method choice/ })).toBeNull();
     expect(screen.getByText('Insights from this paper')).toBeTruthy();
   });

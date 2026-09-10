@@ -102,7 +102,7 @@
     height: 100%;
     max-height: none;
     min-height: 0;
-    grid-template-columns: minmax(0, 1fr) clamp(260px, 24%, 300px);
+    grid-template-columns: minmax(0, 1fr) clamp(320px, 29%, 380px);
     overflow: hidden;
   }
 
@@ -144,10 +144,45 @@
     border-top: 1px solid var(--astra-color-border);
   }
 
-  /* The rail is narrow: keep the claim trigger's glyph gutter tight so the
-     claims read as a list, not an indented block. */
+  /* The picker sits on the heading's line: one row of chrome above the list,
+     rather than a section of its own above another. */
+  :where(.astra-ui) .astra-paper-detail__rail-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 4px 10px;
+  }
+
+  :where(.astra-ui) .astra-paper-decisions__picker {
+    display: inline-flex;
+    min-width: 0;
+    align-items: baseline;
+    gap: 5px;
+  }
+
+  :where(.astra-ui) .astra-paper-decisions__picker-label {
+    color: var(--astra-color-text-subtle);
+    font: 600 var(--astra-font-size-2xs)/1.2 var(--astra-font-ui);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  :where(.astra-ui) .astra-paper-decisions__picker select {
+    max-width: 100%;
+    min-width: 0;
+    padding: 2px 4px;
+    border: 1px solid var(--astra-color-border);
+    border-radius: var(--astra-radius-control);
+    background: var(--astra-color-surface-raised);
+    color: var(--astra-color-text);
+    font: 400 var(--astra-font-size-2xs)/1.3 var(--astra-font-ui);
+  }
+
+  /* No glyph gutter: every row in this list is an insight, so the claim takes
+     the full width of the rail. */
   :where(.astra-ui) .astra-paper-insight .astra-insight-trigger:where([data-variant="claim"]) {
-    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
     gap: 6.4px;
     padding: 0;
   }
@@ -169,47 +204,6 @@
       overflow: visible;
     }
 
-  }
-
-  :where(.astra-ui) .astra-paper-decisions__filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5.12px;
-    margin-top: 8px;
-  }
-
-  :where(.astra-ui) .astra-paper-decisions__filter {
-    display: inline-flex;
-    gap: 4.8px;
-    align-items: center;
-    cursor: pointer;
-    border: 1px solid var(--astra-color-border);
-    border-radius: 999px;
-    background: transparent;
-    color: var(--astra-color-text-muted);
-    padding: 2.88px 9.6px;
-    font-family: var(--astra-font-ui);
-    font-size: var(--astra-font-size-xs);
-    line-height: 1.3;
-    text-align: left;
-  }
-
-  :where(.astra-ui) .astra-paper-decisions__filter:hover {
-    border-color: var(--astra-color-text-subtle);
-    color: var(--astra-color-text);
-  }
-
-  :where(.astra-ui) .astra-paper-decisions__filter:where([aria-pressed="true"]) {
-    border-color: var(--astra-color-link);
-    background: color-mix(in srgb, var(--astra-color-link) 12%, transparent);
-    color: var(--astra-color-text);
-  }
-
-  :where(.astra-ui) .astra-paper-decisions__empty {
-    margin: 8px 0 0;
-    color: var(--astra-color-text-subtle);
-    font-family: var(--astra-font-ui);
-    font-size: var(--astra-font-size-xs);
   }
 
   :where(.astra-ui) .astra-paper-decisions__open {

@@ -1,4 +1,3 @@
-import { KindGlyph } from '../primitives/kind-glyph.js';
 import type { ResolvedDecision, ResolvedEvidence, ResolvedInsight } from '@astra-spec/sdk';
 import { forwardRef, useCallback, useMemo, useRef, useState, type HTMLAttributes } from 'react';
 import { doiHref } from '../model/doi.js';
@@ -118,35 +117,27 @@ export const PaperDetail = forwardRef<HTMLDivElement, PaperDetailProps>(function
         )}
       </div>
       <aside className="astra-paper-detail__rail" aria-label="Paper insights and decisions">
-        <section className="astra-paper-decisions">
-          <CountHeading title="Informs decisions" count={paper.decisions.length} />
-          {paper.decisions.length ? (
-            <div
-              className="astra-paper-decisions__filters"
-              role="group"
-              aria-label="Filter insights by decision"
-            >
-              {paper.decisions.map((decision) => {
-                const active = decision.canonicalPath === decisionFilter;
-                return (
-                  <button
-                    key={decision.canonicalPath}
-                    type="button"
-                    className="astra-paper-decisions__filter"
-                    aria-pressed={active}
-                    onClick={() => {
-                      setDecisionFilter(active ? undefined : decision.canonicalPath);
-                    }}
-                  >
-                    <KindGlyph kind="decision" />
-                    <span>{recordTitle(decision)}</span>
-                  </button>
-                );
-              })}
-            </div>
-          ) : (
-            <p className="astra-paper-decisions__empty">No decisions cite insights from this paper.</p>
-          )}
+        <section className="astra-insight-list">
+          <div className="astra-paper-detail__rail-head">
+            <CountHeading title="Insights from this paper" count={visibleInsights.length} />
+            {paper.decisions.length ? (
+              <label className="astra-paper-decisions__picker">
+                <span className="astra-paper-decisions__picker-label">Informs</span>
+                <select
+                  value={decisionFilter ?? ''}
+                  aria-label="Show only insights that inform a decision"
+                  onChange={(event) => { setDecisionFilter(event.target.value || undefined); }}
+                >
+                  <option value="">Any decision</option>
+                  {paper.decisions.map((decision) => (
+                    <option key={decision.canonicalPath} value={decision.canonicalPath}>
+                      {recordTitle(decision)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ) : null}
+          </div>
           {filterDecision && onOpenDecision ? (
             <button
               type="button"
@@ -156,12 +147,6 @@ export const PaperDetail = forwardRef<HTMLDivElement, PaperDetailProps>(function
               Open {recordTitle(filterDecision)} →
             </button>
           ) : null}
-        </section>
-        <section className="astra-insight-list">
-          <CountHeading
-            title={filterDecision ? `Insights for ${recordTitle(filterDecision)}` : 'Insights from this paper'}
-            count={visibleInsights.length}
-          />
           <ul className="astra-evidence astra-paper-detail__insights">
             {visibleInsights.map((insight) => {
               const evidence = paperEvidence(insight, paper.doi);

@@ -79,7 +79,6 @@ export const InsightTrigger = forwardRef<HTMLElement, InsightTriggerProps>(funct
         onClick={open}
         onKeyDown={keyOpen}
       >
-        <KindGlyph className="astra-evidence__glyph--insight" kind="prior_insight" />
         <div className="astra-insight-trigger__claim">
           <Prose text={insight.claim} field="claim" renderText={renderText} />
         </div>
