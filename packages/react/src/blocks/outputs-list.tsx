@@ -1,56 +1,17 @@
 import type { ResolvedAnalysisNode, ResolvedOutput } from '@astra-spec/sdk';
 import { forwardRef, useId, type HTMLAttributes } from 'react';
-import { recordTitle } from '../model/records.js';
 import { cn } from '../lib/cn.js';
 import { useLabels } from '../lib/labels.js';
 import type { ArtifactRenderer } from '../components/artifact-preview.js';
 import { EmptyState } from '../primitives/record-list.js';
-import { OutputPreview } from '../components/output-detail.js';
+import { OutputCard } from '../components/output-card.js';
+import { OutputEntry } from '../components/output-entry.js';
 
 export interface OutputsListProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
   analysis: ResolvedAnalysisNode;
   renderArtifact?: ArtifactRenderer | undefined;
   onOpenRecord: (output: ResolvedOutput, analysis: ResolvedAnalysisNode) => void;
 }
-
-export interface OutputCardProps extends Omit<HTMLAttributes<HTMLButtonElement>, 'children'> {
-  output: ResolvedOutput;
-  renderArtifact?: ArtifactRenderer | undefined;
-  onOpen: () => void;
-}
-
-/** A gallery card: compact preview and title, with a type label for non-figures. */
-export const OutputCard = forwardRef<HTMLButtonElement, OutputCardProps>(function OutputCard({
-  output,
-  renderArtifact,
-  onOpen,
-  className,
-  onClick,
-  'aria-label': hostLabel,
-  ...props
-}, ref) {
-  return (
-    <button
-      data-slot="output-card"
-      {...props}
-      ref={ref}
-      type="button"
-      aria-label={hostLabel ?? `Open ${output.type}: ${recordTitle(output)}`}
-      className={cn('astra-output-card', className)}
-      onClick={(event) => { onClick?.(event); onOpen(); }}
-    >
-      <span className="astra-output-card__preview">
-        <OutputPreview output={output} compact renderArtifact={renderArtifact} />
-        <span className="astra-output-card__open" aria-hidden="true">Open ↗</span>
-      </span>
-      <span className="astra-output-card__body">
-        {output.type !== 'figure' ? <span className="astra-output-card__kind">{output.type}</span> : null}
-        <strong>{recordTitle(output)}</strong>
-        {output.label ? <code>{output.id}</code> : null}
-      </span>
-    </button>
-  );
-});
 
 function OutputGallery({
   title,
@@ -103,34 +64,15 @@ function CompactOutputs({
         <span>{title}</span>
       </h3>
       <ul className="astra-inventory-outputs__compact-grid" data-layout={outputs[0]?.type === 'metric' ? 'tiles' : 'grid'}>
-        {outputs.map((output) => {
-          const metric = output.type === 'metric';
-          const status = !output.active ? 'Inactive' : !output.artifact ? 'Not yet generated' : undefined;
-          return (
-            <li key={output.canonicalPath}>
-              <button
-                type="button"
-                className="astra-output-entry"
-                data-kind={metric ? 'metric' : 'file'}
-                aria-label={`Open ${output.type}: ${recordTitle(output)}`}
-                onClick={() => { onOpen(output); }}
-              >
-                <span className="astra-output-entry__name">
-                  {recordTitle(output)}
-                  {!metric && status ? <span className="astra-output-entry__status">{status}</span> : null}
-                </span>
-                {metric ? (
-                  <span className="astra-output-entry__value">
-                    {renderArtifact?.(output, { compact: true })
-                      ?? <span className="astra-output-entry__status">{status ?? 'Preview unavailable'}</span>}
-                  </span>
-                ) : (
-                  <span className="astra-output-entry__format">{output.format ? output.format.replace(/^\./, '').toUpperCase() : 'FILE'}</span>
-                )}
-              </button>
-            </li>
-          );
-        })}
+        {outputs.map((output) => (
+          <li key={output.canonicalPath}>
+            <OutputEntry
+              output={output}
+              renderArtifact={renderArtifact}
+              onOpen={() => { onOpen(output); }}
+            />
+          </li>
+        ))}
       </ul>
     </section>
   );
