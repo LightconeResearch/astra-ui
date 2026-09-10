@@ -9,9 +9,9 @@ export {
   decisionInsights,
   findingEvidence,
   findingLiterature,
-  indirectDecisionPaths,
   informedDecisions,
   linkedRecord,
+  outputDecisionPaths,
   outputRelations,
 } from './relations.js';
 export type { FindingEvidenceLink, LinkedRecord, OutputRelations } from './relations.js';

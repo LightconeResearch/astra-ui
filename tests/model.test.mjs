@@ -7,7 +7,7 @@ import {
   decisionInsights,
   findingEvidence,
   findingLiterature,
-  indirectDecisionPaths,
+  outputDecisionPaths,
   informedDecisions,
   locateRecord,
   outputRelations,
@@ -133,7 +133,7 @@ test('a byte-limited delimited sample drops its cut-off last record and reports 
   assert.equal(exact.truncated, true);
 });
 
-test('indirect decisions are reached through upstream outputs and input aliases, direct ones excluded, cycles ignored', () => {
+test('output decisions follow every dependency path: own provenance first, then upstream outputs, input and output aliases, sub-analyses; cycles ignored', () => {
   const root = fixtureDocument.analysis;
   const output = (id, provenance, decisions = []) => ({
     id, kind: 'output', canonicalPath: `outputs.${id}`, type: 'data', format: 'npy', active: true, inputs: [], decisions, provenance,
@@ -144,15 +144,33 @@ test('indirect decisions are reached through upstream outputs and input aliases,
   const alreadyDirect = output('already_direct', { inputPaths: ['outputs.upstream'], decisionPaths: ['decisions.method'] }, ['method']);
   const loopA = output('loop_a', { inputPaths: ['outputs.loop_b'], decisionPaths: [] });
   const loopB = output('loop_b', { inputPaths: ['outputs.loop_a', 'outputs.upstream'], decisionPaths: [] });
+  // A root-level alias of a sub-analysis output, and a fit over it: the
+  // sub-analysis decision reaches both.
+  const importedXi = { ...output('imported_xi', { inputPaths: [], decisionPaths: [] }), resolvedFrom: 'clustering.outputs.correlation' };
+  const fit = output('fit', { inputPaths: ['outputs.imported_xi'], decisionPaths: ['decisions.method'] }, ['method']);
   const alias = { id: 'alias', kind: 'input', canonicalPath: 'inputs.alias', type: 'data', resolvedFrom: 'outputs.upstream' };
+  const weighting = { ...root.decisions[0], id: 'weighting', label: 'Weighting', canonicalPath: 'clustering.decisions.weighting' };
+  const clustering = {
+    ...root.analyses[0],
+    decisions: [weighting],
+    outputs: root.analyses[0].outputs.map((record) => ({ ...record, provenance: { ...record.provenance, decisionPaths: ['clustering.decisions.weighting'] } })),
+  };
   const document = {
     ...fixtureDocument,
-    analysis: { ...root, inputs: [...root.inputs, alias], outputs: [...root.outputs, upstream, downstream, viaAlias, alreadyDirect, loopA, loopB] },
+    analysis: {
+      ...root,
+      inputs: [...root.inputs, alias],
+      outputs: [...root.outputs, upstream, downstream, viaAlias, alreadyDirect, loopA, loopB, importedXi, fit],
+      analyses: [clustering],
+    },
   };
   const index = indexAnalysis(document);
-  assert.deepEqual(indirectDecisionPaths(index, downstream), ['decisions.method']);
-  assert.deepEqual(indirectDecisionPaths(index, viaAlias), ['decisions.method']);
-  assert.deepEqual(indirectDecisionPaths(index, alreadyDirect), []);
-  assert.deepEqual(indirectDecisionPaths(index, loopA), ['decisions.method']);
-  assert.deepEqual(outputRelations(index, downstream).indirectDecisions.map(({ record }) => record.id), ['method']);
+  assert.deepEqual(outputDecisionPaths(index, upstream), ['decisions.method']);
+  assert.deepEqual(outputDecisionPaths(index, downstream), ['decisions.method']);
+  assert.deepEqual(outputDecisionPaths(index, viaAlias), ['decisions.method']);
+  assert.deepEqual(outputDecisionPaths(index, alreadyDirect), ['decisions.method'], 'a decision that is both direct and upstream is listed once');
+  assert.deepEqual(outputDecisionPaths(index, loopA), ['decisions.method']);
+  assert.deepEqual(outputDecisionPaths(index, importedXi), ['clustering.decisions.weighting'], 'an alias inherits the decisions of its target');
+  assert.deepEqual(outputDecisionPaths(index, fit), ['decisions.method', 'clustering.decisions.weighting'], 'own decisions first, then those reached through a sub-analysis');
+  assert.deepEqual(outputRelations(index, fit).decisions.map(({ record, analysis }) => [record.id, analysis.canonicalPath]), [['method', '$'], ['weighting', 'clustering']]);
 });
