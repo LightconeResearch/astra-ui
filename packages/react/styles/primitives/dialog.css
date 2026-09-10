@@ -299,7 +299,7 @@
 
   :where(.astra-ui) .astra-dialog > .astra-dialog__panel {
     display: flex;
-    width: min(720px, 100%);
+    width: min(800px, 100%);
     height: min(620px, calc(100dvh - 32px));
     max-height: calc(100dvh - 32px);
     flex-direction: column;
@@ -312,13 +312,11 @@
     font-family: var(--astra-font-body);
   }
 
+  /* The reader layout is the one with a sidebar — a paper beside its outline,
+     an artifact beside its details — and both want the same room for it. */
   :where(.astra-ui) .astra-dialog:where([data-layout="reader"]) > .astra-dialog__panel {
-    width: min(1120px, 100%);
-    height: min(700px, calc(100dvh - 32px));
-  }
-
-  :where(.astra-ui) .astra-dialog:where([data-layout="reader"][data-kind="output"]) > .astra-dialog__panel {
     width: min(1248px, 100%);
+    height: min(700px, calc(100dvh - 32px));
   }
 
   :where(.astra-ui) .astra-dialog:where([data-kind="input"]) > .astra-dialog__panel,
