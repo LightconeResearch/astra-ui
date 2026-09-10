@@ -2,7 +2,7 @@ import type { ResolvedInsight } from '@astra-spec/sdk';
 import { Fragment, forwardRef, type HTMLAttributes } from 'react';
 import { recordTitle } from '../model/records.js';
 import { doiHref } from '../model/doi.js';
-import { findingLiterature, type FindingEvidenceLink } from '../model/relations.js';
+import { findingLiterature, groupFindingEvidence, type FindingEvidenceLink } from '../model/relations.js';
 import { cn } from '../lib/cn.js';
 import { useLabels } from '../lib/labels.js';
 import { DetailLayout, DetailMain } from '../primitives/detail-layout.js';
@@ -43,15 +43,12 @@ export const FindingDetail = forwardRef<HTMLDivElement, FindingDetailProps>(func
           className="astra-finding-detail__results"
           title="Supporting results"
           empty="No supporting results are linked to this finding."
-          items={evidence.map((item, index) => {
-            const title = item.output
-              ? recordTitle(item.output)
-              : item.evidence.artifact ?? `Result ${index + 1}`;
-            const { output, analysis } = item;
+          items={groupFindingEvidence(evidence).map((group, index) => {
+            const { output, analysis } = group;
+            const title = output ? recordTitle(output) : group.artifact ?? `Result ${index + 1}`;
             return {
-              key: `${item.evidence.resolvedOutputPath ?? item.evidence.artifact ?? 'result'}-${index}`,
+              key: group.key,
               label: title,
-              identifier: output?.canonicalPath ?? item.evidence.artifact,
               detail: output?.type ?? 'Unavailable',
               kind: 'output' as const,
               accessibleLabel: output ? `View supporting result: ${title}` : undefined,
