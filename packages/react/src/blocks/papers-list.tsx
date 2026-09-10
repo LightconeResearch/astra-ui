@@ -1,9 +1,9 @@
 import type { ResolvedAnalysisNode } from '@astra-spec/sdk';
 import { forwardRef, type HTMLAttributes } from 'react';
 import type { InventoryPaper } from '../model/papers.js';
-import { countLabel } from '../model/records.js';
 import { cn } from '../lib/cn.js';
 import { useLabels } from '../lib/labels.js';
+import { PaperRow } from '../components/paper-row.js';
 import { EmptyState } from '../primitives/record-list.js';
 import { InventoryRecords } from './section.js';
 
@@ -24,23 +24,7 @@ export const PaperRows = forwardRef<HTMLDivElement, PaperRowsProps>(function Pap
   return (
     <div data-slot="paper-list" {...props} ref={ref} className={cn('astra-paper-list', className)} role="group" aria-label={labels.sections.papers}>
       {papers.map((paper) => (
-        <button
-          key={paper.doi}
-          type="button"
-          aria-label={`${paper.title}, ${paper.doi}, ${countLabel(paper.insights.length, 'insight')}, ${countLabel(paper.decisions.length, 'decision')}`}
-          onClick={() => { onOpen(paper); }}
-        >
-          <span className="astra-paper-list__thumbnail" aria-hidden="true">p.1</span>
-          <span className="astra-paper-list__copy">
-            <strong>{paper.title}</strong>
-            <small>{[paper.authors, paper.doi].filter(Boolean).join(' · ')}</small>
-          </span>
-          <span className="astra-paper-list__meta">
-            {countLabel(paper.insights.length, 'insight')} ·{' '}
-            {countLabel(paper.decisions.length, 'decision')}
-          </span>
-          <span className="astra-paper-list__arrow" aria-hidden="true">→</span>
-        </button>
+        <PaperRow key={paper.doi} paper={paper} onOpen={() => { onOpen(paper); }} />
       ))}
     </div>
   );

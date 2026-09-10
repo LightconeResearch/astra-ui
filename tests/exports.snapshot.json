@@ -52,6 +52,7 @@
     "PaperDialog",
     "PaperDialogActions",
     "PaperPdfViewer",
+    "PaperRow",
     "RecordDialog",
     "RecordPreview"
   ],

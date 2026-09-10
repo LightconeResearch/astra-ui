@@ -37,3 +37,6 @@ export { OutputCard } from './output-card.js';
 export type { OutputCardProps } from './output-card.js';
 export { OutputEntry } from './output-entry.js';
 export type { OutputEntryProps } from './output-entry.js';
+
+export { PaperRow } from './paper-row.js';
+export type { PaperRowProps } from './paper-row.js';
