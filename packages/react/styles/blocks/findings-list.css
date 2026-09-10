@@ -1,0 +1,41 @@
+/* findings-list — emitted by src/blocks/findings-list.tsx */
+@layer astra.tokens, astra.base, astra.components, astra.views;
+@layer astra.views {
+  /* A finding is a sentence, not a name: the row gives it the width to be
+     read, and hangs its identity and evidence count underneath. */
+  :where(.astra-ui) .astra-findings-list__entry {
+    align-items: start;
+  }
+
+  :where(.astra-ui) .astra-findings-list__copy {
+    display: grid;
+    min-width: 0;
+    gap: 5px;
+  }
+
+  :where(.astra-ui) .astra-findings-list__entry .astra-findings-list__claim {
+    overflow: visible;
+    color: var(--astra-color-text);
+    font: 400 var(--astra-font-size-sm)/1.45 var(--astra-font-body);
+    text-overflow: clip;
+    white-space: normal;
+  }
+
+  :where(.astra-ui) .astra-findings-list__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 10px;
+    color: var(--astra-color-text-subtle);
+    font: 400 var(--astra-font-size-2xs)/1.3 var(--astra-font-ui);
+  }
+
+  :where(.astra-ui) .astra-findings-list__entry .astra-findings-list__name {
+    overflow: visible;
+    color: var(--astra-color-kind-finding);
+    font-family: var(--astra-font-mono);
+    text-overflow: clip;
+    white-space: normal;
+  }
+
+}
