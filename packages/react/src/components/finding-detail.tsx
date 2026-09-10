@@ -1,5 +1,5 @@
 import type { ResolvedAnalysisNode, ResolvedInsight, ResolvedOutput } from '@astra-spec/sdk';
-import { Fragment, forwardRef, type HTMLAttributes } from 'react';
+import { Fragment, forwardRef, useId, type HTMLAttributes, type ReactNode } from 'react';
 import { doiHref } from '../model/doi.js';
 import { recordTitle } from '../model/records.js';
 import {
@@ -34,6 +34,21 @@ type ResolvedGroup = FindingEvidenceGroup & { output: ResolvedOutput; analysis: 
 const isResolved = (group: FindingEvidenceGroup): group is ResolvedGroup =>
   Boolean(group.output && group.analysis);
 
+/**
+ * One run of results of a kind. The label only earns its space when a finding
+ * rests on more than one kind: with a single run, what they are is evident.
+ */
+function ResultRun({ label, labelled, children }: { label: string; labelled: boolean; children: ReactNode }) {
+  const id = useId();
+  if (!labelled) return <>{children}</>;
+  return (
+    <section aria-labelledby={id}>
+      <h5 id={id} className="astra-finding-detail__group-heading">{label}</h5>
+      {children}
+    </section>
+  );
+}
+
 /** The claim, the results it rests on, and the literature it cites. */
 export const FindingDetail = forwardRef<HTMLDivElement, FindingDetailProps>(function FindingDetail({
   record,
@@ -50,10 +65,15 @@ export const FindingDetail = forwardRef<HTMLDivElement, FindingDetailProps>(func
   // looks the same wherever it is met. Unresolved artifacts have no record to
   // draw, so they keep their name and nothing more.
   const resolved = results.filter(isResolved);
-  const framed = resolved.filter(({ output }) => output.type === 'figure' || output.type === 'table');
-  const metrics = resolved.filter(({ output }) => output.type === 'metric');
+  const ofType = (type: ResolvedOutput['type']) => resolved.filter(({ output }) => output.type === type);
+  const figures = ofType('figure');
+  const tables = ofType('table');
+  const metrics = ofType('metric');
   const files = resolved.filter(({ output }) => !['figure', 'table', 'metric'].includes(output.type));
   const unresolved = results.filter((group) => !isResolved(group));
+  // Labels only appear once a finding rests on more than one kind of result.
+  const runs = [figures.length, tables.length, metrics.length, files.length + unresolved.length];
+  const labelled = runs.filter(Boolean).length > 1;
   const open = (group: ResolvedGroup) => () => { onOpenRecord?.(group.output, group.analysis); };
   // Say what the result is to this finding; the card's own name would only
   // say what kind of artifact it is.
@@ -74,35 +94,43 @@ export const FindingDetail = forwardRef<HTMLDivElement, FindingDetailProps>(func
           <CountHeading title="Supporting results" count={results.length} />
           {results.length ? (
             <>
-              {framed.length ? (
-                <div className="astra-finding-detail__gallery">
-                  {framed.map((group) => (
-                    <OutputCard key={group.key} output={group.output} renderArtifact={renderArtifact} aria-label={resultLabel(group)} onOpen={open(group)} />
-                  ))}
-                </div>
-              ) : null}
+              {([['Figures', figures], ['Tables', tables]] as const).map(([label, groups]) => (
+                groups.length ? (
+                  <ResultRun key={label} label={label} labelled={labelled}>
+                    <div className="astra-finding-detail__gallery">
+                      {groups.map((group) => (
+                        <OutputCard key={group.key} output={group.output} renderArtifact={renderArtifact} aria-label={resultLabel(group)} onOpen={open(group)} />
+                      ))}
+                    </div>
+                  </ResultRun>
+                ) : null
+              ))}
               {metrics.length ? (
-                <ul className="astra-finding-detail__tiles">
-                  {metrics.map((group) => (
-                    <li key={group.key}>
-                      <OutputEntry output={group.output} renderArtifact={renderArtifact} aria-label={resultLabel(group)} onOpen={open(group)} />
-                    </li>
-                  ))}
-                </ul>
+                <ResultRun label="Metrics" labelled={labelled}>
+                  <ul className="astra-finding-detail__tiles">
+                    {metrics.map((group) => (
+                      <li key={group.key}>
+                        <OutputEntry output={group.output} renderArtifact={renderArtifact} aria-label={resultLabel(group)} onOpen={open(group)} />
+                      </li>
+                    ))}
+                  </ul>
+                </ResultRun>
               ) : null}
               {files.length || unresolved.length ? (
-                <ul className="astra-finding-detail__files">
-                  {files.map((group) => (
-                    <li key={group.key}>
-                      <OutputEntry output={group.output} aria-label={resultLabel(group)} onOpen={open(group)} />
-                    </li>
-                  ))}
-                  {unresolved.map((group) => (
-                    <li key={group.key} className="astra-finding-detail__unresolved">
-                      {group.artifact ?? group.key}
-                    </li>
-                  ))}
-                </ul>
+                <ResultRun label="Output files" labelled={labelled}>
+                  <ul className="astra-finding-detail__files">
+                    {files.map((group) => (
+                      <li key={group.key}>
+                        <OutputEntry output={group.output} aria-label={resultLabel(group)} onOpen={open(group)} />
+                      </li>
+                    ))}
+                    {unresolved.map((group) => (
+                      <li key={group.key} className="astra-finding-detail__unresolved">
+                        {group.artifact ?? group.key}
+                      </li>
+                    ))}
+                  </ul>
+                </ResultRun>
               ) : null}
             </>
           ) : <p>No supporting results are linked to this finding.</p>}
