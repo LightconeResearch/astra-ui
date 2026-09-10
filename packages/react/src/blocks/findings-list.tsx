@@ -31,10 +31,9 @@ export const FindingsList = forwardRef<HTMLDivElement, FindingsListProps>(functi
     <InventoryRecords {...props} ref={ref} kind="finding" className={className}>
       <RecordList
         label={labels.sections.findings}
-        columnTemplate="minmax(18rem, 1fr) 7rem 1.5rem"
+        columnTemplate="minmax(0, 1fr) 1.5rem"
         columns={[
           { label: 'Finding', className: 'astra-record-list__primary' },
-          { label: 'Evidence', className: 'astra-record-list__count astra-record-list__secondary' },
           { className: 'astra-record-list__arrow' },
         ]}
         rows={records.map((record) => {
@@ -44,14 +43,16 @@ export const FindingsList = forwardRef<HTMLDivElement, FindingsListProps>(functi
             accessibleLabel: `${recordTitle(record)}: ${record.claim} ${evidenceLabel(count)}`,
             onOpen: () => { onOpenRecord(record, analysis); },
             cells: [
-              <span className="astra-record-list__name" data-variant="claim">
+              <span className="astra-record-list__name astra-findings-list__entry">
                 <KindGlyph className="astra-record-list__glyph" kind="finding" />
-                <span>
-                  {record.label ? <small>{record.label}</small> : null}
-                  <strong>{record.claim}</strong>
+                <span className="astra-findings-list__copy">
+                  <span className="astra-findings-list__claim">{record.claim}</span>
+                  <span className="astra-findings-list__meta">
+                    <span className="astra-findings-list__name">{recordTitle(record)}</span>
+                    <span>{evidenceLabel(count)}</span>
+                  </span>
                 </span>
               </span>,
-              <span>{evidenceLabel(count)}</span>,
               <span aria-hidden="true">→</span>,
             ],
           };
