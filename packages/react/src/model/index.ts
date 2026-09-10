@@ -9,12 +9,13 @@ export {
   decisionInsights,
   findingEvidence,
   findingLiterature,
+  groupFindingEvidence,
   informedDecisions,
   linkedRecord,
   outputDecisionPaths,
   outputRelations,
 } from './relations.js';
-export type { FindingEvidenceLink, LinkedRecord, OutputRelations } from './relations.js';
+export type { FindingEvidenceGroup, FindingEvidenceLink, LinkedRecord, OutputRelations } from './relations.js';
 export {
   analysesForPaperView,
   collectInventoryPapers,

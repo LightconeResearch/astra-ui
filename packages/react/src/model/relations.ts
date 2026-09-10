@@ -97,6 +97,43 @@ export function findingEvidence(index: AnalysisIndex, finding: ResolvedInsight):
     });
 }
 
+/** A supporting result and every evidence entry a finding anchors into it. */
+export interface FindingEvidenceGroup {
+  /** Resolved output path when known, else the artifact name. */
+  key: string;
+  output?: ResolvedOutput | undefined;
+  analysis?: ResolvedAnalysisNode | undefined;
+  artifact?: string | undefined;
+  evidence: ResolvedEvidence[];
+}
+
+/**
+ * Folds evidence links onto the result they cite. A finding that anchors two
+ * quotes into the same artifact — one per quantity its claim names — is
+ * supported by one result, not two identical-looking ones. Order of first
+ * appearance; every entry is kept, so no anchor is dropped.
+ */
+export function groupFindingEvidence(links: FindingEvidenceLink[]): FindingEvidenceGroup[] {
+  const groups = new Map<string, FindingEvidenceGroup>();
+  for (const link of links) {
+    // `findingEvidence` keeps only links carrying one of these, so the key exists.
+    const key = link.evidence.resolvedOutputPath ?? link.evidence.artifact ?? link.evidence.id;
+    const existing = groups.get(key);
+    if (existing) {
+      existing.evidence.push(link.evidence);
+      continue;
+    }
+    groups.set(key, {
+      key,
+      ...(link.output ? { output: link.output } : {}),
+      ...(link.analysis ? { analysis: link.analysis } : {}),
+      ...(link.evidence.artifact ? { artifact: link.evidence.artifact } : {}),
+      evidence: [link.evidence],
+    });
+  }
+  return [...groups.values()];
+}
+
 /** Literature evidence (a DOI, with or without a quote) a finding or insight cites. */
 export function findingLiterature(finding: ResolvedInsight): ResolvedEvidence[] {
   return finding.evidence.filter((evidence) => Boolean(evidence.doi));
