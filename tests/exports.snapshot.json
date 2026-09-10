@@ -93,6 +93,7 @@
     "linkedRecord",
     "locateRecord",
     "outputDecisionPaths",
+    "outputDecisionRoutes",
     "outputRelations",
     "paperEvidence",
     "paperForDoi",

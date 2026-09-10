@@ -22,9 +22,10 @@ export interface OutputRelations {
   /**
    * Every decision on a dependency path to the output: the ones it declares,
    * then those reached through upstream outputs, in any analysis (see
-   * `outputDecisionPaths`).
+   * `outputDecisionPaths`). `via` names the immediate upstream outputs a
+   * decision arrives through, and is absent on one the output declares.
    */
-  decisions: LinkedRecord[];
+  decisions: (LinkedRecord & { via?: LinkedRecord[] | undefined })[];
   alias?: LinkedRecord | undefined;
 }
 
@@ -71,12 +72,54 @@ export function outputDecisionPaths(index: AnalysisIndex, output: ResolvedOutput
   return found;
 }
 
+/**
+ * The immediate upstream outputs each decision arrives through, for the ones
+ * an output does not declare itself. Unlike `outputDecisionPaths` this walks
+ * once per route rather than once per record, so a decision reachable through
+ * two upstream outputs names both; a decision the output declares maps to no
+ * route at all.
+ */
+export function outputDecisionRoutes(index: AnalysisIndex, output: ResolvedOutput): Map<string, Set<string>> {
+  const direct = new Set(output.provenance.decisionPaths);
+  const routes = new Map<string, Set<string>>();
+  const seenByRoute = new Map<string, Set<string>>();
+  const queue: { path: string; via?: string }[] = [
+    ...output.provenance.inputPaths.map((path) => ({ path })),
+    ...(output.resolvedFrom ? [{ path: output.resolvedFrom }] : []),
+  ];
+  // Array iteration sees entries pushed while it runs, so the walk is a BFS.
+  for (const entry of queue) {
+    let record = index.recordByPath.get(entry.path);
+    if (record?.kind === 'input' && record.resolvedFrom) record = index.recordByPath.get(record.resolvedFrom);
+    if (record?.kind !== 'output' || record.canonicalPath === output.canonicalPath) continue;
+    // The first upstream output on a path is the route; deeper hops keep it.
+    const via = entry.via ?? record.canonicalPath;
+    const walked = seenByRoute.get(via) ?? new Set<string>();
+    if (walked.has(record.canonicalPath)) continue;
+    walked.add(record.canonicalPath);
+    seenByRoute.set(via, walked);
+    for (const decisionPath of record.provenance.decisionPaths) {
+      if (direct.has(decisionPath)) continue;
+      const found = routes.get(decisionPath) ?? new Set<string>();
+      found.add(via);
+      routes.set(decisionPath, found);
+    }
+    const next = [...record.provenance.inputPaths, ...(record.resolvedFrom ? [record.resolvedFrom] : [])];
+    queue.push(...next.map((path) => ({ path, via })));
+  }
+  return routes;
+}
+
 /** Inputs, every decision on a dependency path, and alias source an output depends on; a record referenced twice (e.g. through an alias) is listed once. */
 export function outputRelations(index: AnalysisIndex, output: ResolvedOutput): OutputRelations {
   const unique = (paths: readonly string[]) => [...new Set(paths)];
+  const routes = outputDecisionRoutes(index, output);
   return {
     inputs: unique(output.provenance.inputPaths).map((path) => linkedRecord(index, path)),
-    decisions: outputDecisionPaths(index, output).map((path) => linkedRecord(index, path)),
+    decisions: outputDecisionPaths(index, output).map((path) => {
+      const via = routes.get(path);
+      return { ...linkedRecord(index, path), ...(via?.size ? { via: [...via].map((from) => linkedRecord(index, from)) } : {}) };
+    }),
     ...(output.resolvedFrom ? { alias: linkedRecord(index, output.resolvedFrom) } : {}),
   };
 }

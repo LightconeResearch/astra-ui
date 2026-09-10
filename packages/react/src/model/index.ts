@@ -13,6 +13,7 @@ export {
   informedDecisions,
   linkedRecord,
   outputDecisionPaths,
+  outputDecisionRoutes,
   outputRelations,
 } from './relations.js';
 export type { FindingEvidenceGroup, FindingEvidenceLink, LinkedRecord, OutputRelations } from './relations.js';
