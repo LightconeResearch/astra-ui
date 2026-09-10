@@ -12,4 +12,6 @@
 @import "./styles/components/paper-doi.css";
 @import "./styles/components/finding-detail.css";
 @import "./styles/components/output-detail.css";
+@import "./styles/components/output-card.css";
+@import "./styles/components/output-entry.css";
 @import "./styles/components/record-preview.css";
