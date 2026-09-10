@@ -299,14 +299,23 @@ test('a figure whose host renderer opts out falls back to the single-column layo
   assert.doesNotMatch(optedOut, /astra-output-detail__provenance-slot/);
 });
 
-test('output dialogs list indirect decision dependencies reached through upstream outputs', () => {
+test('output dialogs list every decision on a dependency path in one list, including those of a sub-analysis', () => {
   const index = indexAnalysis(fixtureDocument);
   const figure = index.recordByPath.get('outputs.headline');
   const method = index.recordByPath.get('decisions.method');
-  const relations = { inputs: [], decisions: [], indirectDecisions: [{ canonicalPath: method.canonicalPath, record: method, analysis: fixtureDocument.analysis }] };
+  const clustering = fixtureDocument.analysis.analyses[0];
+  const weighting = { ...method, id: 'weighting', label: 'Weighting scheme', canonicalPath: 'clustering.decisions.weighting' };
+  const relations = {
+    inputs: [],
+    decisions: [
+      { canonicalPath: method.canonicalPath, record: method, analysis: fixtureDocument.analysis },
+      { canonicalPath: weighting.canonicalPath, record: weighting, analysis: clustering },
+    ],
+  };
   const html = withinUi(React.createElement(OutputDetail, { record: figure, relations }));
-  assert.match(html, /Indirect decision dependencies/);
-  assert.match(html, /Method choice/);
+  assert.equal(html.match(/Decision dependencies/g).length, 1, 'a single decisions list');
+  assert.doesNotMatch(html, /Indirect/);
+  assert.match(html, /Method choice[\s\S]*Weighting scheme/);
   // Titles stand alone: no canonical-path subtitle under resolved records.
   assert.doesNotMatch(html, /decisions\.method/);
 });

@@ -19,14 +19,12 @@ export interface LinkedRecord {
 
 export interface OutputRelations {
   inputs: LinkedRecord[];
-  /** Decisions the output declares directly. */
-  decisions: LinkedRecord[];
   /**
-   * Decisions reached through upstream outputs (see `indirectDecisionPaths`).
-   * `outputRelations()` always fills it (possibly empty); optional so hosts
-   * assembling relations by hand can leave it out.
+   * Every decision on a dependency path to the output: the ones it declares,
+   * then those reached through upstream outputs, in any analysis (see
+   * `outputDecisionPaths`).
    */
-  indirectDecisions?: LinkedRecord[] | undefined;
+  decisions: LinkedRecord[];
   alias?: LinkedRecord | undefined;
 }
 
@@ -45,16 +43,18 @@ export function linkedRecord(index: AnalysisIndex, canonicalPath: string): Linke
 }
 
 /**
- * Decisions an output depends on only through its upstream outputs: the
- * provenance of every input that is (or aliases) an output, followed
- * recursively, minus the output's own direct decisions. Document order of
- * discovery; cycles are ignored.
+ * Every decision with a dependency path to an output: the ones its own
+ * provenance declares, then those of every upstream output — an input that
+ * is (or aliases) an output, the output's own alias target, and so on
+ * recursively, across analyses. Direct decisions come first in document
+ * order, then the rest in order of discovery; a decision reached by several
+ * paths is listed once, and cycles are ignored.
  */
-export function indirectDecisionPaths(index: AnalysisIndex, output: ResolvedOutput): string[] {
-  const direct = new Set(output.provenance.decisionPaths);
+export function outputDecisionPaths(index: AnalysisIndex, output: ResolvedOutput): string[] {
+  const found = [...new Set(output.provenance.decisionPaths)];
   const seen = new Set<string>([output.canonicalPath]);
-  const found: string[] = [];
   const queue = [...output.provenance.inputPaths];
+  if (output.resolvedFrom) queue.push(output.resolvedFrom);
   // Array iteration sees entries pushed while it runs, so the walk is a BFS.
   for (const path of queue) {
     if (seen.has(path)) continue;
@@ -63,7 +63,7 @@ export function indirectDecisionPaths(index: AnalysisIndex, output: ResolvedOutp
     if (record?.kind === 'input' && record.resolvedFrom) record = index.recordByPath.get(record.resolvedFrom);
     if (record?.kind !== 'output') continue;
     for (const decisionPath of record.provenance.decisionPaths) {
-      if (!direct.has(decisionPath) && !found.includes(decisionPath)) found.push(decisionPath);
+      if (!found.includes(decisionPath)) found.push(decisionPath);
     }
     queue.push(...record.provenance.inputPaths);
     if (record.resolvedFrom) queue.push(record.resolvedFrom);
@@ -71,13 +71,12 @@ export function indirectDecisionPaths(index: AnalysisIndex, output: ResolvedOutp
   return found;
 }
 
-/** Inputs, direct and indirect decisions, and alias source an output depends on; a record referenced twice (e.g. through an alias) is listed once. */
+/** Inputs, every decision on a dependency path, and alias source an output depends on; a record referenced twice (e.g. through an alias) is listed once. */
 export function outputRelations(index: AnalysisIndex, output: ResolvedOutput): OutputRelations {
   const unique = (paths: readonly string[]) => [...new Set(paths)];
   return {
     inputs: unique(output.provenance.inputPaths).map((path) => linkedRecord(index, path)),
-    decisions: unique(output.provenance.decisionPaths).map((path) => linkedRecord(index, path)),
-    indirectDecisions: indirectDecisionPaths(index, output).map((path) => linkedRecord(index, path)),
+    decisions: outputDecisionPaths(index, output).map((path) => linkedRecord(index, path)),
     ...(output.resolvedFrom ? { alias: linkedRecord(index, output.resolvedFrom) } : {}),
   };
 }

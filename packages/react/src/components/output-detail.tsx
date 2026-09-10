@@ -130,16 +130,8 @@ export const OutputDetail = forwardRef<HTMLDivElement, OutputDetailProps>(functi
         className="astra-detail__relations"
         title="Decision dependencies"
         items={relationItemsForLinks(relations.decisions, onOpenRecord)}
-        empty="No decision dependencies are declared for this output."
+        empty="No decisions affect this output."
       />
-      {relations.indirectDecisions?.length ? (
-        <RelationList
-          className="astra-detail__relations"
-          title="Indirect decision dependencies"
-          items={relationItemsForLinks(relations.indirectDecisions, onOpenRecord)}
-          empty={null}
-        />
-      ) : null}
       <RelationList
         className="astra-detail__relations"
         title="Inputs and upstream outputs"
