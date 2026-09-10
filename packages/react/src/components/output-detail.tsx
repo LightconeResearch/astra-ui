@@ -46,6 +46,27 @@ export interface OutputDetailProps extends Omit<HTMLAttributes<HTMLDivElement>, 
   onExpandedChange?: ((expanded: boolean) => void) | undefined;
 }
 
+/**
+ * One decision per row. A decision the output declares reads plainly; one it
+ * inherits says which upstream output carries it, so a list that mixes the two
+ * still shows where each came from.
+ */
+function decisionDependencyItems(relations: OutputRelations, onOpenRecord: OpenRecordHandler | undefined) {
+  return relationItemsForLinks(relations.decisions, onOpenRecord).map((item, index) => {
+    const via = relations.decisions[index]?.via;
+    const origins = via?.map(({ record, canonicalPath }) => record ? recordTitle(record) : canonicalPath);
+    if (!origins?.length) return item;
+    const detail = `via ${origins.join(', ')}`;
+    return {
+      ...item,
+      detail: origins.length > 1
+        ? <span title={detail}>via {origins[0]} +{origins.length - 1} more</span>
+        : detail,
+      accessibleLabel: item.accessibleLabel ? `${item.accessibleLabel}, ${detail}` : undefined,
+    };
+  });
+}
+
 /** Artifact preview with provenance: description, recipe, alias, decisions, and inputs. */
 export const OutputDetail = forwardRef<HTMLDivElement, OutputDetailProps>(function OutputDetail({
   record: output,
@@ -129,7 +150,7 @@ export const OutputDetail = forwardRef<HTMLDivElement, OutputDetailProps>(functi
       <RelationList
         className="astra-detail__relations"
         title="Decision dependencies"
-        items={relationItemsForLinks(relations.decisions, onOpenRecord)}
+        items={decisionDependencyItems(relations, onOpenRecord)}
         empty="No decisions affect this output."
       />
       <RelationList
