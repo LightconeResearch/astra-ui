@@ -27,8 +27,9 @@ describe('Inventory analysis selection', () => {
     render(<Inventory document={fixtureDocument} analysisPath="not.an.analysis" />);
     expect(screen.getByRole('button', { name: /Headline result/ })).toBeTruthy();
     expect(screen.queryByRole('button', { name: /Correlation function/ })).toBeNull();
-    expect(screen.getByRole('button', { name: /Published method/ })).toBeTruthy();
-    expect(screen.queryByRole('button', { name: /nested_source/ })).toBeNull();
+    // The root's decision, not the nested analysis's; prior insights are no
+    // longer a section, so they cannot witness which analysis is selected.
+    expect(screen.getByRole('button', { name: /Method choice/ })).toBeTruthy();
   });
 
   it('closes an uncontrolled stack exactly once when the analysis changes, without re-opening a survivor', () => {
