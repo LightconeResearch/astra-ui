@@ -179,7 +179,7 @@
     color: var(--astra-color-text);
   }
 
-  @container (max-width: 992px) {
+  @container (max-width: 760px) {
     :where(.astra-ui) .astra-inventory__layout {
       grid-template-columns: minmax(0, 1fr);
     }
