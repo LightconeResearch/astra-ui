@@ -40,7 +40,6 @@ export const Paper: Story = () => {
         loadPdfJs={loadPdfJs}
         onFetchPaper={noop}
         onOpenInsight={noop}
-        onOpenDecision={noop}
         onClose={noop}
       />
     </DialogProvider>

@@ -1,15 +1,15 @@
 import type { ResolvedDecision, ResolvedEvidence, ResolvedInsight } from '@astra-spec/sdk';
-import { forwardRef, useCallback, useMemo, useRef, useState, type HTMLAttributes } from 'react';
+import { forwardRef, useCallback, useId, useMemo, useRef, useState, type HTMLAttributes } from 'react';
 import { doiHref } from '../model/doi.js';
-import { countLabel, recordTitle } from '../model/records.js';
+import { recordTitle } from '../model/records.js';
 import { decisionInsightPaths } from '../model/relations.js';
 import { paperEvidence, type InventoryPaper, type InventoryPaperMetadata } from '../model/papers.js';
 import { cn } from '../lib/cn.js';
 import { useLabels } from '../lib/labels.js';
 import { CountHeading } from '../primitives/detail-layout.js';
+import { Prose } from '../primitives/prose.js';
 import { DetailDialog, DialogAction, type DetailDialogProps } from '../primitives/dialog.js';
 import type { TextRenderer } from '../lib/prose.js';
-import { InsightTrigger } from './insight-trigger.js';
 import { PaperPdfViewer, type PdfPassage } from './paper-pdf-viewer.js';
 import type { PdfJsLoader } from '../lib/pdf-runtime.js';
 
@@ -56,6 +56,7 @@ export const PaperDetail = forwardRef<HTMLDivElement, PaperDetailProps>(function
   const [focusKey, setFocusKey] = useState<string | undefined>(undefined);
   const [override, setOverride] = useState<PdfPassage | undefined>(undefined);
   const [decisionFilter, setDecisionFilter] = useState<string | undefined>(undefined);
+  const pickerId = useId();
   // Keyed by URL so a failure for one paper never outlives it inside a persistent dialog.
   const [failedPdfUrl, setFailedPdfUrl] = useState<string | undefined>(undefined);
   const key = `${paper.doi}|${focusInsight?.canonicalPath ?? ''}`;
@@ -121,46 +122,55 @@ export const PaperDetail = forwardRef<HTMLDivElement, PaperDetailProps>(function
           <div className="astra-paper-detail__rail-head">
             <CountHeading title="Insights from this paper" count={visibleInsights.length} />
             {paper.decisions.length ? (
-              <label className="astra-paper-decisions__picker">
-                <span className="astra-paper-decisions__picker-label">Informs</span>
-                <select
-                  value={decisionFilter ?? ''}
-                  aria-label="Show only insights that inform a decision"
-                  onChange={(event) => { setDecisionFilter(event.target.value || undefined); }}
-                >
-                  <option value="">Any decision</option>
-                  {paper.decisions.map((decision) => (
-                    <option key={decision.canonicalPath} value={decision.canonicalPath}>
-                      {recordTitle(decision)}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              <div className="astra-paper-decisions__picker">
+                <label className="astra-paper-decisions__picker-label" htmlFor={pickerId}>Informs decision:</label>
+                <div className="astra-paper-decisions__picker-row">
+                  <select
+                    id={pickerId}
+                    value={decisionFilter ?? ''}
+                    onChange={(event) => { setDecisionFilter(event.target.value || undefined); }}
+                  >
+                    <option value="">Any decision</option>
+                    {paper.decisions.map((decision) => (
+                      <option key={decision.canonicalPath} value={decision.canonicalPath}>
+                        {recordTitle(decision)}
+                      </option>
+                    ))}
+                  </select>
+                  {filterDecision && onOpenDecision ? (
+                    <button
+                      type="button"
+                      className="astra-paper-decisions__open"
+                      aria-label={`Open decision: ${recordTitle(filterDecision)}`}
+                      onClick={() => { onOpenDecision(filterDecision); }}
+                    >
+                      Open <span aria-hidden="true">→</span>
+                    </button>
+                  ) : null}
+                </div>
+              </div>
             ) : null}
           </div>
-          {filterDecision && onOpenDecision ? (
-            <button
-              type="button"
-              className="astra-paper-decisions__open"
-              onClick={() => { onOpenDecision(filterDecision); }}
-            >
-              Open {recordTitle(filterDecision)} →
-            </button>
-          ) : null}
           <ul className="astra-evidence astra-paper-detail__insights">
             {visibleInsights.map((insight) => {
               const evidence = paperEvidence(insight, paper.doi);
               return (
                 <li key={insight.canonicalPath} className="astra-evidence__item astra-paper-insight">
-                  <InsightTrigger
-                    insight={insight}
-                    variant="claim"
-                    renderText={renderText}
-                    onOpen={() => onOpenInsight?.(insight)}
-                  />
-                  {evidence.length ? (
+                  <div className="astra-paper-insight__claim">
+                    <Prose text={insight.claim} field="claim" renderText={renderText} />
+                  </div>
+                  {evidence.length || onOpenInsight ? (
                     <div className="astra-paper-insight__sources">
-                      <span>{countLabel(evidence.length, 'passage')}</span>
+                      {onOpenInsight ? (
+                        <button
+                          type="button"
+                          className="astra-paper-insight__open"
+                          aria-label={`Open insight details: ${recordTitle(insight)}`}
+                          onClick={() => { onOpenInsight(insight); }}
+                        >
+                          {recordTitle(insight)} <span aria-hidden="true">→</span>
+                        </button>
+                      ) : null}
                       {paper.pdfUrl && loadPdfJs ? (
                         <div>
                           {evidence.map((source, index) => (

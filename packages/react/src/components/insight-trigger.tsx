@@ -21,7 +21,7 @@ export interface InsightEvidenceTitleProps {
 export function InsightEvidenceTitle({ name, tag }: InsightEvidenceTitleProps) {
   return (
     <span className="astra-evidence__title">
-      <KindGlyph className="astra-evidence__glyph--insight" kind="prior_insight" />
+      <KindGlyph kind="prior_insight" />
       <span className="astra-evidence__name">{name}</span>
       {tag ? <span className="astra-evidence__tag">{tag}</span> : null}
     </span>

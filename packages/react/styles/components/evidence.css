@@ -1,23 +1,6 @@
-/* evidence — emitted by src/components/insight-trigger.tsx + components/paper-detail.tsx */
+/* evidence — emitted by src/components/insight-trigger.tsx */
 @layer astra.tokens, astra.base, astra.components, astra.views;
 @layer astra.components {
-  :where(.astra-ui) .astra-paper-detail__insights .astra-evidence__title {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    align-items: start;
-    width: 100%;
-    min-width: 0;
-  }
-
-  :where(.astra-ui) .astra-paper-detail__insights .astra-evidence__name {
-    min-width: 0;
-    overflow-wrap: anywhere;
-  }
-
-  :where(.astra-ui) .astra-insight-trigger:where([data-variant="claim"]) .astra-evidence__glyph--insight {
-    margin-top: 3.52px;
-  }
-
   :where(.astra-ui) .astra-evidence {
     list-style: none;
     margin: 2.4px 0 0;

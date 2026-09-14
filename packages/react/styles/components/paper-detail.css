@@ -47,11 +47,14 @@
     font-size: var(--astra-font-size-xs);
   }
 
+  /* Pushed right on its own, so the row needs no spacer element when the
+     insight has no name to open. */
   :where(.astra-ui) .astra-paper-insight__sources > div {
     display: flex;
     flex-wrap: wrap;
     gap: 4.48px;
     justify-content: flex-end;
+    margin-inline-start: auto;
   }
 
   :where(.astra-ui) .astra-paper-insight__locate {
@@ -144,47 +147,100 @@
     border-top: 1px solid var(--astra-color-border);
   }
 
-  /* The picker sits on the heading's line: one row of chrome above the list,
-     rather than a section of its own above another. */
+  /* The insights are the first thing in the rail now, so the gap that
+     separated them from the decisions above is a gap above nothing. */
+  :where(.astra-ui) .astra-paper-detail__rail .astra-insight-list {
+    margin-top: 0;
+  }
+
   :where(.astra-ui) .astra-paper-detail__rail-head {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 4px 10px;
+    display: grid;
+    gap: 8px;
+    /* The same rule that divides one insight from the next, so the head reads
+       as the first band of the list rather than a separate block. */
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--astra-color-border);
   }
 
   :where(.astra-ui) .astra-paper-decisions__picker {
-    display: inline-flex;
+    display: grid;
     min-width: 0;
-    align-items: baseline;
-    gap: 5px;
+    gap: 4px;
+  }
+
+  :where(.astra-ui) .astra-paper-decisions__picker-row {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 8px;
+  }
+
+  :where(.astra-ui) .astra-paper-decisions__open {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--astra-color-kind-decision);
+    cursor: pointer;
+    font: 500 var(--astra-font-size-xs)/1.3 var(--astra-font-ui);
+    white-space: nowrap;
+  }
+
+  :where(.astra-ui) .astra-paper-decisions__open:hover,
+  :where(.astra-ui) .astra-paper-decisions__open:focus-visible {
+    text-decoration: underline;
   }
 
   :where(.astra-ui) .astra-paper-decisions__picker-label {
     color: var(--astra-color-text-subtle);
-    font: 600 var(--astra-font-size-2xs)/1.2 var(--astra-font-ui);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+    font: 500 var(--astra-font-size-xs)/1.3 var(--astra-font-ui);
+    white-space: nowrap;
   }
 
-  :where(.astra-ui) .astra-paper-decisions__picker select {
+  :where(.astra-ui) .astra-paper-decisions__picker-row select {
     max-width: 100%;
     min-width: 0;
+    flex: 0 1 auto;
     padding: 2px 4px;
     border: 1px solid var(--astra-color-border);
     border-radius: var(--astra-radius-control);
     background: var(--astra-color-surface-raised);
     color: var(--astra-color-text);
-    font: 400 var(--astra-font-size-2xs)/1.3 var(--astra-font-ui);
+    font: 400 var(--astra-font-size-xs)/1.3 var(--astra-font-ui);
   }
 
-  /* No glyph gutter: every row in this list is an insight, so the claim takes
-     the full width of the rail. */
-  :where(.astra-ui) .astra-paper-insight .astra-insight-trigger:where([data-variant="claim"]) {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 6.4px;
+  /* The claim is prose here, not a control: the insight's name opens it, so a
+     reader is not asked to click a paragraph. */
+  :where(.astra-ui) .astra-paper-insight__claim {
+    color: var(--astra-color-text);
+    font: 400 var(--astra-font-size-sm)/1.45 var(--astra-font-body);
+  }
+
+  :where(.astra-ui) .astra-paper-insight__claim > :first-child {
+    margin-top: 0;
+  }
+
+  :where(.astra-ui) .astra-paper-insight__claim > :last-child {
+    margin-bottom: 0;
+  }
+
+  :where(.astra-ui) .astra-paper-insight__open {
+    display: inline-flex;
+    min-width: 0;
+    align-items: baseline;
+    gap: 4px;
     padding: 0;
+    border: 0;
+    background: none;
+    color: var(--astra-color-kind-insight);
+    cursor: pointer;
+    font: 500 var(--astra-font-size-2xs)/1.3 var(--astra-font-mono);
+    text-align: start;
+    overflow-wrap: anywhere;
+  }
+
+  :where(.astra-ui) .astra-paper-insight__open:hover,
+  :where(.astra-ui) .astra-paper-insight__open:focus-visible {
+    text-decoration: underline;
   }
 
   @media (max-width: 760px) {
@@ -204,21 +260,6 @@
       overflow: visible;
     }
 
-  }
-
-  :where(.astra-ui) .astra-paper-decisions__open {
-    cursor: pointer;
-    border: 0;
-    background: transparent;
-    color: var(--astra-color-link);
-    margin-top: 7.2px;
-    padding: 0;
-    font-family: var(--astra-font-ui);
-    font-size: var(--astra-font-size-xs);
-  }
-
-  :where(.astra-ui) .astra-paper-decisions__open:hover {
-    text-decoration: underline;
   }
 
 }
