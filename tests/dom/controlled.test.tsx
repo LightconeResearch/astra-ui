@@ -54,24 +54,29 @@ describe('Slot prop merging', () => {
 });
 
 describe('PaperDetail decision filter', () => {
-  it('narrows the insights to one decision and only then offers to open it', () => {
+  it('narrows the insights to the one decision picked, and restores them', () => {
     const paper = collectInventoryPapers(fixtureDocument, index, fixtureDocument.analysis)[0];
     if (!paper) throw new Error('fixture paper missing');
-    const onOpenDecision = vi.fn();
-    render(<PaperDetail record={paper} onOpenDecision={onOpenDecision} />);
+    const onOpenInsight = vi.fn();
+    render(<PaperDetail record={paper} onOpenInsight={onOpenInsight} />);
 
-    expect(screen.queryByRole('button', { name: /^Open Method choice/ })).toBeNull();
-    const chip = screen.getByRole('button', { name: 'Method choice' });
-    fireEvent.click(chip);
-    expect(chip.getAttribute('aria-pressed')).toBe('true');
-    expect(screen.getByText('Insights for Method choice')).toBeTruthy();
+    const insights = () => screen.getAllByRole('button', { name: /^Open insight details/ });
+    // Two insights on this paper, one of which no decision cites.
+    expect(insights().length).toBe(2);
 
-    fireEvent.click(screen.getByRole('button', { name: /^Open Method choice/ }));
-    expect(onOpenDecision).toHaveBeenCalledWith(paper.decisions[0]);
+    const picker = screen.getByRole('combobox', { name: /Informs decision/ });
+    fireEvent.change(picker, { target: { value: paper.decisions[0]?.canonicalPath } });
+    expect((picker as HTMLSelectElement).value).toBe(paper.decisions[0]?.canonicalPath);
+    expect(insights().length).toBe(1);
 
-    fireEvent.click(chip);
-    expect(chip.getAttribute('aria-pressed')).toBe('false');
-    expect(screen.queryByRole('button', { name: /^Open Method choice/ })).toBeNull();
+    // The claim is prose, not a control: only its name opens the insight.
+    const [first] = insights();
+    if (!first) throw new Error('no insight rendered');
+    fireEvent.click(first);
+    expect(onOpenInsight).toHaveBeenCalledTimes(1);
+
+    fireEvent.change(picker, { target: { value: '' } });
+    expect(insights().length).toBe(2);
     expect(screen.getByText('Insights from this paper')).toBeTruthy();
   });
 });

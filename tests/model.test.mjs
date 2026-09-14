@@ -37,7 +37,7 @@ test('paper presentation data is derived from the SDK document and index', () =>
   assert.equal(papers[0].title, 'A useful paper');
   assert.deepEqual(
     papers[0].insights.map(({ canonicalPath }) => canonicalPath),
-    ['prior_insights.published_method'],
+    ['prior_insights.published_method', 'prior_insights.uncited_caveat'],
   );
   assert.deepEqual(
     papers[0].decisions.map(({ canonicalPath }) => canonicalPath),
