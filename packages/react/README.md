@@ -82,14 +82,15 @@ optional outline and a drill-down detail stack.
 
 Its most useful options are:
 
-- `analysisPath` selects a nested analysis (`$` is the project root).
+- Inventory shows the project hierarchy and handles navigation automatically; `<Inventory document={document} />` is sufficient.
+- Pass `analysisPath` with `onSelectAnalysis` to control selection from the host (`$` is the project root). The callback alone observes navigation without taking over state.
 - `sections` changes which inventory sections appear and their order.
 - `showOutline` and `idPrefix` control outline navigation.
 - `renderArtifact` and `renderText` replace host-owned content.
 - `loadPdfJs` enables the built-in PDF viewer; `onOpenPaperFile` overrides external PDF opening.
 - `paperMetadata` and `onFetchPaper` connect paper loading to host state.
 - `detail`, `defaultDetail`, and `onDetailChange` control the detail stack.
-- `onSelectAnalysis` adds a project hierarchy below the contents; update `analysisPath` in the callback to switch analyses. On narrow panels the hierarchy moves above the sections so navigation remains available.
+- `showHierarchy={false}` hides project navigation independently of `showOutline`. On narrow panels the hierarchy moves above the sections so navigation remains available. Internal navigation preserves selection through refresh, falls back to the root when the selected analysis disappears, and closes uncontrolled record details on selection changes.
 - `detailMode="embedded"` renders details as an inline panel instead of a modal.
 - `labels` overrides user-facing strings.
 - `index` accepts an `AnalysisIndex` the host has already built.

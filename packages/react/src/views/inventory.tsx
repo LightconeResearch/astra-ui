@@ -6,7 +6,7 @@ import {
   type ResolvedOutput,
   type ResolvedRecord,
 } from '@astra-spec/sdk';
-import { forwardRef, useEffect, useMemo, useRef, type HTMLAttributes, type ReactNode } from 'react';
+import { forwardRef, useEffect, useMemo, useRef, useState, type HTMLAttributes, type ReactNode } from 'react';
 import { collectInventoryPapers, findPaper, paperForDoi, type InventoryPaper, type InventoryPaperMetadataMap } from '../model/papers.js';
 import { locateRecord } from '../model/locate-record.js';
 import { cn } from '../lib/cn.js';
@@ -33,15 +33,17 @@ export interface InventoryProps extends Omit<HTMLAttributes<HTMLDivElement>, 'ch
   document: ResolvedAnalysisDocument;
   /** Pass a prebuilt index to share it with the host; otherwise one is derived from `document`. */
   index?: AnalysisIndex | undefined;
-  /** Canonical analysis path; `$` selects the project root. A path the document does not contain shows the root. */
+  /** Controlled analysis selection; pair with `onSelectAnalysis`. Omit to let Inventory navigate internally. Unknown paths show the root. */
   analysisPath?: string | undefined;
-  /** Show analysis navigation below the outline; the host updates `analysisPath` on selection. */
+  /** Observe navigation, or update `analysisPath` when controlling selection. */
   onSelectAnalysis?: ((canonicalPath: string) => void) | undefined;
   /** Which sections to show, in order. */
   sections?: readonly InventorySectionId[] | undefined;
   /** Prefix for section anchor ids, so several explorers can share a page. */
   idPrefix?: string | undefined;
   showOutline?: boolean | undefined;
+  /** Show project navigation below the outline (default true), independently of host callbacks. */
+  showHierarchy?: boolean | undefined;
   labels?: AstraLabelOverrides | undefined;
   renderArtifact?: ArtifactRenderer | undefined;
   renderText?: TextRenderer | undefined;
@@ -85,11 +87,12 @@ export const Inventory = forwardRef<HTMLDivElement, InventoryProps>(function Inv
 const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(function ExplorerBody({
   document,
   index: providedIndex,
-  analysisPath = '$',
+  analysisPath,
   onSelectAnalysis,
   sections = DEFAULT_SECTIONS,
   idPrefix = '',
   showOutline = true,
+  showHierarchy = true,
   renderArtifact,
   renderText,
   loadPdfJs,
@@ -108,7 +111,17 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(
 }, ref) {
   const labels = useLabels();
   const index = useMemo(() => providedIndex ?? indexAnalysis(document), [document, providedIndex]);
-  const analysis = index.analysisByPath.get(analysisPath) ?? document.analysis;
+  const [internalAnalysisPath, setInternalAnalysisPath] = useState('$');
+  // Reset a removed selection so reintroducing that path does not navigate back.
+  if (analysisPath === undefined && internalAnalysisPath !== '$' && !index.analysisByPath.has(internalAnalysisPath)) {
+    setInternalAnalysisPath('$');
+  }
+  const analysis = index.analysisByPath.get(analysisPath ?? internalAnalysisPath) ?? document.analysis;
+  const selectAnalysis = (path: string) => {
+    if (path === analysis.canonicalPath) return;
+    if (analysisPath === undefined) setInternalAnalysisPath(path);
+    onSelectAnalysis?.(path);
+  };
   const papers = useMemo(
     () => collectInventoryPapers(document, index, analysis, paperMetadata),
     [analysis, document, index, paperMetadata],
@@ -189,8 +202,8 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(
           ))}
           {children}
         </div>
-        {showOutline || onSelectAnalysis ? (
-          <div className="astra-inventory__sidebar" data-has-tree={onSelectAnalysis ? '' : undefined}>
+        {showOutline || showHierarchy ? (
+          <div className="astra-inventory__sidebar" data-has-tree={showHierarchy ? '' : undefined}>
             {showOutline ? <InventoryOutline
               entries={sections.map((section) => ({
                 id: anchorId(section),
@@ -199,11 +212,11 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(
                 kind: sectionKind(section),
               }))}
             /> : null}
-            {onSelectAnalysis ? (
+            {showHierarchy ? (
               <AnalysisTree
                 document={document}
                 analysisPath={analysis.canonicalPath}
-                onSelectAnalysis={onSelectAnalysis}
+                onSelectAnalysis={selectAnalysis}
               />
             ) : null}
           </div>

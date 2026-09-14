@@ -72,6 +72,10 @@
     align-items: start;
   }
 
+  :where(.astra-ui) .astra-inventory__layout:not(:has(.astra-inventory__sidebar)) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   :where(.astra-ui) .astra-inventory__sections {
     display: flex;
     min-width: 0;
