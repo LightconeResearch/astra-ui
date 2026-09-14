@@ -212,6 +212,9 @@
   :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-output-detail__recipe {
     margin: 0;
     padding-block: 14px;
+  }
+
+  :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-output-detail__description {
     border-block-start: 1px solid var(--astra-color-border);
   }
 
