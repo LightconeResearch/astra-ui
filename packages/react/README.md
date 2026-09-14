@@ -252,6 +252,8 @@ name merging (`cn`), prose parsing and the label helpers are in `@astra-spec/ui/
 ## Host extension points
 
 - `renderArtifact(output, { compact })` renders host-decoded artifact content.
+- `renderCodeLink(output)` adds an optional action beside Recipe. The host resolves
+  the current source file and opens it; return `null` when no file is available.
   Without it, outputs use `ArtifactPreview`'s unavailable state.
 - `renderText(text, { field })` replaces the built-in prose renderer. The
   default understands inline code, `$inline$` math, and `$$display$$` math.

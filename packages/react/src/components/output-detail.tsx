@@ -42,6 +42,8 @@ export interface OutputDetailProps extends Omit<HTMLAttributes<HTMLDivElement>, 
   record: ResolvedOutput;
   relations: OutputRelations;
   renderArtifact?: ArtifactRenderer | undefined;
+  /** Host-provided link to the current code file, shown beside Recipe. */
+  renderCodeLink?: ((output: ResolvedOutput) => ReactNode) | undefined;
   renderText?: TextRenderer | undefined;
   onOpenRecord?: OpenRecordHandler | undefined;
   /** Full-screen artifact state (controlled). */
@@ -75,6 +77,7 @@ export const OutputDetail = forwardRef<HTMLDivElement, OutputDetailProps>(functi
   record: output,
   relations,
   renderArtifact,
+  renderCodeLink,
   renderText,
   onOpenRecord,
   expanded = false,
@@ -176,7 +179,10 @@ export const OutputDetail = forwardRef<HTMLDivElement, OutputDetailProps>(functi
       />
       {output.recipe?.command ? (
         <section className="astra-output-detail__recipe">
-          <h4>Recipe</h4>
+          <div className="astra-output-detail__recipe-heading">
+            <h4>Recipe</h4>
+            {renderCodeLink?.(output)}
+          </div>
           <pre><code>{output.recipe.command}</code></pre>
           {output.recipe.container
             ? <p>Container: <code>{output.recipe.container}</code></p>

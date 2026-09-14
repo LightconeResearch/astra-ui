@@ -655,4 +655,32 @@
     background: var(--astra-color-canvas);
   }
 
+  :where(.astra-ui) .astra-output-detail__recipe-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  :where(.astra-ui) .astra-output-detail__recipe-heading h4 {
+    margin: 0;
+  }
+
+  :where(.astra-ui) .astra-output-detail__recipe-heading button {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--astra-color-text-subtle);
+    font: inherit;
+    font-size: var(--astra-font-size-sm);
+    white-space: nowrap;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+
+  :where(.astra-ui) .astra-output-detail__recipe-heading button:hover {
+    color: var(--astra-color-text);
+  }
 }
