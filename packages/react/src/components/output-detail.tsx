@@ -26,13 +26,15 @@ export function OutputPreview({ output, compact = false, renderArtifact }: Outpu
 }
 
 /**
- * What the detail shows in its artifact box: the host's rendering when it
- * returns one, the built-in preview for figures and tables, nothing for other
- * output types (a data file or a metric has no picture to frame).
+ * What the detail shows in its artifact box: only a figure or a table has a
+ * picture to frame, rendered by the host when it supplies a renderer. A data
+ * file or a metric gets no box — an empty reader column is all whitespace.
  */
 function artifactNode(output: ResolvedOutput, renderArtifact: ArtifactRenderer | undefined): ReactNode {
-  if (renderArtifact) return renderArtifact(output, { compact: false });
-  return isVisualOutput(output) ? <ArtifactPreview output={output} compact={false} /> : null;
+  if (!isVisualOutput(output)) return null;
+  return renderArtifact
+    ? renderArtifact(output, { compact: false })
+    : <ArtifactPreview output={output} compact={false} />;
 }
 
 export interface OutputDetailProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
@@ -60,6 +62,10 @@ export const OutputDetail = forwardRef<HTMLDivElement, OutputDetailProps>(functi
 }, ref) {
   const labels = useLabels();
   const artifact = artifactNode(output, renderArtifact);
+  // A metric's whole artifact is one number: it reads as a pill at the head of
+  // the provenance, above the description, not as a figure stretched across a
+  // reader column.
+  const metric = output.type === 'metric' ? renderArtifact?.(output, { compact: true }) : null;
   // Reader layout (artifact column + details rail) only when there is an
   // artifact to frame: a host renderer may opt out of a figure or table by
   // returning null, and the details then take the single column instead.
@@ -110,6 +116,12 @@ export const OutputDetail = forwardRef<HTMLDivElement, OutputDetailProps>(functi
 
   const supportingDetails = (
     <aside className="astra-output-detail__provenance" aria-label="Output provenance and dependencies">
+      {metric ? (
+        <section className="astra-output-detail__metric">
+          <h4>Metric</h4>
+          <div className="astra-output-detail__metric-pill">{metric}</div>
+        </section>
+      ) : null}
       {output.description ? (
         <section className="astra-output-detail__description">
           <h4>Description</h4>
