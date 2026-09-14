@@ -111,6 +111,7 @@
   }
 
   :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-output-detail__description h4,
+  :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-output-detail__metric h4,
   :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-output-detail__recipe summary {
     color: var(--astra-color-text);
     font: 700 var(--astra-font-size-sm)/1.25 var(--astra-font-ui);
@@ -195,13 +196,16 @@
     max-height: none;
   }
 
+  /* Nothing precedes the provenance in the single column, so it opens the
+     surface: the result's own padding is the only space above the first
+     heading. */
   :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-output-detail__layout:where([data-layout="single"]) .astra-output-detail__provenance {
     position: static;
     overflow: visible;
-    margin-top: 24px;
+    margin-top: 0;
     border-inline-start: 0;
     background: transparent;
-    padding: 20px 0 0;
+    padding: 0;
   }
 
   :where(.astra-ui) .astra-dialog:where([data-mode="embedded"]) .astra-output-detail__description,
@@ -288,6 +292,7 @@
   }
 
   :where(.astra-ui) .astra-output-detail__description h4,
+  :where(.astra-ui) .astra-output-detail__metric h4,
   :where(.astra-ui) .astra-output-detail__recipe h4 {
     margin: 0 0 8px;
     color: var(--astra-color-text);
@@ -467,10 +472,43 @@
   :where(.astra-ui) .astra-output-detail__layout:where([data-layout="single"]) .astra-output-detail__provenance {
     position: static;
     overflow: visible;
-    margin-top: 26px;
+    margin-top: 0;
     border: 0;
     background: var(--astra-color-canvas);
     padding: 0;
+  }
+
+  /* A metric has no picture to frame: the value reads as a pill at the head of
+     the provenance, and what follows takes the gap a relation list carries. */
+  :where(.astra-ui) .astra-output-detail__metric {
+    margin: 0;
+    padding: 0;
+  }
+
+  :where(.astra-ui) .astra-output-detail__layout .astra-output-detail__metric + * {
+    margin-top: 26px;
+  }
+
+  :where(.astra-ui) .astra-output-detail__metric-pill {
+    display: inline-flex;
+    width: max-content;
+    max-width: 100%;
+    align-items: baseline;
+    border: 1px solid color-mix(in srgb, var(--astra-color-kind-output) 32%, var(--astra-color-border));
+    border-radius: var(--astra-radius-control);
+    background: var(--astra-color-kind-output-soft);
+    padding: 7px 14px;
+  }
+
+  :where(.astra-ui) .astra-output-detail__metric-pill .astra-artifact {
+    justify-content: flex-start;
+  }
+
+  :where(.astra-ui) .astra-output-detail__metric-pill .astra-artifact__metric-value {
+    max-width: none;
+    color: var(--astra-color-kind-output);
+    font-size: var(--astra-font-size-title);
+    text-align: start;
   }
 
   :where(.astra-ui) .astra-output-detail__artifact[data-expanded] {
