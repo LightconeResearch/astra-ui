@@ -38,4 +38,13 @@
     white-space: normal;
   }
 
+  /* The evidence count now belongs to the metadata line, not a fixed column. */
+  :where(.astra-ui) .astra-findings-list__meta .astra-record-list__count {
+    overflow: visible;
+    color: inherit;
+    font: inherit;
+    text-overflow: clip;
+    white-space: normal;
+  }
+
 }

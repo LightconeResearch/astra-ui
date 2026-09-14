@@ -49,7 +49,7 @@ export const FindingsList = forwardRef<HTMLDivElement, FindingsListProps>(functi
                   <span className="astra-findings-list__claim">{record.claim}</span>
                   <span className="astra-findings-list__meta">
                     <span className="astra-findings-list__name">{recordTitle(record)}</span>
-                    <span>{evidenceLabel(count)}</span>
+                    <span className="astra-record-list__count">{evidenceLabel(count)}</span>
                   </span>
                 </span>
               </span>,
