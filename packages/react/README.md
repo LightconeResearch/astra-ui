@@ -478,3 +478,9 @@ development commands.
 ## License
 
 BSD-3-Clause. See [LICENSE](./LICENSE).
+
+`Inventory` and `RecordDialog` accept `renderRecordActions(record)` for host-owned
+actions such as adding the current record to a chat. Return a button (or
+`DialogAction`); built-in output actions remain alongside it. The callback receives
+the currently resolved record, including after drill-down, and is not called for
+missing records or paper entries. Chat state and transport stay with the host.

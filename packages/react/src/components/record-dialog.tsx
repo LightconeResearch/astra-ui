@@ -41,6 +41,8 @@ export interface RecordDialogProps extends Pick<DetailDialogProps, 'mode' | 'bac
   onOpenPaperFile?: OpenPaperFileHandler | undefined;
   onOpenArtifact?: ((output: ResolvedOutput) => void | Promise<void>) | undefined;
   onFetchPaper?: ((doi: string) => void) | undefined;
+  /** Host actions appended to the built-in record actions. */
+  renderRecordActions?: ((record: ResolvedRecord) => ReactNode) | undefined;
   /** Navigation to another record from within the detail (drill-down). */
   onOpenRecord?: ((record: ResolvedRecord, analysis: ResolvedAnalysisNode) => void) | undefined;
   onOpenPaper?: ((doi: string, analysis: ResolvedAnalysisNode, focusInsightPath?: string) => void) | undefined;
@@ -74,6 +76,7 @@ export function RecordDialog({
   onOpenPaperFile,
   onOpenArtifact,
   onFetchPaper,
+  renderRecordActions,
   onOpenRecord,
   onOpenPaper,
   fallback = null,
@@ -227,7 +230,7 @@ export function RecordDialog({
       kindLabel={chrome.kindLabel}
       title={chrome.title}
       closeLabel={labels.closeRecord(labels.kinds[chrome.kind])}
-      actions={chrome.actions}
+      actions={<>{chrome.actions}{located ? renderRecordActions?.(located.record) : null}</>}
     >
       {chrome.body}
     </DetailDialog>

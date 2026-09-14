@@ -49,6 +49,8 @@ export interface InventoryProps extends Omit<HTMLAttributes<HTMLDivElement>, 'ch
   paperMetadata?: InventoryPaperMetadataMap | undefined;
   /** Notify the host to fetch this DOI; update paperMetadata when complete. */
   onFetchPaper?: ((doi: string) => void) | undefined;
+  /** Host actions for the record currently open in the detail dialog. */
+  renderRecordActions?: ((record: ResolvedRecord) => ReactNode) | undefined;
   decisionTagLabels?: Readonly<Record<string, string>> | undefined;
   detailMode?: DialogMode | undefined;
   /** The open detail stack (controlled); pair with `onDetailChange`. */
@@ -94,6 +96,7 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(
   onOpenArtifact,
   paperMetadata = EMPTY_PAPER_METADATA,
   onFetchPaper,
+  renderRecordActions,
   decisionTagLabels = {},
   detailMode = 'modal',
   detail,
@@ -216,6 +219,7 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(
             onOpenPaperFile={onOpenPaperFile}
             onOpenArtifact={onOpenArtifact}
             onFetchPaper={onFetchPaper}
+            renderRecordActions={renderRecordActions}
             onOpenRecord={stack.pushRecord}
             onOpenPaper={stack.pushPaper}
             onBack={stack.previous ? stack.back : undefined}
