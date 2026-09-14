@@ -45,6 +45,10 @@
     overflow-wrap: anywhere;
   }
 
+  :where(.astra-ui) .astra-analysis-tree__select[aria-current="page"] {
+    font-weight: 700;
+  }
+
   :where(.astra-ui) .astra-analysis-tree__select:hover,
   :where(.astra-ui) .astra-analysis-tree__select:focus-visible {
     color: var(--astra-color-text);
