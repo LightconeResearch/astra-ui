@@ -96,9 +96,11 @@ export const DecisionsList = forwardRef<HTMLDivElement, DecisionsListProps>(func
           cells: [
             <RecordIdentity kind="decision" title={recordTitle(record)} />,
             <span className="astra-record-list__selected">{selectedOptionLabel(record)}</span>,
-            <span className="astra-record-list__tag">
-              {record.tags?.[0] ? decisionTagLabel(record.tags[0], tagLabels) : '—'}
-            </span>,
+            record.tags?.[0] ? (
+              <span className="astra-record-list__tag">
+                {decisionTagLabel(record.tags[0], tagLabels)}
+              </span>
+            ) : null,
             <span aria-hidden="true">→</span>,
           ],
         }))}
