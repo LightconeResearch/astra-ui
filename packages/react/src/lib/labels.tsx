@@ -93,7 +93,7 @@ export const defaultLabels: AstraLabels = {
     papers: 'Bibliography',
   },
   outline: 'On this page',
-  analysisTree: 'Project hierarchy',
+  analysisTree: 'ASTRA project',
   back: 'Back',
   backTo: 'Back to previous record',
   close: 'Close all details',

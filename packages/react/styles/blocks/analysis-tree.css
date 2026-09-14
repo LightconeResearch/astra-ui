@@ -2,7 +2,6 @@
 @layer astra.tokens, astra.base, astra.components, astra.views;
 @layer astra.views {
   :where(.astra-ui) .astra-analysis-tree {
-    overflow: visible;
     font-family: var(--astra-font-ui);
   }
 
@@ -22,63 +21,39 @@
   }
 
   :where(.astra-ui) .astra-analysis-tree ul ul {
-    margin-inline-start: 10px;
-    padding-inline-start: 10px;
-    border-inline-start: 1px solid var(--astra-color-border-subtle);
-  }
-
-  :where(.astra-ui) .astra-analysis-tree__row {
-    display: flex;
-    align-items: start;
-  }
-
-  :where(.astra-ui) .astra-analysis-tree button {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-    border: 0;
-    border-radius: 4px;
-    background: transparent;
-    color: var(--astra-color-text-muted);
-    padding: 6px 8px;
-    font: inherit;
-    font-size: var(--astra-font-size-sm);
-    line-height: 1.3;
-    text-align: start;
+    margin-inline-start: 12px;
   }
 
   :where(.astra-ui) .astra-analysis-tree__select {
-    flex: 1;
+    display: flex;
+    width: 100%;
     min-width: 0;
+    align-items: start;
+    gap: 8px;
+    padding: 7px 0;
+    cursor: pointer;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--astra-color-text-subtle);
+    font: inherit;
+    font-size: var(--astra-font-size-sm);
+    line-height: 1.4;
+    text-align: start;
   }
 
-  :where(.astra-ui) .astra-analysis-tree__toggle,
-  :where(.astra-ui) .astra-analysis-tree__spacer {
-    flex: 0 0 20px;
-    width: 20px;
-    padding: 10px 4px;
-  }
-
-  :where(.astra-ui) .astra-analysis-tree button svg {
+  :where(.astra-ui) .astra-analysis-tree__select svg {
     flex: 0 0 auto;
-    color: var(--astra-color-kind-analysis);
+    margin-top: 2px;
   }
 
-  :where(.astra-ui) .astra-analysis-tree button span {
+  :where(.astra-ui) .astra-analysis-tree__select span {
     min-width: 0;
     overflow-wrap: anywhere;
   }
 
-  :where(.astra-ui) .astra-analysis-tree button:hover,
-  :where(.astra-ui) .astra-analysis-tree button:focus-visible {
-    background: var(--astra-color-surface-muted);
+  :where(.astra-ui) .astra-analysis-tree__select:hover,
+  :where(.astra-ui) .astra-analysis-tree__select:focus-visible {
     color: var(--astra-color-text);
-  }
-
-  :where(.astra-ui) .astra-analysis-tree button[aria-current="page"] {
-    background: var(--astra-color-kind-analysis-soft);
-    color: var(--astra-color-text);
-    font-weight: 700;
   }
 }
