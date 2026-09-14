@@ -13,14 +13,21 @@ export interface OutputsListProps extends Omit<HTMLAttributes<HTMLDivElement>, '
   onOpenRecord: (output: ResolvedOutput, analysis: ResolvedAnalysisNode) => void;
 }
 
-function OutputGallery({
+/**
+ * One titled run of outputs. A gallery frames each output as a card with its
+ * preview; the compact form lists them as entries, which is what a metric or a
+ * plain file is worth. Everything else about a group is the same either way.
+ */
+function OutputGroup({
   title,
   outputs,
+  variant,
   renderArtifact,
   onOpen,
 }: {
   title: string;
   outputs: ResolvedOutput[];
+  variant: 'gallery' | 'compact';
   renderArtifact?: ArtifactRenderer | undefined;
   onOpen: (output: ResolvedOutput) => void;
 }) {
@@ -31,49 +38,30 @@ function OutputGallery({
       <h3 id={id} className="astra-inventory-outputs__group-heading">
         <span>{title}</span>
       </h3>
-      <div className="astra-inventory-outputs__gallery">
-        {outputs.map((output) => (
-          <OutputCard
-            key={output.canonicalPath}
-            output={output}
-            renderArtifact={renderArtifact}
-            onOpen={() => { onOpen(output); }}
-          />
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function CompactOutputs({
-  title,
-  outputs,
-  renderArtifact,
-  onOpen,
-}: {
-  title: string;
-  outputs: ResolvedOutput[];
-  renderArtifact?: ArtifactRenderer | undefined;
-  onOpen: (output: ResolvedOutput) => void;
-}) {
-  const id = useId();
-  if (!outputs.length) return null;
-  return (
-    <section className="astra-inventory-outputs__group" aria-labelledby={id}>
-      <h3 id={id} className="astra-inventory-outputs__group-heading">
-        <span>{title}</span>
-      </h3>
-      <ul className="astra-inventory-outputs__compact-grid" data-layout={outputs[0]?.type === 'metric' ? 'tiles' : 'grid'}>
-        {outputs.map((output) => (
-          <li key={output.canonicalPath}>
-            <OutputEntry
+      {variant === 'gallery' ? (
+        <div className="astra-inventory-outputs__gallery">
+          {outputs.map((output) => (
+            <OutputCard
+              key={output.canonicalPath}
               output={output}
               renderArtifact={renderArtifact}
               onOpen={() => { onOpen(output); }}
             />
-          </li>
-        ))}
-      </ul>
+          ))}
+        </div>
+      ) : (
+        <ul className="astra-inventory-outputs__compact-grid" data-layout={outputs[0]?.type === 'metric' ? 'tiles' : 'grid'}>
+          {outputs.map((output) => (
+            <li key={output.canonicalPath}>
+              <OutputEntry
+                output={output}
+                renderArtifact={renderArtifact}
+                onOpen={() => { onOpen(output); }}
+              />
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   );
 }
@@ -99,10 +87,10 @@ export const OutputsList = forwardRef<HTMLDivElement, OutputsListProps>(function
   const open = (output: ResolvedOutput) => { onOpenRecord(output, analysis); };
   return (
     <div data-slot="outputs-list" {...props} ref={ref} className={cn('astra-inventory-outputs', className)}>
-      <OutputGallery title="Figures" outputs={figures} renderArtifact={renderArtifact} onOpen={open} />
-      <OutputGallery title="Tables" outputs={tables} renderArtifact={renderArtifact} onOpen={open} />
-      <CompactOutputs title="Metrics" outputs={metrics} renderArtifact={renderArtifact} onOpen={open} />
-      <CompactOutputs title="Output files" outputs={files} onOpen={open} />
+      <OutputGroup variant="gallery" title="Figures" outputs={figures} renderArtifact={renderArtifact} onOpen={open} />
+      <OutputGroup variant="gallery" title="Tables" outputs={tables} renderArtifact={renderArtifact} onOpen={open} />
+      <OutputGroup variant="compact" title="Metrics" outputs={metrics} renderArtifact={renderArtifact} onOpen={open} />
+      <OutputGroup variant="compact" title="Output files" outputs={files} onOpen={open} />
     </div>
   );
 });

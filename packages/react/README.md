@@ -100,16 +100,30 @@ Use blocks when your application owns the page layout or routing:
 | Component | Purpose |
 | --- | --- |
 | `AnalysisTree` | Recursive picker for the root analysis and its sub-analyses |
-| `OutputsList`, `OutputCard` | Figure and table galleries plus a list of other outputs, with optional compact artifact previews |
+| `OutputsList` | Figure and table galleries plus a list of other outputs, with optional compact artifact previews |
 | `DecisionsList` | Decision rows, selected options, and a controlled or uncontrolled tag filter |
 | `InputsList` | Inputs with their source and declared type |
 | `FindingsList` | Findings with claims and evidence counts |
 | `PriorInsightsList` | Prior insights with claims and source counts |
-| `PapersList`, `PaperRows` | Cited papers derived with `collectInventoryPapers` |
+| `PapersList` | Cited papers derived with `collectInventoryPapers` |
 | `InventorySection`, `InventoryRecords`, `InventoryOutline` | Section chrome, kind-aware record layout, and anchor navigation for custom inventories |
 
 List components emit records through callbacks such as `onOpenRecord`; they do
 not own application navigation.
+
+### Shared renderers
+
+The blocks above are built from renderers you can place yourself, for one
+record at a time, when you own the run that holds them:
+
+| Component | What it renders |
+| --- | --- |
+| `OutputCard` | A gallery card: compact artifact preview, title, and a type label for non-figures |
+| `OutputEntry` | One output at a glance — a metric as its value, anything else as its name and format |
+| `PaperRow` | One cited paper: title, byline, and how much of the analysis leans on it |
+
+Each takes the record and an `onOpen` callback, forwards a ref to its button,
+and accepts `className` and `aria-label` overrides.
 
 ### Record and paper details
 

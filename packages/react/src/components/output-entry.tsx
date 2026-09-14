@@ -24,6 +24,7 @@ export const OutputEntry = forwardRef<HTMLButtonElement, OutputEntryProps>(funct
   'aria-label': hostLabel,
   ...props
 }, ref) {
+  const title = recordTitle(output);
   const metric = output.type === 'metric';
   const status = !output.active ? 'Inactive' : !output.artifact ? 'Not yet generated' : undefined;
   return (
@@ -34,11 +35,11 @@ export const OutputEntry = forwardRef<HTMLButtonElement, OutputEntryProps>(funct
       type="button"
       className={cn('astra-output-entry', className)}
       data-kind={metric ? 'metric' : 'file'}
-      aria-label={hostLabel ?? `Open ${output.type}: ${recordTitle(output)}`}
+      aria-label={hostLabel ?? `Open ${output.type}: ${title}`}
       onClick={(event) => { onClick?.(event); onOpen(); }}
     >
       <span className="astra-output-entry__name">
-        {recordTitle(output)}
+        {title}
         {!metric && status ? <span className="astra-output-entry__status">{status}</span> : null}
       </span>
       {metric ? (
