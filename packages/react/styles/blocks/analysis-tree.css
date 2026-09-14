@@ -21,9 +21,19 @@
     list-style: none;
   }
 
+  :where(.astra-ui) .astra-analysis-tree ul ul {
+    margin-inline-start: 10px;
+    padding-inline-start: 10px;
+    border-inline-start: 1px solid var(--astra-color-border-subtle);
+  }
+
+  :where(.astra-ui) .astra-analysis-tree__row {
+    display: flex;
+    align-items: start;
+  }
+
   :where(.astra-ui) .astra-analysis-tree button {
     display: flex;
-    width: 100%;
     align-items: center;
     gap: 8px;
     cursor: pointer;
@@ -38,6 +48,18 @@
     text-align: start;
   }
 
+  :where(.astra-ui) .astra-analysis-tree__select {
+    flex: 1;
+    min-width: 0;
+  }
+
+  :where(.astra-ui) .astra-analysis-tree__toggle,
+  :where(.astra-ui) .astra-analysis-tree__spacer {
+    flex: 0 0 20px;
+    width: 20px;
+    padding: 10px 4px;
+  }
+
   :where(.astra-ui) .astra-analysis-tree button svg {
     flex: 0 0 auto;
     color: var(--astra-color-kind-analysis);
@@ -45,9 +67,7 @@
 
   :where(.astra-ui) .astra-analysis-tree button span {
     min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    overflow-wrap: anywhere;
   }
 
   :where(.astra-ui) .astra-analysis-tree button:hover,

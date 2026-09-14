@@ -89,6 +89,7 @@ Its most useful options are:
 - `loadPdfJs` enables the built-in PDF viewer; `onOpenPaperFile` overrides external PDF opening.
 - `paperMetadata` and `onFetchPaper` connect paper loading to host state.
 - `detail`, `defaultDetail`, and `onDetailChange` control the detail stack.
+- `onSelectAnalysis` adds a collapsible project hierarchy below the contents; update `analysisPath` in the callback to switch analyses. On narrow panels the hierarchy moves above the sections so navigation remains available.
 - `detailMode="embedded"` renders details as an inline panel instead of a modal.
 - `labels` overrides user-facing strings.
 - `index` accepts an `AnalysisIndex` the host has already built.

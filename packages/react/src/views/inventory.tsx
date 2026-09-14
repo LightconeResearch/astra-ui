@@ -19,6 +19,7 @@ import type { ArtifactRenderer } from '../components/artifact-preview.js';
 import { DialogProvider, type DialogMode } from '../primitives/dialog.js';
 import type { TextRenderer } from '../lib/prose.js';
 import { DecisionsList } from '../blocks/decisions-list.js';
+import { AnalysisTree } from '../blocks/analysis-tree.js';
 import { FindingsList } from '../blocks/findings-list.js';
 import { InputsList } from '../blocks/inputs-list.js';
 import { OutputsList } from '../blocks/outputs-list.js';
@@ -34,6 +35,8 @@ export interface InventoryProps extends Omit<HTMLAttributes<HTMLDivElement>, 'ch
   index?: AnalysisIndex | undefined;
   /** Canonical analysis path; `$` selects the project root. A path the document does not contain shows the root. */
   analysisPath?: string | undefined;
+  /** Show analysis navigation below the outline; the host updates `analysisPath` on selection. */
+  onSelectAnalysis?: ((canonicalPath: string) => void) | undefined;
   /** Which sections to show, in order. */
   sections?: readonly InventorySectionId[] | undefined;
   /** Prefix for section anchor ids, so several explorers can share a page. */
@@ -83,6 +86,7 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(
   document,
   index: providedIndex,
   analysisPath = '$',
+  onSelectAnalysis,
   sections = DEFAULT_SECTIONS,
   idPrefix = '',
   showOutline = true,
@@ -185,15 +189,24 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(
           ))}
           {children}
         </div>
-        {showOutline ? (
-          <InventoryOutline
-            entries={sections.map((section) => ({
-              id: anchorId(section),
-              label: labels.sections[section],
-              count: sectionContent[section].count,
-              kind: sectionKind(section),
-            }))}
-          />
+        {showOutline || onSelectAnalysis ? (
+          <div className="astra-inventory__sidebar" data-has-tree={onSelectAnalysis ? '' : undefined}>
+            {showOutline ? <InventoryOutline
+              entries={sections.map((section) => ({
+                id: anchorId(section),
+                label: labels.sections[section],
+                count: sectionContent[section].count,
+                kind: sectionKind(section),
+              }))}
+            /> : null}
+            {onSelectAnalysis ? (
+              <AnalysisTree
+                document={document}
+                analysisPath={analysis.canonicalPath}
+                onSelectAnalysis={onSelectAnalysis}
+              />
+            ) : null}
+          </div>
         ) : null}
       </div>
       {stack.active ? (

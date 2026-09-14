@@ -67,7 +67,7 @@
 
   :where(.astra-ui) .astra-inventory__layout {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 180px;
+    grid-template-columns: minmax(0, 1fr) 220px;
     gap: 48px;
     align-items: start;
   }
@@ -124,6 +124,20 @@
     min-width: 0;
   }
 
+  :where(.astra-ui) .astra-inventory__sidebar {
+    position: sticky;
+    top: 72px;
+    display: grid;
+    gap: 28px;
+    min-width: 0;
+    max-height: calc(100vh - 88px);
+    overflow-y: auto;
+  }
+
+  :where(.astra-ui) .astra-inventory__sidebar .astra-inventory-outline {
+    position: static;
+  }
+
   :where(.astra-ui) .astra-inventory-outline h3 {
     margin: 0 0 8px;
     color: var(--astra-color-text-subtle);
@@ -171,6 +185,16 @@
     }
 
     :where(.astra-ui) .astra-inventory-outline {
+      display: none;
+    }
+
+    :where(.astra-ui) .astra-inventory__sidebar {
+      position: static;
+      grid-row: 1;
+      max-height: none;
+    }
+
+    :where(.astra-ui) .astra-inventory__sidebar:not([data-has-tree]) {
       display: none;
     }
 
