@@ -10,6 +10,7 @@ import { Prose } from '../primitives/prose.js';
 import type { TextRenderer } from '../lib/prose.js';
 import { RelationList } from '../primitives/relation-list.js';
 import { relationItemsForLinks } from './relation-items.js';
+import { FigureZoom } from './figure-zoom.js';
 import type { OpenRecordHandler } from '../lib/detail-stack.js';
 
 export interface OutputPreviewProps {
@@ -216,7 +217,9 @@ export const OutputDetail = forwardRef<HTMLDivElement, OutputDetailProps>(functi
             </div>
           ) : null}
           <div className="astra-output-detail__preview" data-type={output.type}>
-            {artifact}
+            {expanded && output.type === 'figure'
+              ? <FigureZoom key={output.canonicalPath}>{artifact}</FigureZoom>
+              : artifact}
           </div>
         </div>
         ) : null}
@@ -259,4 +262,3 @@ export function OutputDialogActions({ record: output, onOpenArtifact, expanded, 
     </>
   );
 }
-

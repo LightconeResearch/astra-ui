@@ -44,6 +44,15 @@ export interface AstraLabels {
     openPaper: string;
     locate: string;
   };
+  /** Full-screen figure magnification and panning. */
+  figure: {
+    controls: string;
+    zoomIn: string;
+    zoomOut: string;
+    fit: string;
+    zoomLevel: (percent: number) => string;
+    viewport: string;
+  };
   /** PDF reading, evidence navigation, and accessible viewer controls. */
   pdf: {
     loading: string;
@@ -129,6 +138,14 @@ export const defaultLabels: AstraLabels = {
     openPaper: 'Open',
     locate: 'Locate',
   },
+  figure: {
+    controls: 'Figure zoom',
+    zoomIn: 'Zoom figure in',
+    zoomOut: 'Zoom figure out',
+    fit: 'Fit figure',
+    zoomLevel: (percent) => `${percent}%`,
+    viewport: 'Figure preview: use arrow keys to pan, + and − to zoom, 0 to fit',
+  },
   pdf: {
     loading: 'Loading PDF…',
     loadError: 'The PDF could not be loaded.',
@@ -187,6 +204,7 @@ function merge(base: AstraLabels, overrides: AstraLabelOverrides): AstraLabels {
     kinds: { ...base.kinds, ...defined(overrides.kinds ?? {}) },
     empty: { ...base.empty, ...defined(overrides.empty ?? {}) },
     actions: { ...base.actions, ...defined(overrides.actions ?? {}) },
+    figure: { ...base.figure, ...defined(overrides.figure ?? {}) },
     pdf: { ...base.pdf, ...defined(overrides.pdf ?? {}) },
     preview: { ...base.preview, ...defined(overrides.preview ?? {}) },
   } as AstraLabels;
