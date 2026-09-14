@@ -38,7 +38,7 @@ test('the composed inventory consumes ResolvedAnalysisDocument directly', () => 
     },
   }));
 
-  for (const label of ['Outputs', 'Decisions', 'Inputs', 'Findings', 'Papers']) {
+  for (const label of ['Outputs', 'Decisions', 'Inputs', 'Findings', 'Bibliography']) {
     assert.match(html, new RegExp(`<h2 id="[a-z-]+" tabindex="-1"><span>${label}</span></h2>`));
   }
   // Prior insights are reached through the decision or paper that cites them,

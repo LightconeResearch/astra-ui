@@ -90,7 +90,7 @@ export const defaultLabels: AstraLabels = {
     decisions: 'Decisions',
     inputs: 'Inputs',
     findings: 'Findings',
-    papers: 'Papers',
+    papers: 'Bibliography',
   },
   outline: 'On this page',
   analysisTree: 'Project hierarchy',
