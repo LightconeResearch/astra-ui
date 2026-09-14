@@ -99,7 +99,7 @@ test('the analysis picker follows the SDK recursive analysis tree', () => {
     onSelectAnalysis: () => {},
   }));
 
-  assert.match(html, /ASTRA project/);
+  assert.match(html, /Project hierarchy/);
   assert.match(html, /DESI demo/);
   assert.match(html, /Clustering/);
   assert.match(html, /aria-current="page"/);

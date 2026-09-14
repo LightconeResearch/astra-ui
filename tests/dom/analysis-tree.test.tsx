@@ -51,7 +51,7 @@ it('keeps navigation available without the contents and handles a single analysi
   const single = { ...fixture, analysis: { ...fixture.analysis, analyses: [] } };
   render(<Inventory document={single} showOutline={false} onSelectAnalysis={vi.fn()} />);
   expect(screen.queryByLabelText('On this page')).toBeNull();
-  const nav = screen.getByRole('navigation', { name: 'ASTRA project' });
+  const nav = screen.getByRole('navigation', { name: 'Project hierarchy' });
   expect(within(nav).getAllByRole('button')).toHaveLength(1);
   expect(within(nav).getByRole('button', { name: 'DESI demo' }).getAttribute('aria-current')).toBe('page');
 });

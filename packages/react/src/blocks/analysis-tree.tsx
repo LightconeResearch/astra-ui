@@ -17,12 +17,10 @@ function AnalysisNode({
   analysis,
   selectedPath,
   onSelectAnalysis,
-  nested = false,
 }: {
   analysis: ResolvedAnalysisNode;
   selectedPath: string;
   onSelectAnalysis: (canonicalPath: string) => void;
-  nested?: boolean;
 }) {
   const title = analysisTitle(analysis);
   return (
@@ -34,11 +32,6 @@ function AnalysisNode({
         aria-current={analysis.canonicalPath === selectedPath ? 'page' : undefined}
         onClick={() => { onSelectAnalysis(analysis.canonicalPath); }}
       >
-        {nested ? (
-          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.25">
-            <path d="M3 2v8h10m-4-4 4 4-4 4" />
-          </svg>
-        ) : null}
         <span>{title}</span>
       </button>
       {analysis.analyses.length ? (
@@ -49,7 +42,6 @@ function AnalysisNode({
               analysis={child}
               selectedPath={selectedPath}
               onSelectAnalysis={onSelectAnalysis}
-              nested
             />
           ))}
         </ul>
