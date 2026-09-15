@@ -40,3 +40,8 @@ export type { OutputEntryProps } from './output-entry.js';
 
 export { PaperRow } from './paper-row.js';
 export type { PaperRowProps } from './paper-row.js';
+
+export { OutputStatusIndicator } from './output-status.js';
+export type { OutputStatusIndicatorProps } from './output-status.js';
+
+export { OutputProvenance, type OutputProvenanceProps } from './output-provenance.js';

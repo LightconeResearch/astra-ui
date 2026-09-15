@@ -186,3 +186,18 @@ describe('Insight source evidence', () => {
     ]);
   });
 });
+
+it('shows only exceptional materialization markers without output glyphs', () => {
+  const statusFor = (output: (typeof fixtureDocument.analysis.outputs)[number]) => ({
+    state: output.type === 'metric' ? 'materialized' as const : output.type === 'figure' ? 'outdated' as const : 'unmaterialized' as const,
+    detail: `Status for ${output.id}`,
+  });
+  const { rerender, container } = render(<Inventory document={fixtureDocument} getOutputStatus={statusFor} />);
+  for (const output of fixtureDocument.analysis.outputs) {
+    if (output.type !== 'metric') expect(screen.getByRole('img', { name: new RegExp(`Status for ${output.id}$`) })).toBeTruthy();
+  }
+  expect(screen.queryByText('Materialized', { exact: true })).toBeNull();
+  expect(container.querySelectorAll('[data-slot="output-card"] [data-slot="kind-glyph"], [data-slot="output-entry"] [data-slot="kind-glyph"]')).toHaveLength(0);
+  rerender(<Inventory document={fixtureDocument} />);
+  expect(container.querySelectorAll('.astra-output-status')).toHaveLength(0);
+});

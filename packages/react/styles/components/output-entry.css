@@ -4,8 +4,9 @@
 
   :where(.astra-ui) .astra-output-entry {
     appearance: none;
+    position: relative;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr);
     align-items: baseline;
     gap: var(--astra-space-3);
     width: 100%;
@@ -18,8 +19,15 @@
     background: transparent;
     color: var(--astra-color-text);
     font: 400 var(--astra-font-size-sm)/1.5 var(--astra-font-ui);
+    overflow: visible;
     text-align: start;
     cursor: pointer;
+  }
+
+  /* A file row carries its marker inside the row (see output-status.css);
+     reserve its width so long names stay clear of it. */
+  :where(.astra-ui) .astra-output-entry:where([data-kind="file"]) {
+    padding-inline-end: calc(16px + 2 * var(--astra-space-2));
   }
 
   :where(.astra-ui) .astra-output-entry:hover {
@@ -36,13 +44,6 @@
     min-width: 0;
     overflow-wrap: anywhere;
     font-weight: 500;
-  }
-
-  :where(.astra-ui) .astra-output-entry__format {
-    color: var(--astra-color-text-subtle);
-    font: 500 var(--astra-font-size-2xs)/1.5 var(--astra-font-mono);
-    overflow-wrap: anywhere;
-    text-align: end;
   }
 
   :where(.astra-ui) .astra-output-entry__value {
@@ -95,7 +96,6 @@
   }
 
   :where(.astra-ui) .astra-output-entry:where([data-kind="metric"]) {
-    grid-template-columns: minmax(0, 1fr);
     gap: calc(0.5 * var(--astra-space-2));
     width: auto;
     max-width: 100%;
