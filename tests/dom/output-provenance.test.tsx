@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, expect, it, vi } from 'vitest';
 import type { ResolvedAnalysisDocument } from '@astra-spec/sdk';
 import { Inventory } from '../../packages/react/src/views/index.js';
-import { OutputProvenance } from '../../packages/react/src/components/index.js';
+import { OutputProvenance, OutputStatusIndicator } from '../../packages/react/src/components/index.js';
 import { fixtureDocument as untypedFixture } from '../fixture.mjs';
 
 const document = untypedFixture as unknown as ResolvedAnalysisDocument;
@@ -61,4 +61,14 @@ it('does not label missing or failed metadata as a recorded success', () => {
   expect(screen.getByRole('alert').textContent).toBe('Could not read record');
   expect(screen.queryByText('No recorded run yet.')).toBeNull();
   expect(screen.queryByRole('button', { name: 'Details' })).toBeNull();
+});
+
+it('explains inventory status on hover, with a state-only fallback for missing reasons', () => {
+  const view = render(<OutputStatusIndicator status={{ state: 'outdated', detail: '  the recipe changed  ' }} />);
+  const marker = screen.getByRole('img', { name: 'Out of date: the recipe changed' });
+  expect(marker.getAttribute('title')).toBe('Out of date: the recipe changed');
+  view.rerender(<OutputStatusIndicator status={{ state: 'unmaterialized', detail: '   ' }} />);
+  expect(screen.getByRole('img', { name: 'Not materialized' }).getAttribute('title')).toBe('Not materialized');
+  view.rerender(<OutputStatusIndicator status={{ state: 'unmaterialized', detail: 'no manifest' }} />);
+  expect(screen.getByRole('img', { name: 'Not materialized: no manifest' }).getAttribute('title')).toBe('Not materialized: no manifest');
 });

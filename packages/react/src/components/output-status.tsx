@@ -16,12 +16,14 @@ export const OutputStatusIndicator = forwardRef<HTMLSpanElement, OutputStatusInd
   const labels = useLabels();
   if (!status || status.state === 'materialized') return null;
   const label = labels.status[status.state];
+  const reason = status.detail?.trim();
+  const explanation = reason ? labels.status.withDetail(label, reason) : label;
   return (
     <span
       data-slot="output-status"
       role="img"
-      aria-label={label}
-      title={status.detail ? labels.status.withDetail(label, status.detail) : label}
+      aria-label={explanation}
+      title={explanation}
       {...props}
       ref={ref}
       className={cn('astra-output-status', className)}
