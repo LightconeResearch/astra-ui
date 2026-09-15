@@ -1,4 +1,5 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { afterEach, expect, it, vi } from 'vitest';
 import type { ResolvedAnalysisDocument } from '@astra-spec/sdk';
 import { Inventory } from '../../packages/react/src/views/index.js';
@@ -6,7 +7,7 @@ import { OutputProvenance, OutputStatusIndicator } from '../../packages/react/sr
 import { fixtureDocument as untypedFixture } from '../fixture.mjs';
 
 const document = untypedFixture as unknown as ResolvedAnalysisDocument;
-afterEach(cleanup);
+afterEach(() => { cleanup(); vi.useRealTimers(); });
 
 it('shows provenance below the recipe in the existing details list', () => {
   const fixture = {
@@ -63,12 +64,18 @@ it('does not label missing or failed metadata as a recorded success', () => {
   expect(screen.queryByRole('button', { name: 'Details' })).toBeNull();
 });
 
-it('explains inventory status on hover, with a state-only fallback for missing reasons', () => {
+it('explains inventory status in a rendered tooltip, with a state-only fallback', async () => {
+  const user = userEvent.setup();
   const view = render(<OutputStatusIndicator status={{ state: 'outdated', detail: '  the recipe changed  ' }} />);
   const marker = screen.getByRole('img', { name: 'Out of date: the recipe changed' });
-  expect(marker.getAttribute('title')).toBe('Out of date: the recipe changed');
+  await user.hover(marker);
+  expect((await screen.findByRole('tooltip')).textContent).toBe('Out of date: the recipe changed');
   view.rerender(<OutputStatusIndicator status={{ state: 'unmaterialized', detail: '   ' }} />);
-  expect(screen.getByRole('img', { name: 'Not materialized' }).getAttribute('title')).toBe('Not materialized');
+  expect(screen.getByRole('tooltip').textContent).toBe('Not materialized');
   view.rerender(<OutputStatusIndicator status={{ state: 'unmaterialized', detail: 'no manifest' }} />);
-  expect(screen.getByRole('img', { name: 'Not materialized: no manifest' }).getAttribute('title')).toBe('Not materialized: no manifest');
+  expect(screen.getByRole('tooltip').textContent).toBe('Not materialized: no manifest');
+  fireEvent.keyDown(globalThis.document, { key: 'Escape' });
+  expect(screen.queryByRole('tooltip')).toBeNull();
+  view.rerender(<OutputStatusIndicator status={{ state: 'materialized' }} />);
+  expect(screen.queryByRole('img')).toBeNull();
 });

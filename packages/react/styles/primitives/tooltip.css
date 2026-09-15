@@ -1,0 +1,22 @@
+/* tooltip — emitted by src/primitives/tooltip.tsx */
+@layer astra.tokens, astra.base, astra.components, astra.views;
+@layer astra.components {
+  :where(.astra-ui) .astra-tooltip {
+    z-index: var(--astra-z-preview);
+    width: max-content;
+    max-width: min(280px, calc(100vw - 16px));
+    padding: 6px 9px;
+    border: 1px solid var(--astra-color-border);
+    border-radius: 5px;
+    background: var(--astra-color-surface-raised);
+    box-shadow: var(--astra-shadow-preview);
+    color: var(--astra-color-text);
+    font-family: var(--astra-font-body);
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.4;
+    text-align: left;
+    overflow-wrap: anywhere;
+  }
+
+}

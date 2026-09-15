@@ -1,4 +1,5 @@
 import { forwardRef, type HTMLAttributes } from 'react';
+import { Tooltip } from '../primitives/tooltip.js';
 import { outputStatusIconPath, type OutputStatus } from '../lib/output-status.js';
 import { cn } from '../lib/cn.js';
 import { useLabels } from '../lib/labels.js';
@@ -19,19 +20,20 @@ export const OutputStatusIndicator = forwardRef<HTMLSpanElement, OutputStatusInd
   const reason = status.detail?.trim();
   const explanation = reason ? labels.status.withDetail(label, reason) : label;
   return (
-    <span
-      data-slot="output-status"
-      role="img"
-      aria-label={explanation}
-      title={explanation}
-      {...props}
-      ref={ref}
-      className={cn('astra-output-status', className)}
-      data-state={status.state}
-    >
-      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-        <path d={outputStatusIconPath[status.state]} strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    </span>
+    <Tooltip content={explanation}>
+      <span
+        data-slot="output-status"
+        role="img"
+        aria-label={explanation}
+        {...props}
+        ref={ref}
+        className={cn('astra-output-status', className)}
+        data-state={status.state}
+      >
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+          <path d={outputStatusIconPath[status.state]} strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </span>
+    </Tooltip>
   );
 });

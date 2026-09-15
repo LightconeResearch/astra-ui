@@ -194,7 +194,7 @@ it('shows only exceptional materialization markers without output glyphs', () =>
   });
   const { rerender, container } = render(<Inventory document={fixtureDocument} getOutputStatus={statusFor} />);
   for (const output of fixtureDocument.analysis.outputs) {
-    if (output.type !== 'metric') expect(screen.getByTitle(new RegExp(`Status for ${output.id}$`))).toBeTruthy();
+    if (output.type !== 'metric') expect(screen.getByRole('img', { name: new RegExp(`Status for ${output.id}$`) })).toBeTruthy();
   }
   expect(screen.queryByText('Materialized', { exact: true })).toBeNull();
   expect(container.querySelectorAll('[data-slot="output-card"] [data-slot="kind-glyph"], [data-slot="output-entry"] [data-slot="kind-glyph"]')).toHaveLength(0);
