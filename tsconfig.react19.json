@@ -9,10 +9,10 @@
     "rootDir": "packages/react/src",
     "paths": {
       "react": [
-        "./node_modules/@types/react-19"
+        "./node_modules/@types/react-19/index.d.ts"
       ],
       "react/*": [
-        "./node_modules/@types/react-19/*"
+        "./node_modules/@types/react-19/*.d.ts"
       ]
     }
   },

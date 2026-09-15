@@ -274,18 +274,40 @@ test('the record dialog derives relations and evidence from the index', () => {
   assert.match(missing, /<p>gone<\/p>/);
 });
 
-test('the artifact box frames figures and tables, or whatever the host returns, and nothing otherwise', () => {
+test('the artifact box frames figures and tables and nothing else, host renderer or not', () => {
   const index = indexAnalysis(fixtureDocument);
   const figure = index.recordByPath.get('outputs.headline');
   const data = { ...figure, id: 'raw', canonicalPath: 'outputs.raw', type: 'data', format: 'npy' };
   const relations = { inputs: [], decisions: [] };
   const box = /astra-output-detail__artifact/;
+  const hostPreview = () => React.createElement('span', null, 'host preview');
   assert.match(withinUi(React.createElement(OutputDetail, { record: figure, relations })), box);
+  assert.match(withinUi(React.createElement(OutputDetail, { record: figure, relations, renderArtifact: hostPreview })), box);
   assert.doesNotMatch(withinUi(React.createElement(OutputDetail, { record: data, relations })), box);
   assert.doesNotMatch(withinUi(React.createElement(OutputDetail, { record: data, relations, renderArtifact: () => null })), box);
-  const hosted = withinUi(React.createElement(OutputDetail, { record: data, relations, renderArtifact: () => React.createElement('span', null, 'host preview') }));
-  assert.match(hosted, box);
-  assert.match(hosted, /host preview/);
+  // A data file has no picture: an empty reader column would be all whitespace.
+  const hosted = withinUi(React.createElement(OutputDetail, { record: data, relations, renderArtifact: hostPreview }));
+  assert.doesNotMatch(hosted, box);
+  assert.match(hosted, /data-layout="single"/);
+});
+
+test('a metric shows the host rendering as a pill above the description', () => {
+  const index = indexAnalysis(fixtureDocument);
+  const figure = index.recordByPath.get('outputs.headline');
+  const metric = { ...figure, id: 'alpha', canonicalPath: 'outputs.alpha', type: 'metric', format: 'json' };
+  const relations = { inputs: [], decisions: [] };
+  const hosted = withinUi(React.createElement(OutputDetail, {
+    record: metric,
+    relations,
+    renderArtifact: () => React.createElement('span', null, '0.9971'),
+  }));
+  assert.doesNotMatch(hosted, /astra-output-detail__artifact/);
+  assert.match(hosted, /data-layout="single"/);
+  assert.match(hosted, /astra-output-detail__metric-pill[\s\S]*0\.9971/);
+  assert.match(hosted, /<h4>Metric<\/h4>[\s\S]*<h4>Description<\/h4>/);
+  // Nothing to show without a host rendering: the description stays first.
+  const bare = withinUi(React.createElement(OutputDetail, { record: metric, relations }));
+  assert.doesNotMatch(bare, /astra-output-detail__metric/);
 });
 
 test('a figure whose host renderer opts out falls back to the single-column layout', () => {
