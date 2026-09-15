@@ -9,14 +9,12 @@ const ZOOM_STEP = 0.25;
 
 function FigureControls() {
   const { figure: labels } = useLabels();
-  const { zoomIn, zoomOut, resetTransform } = useControls();
+  const { zoomIn, zoomOut } = useControls();
   const scale = useTransformComponent(({ state }) => state.scale);
   return (
     <div className="astra-figure-zoom__controls">
-      <Button aria-label={labels.zoomOut} disabled={scale <= MIN_SCALE} onClick={() => { void zoomOut(ZOOM_STEP, 0); }}>−</Button>
-      <output aria-live="polite" aria-atomic="true">{labels.zoomLevel(Math.round(scale * 100))}</output>
-      <Button aria-label={labels.zoomIn} disabled={scale >= MAX_SCALE} onClick={() => { void zoomIn(ZOOM_STEP, 0); }}>+</Button>
-      <Button disabled={scale <= MIN_SCALE} onClick={() => { void resetTransform(0); }}>{labels.fit}</Button>
+      <Button aria-label={labels.zoomOut} title={labels.zoomOut} disabled={scale <= MIN_SCALE} onClick={() => { void zoomOut(ZOOM_STEP, 0); }}>−</Button>
+      <Button aria-label={labels.zoomIn} title={labels.zoomIn} disabled={scale >= MAX_SCALE} onClick={() => { void zoomIn(ZOOM_STEP, 0); }}>+</Button>
     </div>
   );
 }
@@ -34,7 +32,6 @@ export function FigureZoom({ children }: { children: ReactNode }) {
       doubleClick={{ mode: 'toggle', step: 1, animationTime: 0 }}
     >
       <div className="astra-figure-zoom" role="group" aria-label={labels.controls}>
-        <FigureControls />
         <TransformComponent
           wrapperClass="astra-figure-zoom__viewport"
           contentClass="astra-figure-zoom__canvas"
@@ -44,6 +41,7 @@ export function FigureZoom({ children }: { children: ReactNode }) {
         >
           <div className="astra-output-detail__preview">{children}</div>
         </TransformComponent>
+        <FigureControls />
       </div>
     </TransformWrapper>
   );

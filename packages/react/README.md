@@ -129,7 +129,8 @@ data. Use the corresponding `*Detail` inside a sidebar, route, or your own
 dialog shell.
 
 Figure outputs zoom directly in the detail view, from the fitted view (100%) to
-400%, with **Fit figure** to reset. Drag to pan, scroll or pinch to zoom; the
+400%. The zoom buttons overlay the bottom-right corner without reducing the
+figure area. Drag to pan, scroll or pinch to zoom; the
 focused figure also accepts arrow keys to pan, `+`/`-` to zoom and `0` to fit.
 Reopening the output starts fitted again. These
 controls use `react-zoom-pan-pinch` to magnify the host's existing figure rendering;

@@ -17,23 +17,23 @@ it('magnifies a host figure within bounds, supports keyboard zoom, and resets to
   const zoomOut = screen.getByRole('button', { name: 'Zoom figure out' }) as HTMLButtonElement;
   const viewport = screen.getByRole('region', { name: /^Figure preview/ });
   expect(zoomOut.disabled).toBe(true);
-  expect(screen.getByText('100%')).toBeTruthy();
+  expect(screen.getByRole('img', { name: 'BAO fit' }).closest('.astra-figure-zoom__canvas')?.getAttribute('style')).toContain('scale(1)');
   fireEvent.click(zoomIn);
-  expect(screen.getByText('125%')).toBeTruthy();
+  expect(screen.queryByRole('button', { name: 'Fit figure' })).toBeNull();
+  expect(screen.queryByRole('status')).toBeNull();
   expect(zoomOut.disabled).toBe(false);
   expect(screen.getByRole('img', { name: 'BAO fit' }).closest('.astra-figure-zoom__canvas')?.getAttribute('style')).toContain('scale(1.25)');
   fireEvent.keyDown(viewport, { key: '+' });
-  expect(screen.getByText('150%')).toBeTruthy();
+  expect(screen.getByRole('img', { name: 'BAO fit' }).closest('.astra-figure-zoom__canvas')?.getAttribute('style')).toContain('scale(1.5)');
   fireEvent.keyDown(viewport, { key: '-', ctrlKey: true });
-  expect(screen.getByText('150%')).toBeTruthy();
+  expect(screen.getByRole('img', { name: 'BAO fit' }).closest('.astra-figure-zoom__canvas')?.getAttribute('style')).toContain('scale(1.5)');
   for (let i = 0; i < 20; i++) fireEvent.click(zoomIn);
-  expect(screen.getByText('400%')).toBeTruthy();
+  expect(screen.getByRole('img', { name: 'BAO fit' }).closest('.astra-figure-zoom__canvas')?.getAttribute('style')).toContain('scale(4)');
   expect((zoomIn as HTMLButtonElement).disabled).toBe(true);
-  fireEvent.click(screen.getByRole('button', { name: 'Fit figure' }));
-  expect(screen.getByText('100%')).toBeTruthy();
+  fireEvent.keyDown(viewport, { key: '0' });
   expect(screen.getByRole('img', { name: 'BAO fit' }).closest('.astra-figure-zoom__canvas')?.getAttribute('style')).toContain('scale(1)');
   fireEvent.keyDown(viewport, { key: '-' });
-  expect(screen.getByText('100%')).toBeTruthy();
+  expect(screen.getByRole('img', { name: 'BAO fit' }).closest('.astra-figure-zoom__canvas')?.getAttribute('style')).toContain('scale(1)');
 });
 
 it('resets zoom for another figure; tables keep their own scrolling', () => {
@@ -43,20 +43,20 @@ it('resets zoom for another figure; tables keep their own scrolling', () => {
   const { rerender } = render(content(figure));
   fireEvent.click(screen.getByRole('button', { name: 'Zoom figure in' }));
   rerender(content({ ...figure, canonicalPath: 'outputs.other' }));
-  expect(screen.getByText('100%')).toBeTruthy();
+  expect(screen.getByRole('img', { name: 'BAO fit' }).closest('.astra-figure-zoom__canvas')?.getAttribute('style')).toContain('scale(1)');
   rerender(content({ ...figure, type: 'table' }));
   expect(screen.queryByRole('group', { name: 'Figure zoom' })).toBeNull();
 });
 
 it('uses host labels for the figure controls without changing the artifact renderer', () => {
   render(
-    <LabelsProvider labels={{ figure: { zoomIn: 'Agrandir', fit: 'Ajuster', zoomLevel: (percent) => `Échelle ${percent}` } }}>
+    <LabelsProvider labels={{ figure: { zoomIn: 'Agrandir', zoomOut: 'Réduire' } }}>
       <OutputDetail record={figure} relations={relations} renderArtifact={renderArtifact} />
     </LabelsProvider>,
   );
   fireEvent.click(screen.getByRole('button', { name: 'Agrandir' }));
-  expect(screen.getByText('Échelle 125')).toBeTruthy();
+  expect(screen.getByRole('img', { name: 'BAO fit' }).closest('.astra-figure-zoom__canvas')?.getAttribute('style')).toContain('scale(1.25)');
   expect(screen.getByRole('img', { name: 'BAO fit' }).getAttribute('src')).toBe('figure.png');
-  fireEvent.click(screen.getByRole('button', { name: 'Ajuster' }));
-  expect(screen.getByText('Échelle 100')).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name: 'Réduire' }));
+  expect(screen.getByRole('img', { name: 'BAO fit' }).closest('.astra-figure-zoom__canvas')?.getAttribute('style')).toContain('scale(1)');
 });
