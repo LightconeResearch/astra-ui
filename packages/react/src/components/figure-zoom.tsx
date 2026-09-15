@@ -13,8 +13,8 @@ function FigureControls() {
   const scale = useTransformComponent(({ state }) => state.scale);
   return (
     <div className="astra-figure-zoom__controls">
-      <Button aria-label={labels.zoomOut} title={labels.zoomOut} disabled={scale <= MIN_SCALE} onClick={() => { void zoomOut(ZOOM_STEP, 0); }}>−</Button>
       <Button aria-label={labels.zoomIn} title={labels.zoomIn} disabled={scale >= MAX_SCALE} onClick={() => { void zoomIn(ZOOM_STEP, 0); }}>+</Button>
+      <Button aria-label={labels.zoomOut} title={labels.zoomOut} disabled={scale <= MIN_SCALE} onClick={() => { void zoomOut(ZOOM_STEP, 0); }}>−</Button>
     </div>
   );
 }

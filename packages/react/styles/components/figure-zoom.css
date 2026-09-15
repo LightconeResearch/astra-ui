@@ -15,15 +15,14 @@
     bottom: var(--astra-space-2);
     z-index: 1;
     display: flex;
+    flex-direction: column;
     gap: calc(var(--astra-space-2) / 2);
-    padding: calc(var(--astra-space-2) / 2);
-    border-radius: var(--astra-radius-preview);
-    background: var(--astra-color-surface-raised);
   }
 
   :where(.astra-ui) .astra-figure-zoom__controls .astra-button {
     width: 32px;
     padding: 0;
+    background: var(--astra-color-artifact-paper);
   }
 
   :where(.astra-ui) .astra-figure-zoom__viewport {
