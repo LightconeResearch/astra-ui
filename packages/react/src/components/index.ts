@@ -32,3 +32,11 @@ export type { ArtifactPreviewProps, ArtifactRenderOptions, ArtifactRenderer } fr
 
 export { PaperPdfViewer } from './paper-pdf-viewer.js';
 export type { PaperPdfViewerProps, PdfLoadState, PdfPassage } from './paper-pdf-viewer.js';
+
+export { OutputCard } from './output-card.js';
+export type { OutputCardProps } from './output-card.js';
+export { OutputEntry } from './output-entry.js';
+export type { OutputEntryProps } from './output-entry.js';
+
+export { PaperRow } from './paper-row.js';
+export type { PaperRowProps } from './paper-row.js';

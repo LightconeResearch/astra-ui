@@ -172,12 +172,16 @@ export function RecordDialog({
         chrome = {
           kind: 'finding',
           kindLabel: labels.kinds.finding,
-          title: record.claim,
+          // The claim is a paragraph, not a name: it leads the body instead,
+          // where it can wrap. The header takes the record's own name, as
+          // every other kind does.
+          title: recordTitle(record),
           body: (
             <FindingDetail
               record={record}
               evidence={findingEvidence(index, record)}
               renderText={renderText}
+              renderArtifact={renderArtifact}
               onOpenRecord={onOpenRecord}
             />
           ),
