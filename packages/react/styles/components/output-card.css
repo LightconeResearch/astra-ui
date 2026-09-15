@@ -11,12 +11,11 @@
 
   :where(.astra-ui) .astra-output-card {
     all: unset;
-    position: relative;
     display: flex;
     min-width: 0;
     cursor: pointer;
     flex-direction: column;
-    overflow: visible;
+    overflow: hidden;
     border: 1px solid var(--astra-color-border);
     border-radius: 7.2px;
     background: var(--astra-color-surface-raised);
@@ -220,7 +219,7 @@
   }
 
   :where(.astra-ui) .astra-output-card {
-    overflow: visible;
+    overflow: hidden;
     padding: 0;
     border: 1px solid var(--astra-color-border);
     border-radius: 0;
@@ -286,5 +285,4 @@
   :where(.astra-ui) .astra-output-card__body code {
     display: none;
   }
-
 }

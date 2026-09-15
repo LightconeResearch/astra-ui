@@ -119,7 +119,7 @@ record at a time, when you own the run that holds them:
 | Component | What it renders |
 | --- | --- |
 | `OutputCard` | A gallery card: compact artifact preview, title, and a type label for non-figures |
-| `OutputEntry` | One output at a glance — a metric as its value, anything else as its name |
+| `OutputEntry` | One output at a glance — a metric as its value, anything else as its name and format |
 | `PaperRow` | One cited paper: title, byline, and how much of the analysis leans on it |
 
 Each takes the record and an `onOpen` callback, forwards a ref to its button,
@@ -259,13 +259,6 @@ name merging (`cn`), prose parsing and the label helpers are in `@astra-spec/ui/
 
 - `renderArtifact(output, { compact })` renders host-decoded artifact content.
   Without it, outputs use `ArtifactPreview`'s unavailable state.
-- `getOutputStatus(output)` supplies optional execution status for inventory
-  results: `materialized`, `outdated`, or `unmaterialized`, with a `detail`
-  explanation. Only out-of-date and unmaterialized results show a marker, with
-  `detail` on hover; materialized results stay quiet. Markers sit at card/pill
-  corners and inside file rows without changing result dimensions. The host owns lookup; unavailable status has no marker.
-  `OutputStatus` and `OutputStatusLookup` are in `@astra-spec/ui/lib`, and the
-  marker's strings are overridable through `labels.status`.
 - `renderText(text, { field })` replaces the built-in prose renderer. The
   default understands inline code, `$inline$` math, and `$$display$$` math.
   Hosts that only need custom math commands can reuse that renderer with

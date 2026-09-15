@@ -2,7 +2,6 @@ import type { ResolvedAnalysisNode, ResolvedOutput } from '@astra-spec/sdk';
 import { forwardRef, useId, type HTMLAttributes } from 'react';
 import { cn } from '../lib/cn.js';
 import { useLabels } from '../lib/labels.js';
-import type { OutputStatusLookup } from '../lib/output-status.js';
 import type { ArtifactRenderer } from '../components/artifact-preview.js';
 import { EmptyState } from '../primitives/record-list.js';
 import { OutputCard } from '../components/output-card.js';
@@ -11,7 +10,6 @@ import { OutputEntry } from '../components/output-entry.js';
 export interface OutputsListProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
   analysis: ResolvedAnalysisNode;
   renderArtifact?: ArtifactRenderer | undefined;
-  getOutputStatus?: OutputStatusLookup | undefined;
   onOpenRecord: (output: ResolvedOutput, analysis: ResolvedAnalysisNode) => void;
 }
 
@@ -25,14 +23,12 @@ function OutputGroup({
   outputs,
   variant,
   renderArtifact,
-  getOutputStatus,
   onOpen,
 }: {
   title: string;
   outputs: ResolvedOutput[];
   variant: 'gallery' | 'compact';
   renderArtifact?: ArtifactRenderer | undefined;
-  getOutputStatus?: OutputStatusLookup | undefined;
   onOpen: (output: ResolvedOutput) => void;
 }) {
   const id = useId();
@@ -48,7 +44,6 @@ function OutputGroup({
             <OutputCard
               key={output.canonicalPath}
               output={output}
-              status={getOutputStatus?.(output)}
               renderArtifact={renderArtifact}
               onOpen={() => { onOpen(output); }}
             />
@@ -60,7 +55,6 @@ function OutputGroup({
             <li key={output.canonicalPath}>
               <OutputEntry
                 output={output}
-                status={getOutputStatus?.(output)}
                 renderArtifact={renderArtifact}
                 onOpen={() => { onOpen(output); }}
               />
@@ -78,7 +72,6 @@ const GROUPED_TYPES = new Set<ResolvedOutput['type']>(['figure', 'table', 'metri
 export const OutputsList = forwardRef<HTMLDivElement, OutputsListProps>(function OutputsList({
   analysis,
   renderArtifact,
-  getOutputStatus,
   onOpenRecord,
   className,
   ...props
@@ -94,10 +87,10 @@ export const OutputsList = forwardRef<HTMLDivElement, OutputsListProps>(function
   const open = (output: ResolvedOutput) => { onOpenRecord(output, analysis); };
   return (
     <div data-slot="outputs-list" {...props} ref={ref} className={cn('astra-inventory-outputs', className)}>
-      <OutputGroup variant="gallery" title="Figures" outputs={figures} renderArtifact={renderArtifact} getOutputStatus={getOutputStatus} onOpen={open} />
-      <OutputGroup variant="gallery" title="Tables" outputs={tables} renderArtifact={renderArtifact} getOutputStatus={getOutputStatus} onOpen={open} />
-      <OutputGroup variant="compact" title="Metrics" outputs={metrics} renderArtifact={renderArtifact} getOutputStatus={getOutputStatus} onOpen={open} />
-      <OutputGroup variant="compact" title="Output files" outputs={files} getOutputStatus={getOutputStatus} onOpen={open} />
+      <OutputGroup variant="gallery" title="Figures" outputs={figures} renderArtifact={renderArtifact} onOpen={open} />
+      <OutputGroup variant="gallery" title="Tables" outputs={tables} renderArtifact={renderArtifact} onOpen={open} />
+      <OutputGroup variant="compact" title="Metrics" outputs={metrics} renderArtifact={renderArtifact} onOpen={open} />
+      <OutputGroup variant="compact" title="Output files" outputs={files} onOpen={open} />
     </div>
   );
 });
