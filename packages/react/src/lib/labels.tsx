@@ -44,6 +44,12 @@ export interface AstraLabels {
     openPaper: string;
     locate: string;
   };
+  /** Host-supplied execution status, shown as a marker on inventory results. */
+  status: {
+    outdated: string;
+    unmaterialized: string;
+    withDetail: (label: string, detail: string) => string;
+  };
   /** PDF reading, evidence navigation, and accessible viewer controls. */
   pdf: {
     loading: string;
@@ -129,6 +135,11 @@ export const defaultLabels: AstraLabels = {
     openPaper: 'Open',
     locate: 'Locate',
   },
+  status: {
+    outdated: 'Out of date',
+    unmaterialized: 'Not materialized',
+    withDetail: (label, detail) => `${label}: ${detail}`,
+  },
   pdf: {
     loading: 'Loading PDF…',
     loadError: 'The PDF could not be loaded.',
@@ -187,6 +198,7 @@ function merge(base: AstraLabels, overrides: AstraLabelOverrides): AstraLabels {
     kinds: { ...base.kinds, ...defined(overrides.kinds ?? {}) },
     empty: { ...base.empty, ...defined(overrides.empty ?? {}) },
     actions: { ...base.actions, ...defined(overrides.actions ?? {}) },
+    status: { ...base.status, ...defined(overrides.status ?? {}) },
     pdf: { ...base.pdf, ...defined(overrides.pdf ?? {}) },
     preview: { ...base.preview, ...defined(overrides.preview ?? {}) },
   } as AstraLabels;
