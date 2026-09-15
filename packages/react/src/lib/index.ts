@@ -21,3 +21,5 @@ export type { OutputStatus, OutputStatusLookup } from './output-status.js';
 export { useOutputExpanded } from './use-output-expanded.js';
 export { pdfJsWithWorker } from './pdf-runtime.js';
 export type { PdfJs, PdfJsLoader, PdfJsWorkerModule } from './pdf-runtime.js';
+
+export type { OutputRun, OutputProvenanceData } from './output-provenance.js';

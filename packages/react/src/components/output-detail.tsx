@@ -39,6 +39,8 @@ export interface OutputDetailProps extends Omit<HTMLAttributes<HTMLDivElement>, 
   record: ResolvedOutput;
   relations: OutputRelations;
   renderArtifact?: ArtifactRenderer | undefined;
+  /** Recorded execution information, shown below Recipe. */
+  renderProvenance?: ((output: ResolvedOutput) => ReactNode) | undefined;
   renderText?: TextRenderer | undefined;
   onOpenRecord?: OpenRecordHandler | undefined;
   /** Full-screen artifact state (controlled). */
@@ -51,6 +53,7 @@ export const OutputDetail = forwardRef<HTMLDivElement, OutputDetailProps>(functi
   record: output,
   relations,
   renderArtifact,
+  renderProvenance,
   renderText,
   onOpenRecord,
   expanded = false,
@@ -149,6 +152,7 @@ export const OutputDetail = forwardRef<HTMLDivElement, OutputDetailProps>(functi
             : null}
         </section>
       ) : null}
+      {renderProvenance?.(output)}
     </aside>
   );
 

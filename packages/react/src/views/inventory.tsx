@@ -43,6 +43,8 @@ export interface InventoryProps extends Omit<HTMLAttributes<HTMLDivElement>, 'ch
   showOutline?: boolean | undefined;
   labels?: AstraLabelOverrides | undefined;
   renderArtifact?: ArtifactRenderer | undefined;
+  /** Host renderer for recorded output provenance, shown below Recipe. */
+  renderProvenance?: ((output: ResolvedOutput) => ReactNode) | undefined;
   /** Optional execution status, keyed by the host to the selected universe. */
   getOutputStatus?: OutputStatusLookup | undefined;
   renderText?: TextRenderer | undefined;
@@ -91,6 +93,7 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(
   idPrefix = '',
   showOutline = true,
   renderArtifact,
+  renderProvenance,
   getOutputStatus,
   renderText,
   loadPdfJs,
@@ -215,6 +218,7 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(
             papers={papers}
             paperMetadata={paperMetadata}
             renderArtifact={renderArtifact}
+            renderProvenance={renderProvenance}
             renderText={renderText}
             loadPdfJs={loadPdfJs}
             onOpenPaperFile={onOpenPaperFile}

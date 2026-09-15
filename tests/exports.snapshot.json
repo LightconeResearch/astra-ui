@@ -48,6 +48,7 @@
     "OutputDialogActions",
     "OutputEntry",
     "OutputPreview",
+    "OutputProvenance",
     "OutputStatusIndicator",
     "PaperDetail",
     "PaperDialog",

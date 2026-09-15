@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import type { ResolvedOutput } from '@astra-spec/sdk';
 import type { OutputRelations } from '../model/relations.js';
 import { isVisualOutput, recordTitle } from '../model/records.js';
@@ -13,6 +14,8 @@ export interface OutputDialogProps extends Pick<DetailDialogProps, 'mode' | 'bac
   record: ResolvedOutput;
   relations: OutputRelations;
   renderArtifact?: ArtifactRenderer | undefined;
+  /** Host renderer for recorded output provenance, shown below Recipe. */
+  renderProvenance?: ((output: ResolvedOutput) => ReactNode) | undefined;
   renderText?: TextRenderer | undefined;
   onOpenArtifact?: ((output: ResolvedOutput) => void | Promise<void>) | undefined;
   onOpenRecord?: OpenRecordHandler | undefined;
@@ -24,6 +27,7 @@ export function OutputDialog({
   record: output,
   relations,
   renderArtifact,
+  renderProvenance,
   renderText,
   onOpenArtifact,
   onOpenRecord,
@@ -54,6 +58,7 @@ export function OutputDialog({
         record={output}
         relations={relations}
         renderArtifact={renderArtifact}
+        renderProvenance={renderProvenance}
         renderText={renderText}
         onOpenRecord={onOpenRecord}
         expanded={expanded}

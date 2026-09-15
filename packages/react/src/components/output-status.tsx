@@ -1,5 +1,5 @@
 import { forwardRef, type HTMLAttributes } from 'react';
-import type { OutputStatus } from '../lib/output-status.js';
+import { outputStatusIconPath, type OutputStatus } from '../lib/output-status.js';
 import { cn } from '../lib/cn.js';
 import { useLabels } from '../lib/labels.js';
 
@@ -28,9 +28,7 @@ export const OutputStatusIndicator = forwardRef<HTMLSpanElement, OutputStatusInd
       data-state={status.state}
     >
       <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-        {status.state === 'outdated'
-          ? <path d="M12.5 5A5 5 0 1 0 13 9M12.5 1.5V5H9" strokeLinecap="round" strokeLinejoin="round" />
-          : <path d="m4.5 4.5 7 7m0-7-7 7" strokeLinecap="round" />}
+        <path d={outputStatusIconPath[status.state]} strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     </span>
   );

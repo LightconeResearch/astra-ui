@@ -46,9 +46,28 @@ export interface AstraLabels {
   };
   /** Host-supplied execution status, shown as a marker on inventory results. */
   status: {
+    materialized: string;
     outdated: string;
     unmaterialized: string;
     withDetail: (label: string, detail: string) => string;
+  };
+  /** Recorded execution summaries and run details. */
+  provenance: {
+    status: string;
+    runDetails: string;
+    closeDetails: string;
+    noInputs: string;
+    title: string;
+    unknown: string;
+    loading: string;
+    noRun: string;
+    lastRun: string;
+    revision: string;
+    details: string;
+    recipe: string;
+    inputs: string;
+    environment: string;
+    cliVersion: string;
   };
   /** PDF reading, evidence navigation, and accessible viewer controls. */
   pdf: {
@@ -136,10 +155,29 @@ export const defaultLabels: AstraLabels = {
     locate: 'Locate',
   },
   status: {
+    materialized: 'Materialized',
     outdated: 'Out of date',
     unmaterialized: 'Not materialized',
     withDetail: (label, detail) => `${label}: ${detail}`,
   },
+  provenance: {
+    status: 'Status',
+    runDetails: 'Run details',
+    closeDetails: 'Close run details',
+    noInputs: 'No input versions recorded.',
+    title: 'Provenance',
+    unknown: 'Status unavailable',
+    loading: 'Loading run record…',
+    noRun: 'No recorded run yet.',
+    lastRun: 'Last run',
+    revision: 'Git revision',
+    details: 'Details',
+    recipe: 'Executed recipe',
+    inputs: 'Input versions',
+    environment: 'Environment',
+    cliVersion: 'Lightcone version',
+  },
+
   pdf: {
     loading: 'Loading PDF…',
     loadError: 'The PDF could not be loaded.',
@@ -199,6 +237,7 @@ function merge(base: AstraLabels, overrides: AstraLabelOverrides): AstraLabels {
     empty: { ...base.empty, ...defined(overrides.empty ?? {}) },
     actions: { ...base.actions, ...defined(overrides.actions ?? {}) },
     status: { ...base.status, ...defined(overrides.status ?? {}) },
+    provenance: { ...base.provenance, ...defined(overrides.provenance ?? {}) },
     pdf: { ...base.pdf, ...defined(overrides.pdf ?? {}) },
     preview: { ...base.preview, ...defined(overrides.preview ?? {}) },
   } as AstraLabels;

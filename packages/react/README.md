@@ -266,6 +266,12 @@ name merging (`cn`), prose parsing and the label helpers are in `@astra-spec/ui/
   corners and inside file rows without changing result dimensions. The host owns lookup; unavailable status has no marker.
   `OutputStatus` and `OutputStatusLookup` are in `@astra-spec/ui/lib`, and the
   marker's strings are overridable through `labels.status`.
+- `renderProvenance(output)` adds recorded execution information below Recipe in
+  output details. `OutputProvenance` renders a compact status, last-run time and
+  Git revision, with a Details popup for the recorded recipe, input versions,
+  environment and CLI version. Hosts supply `OutputRun` data; `null` means no
+  recorded run, while `undefined` means loading. Copy is configurable through
+  `labels.provenance` and `labels.status`.
 - `renderText(text, { field })` replaces the built-in prose renderer. The
   default understands inline code, `$inline$` math, and `$$display$$` math.
   Hosts that only need custom math commands can reuse that renderer with
