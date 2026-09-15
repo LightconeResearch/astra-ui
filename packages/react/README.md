@@ -128,10 +128,10 @@ Use a `*Dialog` when you already have the record and any derived relationship
 data. Use the corresponding `*Detail` inside a sidebar, route, or your own
 dialog shell.
 
-Figure outputs offer **Full screen**, then zoom from the fitted view (100%) to
+Figure outputs zoom directly in the detail view, from the fitted view (100%) to
 400%, with **Fit figure** to reset. Drag to pan, scroll or pinch to zoom; the
 focused figure also accepts arrow keys to pan, `+`/`-` to zoom and `0` to fit.
-Escape returns to the output details, and reopening starts fitted again. These
+Reopening the output starts fitted again. These
 controls use `react-zoom-pan-pinch` to magnify the host's existing figure rendering;
 artifact loading stays with the host. Double-click toggles magnification. Labels
 are overridable through `labels.figure`.

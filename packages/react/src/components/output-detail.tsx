@@ -223,7 +223,7 @@ export const OutputDetail = forwardRef<HTMLDivElement, OutputDetailProps>(functi
             </div>
           ) : null}
           <div className="astra-output-detail__preview" data-type={output.type}>
-            {expanded && output.type === 'figure'
+            {output.type === 'figure'
               ? <FigureZoom key={output.canonicalPath}>{artifact}</FigureZoom>
               : artifact}
           </div>
@@ -243,10 +243,10 @@ export interface OutputDialogActionsProps {
   onExpandedChange: (expanded: boolean) => void;
 }
 
-/** Header actions for an output: open the artifact in the host, enter full screen. */
+/** Header actions: open the artifact in the host, or expand a table. */
 export function OutputDialogActions({ record: output, onOpenArtifact, expanded, onExpandedChange }: OutputDialogActionsProps) {
   const labels = useLabels();
-  const visual = isVisualOutput(output);
+  const canExpand = output.type === 'table';
   return (
     <>
       {onOpenArtifact && output.artifact ? (
@@ -255,7 +255,7 @@ export function OutputDialogActions({ record: output, onOpenArtifact, expanded, 
           <span>{labels.actions.openArtifact}</span>
         </DialogAction>
       ) : null}
-      {visual ? (
+      {canExpand ? (
         <DialogAction
           aria-label={`View ${output.type} full screen`}
           aria-expanded={expanded}

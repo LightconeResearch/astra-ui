@@ -44,7 +44,7 @@ export interface AstraLabels {
     openPaper: string;
     locate: string;
   };
-  /** Full-screen figure magnification and panning. */
+  /** Figure magnification and panning. */
   figure: {
     controls: string;
     zoomIn: string;
