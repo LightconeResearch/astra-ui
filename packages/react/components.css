@@ -1,6 +1,7 @@
 /* Primitives plus the ASTRA-aware components (details and dialogs). */
 @import "./primitives.css";
 @import "./styles/components/artifact-preview.css";
+@import "./styles/components/figure-zoom.css";
 @import "./styles/components/paper-detail.css";
 @import "./styles/components/paper-pdf-viewer.css";
 @import "./styles/components/evidence.css";

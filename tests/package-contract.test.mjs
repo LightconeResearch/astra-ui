@@ -62,7 +62,7 @@ async function stylesText({ includeTokens = true } = {}) {
   return stripComments((await Promise.all(files.map((url) => readFile(url, 'utf8')))).join('\n'));
 }
 
-test('the package depends on the SDK model, floating positioning, and host React only', async () => {
+test('the package declares its host peers and presentation dependencies explicitly', async () => {
   const manifest = await parse(new URL('package.json', packageRoot));
 
   assert.equal(manifest.name, '@astra-spec/ui');
@@ -73,7 +73,8 @@ test('the package depends on the SDK model, floating positioning, and host React
   assert.deepEqual(manifest.dependencies, {
     '@floating-ui/react': '^0.27.20',
     katex: '^0.16.47',
-  }, 'Floating UI positions accessible previews and KaTeX typesets authored math');
+    'react-zoom-pan-pinch': '^4.2.0',
+  }, 'Floating UI positions previews, KaTeX typesets math, and react-zoom-pan-pinch handles figure gestures');
   assert.equal(manifest.scripts.prepack, 'npm run build');
   assert.ok(manifest.files.includes('LICENSE'));
   assert.ok(manifest.files.includes('src'), 'source ships for go-to-definition');

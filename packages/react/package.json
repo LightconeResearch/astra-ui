@@ -135,6 +135,7 @@
   ],
   "dependencies": {
     "@floating-ui/react": "^0.27.20",
-    "katex": "^0.16.47"
+    "katex": "^0.16.47",
+    "react-zoom-pan-pinch": "^4.2.0"
   }
 }

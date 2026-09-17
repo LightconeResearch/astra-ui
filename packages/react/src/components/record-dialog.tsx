@@ -38,6 +38,8 @@ export interface RecordDialogProps extends Pick<DetailDialogProps, 'mode' | 'bac
   renderArtifact?: ArtifactRenderer | undefined;
   /** Host renderer for recorded output provenance, shown below Recipe. */
   renderProvenance?: ((output: ResolvedOutput) => ReactNode) | undefined;
+  /** Host-provided link to the current code file, shown beside Recipe. */
+  renderCodeLink?: ((output: ResolvedOutput) => ReactNode) | undefined;
   renderText?: TextRenderer | undefined;
   loadPdfJs?: PdfJsLoader | undefined;
   onOpenPaperFile?: OpenPaperFileHandler | undefined;
@@ -72,6 +74,7 @@ export function RecordDialog({
   paperMetadata = {},
   renderArtifact,
   renderProvenance,
+  renderCodeLink,
   renderText,
   loadPdfJs,
   onOpenPaperFile,
@@ -141,6 +144,7 @@ export function RecordDialog({
               relations={outputRelations(index, record)}
               renderArtifact={renderArtifact}
               renderProvenance={renderProvenance}
+              renderCodeLink={renderCodeLink}
               renderText={renderText}
               onOpenRecord={onOpenRecord}
               expanded={expanded}

@@ -51,6 +51,8 @@ export interface InventoryProps extends Omit<HTMLAttributes<HTMLDivElement>, 'ch
   renderProvenance?: ((output: ResolvedOutput) => ReactNode) | undefined;
   /** Optional execution status, keyed by the host to the selected universe. */
   getOutputStatus?: OutputStatusLookup | undefined;
+  /** Host-provided link to the current code file, shown beside Recipe. */
+  renderCodeLink?: ((output: ResolvedOutput) => ReactNode) | undefined;
   renderText?: TextRenderer | undefined;
   loadPdfJs?: PdfJsLoader | undefined;
   onOpenPaperFile?: OpenPaperFileHandler | undefined;
@@ -101,6 +103,7 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(
   renderArtifact,
   renderProvenance,
   getOutputStatus,
+  renderCodeLink,
   renderText,
   loadPdfJs,
   onOpenPaperFile,
@@ -239,6 +242,7 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(
             paperMetadata={paperMetadata}
             renderArtifact={renderArtifact}
             renderProvenance={renderProvenance}
+            renderCodeLink={renderCodeLink}
             renderText={renderText}
             loadPdfJs={loadPdfJs}
             onOpenPaperFile={onOpenPaperFile}

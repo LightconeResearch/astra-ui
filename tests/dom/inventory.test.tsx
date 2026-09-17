@@ -202,3 +202,13 @@ it('shows only exceptional materialization markers without output glyphs', () =>
   rerender(<Inventory document={fixtureDocument} />);
   expect(container.querySelectorAll('.astra-output-status')).toHaveLength(0);
 });
+
+it('places the host code link beside Recipe in the selected output detail', () => {
+  const open = vi.fn();
+  const codedDocument = { ...fixtureDocument, analysis: { ...fixtureDocument.analysis, outputs: fixtureDocument.analysis.outputs.map(output => ({ ...output, recipe: { command: 'python src/plot.py' } })) } };
+  render(<Inventory document={codedDocument} defaultDetail={[headline]} renderCodeLink={output => <button onClick={() => open(output.canonicalPath)}>Open code</button>} />);
+  const link = screen.getByRole('button', { name: 'Open code' });
+  expect(link.parentElement?.textContent).toContain('Recipe');
+  fireEvent.click(link);
+  expect(open).toHaveBeenCalledExactlyOnceWith('outputs.headline');
+});

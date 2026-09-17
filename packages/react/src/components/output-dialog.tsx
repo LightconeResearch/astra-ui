@@ -16,6 +16,8 @@ export interface OutputDialogProps extends Pick<DetailDialogProps, 'mode' | 'bac
   renderArtifact?: ArtifactRenderer | undefined;
   /** Host renderer for recorded output provenance, shown below Recipe. */
   renderProvenance?: ((output: ResolvedOutput) => ReactNode) | undefined;
+  /** Host-provided link to the current code file, shown beside Recipe. */
+  renderCodeLink?: ((output: ResolvedOutput) => ReactNode) | undefined;
   renderText?: TextRenderer | undefined;
   onOpenArtifact?: ((output: ResolvedOutput) => void | Promise<void>) | undefined;
   onOpenRecord?: OpenRecordHandler | undefined;
@@ -28,6 +30,7 @@ export function OutputDialog({
   relations,
   renderArtifact,
   renderProvenance,
+  renderCodeLink,
   renderText,
   onOpenArtifact,
   onOpenRecord,
@@ -59,6 +62,7 @@ export function OutputDialog({
         relations={relations}
         renderArtifact={renderArtifact}
         renderProvenance={renderProvenance}
+        renderCodeLink={renderCodeLink}
         renderText={renderText}
         onOpenRecord={onOpenRecord}
         expanded={expanded}

@@ -67,6 +67,15 @@ export interface AstraLabels {
     environment: string;
     cliVersion: string;
   };
+  /** Figure magnification and panning. */
+  figure: {
+    controls: string;
+    zoomIn: string;
+    zoomOut: string;
+    fit: string;
+    zoomLevel: (percent: number) => string;
+    viewport: string;
+  };
   /** PDF reading, evidence navigation, and accessible viewer controls. */
   pdf: {
     loading: string;
@@ -172,7 +181,14 @@ export const defaultLabels: AstraLabels = {
     environment: 'Environment',
     cliVersion: 'Lightcone version',
   },
-
+  figure: {
+    controls: 'Figure zoom',
+    zoomIn: 'Zoom figure in',
+    zoomOut: 'Zoom figure out',
+    fit: 'Fit figure',
+    zoomLevel: (percent) => `${percent}%`,
+    viewport: 'Figure preview: use arrow keys to pan, + and − to zoom, 0 to fit',
+  },
   pdf: {
     loading: 'Loading PDF…',
     loadError: 'The PDF could not be loaded.',
@@ -233,6 +249,7 @@ function merge(base: AstraLabels, overrides: AstraLabelOverrides): AstraLabels {
     actions: { ...base.actions, ...defined(overrides.actions ?? {}) },
     status: { ...base.status, ...defined(overrides.status ?? {}) },
     provenance: { ...base.provenance, ...defined(overrides.provenance ?? {}) },
+    figure: { ...base.figure, ...defined(overrides.figure ?? {}) },
     pdf: { ...base.pdf, ...defined(overrides.pdf ?? {}) },
     preview: { ...base.preview, ...defined(overrides.preview ?? {}) },
   } as AstraLabels;
