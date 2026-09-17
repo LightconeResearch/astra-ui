@@ -286,14 +286,20 @@ export const DialogContent = forwardRef<HTMLElement, DialogContentProps>(functio
     closeRef.current?.focus();
   });
 
+  // `cancel` and `close` do not bubble in the DOM, but React still runs an
+  // ancestor's handler when a nested <dialog> fires one. The innermost layer
+  // owns its own dismissal, so ignore anything another dialog raised.
+  const isOwnEvent = (event: SyntheticEvent<HTMLDialogElement>) => event.target === event.currentTarget;
   const handleCancel = (event: SyntheticEvent<HTMLDialogElement>) => {
+    if (!isOwnEvent(event)) return;
     // Escape. Close (or let the guard handle it) explicitly rather than via
     // the browser's default, which is deterministic across browsers
     // (Chromium makes a repeated Escape non-cancelable) and test environments.
     event.preventDefault();
     requestDismiss();
   };
-  const handleClose = () => {
+  const handleClose = (event: SyntheticEvent<HTMLDialogElement>) => {
+    if (!isOwnEvent(event)) return;
     if (closingSilently.current) {
       closingSilently.current = false;
       return;

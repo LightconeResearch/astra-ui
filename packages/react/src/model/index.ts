@@ -33,3 +33,5 @@ export type {
   PaperFetchStatus,
 } from './papers.js';
 export { doiHref } from './doi.js';
+export type { OutputStatus, OutputStatusLookup } from './output-status.js';
+export type { OutputProvenanceData, OutputRun } from './output-provenance.js';
