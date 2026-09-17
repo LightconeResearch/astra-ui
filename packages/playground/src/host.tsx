@@ -1,8 +1,8 @@
 // The playground plays the role of a host: it decodes artifacts into
 // host-safe preview data and hands them to astra-ui through render slots.
 import type { ResolvedAnalysisDocument, ResolvedOutput } from '@astra-spec/sdk';
-import { ArtifactPreview, type ArtifactRenderer } from '@astra-spec/ui/components';
-import type { ArtifactPreviewData } from '@astra-spec/ui/lib';
+import { ArtifactPreview, OutputProvenance, type ArtifactRenderer } from '@astra-spec/ui/components';
+import type { ArtifactPreviewData, OutputRun, OutputStatus, OutputStatusLookup } from '@astra-spec/ui/lib';
 import { useEffect, useState } from 'react';
 import fixture from '../fixtures/desi.json';
 
@@ -73,6 +73,31 @@ export const paperMetadata = {
     title: 'DESI 2024 III: Baryon Acoustic Oscillations from Galaxies and Quasars',
     authors: 'DESI Collaboration',
   },
+};
+
+// A handful of fixture outputs stand in for the host's execution status, so
+// the playground exercises every marker and every Provenance state.
+const outputStatuses: Record<string, OutputStatus> = {
+  'outputs.bao_fit_plot': { state: 'outdated', detail: 'Catalogue reprocessed since this figure was generated.' },
+  'outputs.bao_distance_table': { state: 'unmaterialized' },
+  'outputs.xi_pre_recon_bgs': { state: 'unmaterialized', detail: 'Awaiting the next pipeline run.' },
+};
+
+export const getOutputStatus: OutputStatusLookup = (output) => outputStatuses[output.canonicalPath];
+
+export const sampleRun: OutputRun = {
+  finishedAt: '2026-08-30T14:22:00Z',
+  gitRevision: 'a1b2c3d4e5f678901234567890abcdef12345678',
+  recipe: 'python fit_bao.py --config configs/bao.yaml --tracer BGS',
+  environment: 'sha256:9f1c2e7b0a3d4f5e6c7b8a9d0e1f2a3b4c5d6e7f',
+  inputVersions: { 'catalogue.fits': 'sha256:71ad9e2c…', 'randoms.fits': 'sha256:9be0f3a1…' },
+  cliVersion: 'astra-cli 0.4.2',
+};
+
+/** Recorded execution metadata below Recipe in output details, keyed off the same fixture statuses. */
+export const renderProvenance = (output: ResolvedOutput) => {
+  const status = outputStatuses[output.canonicalPath] ?? { state: 'materialized' };
+  return <OutputProvenance status={status} run={status.state === 'unmaterialized' ? null : sampleRun} />;
 };
 
 export { loadPdfJs } from './pdf-runtime';

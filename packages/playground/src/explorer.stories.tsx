@@ -2,7 +2,7 @@ import type { Story } from '@ladle/react';
 import { AnalysisTree } from '@astra-spec/ui/blocks';
 import { Inventory } from '@astra-spec/ui/views';
 import { useState } from 'react';
-import { analysisDocument, paperMetadata, renderArtifact, loadPdfJs } from './host';
+import { analysisDocument, paperMetadata, renderArtifact, renderProvenance, getOutputStatus, loadPdfJs } from './host';
 
 export default { title: 'Explorer' };
 
@@ -12,6 +12,8 @@ export const Root: Story = () => (
   <Inventory
     document={analysisDocument}
     renderArtifact={renderArtifact}
+    renderProvenance={renderProvenance}
+    getOutputStatus={getOutputStatus}
     loadPdfJs={loadPdfJs}
     paperMetadata={paperMetadata}
     onFetchPaper={noop}
