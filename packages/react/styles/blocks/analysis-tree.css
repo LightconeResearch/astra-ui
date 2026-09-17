@@ -2,7 +2,6 @@
 @layer astra.tokens, astra.base, astra.components, astra.views;
 @layer astra.views {
   :where(.astra-ui) .astra-analysis-tree {
-    overflow: visible;
     font-family: var(--astra-font-ui);
   }
 
@@ -21,44 +20,42 @@
     list-style: none;
   }
 
-  :where(.astra-ui) .astra-analysis-tree button {
-    display: flex;
+  :where(.astra-ui) .astra-analysis-tree ul ul {
+    margin-inline-start: 20px;
+  }
+
+  /* Indent four levels at most, so deep projects keep room for their labels. */
+  :where(.astra-ui) .astra-analysis-tree ul ul ul ul ul ul {
+    margin-inline-start: 0;
+  }
+
+  :where(.astra-ui) .astra-analysis-tree__select {
+    display: block;
     width: 100%;
-    align-items: center;
-    gap: 8px;
+    min-width: 0;
+    padding: 7px 0;
     cursor: pointer;
     border: 0;
-    border-radius: 4px;
+    border-radius: 0;
     background: transparent;
-    color: var(--astra-color-text-muted);
-    padding: 6px 8px;
+    color: var(--astra-color-text-subtle);
     font: inherit;
     font-size: var(--astra-font-size-sm);
-    line-height: 1.3;
+    line-height: 1.4;
     text-align: start;
   }
 
-  :where(.astra-ui) .astra-analysis-tree button svg {
-    flex: 0 0 auto;
-    color: var(--astra-color-kind-analysis);
-  }
-
-  :where(.astra-ui) .astra-analysis-tree button span {
+  :where(.astra-ui) .astra-analysis-tree__select span {
     min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    overflow-wrap: anywhere;
   }
 
-  :where(.astra-ui) .astra-analysis-tree button:hover,
-  :where(.astra-ui) .astra-analysis-tree button:focus-visible {
-    background: var(--astra-color-surface-muted);
-    color: var(--astra-color-text);
-  }
-
-  :where(.astra-ui) .astra-analysis-tree button[aria-current="page"] {
-    background: var(--astra-color-kind-analysis-soft);
-    color: var(--astra-color-text);
+  :where(.astra-ui) .astra-analysis-tree__select:where([aria-current="page"]) {
     font-weight: 700;
+  }
+
+  :where(.astra-ui) .astra-analysis-tree__select:hover,
+  :where(.astra-ui) .astra-analysis-tree__select:focus-visible {
+    color: var(--astra-color-text);
   }
 }

@@ -70,8 +70,7 @@
     "InventorySection",
     "OutputsList",
     "PaperRows",
-    "PapersList",
-    "PriorInsightsList"
+    "PapersList"
   ],
   "views": [
     "DEFAULT_SECTIONS",
