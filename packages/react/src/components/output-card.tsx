@@ -1,6 +1,6 @@
 import type { ResolvedOutput } from '@astra-spec/sdk';
 import { forwardRef, type HTMLAttributes } from 'react';
-import type { OutputStatus } from '../lib/output-status.js';
+import type { OutputStatus } from '../model/output-status.js';
 import { OutputStatusIndicator } from './output-status.js';
 import { recordTitle } from '../model/records.js';
 import { cn } from '../lib/cn.js';

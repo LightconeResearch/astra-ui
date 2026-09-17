@@ -1,5 +1,5 @@
 import { forwardRef, type SVGAttributes } from 'react';
-import type { OutputStatus } from '../lib/output-status.js';
+import type { OutputStatus } from '../model/output-status.js';
 
 export interface OutputStatusGlyphProps extends SVGAttributes<SVGSVGElement> {
   state: OutputStatus['state'];

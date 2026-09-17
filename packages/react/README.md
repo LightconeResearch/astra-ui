@@ -264,7 +264,7 @@ name merging (`cn`), prose parsing and the label helpers are in `@astra-spec/ui/
   with a `detail` reason. Only behind and stale results show a marker, with
   `detail` on hover; current results stay quiet. Markers sit at card/pill
   corners and inside file rows without changing result dimensions. The host owns lookup; unavailable status has no marker.
-  `OutputStatus` and `OutputStatusLookup` are in `@astra-spec/ui/lib`, the
+  `OutputStatus` and `OutputStatusLookup` are in `@astra-spec/ui/model`, the
   `OutputStatusGlyph` primitive draws the mark, and the marker's strings are
   overridable through `labels.status`.
 - `renderProvenance(output)` adds recorded execution information below Recipe in

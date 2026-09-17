@@ -2,7 +2,7 @@ import type { ResolvedAnalysisNode, ResolvedOutput } from '@astra-spec/sdk';
 import { forwardRef, useId, type HTMLAttributes } from 'react';
 import { cn } from '../lib/cn.js';
 import { useLabels } from '../lib/labels.js';
-import type { OutputStatusLookup } from '../lib/output-status.js';
+import type { OutputStatusLookup } from '../model/output-status.js';
 import type { ArtifactRenderer } from '../components/artifact-preview.js';
 import { EmptyState } from '../primitives/record-list.js';
 import { OutputCard } from '../components/output-card.js';

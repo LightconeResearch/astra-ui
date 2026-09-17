@@ -2,7 +2,8 @@
 // host-safe preview data and hands them to astra-ui through render slots.
 import type { ResolvedAnalysisDocument, ResolvedOutput } from '@astra-spec/sdk';
 import { ArtifactPreview, OutputProvenance, type ArtifactRenderer } from '@astra-spec/ui/components';
-import type { ArtifactPreviewData, OutputRun, OutputStatus, OutputStatusLookup } from '@astra-spec/ui/lib';
+import type { ArtifactPreviewData } from '@astra-spec/ui/lib';
+import type { OutputRun, OutputStatus, OutputStatusLookup } from '@astra-spec/ui/model';
 import { useEffect, useState } from 'react';
 import fixture from '../fixtures/desi.json';
 

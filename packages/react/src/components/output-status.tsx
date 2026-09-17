@@ -1,7 +1,7 @@
 import { forwardRef, type HTMLAttributes } from 'react';
 import { Tooltip } from '../primitives/tooltip.js';
 import { OutputStatusGlyph } from '../primitives/output-status-glyph.js';
-import type { OutputStatus } from '../lib/output-status.js';
+import type { OutputStatus } from '../model/output-status.js';
 import { cn } from '../lib/cn.js';
 import { useLabels } from '../lib/labels.js';
 

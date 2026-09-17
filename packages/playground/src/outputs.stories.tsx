@@ -4,7 +4,8 @@ import { useEffect, useRef, type ComponentProps } from 'react';
 import {
   ArtifactPreview, OutputProvenance, OutputStatusIndicator, type ArtifactRenderer,
 } from '@astra-spec/ui/components';
-import type { ArtifactPreviewData, OutputStatus, OutputStatusLookup } from '@astra-spec/ui/lib';
+import type { ArtifactPreviewData } from '@astra-spec/ui/lib';
+import type { OutputStatus, OutputStatusLookup } from '@astra-spec/ui/model';
 import { Inventory } from '@astra-spec/ui/views';
 import { analysisDocument, sampleRun } from './host';
 

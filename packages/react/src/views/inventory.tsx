@@ -13,7 +13,7 @@ import { cn } from '../lib/cn.js';
 import { LabelsProvider, useLabels, type AstraLabelOverrides } from '../lib/labels.js';
 import type { OpenPaperFileHandler } from '../components/paper-detail.js';
 import type { PdfJsLoader } from '../lib/pdf-runtime.js';
-import type { OutputStatusLookup } from '../lib/output-status.js';
+import type { OutputStatusLookup } from '../model/output-status.js';
 import { RecordDialog } from '../components/record-dialog.js';
 import { useDetailStack, type DetailEntry } from '../lib/detail-stack.js';
 import type { ArtifactRenderer } from '../components/artifact-preview.js';

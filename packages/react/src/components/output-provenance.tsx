@@ -1,7 +1,7 @@
 import { forwardRef, useState, type HTMLAttributes } from 'react';
 import { cn } from '../lib/cn.js';
 import { useLabels } from '../lib/labels.js';
-import type { OutputProvenanceData } from '../lib/output-provenance.js';
+import type { OutputProvenanceData } from '../model/output-provenance.js';
 import { DetailDialog } from '../primitives/dialog.js';
 import { OutputStatusGlyph } from '../primitives/output-status-glyph.js';
 
