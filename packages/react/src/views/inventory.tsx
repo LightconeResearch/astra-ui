@@ -6,7 +6,7 @@ import {
   type ResolvedOutput,
   type ResolvedRecord,
 } from '@astra-spec/sdk';
-import { forwardRef, useEffect, useMemo, useRef, type HTMLAttributes, type ReactNode } from 'react';
+import { forwardRef, useEffect, useMemo, useRef, useState, type HTMLAttributes, type ReactNode } from 'react';
 import { collectInventoryPapers, findPaper, paperForDoi, type InventoryPaper, type InventoryPaperMetadataMap } from '../model/papers.js';
 import { locateRecord } from '../model/locate-record.js';
 import { cn } from '../lib/cn.js';
@@ -19,27 +19,31 @@ import type { ArtifactRenderer } from '../components/artifact-preview.js';
 import { DialogProvider, type DialogMode } from '../primitives/dialog.js';
 import type { TextRenderer } from '../lib/prose.js';
 import { DecisionsList } from '../blocks/decisions-list.js';
+import { AnalysisTree } from '../blocks/analysis-tree.js';
 import { FindingsList } from '../blocks/findings-list.js';
 import { InputsList } from '../blocks/inputs-list.js';
 import { OutputsList } from '../blocks/outputs-list.js';
 import { PapersList } from '../blocks/papers-list.js';
-import { PriorInsightsList } from '../blocks/prior-insights-list.js';
 import { InventoryOutline, InventorySection } from '../blocks/section.js';
 import { sectionKind, type InventorySectionId } from '../model/kind.js';
 
-export const DEFAULT_SECTIONS: readonly InventorySectionId[] = ['outputs', 'decisions', 'inputs', 'findings', 'prior_insights', 'papers'];
+export const DEFAULT_SECTIONS: readonly InventorySectionId[] = ['outputs', 'decisions', 'inputs', 'findings', 'papers'];
 
 export interface InventoryProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
   document: ResolvedAnalysisDocument;
   /** Pass a prebuilt index to share it with the host; otherwise one is derived from `document`. */
   index?: AnalysisIndex | undefined;
-  /** Canonical analysis path; `$` selects the project root. A path the document does not contain shows the root. */
+  /** Controlled analysis selection; pair with `onSelectAnalysis`. Omit to let Inventory navigate internally. Unknown paths show the root. */
   analysisPath?: string | undefined;
+  /** Observe navigation, or update `analysisPath` when controlling selection. */
+  onSelectAnalysis?: ((canonicalPath: string) => void) | undefined;
   /** Which sections to show, in order. */
   sections?: readonly InventorySectionId[] | undefined;
   /** Prefix for section anchor ids, so several explorers can share a page. */
   idPrefix?: string | undefined;
   showOutline?: boolean | undefined;
+  /** Show project navigation below the outline (default true). Hosts controlling `analysisPath` must pair it with `onSelectAnalysis`. */
+  showHierarchy?: boolean | undefined;
   labels?: AstraLabelOverrides | undefined;
   renderArtifact?: ArtifactRenderer | undefined;
   renderText?: TextRenderer | undefined;
@@ -83,10 +87,12 @@ export const Inventory = forwardRef<HTMLDivElement, InventoryProps>(function Inv
 const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(function ExplorerBody({
   document,
   index: providedIndex,
-  analysisPath = '$',
+  analysisPath,
+  onSelectAnalysis,
   sections = DEFAULT_SECTIONS,
   idPrefix = '',
   showOutline = true,
+  showHierarchy = true,
   renderArtifact,
   renderText,
   loadPdfJs,
@@ -105,7 +111,16 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(
 }, ref) {
   const labels = useLabels();
   const index = useMemo(() => providedIndex ?? indexAnalysis(document), [document, providedIndex]);
-  const analysis = index.analysisByPath.get(analysisPath) ?? document.analysis;
+  const [internalAnalysisPath, setInternalAnalysisPath] = useState('$');
+  // Reset a removed selection so reintroducing that path does not navigate back.
+  if (analysisPath === undefined && internalAnalysisPath !== '$' && !index.analysisByPath.has(internalAnalysisPath)) {
+    setInternalAnalysisPath('$');
+  }
+  const analysis = index.analysisByPath.get(analysisPath ?? internalAnalysisPath) ?? document.analysis;
+  const selectAnalysis = (path: string) => {
+    if (analysisPath === undefined) setInternalAnalysisPath(path);
+    onSelectAnalysis?.(path);
+  };
   const papers = useMemo(
     () => collectInventoryPapers(document, index, analysis, paperMetadata),
     [analysis, document, index, paperMetadata],
@@ -155,10 +170,6 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(
       count: analysis.findings.length,
       content: <FindingsList analysis={analysis} onOpenRecord={openRecord} />,
     },
-    prior_insights: {
-      count: analysis.prior_insights.length,
-      content: <PriorInsightsList analysis={analysis} onOpenRecord={openRecord} />,
-    },
     papers: {
       count: papers.length,
       content: (
@@ -170,11 +181,11 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(
       ),
     },
   };
-  const anchorId = (section: InventorySectionId) => `${idPrefix}${section.replace('_', '-')}`;
+  const anchorId = (section: InventorySectionId) => `${idPrefix}${section}`;
 
   return (
     <div data-slot="inventory" {...rest} ref={ref} className={cn('astra-inventory', className)}>
-      <div className="astra-inventory__layout">
+      <div className="astra-inventory__layout" data-sidebar={showOutline || showHierarchy ? '' : undefined}>
         <div className="astra-inventory__sections">
           {sections.map((section) => (
             <InventorySection
@@ -190,15 +201,24 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(
           ))}
           {children}
         </div>
-        {showOutline ? (
-          <InventoryOutline
-            entries={sections.map((section) => ({
-              id: anchorId(section),
-              label: labels.sections[section],
-              count: sectionContent[section].count,
-              kind: sectionKind(section),
-            }))}
-          />
+        {showOutline || showHierarchy ? (
+          <div className="astra-inventory__sidebar" data-has-tree={showHierarchy ? '' : undefined}>
+            {showOutline ? <InventoryOutline
+              entries={sections.map((section) => ({
+                id: anchorId(section),
+                label: labels.sections[section],
+                count: sectionContent[section].count,
+                kind: sectionKind(section),
+              }))}
+            /> : null}
+            {showHierarchy ? (
+              <AnalysisTree
+                document={document}
+                analysisPath={analysis.canonicalPath}
+                onSelectAnalysis={selectAnalysis}
+              />
+            ) : null}
+          </div>
         ) : null}
       </div>
       {stack.active ? (
