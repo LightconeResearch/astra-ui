@@ -8,6 +8,7 @@ import {
   findingEvidence,
   findingLiterature,
   outputDecisionPaths,
+  outputDecisionRoutes,
   informedDecisions,
   locateRecord,
   outputRelations,
@@ -148,6 +149,10 @@ test('output decisions follow every dependency path: own provenance first, then 
   // sub-analysis decision reaches both.
   const importedXi = { ...output('imported_xi', { inputPaths: [], decisionPaths: [] }), resolvedFrom: 'clustering.outputs.correlation' };
   const fit = output('fit', { inputPaths: ['outputs.imported_xi'], decisionPaths: ['decisions.method'] }, ['method']);
+  const multipleRoutes = output('multiple_routes', {
+    inputPaths: ['outputs.upstream', 'inputs.alias', 'outputs.loop_a', 'outputs.imported_xi'],
+    decisionPaths: ['decisions.direct', 'decisions.direct'],
+  });
   const alias = { id: 'alias', kind: 'input', canonicalPath: 'inputs.alias', type: 'data', resolvedFrom: 'outputs.upstream' };
   const weighting = { ...root.decisions[0], id: 'weighting', label: 'Weighting', canonicalPath: 'clustering.decisions.weighting' };
   const clustering = {
@@ -160,7 +165,7 @@ test('output decisions follow every dependency path: own provenance first, then 
     analysis: {
       ...root,
       inputs: [...root.inputs, alias],
-      outputs: [...root.outputs, upstream, downstream, viaAlias, alreadyDirect, loopA, loopB, importedXi, fit],
+      outputs: [...root.outputs, upstream, downstream, viaAlias, alreadyDirect, loopA, loopB, importedXi, fit, multipleRoutes],
       analyses: [clustering],
     },
   };
@@ -173,4 +178,23 @@ test('output decisions follow every dependency path: own provenance first, then 
   assert.deepEqual(outputDecisionPaths(index, importedXi), ['clustering.decisions.weighting'], 'an alias inherits the decisions of its target');
   assert.deepEqual(outputDecisionPaths(index, fit), ['decisions.method', 'clustering.decisions.weighting'], 'own decisions first, then those reached through a sub-analysis');
   assert.deepEqual(outputRelations(index, fit).decisions.map(({ record, analysis }) => [record.id, analysis.canonicalPath]), [['method', '$'], ['weighting', 'clustering']]);
+  assert.deepEqual(outputDecisionRoutes(index, alreadyDirect), new Map(), 'direct decisions have no inherited routes');
+  assert.deepEqual(outputDecisionRoutes(index, viaAlias), new Map([
+    ['decisions.method', new Set(['outputs.upstream'])],
+  ]), 'input aliases name their resolved upstream output');
+  assert.deepEqual(outputDecisionRoutes(index, importedXi), new Map([
+    ['clustering.decisions.weighting', new Set(['clustering.outputs.correlation'])],
+  ]), 'output aliases name their source across analyses');
+  assert.deepEqual(outputDecisionPaths(index, multipleRoutes), [
+    'decisions.direct', 'decisions.method', 'clustering.decisions.weighting',
+  ], 'direct decisions and first-discovered inherited decisions retain their order');
+  assert.deepEqual(outputDecisionRoutes(index, multipleRoutes), new Map([
+    ['decisions.method', new Set(['outputs.upstream', 'outputs.loop_a'])],
+    ['clustering.decisions.weighting', new Set(['outputs.imported_xi'])],
+  ]), 'shared ancestors retain every immediate route, deduplicating aliases and terminating cycles');
+  assert.deepEqual(outputRelations(index, multipleRoutes).decisions.map(({ canonicalPath, via }) => [canonicalPath, via?.map((link) => link.canonicalPath)]), [
+    ['decisions.direct', undefined],
+    ['decisions.method', ['outputs.upstream', 'outputs.loop_a']],
+    ['clustering.decisions.weighting', ['outputs.imported_xi']],
+  ], 'the detail relations use the same decision order and route attribution');
 });

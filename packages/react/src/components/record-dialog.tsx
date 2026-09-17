@@ -36,6 +36,8 @@ export interface RecordDialogProps extends Pick<DetailDialogProps, 'mode' | 'bac
   papers?: readonly InventoryPaper[] | undefined;
   paperMetadata?: InventoryPaperMetadataMap | undefined;
   renderArtifact?: ArtifactRenderer | undefined;
+  /** Host-provided link to the current code file, shown beside Recipe. */
+  renderCodeLink?: ((output: ResolvedOutput) => ReactNode) | undefined;
   renderText?: TextRenderer | undefined;
   loadPdfJs?: PdfJsLoader | undefined;
   onOpenPaperFile?: OpenPaperFileHandler | undefined;
@@ -69,6 +71,7 @@ export function RecordDialog({
   papers = [],
   paperMetadata = {},
   renderArtifact,
+  renderCodeLink,
   renderText,
   loadPdfJs,
   onOpenPaperFile,
@@ -137,6 +140,7 @@ export function RecordDialog({
               record={record}
               relations={outputRelations(index, record)}
               renderArtifact={renderArtifact}
+              renderCodeLink={renderCodeLink}
               renderText={renderText}
               onOpenRecord={onOpenRecord}
               expanded={expanded}

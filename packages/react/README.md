@@ -129,6 +129,15 @@ Use a `*Dialog` when you already have the record and any derived relationship
 data. Use the corresponding `*Detail` inside a sidebar, route, or your own
 dialog shell.
 
+Figure outputs zoom directly in the detail view, from the fitted view (100%) to
+400%. The zoom buttons overlay the bottom-right corner without reducing the
+figure area. Drag to pan, scroll or pinch to zoom; the
+focused figure also accepts arrow keys to pan, `+`/`-` to zoom and `0` to fit.
+Reopening the output starts fitted again. These
+controls use `react-zoom-pan-pinch` to magnify the host's existing figure rendering;
+artifact loading stays with the host. Double-click toggles magnification. Labels
+are overridable through `labels.figure`.
+
 `RecordDialog` is the generic alternative. Given a `DetailEntry`, resolved
 document, and SDK index, it selects the correct detail UI and derives the
 record's relationships, evidence, insights, and papers. Pair it with
@@ -245,7 +254,12 @@ name merging (`cn`), prose parsing and the label helpers are in `@astra-spec/ui/
 ## Host extension points
 
 - `renderArtifact(output, { compact })` renders host-decoded artifact content.
-  Without it, outputs use `ArtifactPreview`'s unavailable state.
+  Without it, outputs use `ArtifactPreview`'s unavailable state. Compact previews
+  ask it for every output type; the output detail frames only a figure or a table
+  and asks for a metric's value as a compact pill, so a data file or another
+  non-visual type is not rendered there.
+- `renderCodeLink(output)` adds an optional action beside Recipe. The host resolves
+  the current source file and opens it; return `null` when no file is available.
 - `renderText(text, { field })` replaces the built-in prose renderer. The
   default understands inline code, `$inline$` math, and `$$display$$` math.
   Hosts that only need custom math commands can reuse that renderer with

@@ -46,6 +46,8 @@ export interface InventoryProps extends Omit<HTMLAttributes<HTMLDivElement>, 'ch
   showHierarchy?: boolean | undefined;
   labels?: AstraLabelOverrides | undefined;
   renderArtifact?: ArtifactRenderer | undefined;
+  /** Host-provided link to the current code file, shown beside Recipe. */
+  renderCodeLink?: ((output: ResolvedOutput) => ReactNode) | undefined;
   renderText?: TextRenderer | undefined;
   loadPdfJs?: PdfJsLoader | undefined;
   onOpenPaperFile?: OpenPaperFileHandler | undefined;
@@ -94,6 +96,7 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(
   showOutline = true,
   showHierarchy = true,
   renderArtifact,
+  renderCodeLink,
   renderText,
   loadPdfJs,
   onOpenPaperFile,
@@ -231,6 +234,7 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(
             papers={papers}
             paperMetadata={paperMetadata}
             renderArtifact={renderArtifact}
+            renderCodeLink={renderCodeLink}
             renderText={renderText}
             loadPdfJs={loadPdfJs}
             onOpenPaperFile={onOpenPaperFile}
