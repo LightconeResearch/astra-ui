@@ -260,12 +260,13 @@ name merging (`cn`), prose parsing and the label helpers are in `@astra-spec/ui/
 - `renderArtifact(output, { compact })` renders host-decoded artifact content.
   Without it, outputs use `ArtifactPreview`'s unavailable state.
 - `getOutputStatus(output)` supplies optional execution status for inventory
-  results: `materialized`, `outdated`, or `unmaterialized`, with a `detail`
-  explanation. Only out-of-date and unmaterialized results show a marker, with
-  `detail` on hover; materialized results stay quiet. Markers sit at card/pill
+  results in the states `lc status` reports: `current`, `behind`, or `stale`,
+  with a `detail` reason. Only behind and stale results show a marker, with
+  `detail` on hover; current results stay quiet. Markers sit at card/pill
   corners and inside file rows without changing result dimensions. The host owns lookup; unavailable status has no marker.
-  `OutputStatus` and `OutputStatusLookup` are in `@astra-spec/ui/lib`, and the
-  marker's strings are overridable through `labels.status`.
+  `OutputStatus` and `OutputStatusLookup` are in `@astra-spec/ui/lib`, the
+  `OutputStatusGlyph` primitive draws the mark, and the marker's strings are
+  overridable through `labels.status`.
 - `renderProvenance(output)` adds recorded execution information below Recipe in
   output details. `OutputProvenance` renders a compact status, last-run time and
   Git revision, with a Details popup for the recorded recipe, input versions,

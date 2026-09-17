@@ -2,8 +2,8 @@ import { forwardRef, useState, type HTMLAttributes } from 'react';
 import { cn } from '../lib/cn.js';
 import { useLabels } from '../lib/labels.js';
 import type { OutputProvenanceData } from '../lib/output-provenance.js';
-import { outputStatusIconPath } from '../lib/output-status.js';
 import { DetailDialog } from '../primitives/dialog.js';
+import { OutputStatusGlyph } from '../primitives/output-status-glyph.js';
 
 export type OutputProvenanceProps = HTMLAttributes<HTMLDivElement> & OutputProvenanceData;
 
@@ -29,9 +29,7 @@ export const OutputProvenance = forwardRef<HTMLDivElement, OutputProvenanceProps
             <span className="astra-output-provenance__status">
               {status ? (
                 <span className="astra-output-provenance__icon" data-state={status.state} aria-hidden="true">
-                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <path d={outputStatusIconPath[status.state]} strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
+                  <OutputStatusGlyph state={status.state} />
                 </span>
               ) : null}
               {stateLabel}

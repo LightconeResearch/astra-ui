@@ -15,20 +15,20 @@ const metrics: { label: string; preview?: ArtifactPreviewData; status?: OutputSt
   { label: 'BAO scale, α∥', preview: { kind: 'metric', value: 1.012345678, uncertainty: 0.024567891, label: 'Parallel scale' } },
   { label: 'BAO scale, α⊥', preview: { kind: 'metric', value: '0.997123456', uncertainty: '0.018123456' } },
   { label: 'Detection significance', preview: { kind: 'metric', value: 5.2, unit: 'σ' } },
-  { label: 'Goodness of fit', preview: { kind: 'metric', value: 1.08 }, status: { state: 'outdated', detail: 'Input catalogue changed since this ran.' } },
+  { label: 'Goodness of fit', preview: { kind: 'metric', value: 1.08 }, status: { state: 'behind', detail: 'made under an earlier environment' } },
   { label: 'Reconstruction smoothing radius', preview: { kind: 'metric', value: 15, unit: 'Mpc/h' } },
   { label: 'Correlation coefficient', preview: { kind: 'metric', value: -0.42731 } },
-  { label: 'Held-out validation score', status: { state: 'unmaterialized' } },
+  { label: 'Held-out validation score', status: { state: 'stale' } },
   { label: 'Effective sample size', preview: { kind: 'loading' } },
   { label: 'Model comparison', preview: { kind: 'unavailable', reason: 'Preview unavailable' } },
 ];
 const files: [string, string, OutputStatus?][] = [
   ['BAO fit results', 'json'],
-  ['Posterior samples', 'npz', { state: 'unmaterialized', detail: 'Awaiting the next pipeline run.' }],
+  ['Posterior samples', 'npz', { state: 'stale', detail: 'no manifest — it has never been materialized' }],
   ['Fit diagnostics', 'csv'],
   ['Model configuration', 'json'],
   ['Correlation function covariance matrix', 'npy'],
-  ['Validation residuals', 'csv', { state: 'outdated' }],
+  ['Validation residuals', 'csv', { state: 'behind' }],
 ];
 const base = analysisDocument.analysis.outputs[0];
 if (!base) throw new Error('The playground needs an example output.');
@@ -72,16 +72,16 @@ export const NarrowPanel: Story = () => (
   </div>
 );
 
-// The marker only appears for out-of-date or unmaterialized results; materialized
-// results stay quiet, so a `materialized` example next to the others shows that contrast.
+// The marker only appears for behind or stale results; current results stay
+// quiet, so a `current` example next to the others shows that contrast.
 export const Statuses: Story = () => (
   <div className="playground-row" style={{ alignItems: 'center', gap: 24 }}>
     {([
-      { state: 'materialized' },
-      { state: 'outdated' },
-      { state: 'outdated', detail: 'The recipe changed since this last ran.' },
-      { state: 'unmaterialized' },
-      { state: 'unmaterialized', detail: 'No manifest recorded for this result.' },
+      { state: 'current' },
+      { state: 'behind' },
+      { state: 'behind', detail: 'made under an earlier environment' },
+      { state: 'stale' },
+      { state: 'stale', detail: 'no manifest — it has never been materialized' },
     ] as OutputStatus[]).map((status) => (
       <span key={`${status.state}-${status.detail ?? ''}`} style={{ display: 'grid', justifyItems: 'center', gap: 8, font: '11px/1.4 var(--astra-font-ui)' }}>
         <span style={{ position: 'relative', width: 32, height: 32, border: '1px dashed var(--astra-color-border-subtle)', borderRadius: 6 }}>
@@ -104,9 +104,9 @@ function OpenedProvenance(props: ComponentProps<typeof OutputProvenance>) {
 
 export const Provenance: Story = () => (
   <div className="playground-stack playground-frame" style={{ maxWidth: 420 }}>
-    <OutputProvenance status={{ state: 'materialized' }} run={sampleRun} />
-    <OutputProvenance status={{ state: 'outdated', detail: 'Input catalogue changed since this ran.' }} run={sampleRun} />
-    <OutputProvenance status={{ state: 'unmaterialized' }} run={null} />
+    <OutputProvenance status={{ state: 'current' }} run={sampleRun} />
+    <OutputProvenance status={{ state: 'behind', detail: 'made under an earlier environment' }} run={sampleRun} />
+    <OutputProvenance status={{ state: 'stale', detail: 'no manifest — it has never been materialized' }} run={null} />
     <OutputProvenance />
     <OutputProvenance error="Could not read the recorded run." />
   </div>
@@ -114,6 +114,6 @@ export const Provenance: Story = () => (
 
 export const ProvenanceDetails: Story = () => (
   <div className="playground-frame" style={{ maxWidth: 420 }}>
-    <OpenedProvenance status={{ state: 'materialized' }} run={sampleRun} />
+    <OpenedProvenance status={{ state: 'current' }} run={sampleRun} />
   </div>
 );

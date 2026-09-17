@@ -16,7 +16,7 @@
     color: var(--astra-color-danger);
   }
 
-  :where(.astra-ui) .astra-output-status:where([data-state="outdated"]) {
+  :where(.astra-ui) .astra-output-status:where([data-state="behind"]) {
     background: color-mix(in srgb, var(--astra-color-kind-decision) 16%, var(--astra-color-surface-raised));
     color: var(--astra-color-kind-decision-ink);
   }

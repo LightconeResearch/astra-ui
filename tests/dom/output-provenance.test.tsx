@@ -17,7 +17,7 @@ it('shows provenance below the recipe in the existing details list', () => {
       outputs: document.analysis.outputs.map(output => ({ ...output, recipe: { command: 'python current.py' } })),
     },
   };
-  const renderProvenance = vi.fn(() => <OutputProvenance status={{ state: 'unmaterialized' }} run={null} />);
+  const renderProvenance = vi.fn(() => <OutputProvenance status={{ state: 'stale' }} run={null} />);
   render(<Inventory document={fixture} renderProvenance={renderProvenance}
     renderArtifact={output => <img alt={output.id} src="plot.svg" />}
     defaultDetail={[{ kind: 'record', canonicalPath: 'outputs.headline', analysisPath: '$' }]} />);
@@ -32,10 +32,10 @@ it('shows provenance below the recipe in the existing details list', () => {
 it('opens recorded metadata in a popup and closes only that popup', () => {
   const run = { finishedAt: '2026-09-15T10:00:00Z', gitRevision: 'abcdef0123456789', recipe: 'python original.py', environment: 'sha256:env', inputVersions: { catalog: 'sha256:data' }, cliVersion: '0.5' };
   render(<Inventory document={document}
-    renderProvenance={() => <OutputProvenance status={{ state: 'outdated', detail: 'Input changed' }} run={run} />}
+    renderProvenance={() => <OutputProvenance status={{ state: 'behind', detail: 'Input changed' }} run={run} />}
     defaultDetail={[{ kind: 'record', canonicalPath: 'outputs.headline', analysisPath: '$' }]} />);
   expect(screen.getByText('Status')).toBeTruthy();
-  expect(screen.getByText('Out of date')).toBeTruthy();
+  expect(screen.getByText('Behind')).toBeTruthy();
   expect(screen.getByText('Last run')).toBeTruthy();
   expect(screen.getByText('Git revision')).toBeTruthy();
   expect(screen.queryByText('python original.py')).toBeNull();
@@ -66,16 +66,16 @@ it('does not label missing or failed metadata as a recorded success', () => {
 
 it('explains inventory status in a rendered tooltip, with a state-only fallback', async () => {
   const user = userEvent.setup();
-  const view = render(<OutputStatusIndicator status={{ state: 'outdated', detail: '  the recipe changed  ' }} />);
-  const marker = screen.getByRole('img', { name: 'Out of date: the recipe changed' });
+  const view = render(<OutputStatusIndicator status={{ state: 'behind', detail: '  the recipe changed  ' }} />);
+  const marker = screen.getByRole('img', { name: 'Behind: the recipe changed' });
   await user.hover(marker);
-  expect((await screen.findByRole('tooltip')).textContent).toBe('Out of date: the recipe changed');
-  view.rerender(<OutputStatusIndicator status={{ state: 'unmaterialized', detail: '   ' }} />);
-  expect(screen.getByRole('tooltip').textContent).toBe('Not materialized');
-  view.rerender(<OutputStatusIndicator status={{ state: 'unmaterialized', detail: 'no manifest' }} />);
-  expect(screen.getByRole('tooltip').textContent).toBe('Not materialized: no manifest');
+  expect((await screen.findByRole('tooltip')).textContent).toBe('Behind: the recipe changed');
+  view.rerender(<OutputStatusIndicator status={{ state: 'stale', detail: '   ' }} />);
+  expect(screen.getByRole('tooltip').textContent).toBe('Stale');
+  view.rerender(<OutputStatusIndicator status={{ state: 'stale', detail: 'no manifest' }} />);
+  expect(screen.getByRole('tooltip').textContent).toBe('Stale: no manifest');
   fireEvent.keyDown(globalThis.document, { key: 'Escape' });
   expect(screen.queryByRole('tooltip')).toBeNull();
-  view.rerender(<OutputStatusIndicator status={{ state: 'materialized' }} />);
+  view.rerender(<OutputStatusIndicator status={{ state: 'current' }} />);
   expect(screen.queryByRole('img')).toBeNull();
 });

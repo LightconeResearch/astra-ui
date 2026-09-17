@@ -60,11 +60,11 @@
     color: var(--astra-color-kind-output);
     background: var(--astra-color-kind-output-soft);
   }
-  :where(.astra-ui) .astra-output-provenance__icon[data-state="outdated"] {
+  :where(.astra-ui) .astra-output-provenance__icon[data-state="behind"] {
     color: var(--astra-color-kind-decision-ink);
     background: var(--astra-color-kind-decision-soft);
   }
-  :where(.astra-ui) .astra-output-provenance__icon[data-state="unmaterialized"] {
+  :where(.astra-ui) .astra-output-provenance__icon[data-state="stale"] {
     color: var(--astra-color-danger);
     background: var(--astra-color-danger-soft);
   }

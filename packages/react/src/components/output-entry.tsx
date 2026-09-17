@@ -50,7 +50,7 @@ export const OutputEntry = forwardRef<HTMLButtonElement, OutputEntryProps>(funct
       </span>
       {metric ? (
         <span className="astra-output-entry__value">
-          {status?.state === 'unmaterialized' && !output.artifact
+          {status?.state === 'stale' && !output.artifact
             ? <span className="astra-artifact__metric-value" aria-label="No value">–</span>
             : renderArtifact?.(output, { compact: true })
               ?? <span className="astra-output-entry__status">{absenceNote ?? 'Preview unavailable'}</span>}

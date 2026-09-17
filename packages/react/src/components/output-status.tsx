@@ -1,6 +1,7 @@
 import { forwardRef, type HTMLAttributes } from 'react';
 import { Tooltip } from '../primitives/tooltip.js';
-import { outputStatusIconPath, type OutputStatus } from '../lib/output-status.js';
+import { OutputStatusGlyph } from '../primitives/output-status-glyph.js';
+import type { OutputStatus } from '../lib/output-status.js';
 import { cn } from '../lib/cn.js';
 import { useLabels } from '../lib/labels.js';
 
@@ -15,7 +16,7 @@ export const OutputStatusIndicator = forwardRef<HTMLSpanElement, OutputStatusInd
   ...props
 }, ref) {
   const labels = useLabels();
-  if (!status || status.state === 'materialized') return null;
+  if (!status || status.state === 'current') return null;
   const label = labels.status[status.state];
   const reason = status.detail?.trim();
   const explanation = reason ? labels.status.withDetail(label, reason) : label;
@@ -30,9 +31,7 @@ export const OutputStatusIndicator = forwardRef<HTMLSpanElement, OutputStatusInd
         className={cn('astra-output-status', className)}
         data-state={status.state}
       >
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-          <path d={outputStatusIconPath[status.state]} strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+        <OutputStatusGlyph state={status.state} />
       </span>
     </Tooltip>
   );

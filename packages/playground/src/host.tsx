@@ -78,9 +78,9 @@ export const paperMetadata = {
 // A handful of fixture outputs stand in for the host's execution status, so
 // the playground exercises every marker and every Provenance state.
 const outputStatuses: Record<string, OutputStatus> = {
-  'outputs.bao_fit_plot': { state: 'outdated', detail: 'Catalogue reprocessed since this figure was generated.' },
-  'outputs.bao_distance_table': { state: 'unmaterialized' },
-  'outputs.xi_pre_recon_bgs': { state: 'unmaterialized', detail: 'Awaiting the next pipeline run.' },
+  'outputs.bao_fit_plot': { state: 'behind', detail: 'made under an earlier environment' },
+  'outputs.bao_distance_table': { state: 'stale' },
+  'outputs.xi_pre_recon_bgs': { state: 'stale', detail: 'no manifest — it has never been materialized' },
 };
 
 export const getOutputStatus: OutputStatusLookup = (output) => outputStatuses[output.canonicalPath];
@@ -96,8 +96,8 @@ export const sampleRun: OutputRun = {
 
 /** Recorded execution metadata below Recipe in output details, keyed off the same fixture statuses. */
 export const renderProvenance = (output: ResolvedOutput) => {
-  const status = outputStatuses[output.canonicalPath] ?? { state: 'materialized' };
-  return <OutputProvenance status={status} run={status.state === 'unmaterialized' ? null : sampleRun} />;
+  const status = outputStatuses[output.canonicalPath] ?? { state: 'current' };
+  return <OutputProvenance status={status} run={status.state === 'stale' ? null : sampleRun} />;
 };
 
 export { loadPdfJs } from './pdf-runtime';

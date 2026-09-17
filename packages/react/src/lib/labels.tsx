@@ -44,11 +44,11 @@ export interface AstraLabels {
     openPaper: string;
     locate: string;
   };
-  /** Host-supplied execution status, shown as a marker on inventory results. */
+  /** Host-supplied execution status, shown as a marker on inventory results; the states are `lc status`'s. */
   status: {
-    materialized: string;
-    outdated: string;
-    unmaterialized: string;
+    current: string;
+    behind: string;
+    stale: string;
     withDetail: (label: string, detail: string) => string;
   };
   /** Recorded execution summaries and run details. */
@@ -155,9 +155,9 @@ export const defaultLabels: AstraLabels = {
     locate: 'Locate',
   },
   status: {
-    materialized: 'Materialized',
-    outdated: 'Out of date',
-    unmaterialized: 'Not materialized',
+    current: 'Current',
+    behind: 'Behind',
+    stale: 'Stale',
     withDetail: (label, detail) => `${label}: ${detail}`,
   },
   provenance: {
