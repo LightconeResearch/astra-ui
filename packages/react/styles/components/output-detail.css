@@ -481,6 +481,20 @@
     padding: 0;
   }
 
+  /* The full "via" origin list for assistive technology beside the truncated
+     "+N more" text. */
+  :where(.astra-ui) .astra-output-detail__visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
   /* A metric has no picture to frame: the value reads as a pill at the head of
      the provenance, and what follows takes the gap a relation list carries. */
   :where(.astra-ui) .astra-output-detail__metric {

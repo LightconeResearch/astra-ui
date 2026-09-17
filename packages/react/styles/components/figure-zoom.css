@@ -25,6 +25,18 @@
     background: var(--astra-color-artifact-paper);
   }
 
+  /* At a zoom bound the button stays focusable (aria-disabled, not disabled)
+     so the press that reached the bound does not drop keyboard focus; it
+     looks and hovers like a disabled button. */
+  :where(.astra-ui) .astra-figure-zoom__controls .astra-button:where([aria-disabled="true"]),
+  :where(.astra-ui) .astra-figure-zoom__controls .astra-button:where([aria-disabled="true"]):hover {
+    border-color: var(--astra-color-border-strong);
+    background: var(--astra-color-artifact-paper);
+    color: var(--astra-color-text-muted);
+    cursor: default;
+    opacity: 0.55;
+  }
+
   :where(.astra-ui) .astra-figure-zoom__viewport {
     min-width: 0;
     min-height: 0;

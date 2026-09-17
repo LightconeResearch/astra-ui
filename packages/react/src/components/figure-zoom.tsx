@@ -7,14 +7,38 @@ const MIN_SCALE = 1;
 const MAX_SCALE = 4;
 const ZOOM_STEP = 0.25;
 
+/**
+ * A step that reaches a bound disables its own button. A natively disabled
+ * button cannot hold focus, so the keyboard user who pressed it would be
+ * dropped to the document; `aria-disabled` keeps the button focusable and
+ * announced as unavailable while the handler ignores the press.
+ */
+function ZoomButton({ label, unavailable, onPress, children }: {
+  label: string;
+  unavailable: boolean;
+  onPress: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <Button
+      aria-label={label}
+      title={label}
+      aria-disabled={unavailable || undefined}
+      onClick={unavailable ? undefined : onPress}
+    >
+      {children}
+    </Button>
+  );
+}
+
 function FigureControls() {
   const { figure: labels } = useLabels();
   const { zoomIn, zoomOut } = useControls();
   const scale = useTransformComponent(({ state }) => state.scale);
   return (
     <div className="astra-figure-zoom__controls">
-      <Button aria-label={labels.zoomIn} title={labels.zoomIn} disabled={scale >= MAX_SCALE} onClick={() => { void zoomIn(ZOOM_STEP, 0); }}>+</Button>
-      <Button aria-label={labels.zoomOut} title={labels.zoomOut} disabled={scale <= MIN_SCALE} onClick={() => { void zoomOut(ZOOM_STEP, 0); }}>−</Button>
+      <ZoomButton label={labels.zoomIn} unavailable={scale >= MAX_SCALE} onPress={() => { void zoomIn(ZOOM_STEP, 0); }}>+</ZoomButton>
+      <ZoomButton label={labels.zoomOut} unavailable={scale <= MIN_SCALE} onPress={() => { void zoomOut(ZOOM_STEP, 0); }}>−</ZoomButton>
     </div>
   );
 }

@@ -29,7 +29,10 @@ export function OutputPreview({ output, compact = false, renderArtifact }: Outpu
 /**
  * What the detail shows in its artifact box: only a figure or a table has a
  * picture to frame, rendered by the host when it supplies a renderer. A data
- * file or a metric gets no box — an empty reader column is all whitespace.
+ * file or a metric gets no box — an empty reader column is all whitespace —
+ * so the host renderer is not consulted for them here; `OutputPreview` still
+ * asks it for the compact preview of any type, and a metric's value is asked
+ * for as a compact rendering below.
  */
 function artifactNode(output: ResolvedOutput, renderArtifact: ArtifactRenderer | undefined): ReactNode {
   if (!isVisualOutput(output)) return null;
@@ -64,8 +67,16 @@ function decisionDependencyItems(relations: OutputRelations, onOpenRecord: OpenR
     const detail = `via ${origins.join(', ')}`;
     return {
       ...item,
+      // The truncated text is for sighted readers; assistive technology gets
+      // the full list, whether or not the row becomes a navigation trigger
+      // (only a trigger carries `accessibleLabel`).
       detail: origins.length > 1
-        ? <span title={detail}>via {origins[0]} +{origins.length - 1} more</span>
+        ? (
+          <span title={detail}>
+            <span aria-hidden="true">via {origins[0]} +{origins.length - 1} more</span>
+            <span className="astra-output-detail__visually-hidden">{detail}</span>
+          </span>
+        )
         : detail,
       accessibleLabel: item.accessibleLabel ? `${item.accessibleLabel}, ${detail}` : undefined,
     };

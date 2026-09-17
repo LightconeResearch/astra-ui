@@ -342,6 +342,35 @@ test('output dialogs list every decision on a dependency path in one list, inclu
   assert.doesNotMatch(html, /decisions\.method/);
 });
 
+test('an inherited decision names every upstream origin to assistive technology, even read-only', () => {
+  const index = indexAnalysis(fixtureDocument);
+  const figure = index.recordByPath.get('outputs.headline');
+  const method = index.recordByPath.get('decisions.method');
+  const upstream = { ...figure, id: 'upstream', label: 'Upstream fit', canonicalPath: 'outputs.upstream' };
+  const loop = { ...figure, id: 'loop', label: 'Loop fit', canonicalPath: 'outputs.loop' };
+  const relations = {
+    inputs: [],
+    decisions: [{
+      canonicalPath: method.canonicalPath,
+      record: method,
+      analysis: fixtureDocument.analysis,
+      via: [
+        { canonicalPath: upstream.canonicalPath, record: upstream, analysis: fixtureDocument.analysis },
+        { canonicalPath: loop.canonicalPath, record: loop, analysis: fixtureDocument.analysis },
+      ],
+    }],
+  };
+  // No onOpenRecord: the row is a plain list item with no aria-label to carry the list.
+  const html = withinUi(React.createElement(OutputDetail, { record: figure, relations }));
+  assert.doesNotMatch(html, /astra-relation-list__trigger/);
+  assert.match(html, /<span aria-hidden="true">via Upstream fit \+1 more<\/span>/);
+  assert.match(html, /<span class="astra-output-detail__visually-hidden">via Upstream fit, Loop fit<\/span>/);
+  // A single origin reads in full with no hidden copy.
+  const single = withinUi(React.createElement(OutputDetail, { record: figure, relations: { ...relations, decisions: [{ ...relations.decisions[0], via: relations.decisions[0].via.slice(0, 1) }] } }));
+  assert.match(single, /<small>via Upstream fit<\/small>/);
+  assert.doesNotMatch(single, /visually-hidden/);
+});
+
 test('output cards carry an accessible name instead of their preview cells', () => {
   const index = indexAnalysis(fixtureDocument);
   const html = withinUi(React.createElement(OutputCard, { output: index.recordByPath.get('outputs.headline'), onOpen: () => undefined }));
