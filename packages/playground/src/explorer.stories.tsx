@@ -18,13 +18,17 @@ export const Root: Story = () => (
   />
 );
 
-export const Clustering: Story = () => (
-  <Inventory document={analysisDocument} analysisPath="clustering" renderArtifact={renderArtifact} />
-);
+/** A host that owns the selected analysis, as the theme and the editors do. */
+function ControlledInventory({ initialPath }: { initialPath: string }) {
+  const [path, setPath] = useState(initialPath);
+  return (
+    <Inventory document={analysisDocument} analysisPath={path} onSelectAnalysis={setPath} renderArtifact={renderArtifact} />
+  );
+}
 
-export const Reconstruction: Story = () => (
-  <Inventory document={analysisDocument} analysisPath="reconstruction" renderArtifact={renderArtifact} />
-);
+export const Clustering: Story = () => <ControlledInventory initialPath="clustering" />;
+
+export const Reconstruction: Story = () => <ControlledInventory initialPath="reconstruction" />;
 
 export const EmbeddedDetail: Story = () => (
   <Inventory

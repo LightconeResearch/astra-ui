@@ -72,7 +72,7 @@
     align-items: start;
   }
 
-  :where(.astra-ui) .astra-inventory__layout:not(:has(.astra-inventory__sidebar)) {
+  :where(.astra-ui) .astra-inventory__layout:where(:not([data-sidebar])) {
     grid-template-columns: minmax(0, 1fr);
   }
 
@@ -183,6 +183,11 @@
     color: var(--astra-color-text);
   }
 
+  /* The sidebar scrolls, so a ring drawn outside a full-width link would be clipped. */
+  :where(.astra-ui) .astra-inventory__sidebar :is(a, button):focus-visible {
+    outline-offset: -2px;
+  }
+
   @container (max-width: 760px) {
     :where(.astra-ui) .astra-inventory__layout {
       grid-template-columns: minmax(0, 1fr);
@@ -198,7 +203,7 @@
       max-height: none;
     }
 
-    :where(.astra-ui) .astra-inventory__sidebar:not([data-has-tree]) {
+    :where(.astra-ui) .astra-inventory__sidebar:where(:not([data-has-tree])) {
       display: none;
     }
 

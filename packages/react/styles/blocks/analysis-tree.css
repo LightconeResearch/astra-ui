@@ -24,6 +24,11 @@
     margin-inline-start: 20px;
   }
 
+  /* Indent four levels at most, so deep projects keep room for their labels. */
+  :where(.astra-ui) .astra-analysis-tree ul ul ul ul ul ul {
+    margin-inline-start: 0;
+  }
+
   :where(.astra-ui) .astra-analysis-tree__select {
     display: block;
     width: 100%;
@@ -45,7 +50,7 @@
     overflow-wrap: anywhere;
   }
 
-  :where(.astra-ui) .astra-analysis-tree__select[aria-current="page"] {
+  :where(.astra-ui) .astra-analysis-tree__select:where([aria-current="page"]) {
     font-weight: 700;
   }
 

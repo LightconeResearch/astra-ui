@@ -103,4 +103,14 @@ it('can hide the hierarchy explicitly without changing the contents preference',
   expect(container.querySelector('[data-slot="inventory-outline"]')).toBeTruthy();
   rerender(<Inventory document={document} showHierarchy={false} showOutline={false} />);
   expect(container.querySelector('.astra-inventory__sidebar')).toBeNull();
+  expect(container.querySelector('.astra-inventory__layout')?.hasAttribute('data-sidebar')).toBe(false);
+});
+
+it('lets a host recover from a controlled path that stopped resolving', () => {
+  const onSelectAnalysis = vi.fn();
+  render(<Inventory document={document} analysisPath="deleted" onSelectAnalysis={onSelectAnalysis} />);
+  const root = screen.getByRole('button', { name: 'DESI demo' });
+  expect(root.getAttribute('aria-current')).toBe('page');
+  fireEvent.click(root);
+  expect(onSelectAnalysis).toHaveBeenCalledExactlyOnceWith('$');
 });

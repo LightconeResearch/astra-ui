@@ -42,7 +42,7 @@ export interface InventoryProps extends Omit<HTMLAttributes<HTMLDivElement>, 'ch
   /** Prefix for section anchor ids, so several explorers can share a page. */
   idPrefix?: string | undefined;
   showOutline?: boolean | undefined;
-  /** Show project navigation below the outline (default true), independently of host callbacks. */
+  /** Show project navigation below the outline (default true). Hosts controlling `analysisPath` must pair it with `onSelectAnalysis`. */
   showHierarchy?: boolean | undefined;
   labels?: AstraLabelOverrides | undefined;
   renderArtifact?: ArtifactRenderer | undefined;
@@ -118,7 +118,6 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(
   }
   const analysis = index.analysisByPath.get(analysisPath ?? internalAnalysisPath) ?? document.analysis;
   const selectAnalysis = (path: string) => {
-    if (path === analysis.canonicalPath) return;
     if (analysisPath === undefined) setInternalAnalysisPath(path);
     onSelectAnalysis?.(path);
   };
@@ -182,11 +181,11 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(
       ),
     },
   };
-  const anchorId = (section: InventorySectionId) => `${idPrefix}${section.replace('_', '-')}`;
+  const anchorId = (section: InventorySectionId) => `${idPrefix}${section}`;
 
   return (
     <div data-slot="inventory" {...rest} ref={ref} className={cn('astra-inventory', className)}>
-      <div className="astra-inventory__layout">
+      <div className="astra-inventory__layout" data-sidebar={showOutline || showHierarchy ? '' : undefined}>
         <div className="astra-inventory__sections">
           {sections.map((section) => (
             <InventorySection

@@ -28,7 +28,6 @@ function AnalysisNode({
       <button
         type="button"
         className="astra-analysis-tree__select"
-        title={title}
         aria-current={analysis.canonicalPath === selectedPath ? 'page' : undefined}
         onClick={() => { onSelectAnalysis(analysis.canonicalPath); }}
       >
