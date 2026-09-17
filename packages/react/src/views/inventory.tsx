@@ -13,6 +13,7 @@ import { cn } from '../lib/cn.js';
 import { LabelsProvider, useLabels, type AstraLabelOverrides } from '../lib/labels.js';
 import type { OpenPaperFileHandler } from '../components/paper-detail.js';
 import type { PdfJsLoader } from '../lib/pdf-runtime.js';
+import type { OutputStatusLookup } from '../model/output-status.js';
 import { RecordDialog } from '../components/record-dialog.js';
 import { useDetailStack, type DetailEntry } from '../lib/detail-stack.js';
 import type { ArtifactRenderer } from '../components/artifact-preview.js';
@@ -46,6 +47,10 @@ export interface InventoryProps extends Omit<HTMLAttributes<HTMLDivElement>, 'ch
   showHierarchy?: boolean | undefined;
   labels?: AstraLabelOverrides | undefined;
   renderArtifact?: ArtifactRenderer | undefined;
+  /** Host renderer for recorded output provenance, shown below Recipe. */
+  renderProvenance?: ((output: ResolvedOutput) => ReactNode) | undefined;
+  /** Optional execution status, keyed by the host to the selected universe. */
+  getOutputStatus?: OutputStatusLookup | undefined;
   /** Host-provided link to the current code file, shown beside Recipe. */
   renderCodeLink?: ((output: ResolvedOutput) => ReactNode) | undefined;
   renderText?: TextRenderer | undefined;
@@ -96,6 +101,8 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(
   showOutline = true,
   showHierarchy = true,
   renderArtifact,
+  renderProvenance,
+  getOutputStatus,
   renderCodeLink,
   renderText,
   loadPdfJs,
@@ -159,7 +166,7 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(
   const sectionContent: Record<InventorySectionId, { count: number; content: ReactNode }> = {
     outputs: {
       count: analysis.outputs.length,
-      content: <OutputsList analysis={analysis} renderArtifact={renderArtifact} onOpenRecord={openRecord} />,
+      content: <OutputsList analysis={analysis} getOutputStatus={getOutputStatus} renderArtifact={renderArtifact} onOpenRecord={openRecord} />,
     },
     decisions: {
       count: analysis.decisions.length,
@@ -234,6 +241,7 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(
             papers={papers}
             paperMetadata={paperMetadata}
             renderArtifact={renderArtifact}
+            renderProvenance={renderProvenance}
             renderCodeLink={renderCodeLink}
             renderText={renderText}
             loadPdfJs={loadPdfJs}

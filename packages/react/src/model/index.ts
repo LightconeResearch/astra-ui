@@ -9,13 +9,14 @@ export {
   decisionInsights,
   findingEvidence,
   findingLiterature,
+  groupFindingEvidence,
   informedDecisions,
   linkedRecord,
   outputDecisionPaths,
   outputDecisionRoutes,
   outputRelations,
 } from './relations.js';
-export type { FindingEvidenceLink, LinkedRecord, OutputRelations } from './relations.js';
+export type { FindingEvidenceGroup, FindingEvidenceLink, LinkedRecord, OutputRelations } from './relations.js';
 export {
   analysesForPaperView,
   collectInventoryPapers,
@@ -33,3 +34,5 @@ export type {
   PaperFetchStatus,
 } from './papers.js';
 export { doiHref } from './doi.js';
+export type { OutputStatus, OutputStatusLookup } from './output-status.js';
+export type { OutputProvenanceData, OutputRun } from './output-provenance.js';

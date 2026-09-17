@@ -163,8 +163,9 @@ test('source contains no parallel resolver, session, storage, or integration lay
   assert.equal(katexImports, 1, 'katex is imported once, by lib/prose.tsx');
   assert.match(await readFile(new URL('lib/prose.tsx', sourceDirectory), 'utf8'), /from 'katex'/);
   const floatingImports = [...source.matchAll(/from ['"]@floating-ui\/react['"]/g)].length;
-  assert.equal(floatingImports, 1, 'Floating UI is imported once, by primitives/preview-popover.tsx');
+  assert.equal(floatingImports, 2, 'Floating UI stays in the preview-popover and tooltip primitives');
   assert.match(await readFile(new URL('primitives/preview-popover.tsx', sourceDirectory), 'utf8'), /from '@floating-ui\/react'/);
+  assert.match(await readFile(new URL('primitives/tooltip.tsx', sourceDirectory), 'utf8'), /from '@floating-ui\/react'/);
   // Shared presentation is first-class; integrations still supply the runtime.
   assert.doesNotMatch(source, /pdf\.mjs|pdf\.worker|from ['"]pdfjs-dist/);
   assert.doesNotMatch(source, /PaperRenderer|PaperRenderOptions|renderPaper/);
@@ -295,7 +296,7 @@ test('styles are layered, scoped with :where, and free of theme or host selector
   // primitives.css follows the legacy source order (surface-header before dialog, ...).
   const primitives = await readFile(new URL('primitives.css', packageRoot), 'utf8');
   const imports = [...primitives.matchAll(/@import "\.\/styles\/primitives\/([a-z-]+)\.css"/g)].map(([, name]) => name);
-  assert.deepEqual(imports, ['kind', 'surface-header', 'badge', 'button', 'preview-popover', 'dialog', 'detail-layout', 'relation-list', 'count-heading', 'record-list', 'empty-state', 'prose', 'kind-glyph', 'inline-reference'], 'primitives.css import order is part of the cascade');
+  assert.deepEqual(imports, ['kind', 'surface-header', 'badge', 'button', 'preview-popover', 'tooltip', 'dialog', 'detail-layout', 'relation-list', 'count-heading', 'record-list', 'empty-state', 'prose', 'kind-glyph', 'inline-reference'], 'primitives.css import order is part of the cascade');
   const components = await readFile(new URL('components.css', packageRoot), 'utf8');
   assert.match(components, /@import "\.\/styles\/components\/record-preview\.css";/, 'components.css ships record preview styles');
 });

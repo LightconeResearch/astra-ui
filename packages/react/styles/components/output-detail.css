@@ -435,6 +435,11 @@
     border: 0;
   }
 
+  /* The host's provenance slot follows the recipe and carries its own gap. */
+  :where(.astra-ui) .astra-output-detail__provenance > .astra-output-provenance {
+    margin-top: 20px;
+  }
+
   :where(.astra-ui) .astra-output-detail__recipe pre {
     max-height: none;
     margin: 0;

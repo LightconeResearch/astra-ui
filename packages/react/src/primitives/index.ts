@@ -48,5 +48,7 @@ export { Prose } from './prose.js';
 export type { ProseProps } from './prose.js';
 export { KindGlyph } from './kind-glyph.js';
 export type { KindGlyphProps } from './kind-glyph.js';
+export { OutputStatusGlyph } from './output-status-glyph.js';
+export type { OutputStatusGlyphProps } from './output-status-glyph.js';
 export { InlineReference } from './inline-reference.js';
 export type { InlineReferenceProps } from './inline-reference.js';

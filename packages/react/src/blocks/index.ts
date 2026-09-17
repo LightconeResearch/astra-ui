@@ -8,8 +8,8 @@ export type {
   InventoryRecordsProps,
   InventorySectionProps,
 } from './section.js';
-export { OutputCard, OutputsList } from './outputs-list.js';
-export type { OutputCardProps, OutputsListProps } from './outputs-list.js';
+export { OutputsList } from './outputs-list.js';
+export type { OutputsListProps } from './outputs-list.js';
 export { ALL_TAGS, DecisionsList } from './decisions-list.js';
 export type { DecisionsListProps } from './decisions-list.js';
 export { InputsList } from './inputs-list.js';

@@ -102,7 +102,7 @@ Use blocks when your application owns the page layout or routing:
 | Component | Purpose |
 | --- | --- |
 | `AnalysisTree` | Recursive picker for the root analysis and its sub-analyses |
-| `OutputsList`, `OutputCard` | Figure and table galleries plus a list of other outputs, with optional compact artifact previews |
+| `OutputsList` | Figure and table galleries plus a list of other outputs, with optional compact artifact previews |
 | `DecisionsList` | Decision rows, selected options, and a controlled or uncontrolled tag filter |
 | `InputsList` | Inputs with their source and declared type |
 | `FindingsList` | Findings with claims and evidence counts |
@@ -111,6 +111,20 @@ Use blocks when your application owns the page layout or routing:
 
 List components emit records through callbacks such as `onOpenRecord`; they do
 not own application navigation.
+
+### Shared renderers
+
+The blocks above are built from renderers you can place yourself, for one
+record at a time, when you own the run that holds them:
+
+| Component | What it renders |
+| --- | --- |
+| `OutputCard` | A gallery card: compact artifact preview, title, and a type label for non-figures |
+| `OutputEntry` | One output at a glance — a metric as its value, anything else as its name |
+| `PaperRow` | One cited paper: title, byline, and how much of the analysis leans on it |
+
+Each takes the record and an `onOpen` callback, forwards a ref to its button,
+and accepts `className` and `aria-label` overrides.
 
 ### Record and paper details
 
@@ -260,6 +274,20 @@ name merging (`cn`), prose parsing and the label helpers are in `@astra-spec/ui/
   non-visual type is not rendered there.
 - `renderCodeLink(output)` adds an optional action beside Recipe. The host resolves
   the current source file and opens it; return `null` when no file is available.
+- `getOutputStatus(output)` supplies optional execution status for inventory
+  results in the states `lc status` reports: `current`, `behind`, or `stale`,
+  with a `detail` reason. Only behind and stale results show a marker, with
+  `detail` on hover; current results stay quiet. Markers sit at card/pill
+  corners and inside file rows without changing result dimensions. The host owns lookup; unavailable status has no marker.
+  `OutputStatus` and `OutputStatusLookup` are in `@astra-spec/ui/model`, the
+  `OutputStatusGlyph` primitive draws the mark, and the marker's strings are
+  overridable through `labels.status`.
+- `renderProvenance(output)` adds recorded execution information below Recipe in
+  output details. `OutputProvenance` renders a compact status, last-run time and
+  Git revision, with a Details popup for the recorded recipe, input versions,
+  environment and CLI version. Hosts supply `OutputRun` data; `null` means no
+  recorded run, while `undefined` means loading. Copy is configurable through
+  `labels.provenance` and `labels.status`.
 - `renderText(text, { field })` replaces the built-in prose renderer. The
   default understands inline code, `$inline$` math, and `$$display$$` math.
   Hosts that only need custom math commands can reuse that renderer with

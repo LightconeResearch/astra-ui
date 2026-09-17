@@ -42,6 +42,31 @@ export interface AstraLabels {
     openPaper: string;
     locate: string;
   };
+  /** Host-supplied execution status, shown as a marker on inventory results; the states are `lc status`'s. */
+  status: {
+    current: string;
+    behind: string;
+    stale: string;
+    withDetail: (label: string, detail: string) => string;
+  };
+  /** Recorded execution summaries and run details. */
+  provenance: {
+    status: string;
+    runDetails: string;
+    closeDetails: string;
+    noInputs: string;
+    title: string;
+    unknown: string;
+    loading: string;
+    noRun: string;
+    lastRun: string;
+    revision: string;
+    details: string;
+    recipe: string;
+    inputs: string;
+    environment: string;
+    cliVersion: string;
+  };
   /** Figure magnification and panning. */
   figure: {
     controls: string;
@@ -133,6 +158,29 @@ export const defaultLabels: AstraLabels = {
     openPaper: 'Open',
     locate: 'Locate',
   },
+  status: {
+    current: 'Current',
+    behind: 'Behind',
+    stale: 'Stale',
+    withDetail: (label, detail) => `${label}: ${detail}`,
+  },
+  provenance: {
+    status: 'Status',
+    runDetails: 'Run details',
+    closeDetails: 'Close run details',
+    noInputs: 'No input versions recorded.',
+    title: 'Provenance',
+    unknown: 'Status unavailable',
+    loading: 'Loading run record…',
+    noRun: 'No recorded run yet.',
+    lastRun: 'Last run',
+    revision: 'Git revision',
+    details: 'Details',
+    recipe: 'Executed recipe',
+    inputs: 'Input versions',
+    environment: 'Environment',
+    cliVersion: 'Lightcone version',
+  },
   figure: {
     controls: 'Figure zoom',
     zoomIn: 'Zoom figure in',
@@ -199,6 +247,8 @@ function merge(base: AstraLabels, overrides: AstraLabelOverrides): AstraLabels {
     kinds: { ...base.kinds, ...defined(overrides.kinds ?? {}) },
     empty: { ...base.empty, ...defined(overrides.empty ?? {}) },
     actions: { ...base.actions, ...defined(overrides.actions ?? {}) },
+    status: { ...base.status, ...defined(overrides.status ?? {}) },
+    provenance: { ...base.provenance, ...defined(overrides.provenance ?? {}) },
     figure: { ...base.figure, ...defined(overrides.figure ?? {}) },
     pdf: { ...base.pdf, ...defined(overrides.pdf ?? {}) },
     preview: { ...base.preview, ...defined(overrides.preview ?? {}) },
