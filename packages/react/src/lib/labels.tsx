@@ -7,7 +7,6 @@ export interface AstraLabels {
     decisions: string;
     inputs: string;
     findings: string;
-    prior_insights: string;
     papers: string;
   };
   outline: string;
@@ -33,7 +32,6 @@ export interface AstraLabels {
     decisions: string;
     inputs: string;
     findings: string;
-    prior_insights: string;
     papers: string;
   };
   actions: {
@@ -43,6 +41,40 @@ export interface AstraLabels {
     fetchPaper: string;
     openPaper: string;
     locate: string;
+  };
+  /** Host-supplied execution status, shown as a marker on inventory results; the states are `lc status`'s. */
+  status: {
+    current: string;
+    behind: string;
+    stale: string;
+    withDetail: (label: string, detail: string) => string;
+  };
+  /** Recorded execution summaries and run details. */
+  provenance: {
+    status: string;
+    runDetails: string;
+    closeDetails: string;
+    noInputs: string;
+    title: string;
+    unknown: string;
+    loading: string;
+    noRun: string;
+    lastRun: string;
+    revision: string;
+    details: string;
+    recipe: string;
+    inputs: string;
+    environment: string;
+    cliVersion: string;
+  };
+  /** Figure magnification and panning. */
+  figure: {
+    controls: string;
+    zoomIn: string;
+    zoomOut: string;
+    fit: string;
+    zoomLevel: (percent: number) => string;
+    viewport: string;
   };
   /** PDF reading, evidence navigation, and accessible viewer controls. */
   pdf: {
@@ -83,7 +115,6 @@ const SECTION_NOUNS: Record<keyof AstraLabels['sections'], [string, string]> = {
   decisions: ['decision', 'decisions'],
   inputs: ['input', 'inputs'],
   findings: ['finding', 'findings'],
-  prior_insights: ['prior insight', 'prior insights'],
   papers: ['paper', 'papers'],
 };
 
@@ -93,8 +124,7 @@ export const defaultLabels: AstraLabels = {
     decisions: 'Decisions',
     inputs: 'Inputs',
     findings: 'Findings',
-    prior_insights: 'Prior Insights',
-    papers: 'Papers',
+    papers: 'Bibliography',
   },
   outline: 'On this page',
   analysisTree: 'Project hierarchy',
@@ -118,7 +148,6 @@ export const defaultLabels: AstraLabels = {
     decisions: 'No decisions are declared in this analysis.',
     inputs: 'No inputs are declared in this analysis.',
     findings: 'No findings are declared in this analysis.',
-    prior_insights: 'No prior insights are declared in this analysis.',
     papers: 'No supporting papers are linked to this analysis.',
   },
   actions: {
@@ -128,6 +157,37 @@ export const defaultLabels: AstraLabels = {
     fetchPaper: 'Fetch paper',
     openPaper: 'Open',
     locate: 'Locate',
+  },
+  status: {
+    current: 'Current',
+    behind: 'Behind',
+    stale: 'Stale',
+    withDetail: (label, detail) => `${label}: ${detail}`,
+  },
+  provenance: {
+    status: 'Status',
+    runDetails: 'Run details',
+    closeDetails: 'Close run details',
+    noInputs: 'No input versions recorded.',
+    title: 'Provenance',
+    unknown: 'Status unavailable',
+    loading: 'Loading run record…',
+    noRun: 'No recorded run yet.',
+    lastRun: 'Last run',
+    revision: 'Git revision',
+    details: 'Details',
+    recipe: 'Executed recipe',
+    inputs: 'Input versions',
+    environment: 'Environment',
+    cliVersion: 'Lightcone version',
+  },
+  figure: {
+    controls: 'Figure zoom',
+    zoomIn: 'Zoom figure in',
+    zoomOut: 'Zoom figure out',
+    fit: 'Fit figure',
+    zoomLevel: (percent) => `${percent}%`,
+    viewport: 'Figure preview: use arrow keys to pan, + and − to zoom, 0 to fit',
   },
   pdf: {
     loading: 'Loading PDF…',
@@ -187,6 +247,9 @@ function merge(base: AstraLabels, overrides: AstraLabelOverrides): AstraLabels {
     kinds: { ...base.kinds, ...defined(overrides.kinds ?? {}) },
     empty: { ...base.empty, ...defined(overrides.empty ?? {}) },
     actions: { ...base.actions, ...defined(overrides.actions ?? {}) },
+    status: { ...base.status, ...defined(overrides.status ?? {}) },
+    provenance: { ...base.provenance, ...defined(overrides.provenance ?? {}) },
+    figure: { ...base.figure, ...defined(overrides.figure ?? {}) },
     pdf: { ...base.pdf, ...defined(overrides.pdf ?? {}) },
     preview: { ...base.preview, ...defined(overrides.preview ?? {}) },
   } as AstraLabels;

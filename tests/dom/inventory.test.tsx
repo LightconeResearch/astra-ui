@@ -27,8 +27,9 @@ describe('Inventory analysis selection', () => {
     render(<Inventory document={fixtureDocument} analysisPath="not.an.analysis" />);
     expect(screen.getByRole('button', { name: /Headline result/ })).toBeTruthy();
     expect(screen.queryByRole('button', { name: /Correlation function/ })).toBeNull();
-    expect(screen.getByRole('button', { name: /Published method/ })).toBeTruthy();
-    expect(screen.queryByRole('button', { name: /nested_source/ })).toBeNull();
+    // The root's decision, not the nested analysis's; prior insights are no
+    // longer a section, so they cannot witness which analysis is selected.
+    expect(screen.getByRole('button', { name: /Method choice/ })).toBeTruthy();
   });
 
   it('closes an uncontrolled stack exactly once when the analysis changes, without re-opening a survivor', () => {
@@ -185,4 +186,29 @@ describe('Insight source evidence', () => {
       { kind: 'paper', doi: '10.1000/first', analysisPath: '$', focusInsightPath: 'prior_insights.cited' },
     ]);
   });
+});
+
+it('shows only exceptional materialization markers without output glyphs', () => {
+  const statusFor = (output: (typeof fixtureDocument.analysis.outputs)[number]) => ({
+    state: output.type === 'metric' ? 'current' as const : output.type === 'figure' ? 'behind' as const : 'stale' as const,
+    detail: `Status for ${output.id}`,
+  });
+  const { rerender, container } = render(<Inventory document={fixtureDocument} getOutputStatus={statusFor} />);
+  for (const output of fixtureDocument.analysis.outputs) {
+    if (output.type !== 'metric') expect(screen.getByRole('img', { name: new RegExp(`Status for ${output.id}$`) })).toBeTruthy();
+  }
+  expect(screen.queryByText('Current', { exact: true })).toBeNull();
+  expect(container.querySelectorAll('[data-slot="output-card"] [data-slot="kind-glyph"], [data-slot="output-entry"] [data-slot="kind-glyph"]')).toHaveLength(0);
+  rerender(<Inventory document={fixtureDocument} />);
+  expect(container.querySelectorAll('.astra-output-status')).toHaveLength(0);
+});
+
+it('places the host code link beside Recipe in the selected output detail', () => {
+  const open = vi.fn();
+  const codedDocument = { ...fixtureDocument, analysis: { ...fixtureDocument.analysis, outputs: fixtureDocument.analysis.outputs.map(output => ({ ...output, recipe: { command: 'python src/plot.py' } })) } };
+  render(<Inventory document={codedDocument} defaultDetail={[headline]} renderCodeLink={output => <button onClick={() => open(output.canonicalPath)}>Open code</button>} />);
+  const link = screen.getByRole('button', { name: 'Open code' });
+  expect(link.parentElement?.textContent).toContain('Recipe');
+  fireEvent.click(link);
+  expect(open).toHaveBeenCalledExactlyOnceWith('outputs.headline');
 });

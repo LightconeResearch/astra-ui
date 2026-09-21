@@ -4,18 +4,11 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { DetailDialog, DialogProvider, PreviewPopover, Prose } from '../packages/react/dist/primitives/index.js';
 import { renderProse } from '../packages/react/dist/lib/index.js';
-import {
-  ArtifactPreview,
-  OutputDetail,
-  PaperDetail,
-  PaperDialog,
-  RecordDialog,
-  RecordPreview,
-} from '../packages/react/dist/components/index.js';
+import { ArtifactPreview, OutputCard, OutputDetail, PaperDetail, PaperDialog, RecordDialog, RecordPreview } from '../packages/react/dist/components/index.js';
 import { recordEntry } from '../packages/react/dist/lib/index.js';
 import { indexAnalysis } from '@astra-spec/sdk';
 import { collectInventoryPapers } from '../packages/react/dist/model/index.js';
-import { AnalysisTree, OutputCard, OutputsList } from '../packages/react/dist/blocks/index.js';
+import { AnalysisTree, OutputsList } from '../packages/react/dist/blocks/index.js';
 import { Inventory } from '../packages/react/dist/views/index.js';
 import { fixtureDocument } from './fixture.mjs';
 
@@ -38,9 +31,12 @@ test('the composed inventory consumes ResolvedAnalysisDocument directly', () => 
     },
   }));
 
-  for (const label of ['Outputs', 'Decisions', 'Inputs', 'Findings', 'Prior Insights', 'Papers']) {
+  for (const label of ['Outputs', 'Decisions', 'Inputs', 'Findings', 'Bibliography']) {
     assert.match(html, new RegExp(`<h2 id="[a-z-]+" tabindex="-1"><span>${label}</span></h2>`));
   }
+  // Prior insights are reached through the decision or paper that cites them,
+  // never as a section of their own.
+  assert.doesNotMatch(html, /<span>Prior Insights<\/span>/);
   assert.match(html, /Headline result/);
   assert.match(html, /Fiducial/);
   assert.match(html, /A useful paper/);
@@ -274,18 +270,40 @@ test('the record dialog derives relations and evidence from the index', () => {
   assert.match(missing, /<p>gone<\/p>/);
 });
 
-test('the artifact box frames figures and tables, or whatever the host returns, and nothing otherwise', () => {
+test('the artifact box frames figures and tables and nothing else, host renderer or not', () => {
   const index = indexAnalysis(fixtureDocument);
   const figure = index.recordByPath.get('outputs.headline');
   const data = { ...figure, id: 'raw', canonicalPath: 'outputs.raw', type: 'data', format: 'npy' };
   const relations = { inputs: [], decisions: [] };
   const box = /astra-output-detail__artifact/;
+  const hostPreview = () => React.createElement('span', null, 'host preview');
   assert.match(withinUi(React.createElement(OutputDetail, { record: figure, relations })), box);
+  assert.match(withinUi(React.createElement(OutputDetail, { record: figure, relations, renderArtifact: hostPreview })), box);
   assert.doesNotMatch(withinUi(React.createElement(OutputDetail, { record: data, relations })), box);
   assert.doesNotMatch(withinUi(React.createElement(OutputDetail, { record: data, relations, renderArtifact: () => null })), box);
-  const hosted = withinUi(React.createElement(OutputDetail, { record: data, relations, renderArtifact: () => React.createElement('span', null, 'host preview') }));
-  assert.match(hosted, box);
-  assert.match(hosted, /host preview/);
+  // A data file has no picture: an empty reader column would be all whitespace.
+  const hosted = withinUi(React.createElement(OutputDetail, { record: data, relations, renderArtifact: hostPreview }));
+  assert.doesNotMatch(hosted, box);
+  assert.match(hosted, /data-layout="single"/);
+});
+
+test('a metric shows the host rendering as a pill above the description', () => {
+  const index = indexAnalysis(fixtureDocument);
+  const figure = index.recordByPath.get('outputs.headline');
+  const metric = { ...figure, id: 'alpha', canonicalPath: 'outputs.alpha', type: 'metric', format: 'json' };
+  const relations = { inputs: [], decisions: [] };
+  const hosted = withinUi(React.createElement(OutputDetail, {
+    record: metric,
+    relations,
+    renderArtifact: () => React.createElement('span', null, '0.9971'),
+  }));
+  assert.doesNotMatch(hosted, /astra-output-detail__artifact/);
+  assert.match(hosted, /data-layout="single"/);
+  assert.match(hosted, /astra-output-detail__metric-pill[\s\S]*0\.9971/);
+  assert.match(hosted, /<h4>Metric<\/h4>[\s\S]*<h4>Description<\/h4>/);
+  // Nothing to show without a host rendering: the description stays first.
+  const bare = withinUi(React.createElement(OutputDetail, { record: metric, relations }));
+  assert.doesNotMatch(bare, /astra-output-detail__metric/);
 });
 
 test('a figure whose host renderer opts out falls back to the single-column layout', () => {
@@ -318,6 +336,35 @@ test('output dialogs list every decision on a dependency path in one list, inclu
   assert.match(html, /Method choice[\s\S]*Weighting scheme/);
   // Titles stand alone: no canonical-path subtitle under resolved records.
   assert.doesNotMatch(html, /decisions\.method/);
+});
+
+test('an inherited decision names every upstream origin to assistive technology, even read-only', () => {
+  const index = indexAnalysis(fixtureDocument);
+  const figure = index.recordByPath.get('outputs.headline');
+  const method = index.recordByPath.get('decisions.method');
+  const upstream = { ...figure, id: 'upstream', label: 'Upstream fit', canonicalPath: 'outputs.upstream' };
+  const loop = { ...figure, id: 'loop', label: 'Loop fit', canonicalPath: 'outputs.loop' };
+  const relations = {
+    inputs: [],
+    decisions: [{
+      canonicalPath: method.canonicalPath,
+      record: method,
+      analysis: fixtureDocument.analysis,
+      via: [
+        { canonicalPath: upstream.canonicalPath, record: upstream, analysis: fixtureDocument.analysis },
+        { canonicalPath: loop.canonicalPath, record: loop, analysis: fixtureDocument.analysis },
+      ],
+    }],
+  };
+  // No onOpenRecord: the row is a plain list item with no aria-label to carry the list.
+  const html = withinUi(React.createElement(OutputDetail, { record: figure, relations }));
+  assert.doesNotMatch(html, /astra-relation-list__trigger/);
+  assert.match(html, /<span aria-hidden="true">via Upstream fit \+1 more<\/span>/);
+  assert.match(html, /<span class="astra-output-detail__visually-hidden">via Upstream fit, Loop fit<\/span>/);
+  // A single origin reads in full with no hidden copy.
+  const single = withinUi(React.createElement(OutputDetail, { record: figure, relations: { ...relations, decisions: [{ ...relations.decisions[0], via: relations.decisions[0].via.slice(0, 1) }] } }));
+  assert.match(single, /<small>via Upstream fit<\/small>/);
+  assert.doesNotMatch(single, /visually-hidden/);
 });
 
 test('output cards carry an accessible name instead of their preview cells', () => {

@@ -36,6 +36,10 @@ export interface RecordDialogProps extends Pick<DetailDialogProps, 'mode' | 'bac
   papers?: readonly InventoryPaper[] | undefined;
   paperMetadata?: InventoryPaperMetadataMap | undefined;
   renderArtifact?: ArtifactRenderer | undefined;
+  /** Host renderer for recorded output provenance, shown below Recipe. */
+  renderProvenance?: ((output: ResolvedOutput) => ReactNode) | undefined;
+  /** Host-provided link to the current code file, shown beside Recipe. */
+  renderCodeLink?: ((output: ResolvedOutput) => ReactNode) | undefined;
   renderText?: TextRenderer | undefined;
   loadPdfJs?: PdfJsLoader | undefined;
   onOpenPaperFile?: OpenPaperFileHandler | undefined;
@@ -69,6 +73,8 @@ export function RecordDialog({
   papers = [],
   paperMetadata = {},
   renderArtifact,
+  renderProvenance,
+  renderCodeLink,
   renderText,
   loadPdfJs,
   onOpenPaperFile,
@@ -137,6 +143,8 @@ export function RecordDialog({
               record={record}
               relations={outputRelations(index, record)}
               renderArtifact={renderArtifact}
+              renderProvenance={renderProvenance}
+              renderCodeLink={renderCodeLink}
               renderText={renderText}
               onOpenRecord={onOpenRecord}
               expanded={expanded}
@@ -172,12 +180,16 @@ export function RecordDialog({
         chrome = {
           kind: 'finding',
           kindLabel: labels.kinds.finding,
-          title: record.claim,
+          // The claim is a paragraph, not a name: it leads the body instead,
+          // where it can wrap. The header takes the record's own name, as
+          // every other kind does.
+          title: recordTitle(record),
           body: (
             <FindingDetail
               record={record}
               evidence={findingEvidence(index, record)}
               renderText={renderText}
+              renderArtifact={renderArtifact}
               onOpenRecord={onOpenRecord}
             />
           ),

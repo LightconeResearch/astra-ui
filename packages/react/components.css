@@ -1,6 +1,7 @@
 /* Primitives plus the ASTRA-aware components (details and dialogs). */
 @import "./primitives.css";
 @import "./styles/components/artifact-preview.css";
+@import "./styles/components/figure-zoom.css";
 @import "./styles/components/paper-detail.css";
 @import "./styles/components/paper-pdf-viewer.css";
 @import "./styles/components/evidence.css";
@@ -12,4 +13,9 @@
 @import "./styles/components/paper-doi.css";
 @import "./styles/components/finding-detail.css";
 @import "./styles/components/output-detail.css";
+@import "./styles/components/output-card.css";
+@import "./styles/components/output-entry.css";
+@import "./styles/components/output-provenance.css";
+@import "./styles/components/output-status.css";
+@import "./styles/components/paper-row.css";
 @import "./styles/components/record-preview.css";

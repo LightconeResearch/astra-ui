@@ -37,7 +37,8 @@
 
   @media print {
     :where(.astra-ui) .astra-dialog:not([data-mode="embedded"]),
-    :where(.astra-ui) .astra-inventory-outline {
+    :where(.astra-ui) .astra-inventory-outline,
+    :where(.astra-ui) .astra-inventory__sidebar {
       display: none;
     }
 

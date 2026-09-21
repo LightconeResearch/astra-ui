@@ -62,7 +62,7 @@ async function stylesText({ includeTokens = true } = {}) {
   return stripComments((await Promise.all(files.map((url) => readFile(url, 'utf8')))).join('\n'));
 }
 
-test('the package depends on the SDK model, floating positioning, and host React only', async () => {
+test('the package declares its host peers and presentation dependencies explicitly', async () => {
   const manifest = await parse(new URL('package.json', packageRoot));
 
   assert.equal(manifest.name, '@astra-spec/ui');
@@ -73,7 +73,8 @@ test('the package depends on the SDK model, floating positioning, and host React
   assert.deepEqual(manifest.dependencies, {
     '@floating-ui/react': '^0.27.20',
     katex: '^0.16.47',
-  }, 'Floating UI positions accessible previews and KaTeX typesets authored math');
+    'react-zoom-pan-pinch': '^4.2.0',
+  }, 'Floating UI positions previews, KaTeX typesets math, and react-zoom-pan-pinch handles figure gestures');
   assert.equal(manifest.scripts.prepack, 'npm run build');
   assert.ok(manifest.files.includes('LICENSE'));
   assert.ok(manifest.files.includes('src'), 'source ships for go-to-definition');
@@ -162,8 +163,9 @@ test('source contains no parallel resolver, session, storage, or integration lay
   assert.equal(katexImports, 1, 'katex is imported once, by lib/prose.tsx');
   assert.match(await readFile(new URL('lib/prose.tsx', sourceDirectory), 'utf8'), /from 'katex'/);
   const floatingImports = [...source.matchAll(/from ['"]@floating-ui\/react['"]/g)].length;
-  assert.equal(floatingImports, 1, 'Floating UI is imported once, by primitives/preview-popover.tsx');
+  assert.equal(floatingImports, 2, 'Floating UI stays in the preview-popover and tooltip primitives');
   assert.match(await readFile(new URL('primitives/preview-popover.tsx', sourceDirectory), 'utf8'), /from '@floating-ui\/react'/);
+  assert.match(await readFile(new URL('primitives/tooltip.tsx', sourceDirectory), 'utf8'), /from '@floating-ui\/react'/);
   // Shared presentation is first-class; integrations still supply the runtime.
   assert.doesNotMatch(source, /pdf\.mjs|pdf\.worker|from ['"]pdfjs-dist/);
   assert.doesNotMatch(source, /PaperRenderer|PaperRenderOptions|renderPaper/);
@@ -294,7 +296,7 @@ test('styles are layered, scoped with :where, and free of theme or host selector
   // primitives.css follows the legacy source order (surface-header before dialog, ...).
   const primitives = await readFile(new URL('primitives.css', packageRoot), 'utf8');
   const imports = [...primitives.matchAll(/@import "\.\/styles\/primitives\/([a-z-]+)\.css"/g)].map(([, name]) => name);
-  assert.deepEqual(imports, ['kind', 'surface-header', 'badge', 'button', 'preview-popover', 'dialog', 'detail-layout', 'relation-list', 'count-heading', 'record-list', 'empty-state', 'prose', 'kind-glyph', 'inline-reference'], 'primitives.css import order is part of the cascade');
+  assert.deepEqual(imports, ['kind', 'surface-header', 'badge', 'button', 'preview-popover', 'tooltip', 'dialog', 'detail-layout', 'relation-list', 'count-heading', 'record-list', 'empty-state', 'prose', 'kind-glyph', 'inline-reference'], 'primitives.css import order is part of the cascade');
   const components = await readFile(new URL('components.css', packageRoot), 'utf8');
   assert.match(components, /@import "\.\/styles\/components\/record-preview\.css";/, 'components.css ships record preview styles');
 });

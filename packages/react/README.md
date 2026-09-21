@@ -82,13 +82,15 @@ optional outline and a drill-down detail stack.
 
 Its most useful options are:
 
-- `analysisPath` selects a nested analysis (`$` is the project root).
+- Inventory shows the project hierarchy and handles navigation automatically; `<Inventory document={document} />` is sufficient.
+- Pass `analysisPath` with `onSelectAnalysis` to control selection from the host (`$` is the project root). The callback alone observes navigation without taking over state.
 - `sections` changes which inventory sections appear and their order.
 - `showOutline` and `idPrefix` control outline navigation.
 - `renderArtifact` and `renderText` replace host-owned content.
 - `loadPdfJs` enables the built-in PDF viewer; `onOpenPaperFile` overrides external PDF opening.
 - `paperMetadata` and `onFetchPaper` connect paper loading to host state.
 - `detail`, `defaultDetail`, and `onDetailChange` control the detail stack.
+- `showHierarchy={false}` hides project navigation independently of `showOutline`. On narrow panels the hierarchy moves above the sections so navigation remains available. Internal navigation preserves selection through refresh, falls back to the root when the selected analysis disappears, and closes uncontrolled record details on selection changes.
 - `detailMode="embedded"` renders details as an inline panel instead of a modal.
 - `labels` overrides user-facing strings.
 - `index` accepts an `AnalysisIndex` the host has already built.
@@ -100,16 +102,29 @@ Use blocks when your application owns the page layout or routing:
 | Component | Purpose |
 | --- | --- |
 | `AnalysisTree` | Recursive picker for the root analysis and its sub-analyses |
-| `OutputsList`, `OutputCard` | Figure and table galleries plus a list of other outputs, with optional compact artifact previews |
+| `OutputsList` | Figure and table galleries plus a list of other outputs, with optional compact artifact previews |
 | `DecisionsList` | Decision rows, selected options, and a controlled or uncontrolled tag filter |
 | `InputsList` | Inputs with their source and declared type |
 | `FindingsList` | Findings with claims and evidence counts |
-| `PriorInsightsList` | Prior insights with claims and source counts |
 | `PapersList`, `PaperRows` | Cited papers derived with `collectInventoryPapers` |
 | `InventorySection`, `InventoryRecords`, `InventoryOutline` | Section chrome, kind-aware record layout, and anchor navigation for custom inventories |
 
 List components emit records through callbacks such as `onOpenRecord`; they do
 not own application navigation.
+
+### Shared renderers
+
+The blocks above are built from renderers you can place yourself, for one
+record at a time, when you own the run that holds them:
+
+| Component | What it renders |
+| --- | --- |
+| `OutputCard` | A gallery card: compact artifact preview, title, and a type label for non-figures |
+| `OutputEntry` | One output at a glance — a metric as its value, anything else as its name |
+| `PaperRow` | One cited paper: title, byline, and how much of the analysis leans on it |
+
+Each takes the record and an `onOpen` callback, forwards a ref to its button,
+and accepts `className` and `aria-label` overrides.
 
 ### Record and paper details
 
@@ -127,6 +142,15 @@ Each ASTRA record kind has both a dialog and a dialog-free detail body:
 Use a `*Dialog` when you already have the record and any derived relationship
 data. Use the corresponding `*Detail` inside a sidebar, route, or your own
 dialog shell.
+
+Figure outputs zoom directly in the detail view, from the fitted view (100%) to
+400%. The zoom buttons overlay the bottom-right corner without reducing the
+figure area. Drag to pan, scroll or pinch to zoom; the
+focused figure also accepts arrow keys to pan, `+`/`-` to zoom and `0` to fit.
+Reopening the output starts fitted again. These
+controls use `react-zoom-pan-pinch` to magnify the host's existing figure rendering;
+artifact loading stays with the host. Double-click toggles magnification. Labels
+are overridable through `labels.figure`.
 
 `RecordDialog` is the generic alternative. Given a `DetailEntry`, resolved
 document, and SDK index, it selects the correct detail UI and derives the
@@ -244,7 +268,26 @@ name merging (`cn`), prose parsing and the label helpers are in `@astra-spec/ui/
 ## Host extension points
 
 - `renderArtifact(output, { compact })` renders host-decoded artifact content.
-  Without it, outputs use `ArtifactPreview`'s unavailable state.
+  Without it, outputs use `ArtifactPreview`'s unavailable state. Compact previews
+  ask it for every output type; the output detail frames only a figure or a table
+  and asks for a metric's value as a compact pill, so a data file or another
+  non-visual type is not rendered there.
+- `renderCodeLink(output)` adds an optional action beside Recipe. The host resolves
+  the current source file and opens it; return `null` when no file is available.
+- `getOutputStatus(output)` supplies optional execution status for inventory
+  results in the states `lc status` reports: `current`, `behind`, or `stale`,
+  with a `detail` reason. Only behind and stale results show a marker, with
+  `detail` on hover; current results stay quiet. Markers sit at card/pill
+  corners and inside file rows without changing result dimensions. The host owns lookup; unavailable status has no marker.
+  `OutputStatus` and `OutputStatusLookup` are in `@astra-spec/ui/model`, the
+  `OutputStatusGlyph` primitive draws the mark, and the marker's strings are
+  overridable through `labels.status`.
+- `renderProvenance(output)` adds recorded execution information below Recipe in
+  output details. `OutputProvenance` renders a compact status, last-run time and
+  Git revision, with a Details popup for the recorded recipe, input versions,
+  environment and CLI version. Hosts supply `OutputRun` data; `null` means no
+  recorded run, while `undefined` means loading. Copy is configurable through
+  `labels.provenance` and `labels.status`.
 - `renderText(text, { field })` replaces the built-in prose renderer. The
   default understands inline code, `$inline$` math, and `$$display$$` math.
   Hosts that only need custom math commands can reuse that renderer with

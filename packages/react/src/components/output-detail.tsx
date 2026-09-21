@@ -10,6 +10,7 @@ import { Prose } from '../primitives/prose.js';
 import type { TextRenderer } from '../lib/prose.js';
 import { RelationList } from '../primitives/relation-list.js';
 import { relationItemsForLinks } from './relation-items.js';
+import { FigureZoom } from './figure-zoom.js';
 import type { OpenRecordHandler } from '../lib/detail-stack.js';
 
 export interface OutputPreviewProps {
@@ -26,19 +27,28 @@ export function OutputPreview({ output, compact = false, renderArtifact }: Outpu
 }
 
 /**
- * What the detail shows in its artifact box: the host's rendering when it
- * returns one, the built-in preview for figures and tables, nothing for other
- * output types (a data file or a metric has no picture to frame).
+ * What the detail shows in its artifact box: only a figure or a table has a
+ * picture to frame, rendered by the host when it supplies a renderer. A data
+ * file or a metric gets no box — an empty reader column is all whitespace —
+ * so the host renderer is not consulted for them here; `OutputPreview` still
+ * asks it for the compact preview of any type, and a metric's value is asked
+ * for as a compact rendering below.
  */
 function artifactNode(output: ResolvedOutput, renderArtifact: ArtifactRenderer | undefined): ReactNode {
-  if (renderArtifact) return renderArtifact(output, { compact: false });
-  return isVisualOutput(output) ? <ArtifactPreview output={output} compact={false} /> : null;
+  if (!isVisualOutput(output)) return null;
+  return renderArtifact
+    ? renderArtifact(output, { compact: false })
+    : <ArtifactPreview output={output} compact={false} />;
 }
 
 export interface OutputDetailProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
   record: ResolvedOutput;
   relations: OutputRelations;
   renderArtifact?: ArtifactRenderer | undefined;
+  /** Recorded execution information, shown below Recipe. */
+  renderProvenance?: ((output: ResolvedOutput) => ReactNode) | undefined;
+  /** Host-provided link to the current code file, shown beside Recipe. */
+  renderCodeLink?: ((output: ResolvedOutput) => ReactNode) | undefined;
   renderText?: TextRenderer | undefined;
   onOpenRecord?: OpenRecordHandler | undefined;
   /** Full-screen artifact state (controlled). */
@@ -46,11 +56,42 @@ export interface OutputDetailProps extends Omit<HTMLAttributes<HTMLDivElement>, 
   onExpandedChange?: ((expanded: boolean) => void) | undefined;
 }
 
+/**
+ * One decision per row. A decision the output declares reads plainly; one it
+ * inherits says which upstream output carries it, so a list that mixes the two
+ * still shows where each came from.
+ */
+function decisionDependencyItems(relations: OutputRelations, onOpenRecord: OpenRecordHandler | undefined) {
+  return relationItemsForLinks(relations.decisions, onOpenRecord).map((item, index) => {
+    const via = relations.decisions[index]?.via;
+    const origins = via?.map(({ record, canonicalPath }) => record ? recordTitle(record) : canonicalPath);
+    if (!origins?.length) return item;
+    const detail = `via ${origins.join(', ')}`;
+    return {
+      ...item,
+      // The truncated text is for sighted readers; assistive technology gets
+      // the full list, whether or not the row becomes a navigation trigger
+      // (only a trigger carries `accessibleLabel`).
+      detail: origins.length > 1
+        ? (
+          <span title={detail}>
+            <span aria-hidden="true">via {origins[0]} +{origins.length - 1} more</span>
+            <span className="astra-output-detail__visually-hidden">{detail}</span>
+          </span>
+        )
+        : detail,
+      accessibleLabel: item.accessibleLabel ? `${item.accessibleLabel}, ${detail}` : undefined,
+    };
+  });
+}
+
 /** Artifact preview with provenance: description, recipe, alias, decisions, and inputs. */
 export const OutputDetail = forwardRef<HTMLDivElement, OutputDetailProps>(function OutputDetail({
   record: output,
   relations,
   renderArtifact,
+  renderProvenance,
+  renderCodeLink,
   renderText,
   onOpenRecord,
   expanded = false,
@@ -60,6 +101,10 @@ export const OutputDetail = forwardRef<HTMLDivElement, OutputDetailProps>(functi
 }, ref) {
   const labels = useLabels();
   const artifact = artifactNode(output, renderArtifact);
+  // A metric's whole artifact is one number: it reads as a pill at the head of
+  // the provenance, above the description, not as a figure stretched across a
+  // reader column.
+  const metric = output.type === 'metric' ? renderArtifact?.(output, { compact: true }) : null;
   // Reader layout (artifact column + details rail) only when there is an
   // artifact to frame: a host renderer may opt out of a figure or table by
   // returning null, and the details then take the single column instead.
@@ -110,6 +155,12 @@ export const OutputDetail = forwardRef<HTMLDivElement, OutputDetailProps>(functi
 
   const supportingDetails = (
     <aside className="astra-output-detail__provenance" aria-label="Output provenance and dependencies">
+      {metric ? (
+        <section className="astra-output-detail__metric">
+          <h4>Metric</h4>
+          <div className="astra-output-detail__metric-pill">{metric}</div>
+        </section>
+      ) : null}
       {output.description ? (
         <section className="astra-output-detail__description">
           <h4>Description</h4>
@@ -129,7 +180,7 @@ export const OutputDetail = forwardRef<HTMLDivElement, OutputDetailProps>(functi
       <RelationList
         className="astra-detail__relations"
         title="Decision dependencies"
-        items={relationItemsForLinks(relations.decisions, onOpenRecord)}
+        items={decisionDependencyItems(relations, onOpenRecord)}
         empty="No decisions affect this output."
       />
       <RelationList
@@ -142,13 +193,17 @@ export const OutputDetail = forwardRef<HTMLDivElement, OutputDetailProps>(functi
       />
       {output.recipe?.command ? (
         <section className="astra-output-detail__recipe">
-          <h4>Recipe</h4>
+          <div className="astra-output-detail__recipe-heading">
+            <h4>Recipe</h4>
+            {renderCodeLink?.(output)}
+          </div>
           <pre><code>{output.recipe.command}</code></pre>
           {output.recipe.container
             ? <p>Container: <code>{output.recipe.container}</code></p>
             : null}
         </section>
       ) : null}
+      {renderProvenance?.(output)}
     </aside>
   );
 
@@ -183,7 +238,9 @@ export const OutputDetail = forwardRef<HTMLDivElement, OutputDetailProps>(functi
             </div>
           ) : null}
           <div className="astra-output-detail__preview" data-type={output.type}>
-            {artifact}
+            {output.type === 'figure'
+              ? <FigureZoom key={output.canonicalPath}>{artifact}</FigureZoom>
+              : artifact}
           </div>
         </div>
         ) : null}
@@ -201,10 +258,10 @@ export interface OutputDialogActionsProps {
   onExpandedChange: (expanded: boolean) => void;
 }
 
-/** Header actions for an output: open the artifact in the host, enter full screen. */
+/** Header actions: open the artifact in the host, or expand a table. */
 export function OutputDialogActions({ record: output, onOpenArtifact, expanded, onExpandedChange }: OutputDialogActionsProps) {
   const labels = useLabels();
-  const visual = isVisualOutput(output);
+  const canExpand = output.type === 'table';
   return (
     <>
       {onOpenArtifact && output.artifact ? (
@@ -213,7 +270,7 @@ export function OutputDialogActions({ record: output, onOpenArtifact, expanded, 
           <span>{labels.actions.openArtifact}</span>
         </DialogAction>
       ) : null}
-      {visual ? (
+      {canExpand ? (
         <DialogAction
           aria-label={`View ${output.type} full screen`}
           aria-expanded={expanded}
@@ -226,4 +283,3 @@ export function OutputDialogActions({ record: output, onOpenArtifact, expanded, 
     </>
   );
 }
-
