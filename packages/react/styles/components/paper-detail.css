@@ -136,11 +136,29 @@
     border: 0;
   }
 
+  /* The mark leads the row, as it does wherever else a record is listed; the
+     claim and the actions under it share the column beside it. */
   :where(.astra-ui) .astra-paper-detail__insights > .astra-paper-insight {
+    display: grid;
+    grid-template-columns: 22px minmax(0, 1fr);
+    gap: 0 8.8px;
+    align-items: start;
     border: 0;
     border-radius: 0;
     background: transparent;
     padding: 12px 6px;
+  }
+
+  /* Spans the row so one mark covers the whole insight, and sits on the
+     claim's first line rather than the padding box. */
+  :where(.astra-ui) .astra-paper-insight__glyph {
+    grid-row: 1 / -1;
+    margin-top: 3.52px;
+  }
+
+  :where(.astra-ui) .astra-paper-insight__claim,
+  :where(.astra-ui) .astra-paper-insight__sources {
+    grid-column: 2;
   }
 
   :where(.astra-ui) .astra-paper-detail__insights > .astra-paper-insight + .astra-paper-insight {

@@ -1,3 +1,4 @@
+import { KindGlyph } from '../primitives/kind-glyph.js';
 import type { ResolvedDecision, ResolvedEvidence, ResolvedInsight } from '@astra-spec/sdk';
 import { forwardRef, useCallback, useId, useMemo, useRef, useState, type HTMLAttributes } from 'react';
 import { doiHref } from '../model/doi.js';
@@ -125,6 +126,7 @@ export const PaperDetail = forwardRef<HTMLDivElement, PaperDetailProps>(function
               <div className="astra-paper-decisions__picker">
                 <label className="astra-paper-decisions__picker-label" htmlFor={pickerId}>Informs decision:</label>
                 <div className="astra-paper-decisions__picker-row">
+                  <KindGlyph kind="decision" />
                   <select
                     id={pickerId}
                     value={decisionFilter ?? ''}
@@ -156,6 +158,7 @@ export const PaperDetail = forwardRef<HTMLDivElement, PaperDetailProps>(function
               const evidence = paperEvidence(insight, paper.doi);
               return (
                 <li key={insight.canonicalPath} className="astra-evidence__item astra-paper-insight">
+                  <KindGlyph className="astra-paper-insight__glyph" kind="prior_insight" />
                   <div className="astra-paper-insight__claim">
                     <Prose text={insight.claim} field="claim" renderText={renderText} />
                   </div>

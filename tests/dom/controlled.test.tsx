@@ -79,4 +79,29 @@ describe('PaperDetail decision filter', () => {
     expect(insights().length).toBe(2);
     expect(screen.getByText('Insights from this paper')).toBeTruthy();
   });
+
+  // The rail is one of the places a reader meets these records, so it carries
+  // the same marks as everywhere else: the kind is readable at a glance here
+  // too, not only where the record is named in full.
+  it('marks every insight it lists and the decisions it filters by', () => {
+    const paper = collectInventoryPapers(fixtureDocument, index, fixtureDocument.analysis)[0];
+    if (!paper) throw new Error('fixture paper missing');
+    const onOpenDecision = vi.fn();
+    const { container } = render(<PaperDetail record={paper} onOpenDecision={onOpenDecision} />);
+
+    const rows = [...container.querySelectorAll('.astra-paper-insight')];
+    expect(rows.length).toBe(2);
+    for (const row of rows) {
+      expect(row.querySelector('[data-slot="kind-glyph"][data-kind="prior_insight"]')).toBeTruthy();
+    }
+
+    const picker = screen.getByRole('combobox', { name: /Informs decision/ });
+    expect(picker.parentElement?.querySelector('[data-slot="kind-glyph"][data-kind="decision"]')).toBeTruthy();
+
+    // The open action belongs to the decision picked, and appears only once one is.
+    expect(screen.queryByRole('button', { name: /^Open decision/ })).toBeNull();
+    fireEvent.change(picker, { target: { value: paper.decisions[0]?.canonicalPath } });
+    fireEvent.click(screen.getByRole('button', { name: /^Open decision/ }));
+    expect(onOpenDecision).toHaveBeenCalledWith(paper.decisions[0]);
+  });
 });
