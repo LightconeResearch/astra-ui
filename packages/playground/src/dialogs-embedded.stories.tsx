@@ -69,6 +69,26 @@ export const Paper: Story = () => {
         loadPdfJs={loadPdfJs}
         onFetchPaper={noop}
         onOpenInsight={noop}
+        onClose={noop}
+      />
+    </DialogProvider>
+  );
+};
+
+// The rail's decision picker only exists on a paper some decision cites, and
+// the first fixture paper is cited by none: without this story no screenshot
+// covers the picker, its decision mark, or the open action beside it.
+export const PaperInformingDecisions: Story = () => {
+  const papers = collectInventoryPapers(analysisDocument, index, analysisDocument.analysis, paperMetadata);
+  const paper = papers.find((candidate) => candidate.decisions.length > 1);
+  if (!paper) throw new Error('Fixture has no paper informing more than one decision');
+  return (
+    <DialogProvider mode="embedded">
+      <PaperDialog
+        record={paper}
+        loadPdfJs={loadPdfJs}
+        onFetchPaper={noop}
+        onOpenInsight={noop}
         onOpenDecision={noop}
         onClose={noop}
       />

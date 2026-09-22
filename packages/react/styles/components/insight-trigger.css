@@ -20,10 +20,17 @@
 
   :where(.astra-ui) .astra-insight-trigger:where([data-variant="claim"]) {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-columns: 22px minmax(0, 1fr);
     gap: 8.8px;
     align-items: start;
     color: var(--astra-color-text-muted);
+    padding: 10px 4px;
+  }
+
+  /* On the claim's first line, not the padding box: the mark reads as part of
+     the sentence it stands for. */
+  :where(.astra-ui) .astra-insight-trigger__glyph {
+    margin-top: 3.52px;
   }
 
   :where(.astra-ui) .astra-insight-trigger:where([data-variant="claim"]):hover {
@@ -36,11 +43,6 @@
 
   :where(.astra-ui) .astra-insight-trigger__claim > :last-child {
     margin-bottom: 0;
-  }
-
-  :where(.astra-ui) .astra-insight-trigger:where([data-variant="claim"]) {
-    grid-template-columns: 22px minmax(0, 1fr);
-    padding: 10px 4px;
   }
 
   :where(.astra-ui) .astra-insight-trigger__claim {

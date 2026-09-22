@@ -54,24 +54,54 @@ describe('Slot prop merging', () => {
 });
 
 describe('PaperDetail decision filter', () => {
-  it('narrows the insights to one decision and only then offers to open it', () => {
+  it('narrows the insights to the one decision picked, and restores them', () => {
+    const paper = collectInventoryPapers(fixtureDocument, index, fixtureDocument.analysis)[0];
+    if (!paper) throw new Error('fixture paper missing');
+    const onOpenInsight = vi.fn();
+    render(<PaperDetail record={paper} onOpenInsight={onOpenInsight} />);
+
+    const insights = () => screen.getAllByRole('button', { name: /^Open insight details/ });
+    // Two insights on this paper, one of which no decision cites.
+    expect(insights().length).toBe(2);
+
+    const picker = screen.getByRole('combobox', { name: /Informs decision/ });
+    fireEvent.change(picker, { target: { value: paper.decisions[0]?.canonicalPath } });
+    expect((picker as HTMLSelectElement).value).toBe(paper.decisions[0]?.canonicalPath);
+    expect(insights().length).toBe(1);
+
+    // The claim is prose, not a control: only its name opens the insight.
+    const [first] = insights();
+    if (!first) throw new Error('no insight rendered');
+    fireEvent.click(first);
+    expect(onOpenInsight).toHaveBeenCalledTimes(1);
+
+    fireEvent.change(picker, { target: { value: '' } });
+    expect(insights().length).toBe(2);
+    expect(screen.getByText('Insights from this paper')).toBeTruthy();
+  });
+
+  // The rail is one of the places a reader meets these records, so it carries
+  // the same marks as everywhere else: the kind is readable at a glance here
+  // too, not only where the record is named in full.
+  it('marks every insight it lists and the decisions it filters by', () => {
     const paper = collectInventoryPapers(fixtureDocument, index, fixtureDocument.analysis)[0];
     if (!paper) throw new Error('fixture paper missing');
     const onOpenDecision = vi.fn();
-    render(<PaperDetail record={paper} onOpenDecision={onOpenDecision} />);
+    const { container } = render(<PaperDetail record={paper} onOpenDecision={onOpenDecision} />);
 
-    expect(screen.queryByRole('button', { name: /^Open Method choice/ })).toBeNull();
-    const chip = screen.getByRole('button', { name: 'Method choice' });
-    fireEvent.click(chip);
-    expect(chip.getAttribute('aria-pressed')).toBe('true');
-    expect(screen.getByText('Insights for Method choice')).toBeTruthy();
+    const rows = [...container.querySelectorAll('.astra-paper-insight')];
+    expect(rows.length).toBe(2);
+    for (const row of rows) {
+      expect(row.querySelector('[data-slot="kind-glyph"][data-kind="prior_insight"]')).toBeTruthy();
+    }
 
-    fireEvent.click(screen.getByRole('button', { name: /^Open Method choice/ }));
+    const picker = screen.getByRole('combobox', { name: /Informs decision/ });
+    expect(picker.parentElement?.querySelector('[data-slot="kind-glyph"][data-kind="decision"]')).toBeTruthy();
+
+    // The open action belongs to the decision picked, and appears only once one is.
+    expect(screen.queryByRole('button', { name: /^Open decision/ })).toBeNull();
+    fireEvent.change(picker, { target: { value: paper.decisions[0]?.canonicalPath } });
+    fireEvent.click(screen.getByRole('button', { name: /^Open decision/ }));
     expect(onOpenDecision).toHaveBeenCalledWith(paper.decisions[0]);
-
-    fireEvent.click(chip);
-    expect(chip.getAttribute('aria-pressed')).toBe('false');
-    expect(screen.queryByRole('button', { name: /^Open Method choice/ })).toBeNull();
-    expect(screen.getByText('Insights from this paper')).toBeTruthy();
   });
 });

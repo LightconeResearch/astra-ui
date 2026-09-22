@@ -21,7 +21,7 @@ export interface InsightEvidenceTitleProps {
 export function InsightEvidenceTitle({ name, tag }: InsightEvidenceTitleProps) {
   return (
     <span className="astra-evidence__title">
-      <KindGlyph className="astra-evidence__glyph--insight" kind="prior_insight" />
+      <KindGlyph kind="prior_insight" />
       <span className="astra-evidence__name">{name}</span>
       {tag ? <span className="astra-evidence__tag">{tag}</span> : null}
     </span>
@@ -79,7 +79,7 @@ export const InsightTrigger = forwardRef<HTMLElement, InsightTriggerProps>(funct
         onClick={open}
         onKeyDown={keyOpen}
       >
-        <KindGlyph className="astra-evidence__glyph--insight" kind="prior_insight" />
+        <KindGlyph className="astra-insight-trigger__glyph" kind="prior_insight" />
         <div className="astra-insight-trigger__claim">
           <Prose text={insight.claim} field="claim" renderText={renderText} />
         </div>

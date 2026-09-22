@@ -39,8 +39,4 @@
     font: 700 var(--astra-font-size)/1.2 var(--astra-font-ui);
   }
 
-  :where(.astra-ui) .astra-paper-detail__rail .astra-insight-list {
-    margin-top: 22px;
-  }
-
 }

@@ -15,6 +15,23 @@ const publishedMethod = {
   }],
 };
 
+// Same paper as publishedMethod, cited by no decision: the paper rail's
+// decision filter has nothing to narrow without it.
+const uncitedCaveat = {
+  id: 'uncited_caveat',
+  label: 'Uncited caveat',
+  kind: 'prior_insight',
+  canonicalPath: 'prior_insights.uncited_caveat',
+  claim: 'The method degrades outside the fiducial range.',
+  created_at: '2026-01-01T00:00:00Z',
+  evidence: [{
+    id: 'paper',
+    doi: 'https://doi.org/10.1234/EXAMPLE',
+    quote: { exact: 'Outside this range the method degrades.' },
+    location: { page: 9 },
+  }],
+};
+
 const methodDecision = {
   id: 'method',
   label: 'Method choice',
@@ -112,7 +129,7 @@ export const fixtureDocument = {
       },
     ],
     decisions: [methodDecision],
-    prior_insights: [publishedMethod],
+    prior_insights: [publishedMethod, uncitedCaveat],
     findings: [{
       id: 'headline_finding',
       label: 'Headline finding',

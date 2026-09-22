@@ -272,7 +272,7 @@ it('inherits PDF labels in paper dialogs, localizes loading, errors and unavaila
   const { rerender } = render(content(load));
   expect(screen.getByText('Chargement…')).toBeTruthy();
   await screen.findByText('Lecture impossible.');
-  const locate = screen.getByRole('button', { name: 'Trouver le passage 1' });
+  const locate = required(screen.getAllByRole('button', { name: 'Trouver le passage 1' })[0]);
   await waitFor(() => expect(locate.getAttribute('aria-disabled')).toBe('true'));
   fireEvent.click(locate);
   expect(screen.getByText('Lecture impossible.')).toBeTruthy();
