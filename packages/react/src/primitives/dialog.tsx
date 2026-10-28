@@ -507,6 +507,8 @@ export interface DetailDialogProps
   onBack?: (() => void) | undefined;
   actions?: ReactNode | undefined;
   closeLabel?: string | undefined;
+  /** Hide the close control, for a host that owns dismissal (an embedded page or tab). */
+  showCloseButton?: boolean | undefined;
   onClose: () => void;
   panelClassName?: string | undefined;
   children: ReactNode;
@@ -532,6 +534,7 @@ export function DetailDialog({
   onBack,
   actions,
   closeLabel,
+  showCloseButton,
   onClose,
   panelClassName,
   children,
@@ -551,6 +554,7 @@ export function DetailDialog({
           onBack={onBack}
           actions={actions}
           closeLabel={closeLabel}
+          showCloseButton={showCloseButton}
         />
         <DialogBody>{children}</DialogBody>
       </DialogContent>

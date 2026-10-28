@@ -57,7 +57,8 @@
     "PaperPdfViewer",
     "PaperRow",
     "RecordDialog",
-    "RecordPreview"
+    "RecordPreview",
+    "RecordView"
   ],
   "blocks": [
     "ALL_TAGS",

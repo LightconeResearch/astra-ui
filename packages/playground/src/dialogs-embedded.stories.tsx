@@ -1,6 +1,7 @@
 import { indexAnalysis, type ResolvedDecision, type ResolvedOutput } from '@astra-spec/sdk';
 import type { Story } from '@ladle/react';
-import { ArtifactPreview, DecisionDialog, OutputDialog, PaperDialog } from '@astra-spec/ui/components';
+import { ArtifactPreview, DecisionDialog, OutputDialog, PaperDialog, RecordView } from '@astra-spec/ui/components';
+import { recordEntry } from '@astra-spec/ui/lib';
 import { collectInventoryPapers, decisionInsights, outputRelations } from '@astra-spec/ui/model';
 import { DialogProvider } from '@astra-spec/ui/primitives';
 import { byPath } from './derive';
@@ -110,3 +111,17 @@ export const WithBackTrail: Story = () => {
     </DialogProvider>
   );
 };
+
+// A host that gives each record its own tab owns dismissal itself: the same
+// embedded shell, with no close control.
+export const RecordAsPage: Story = () => (
+  <RecordView
+    entry={recordEntry('outputs.bao_fit_plot', '$')}
+    document={analysisDocument}
+    index={index}
+    renderArtifact={renderArtifact}
+    renderProvenance={renderProvenance}
+    onOpenArtifact={noop}
+    onOpenRecord={noop}
+  />
+);
