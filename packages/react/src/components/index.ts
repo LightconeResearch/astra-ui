@@ -1,4 +1,4 @@
-/** ASTRA-aware components: one detail body and dialog per record kind, papers and their PDF reader, compact previews, and the RecordDialog router. */
+/** ASTRA-aware components: one detail body and dialog per record kind, papers and their PDF reader, compact previews, the RecordDialog router, and RecordView for a record shown in the page. */
 export { OutputDetail, OutputDialogActions, OutputPreview } from './output-detail.js';
 export type { OutputDetailProps, OutputDialogActionsProps, OutputPreviewProps } from './output-detail.js';
 export { OutputDialog } from './output-dialog.js';
@@ -17,6 +17,8 @@ export { PaperDetail, PaperDialog, PaperDialogActions } from './paper-detail.js'
 export type { PaperDetailProps, PaperDialogActionsProps, PaperDialogProps, OpenPaperFileHandler } from './paper-detail.js';
 export { RecordDialog } from './record-dialog.js';
 export type { RecordDialogProps } from './record-dialog.js';
+export { RecordView } from './record-view.js';
+export type { RecordViewProps } from './record-view.js';
 export { RecordPreview } from './record-preview.js';
 export type {
   RecordPreviewCitationContext,

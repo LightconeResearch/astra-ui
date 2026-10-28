@@ -4,7 +4,7 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { DetailDialog, DialogProvider, PreviewPopover, Prose } from '../packages/react/dist/primitives/index.js';
 import { renderProse } from '../packages/react/dist/lib/index.js';
-import { ArtifactPreview, OutputCard, OutputDetail, PaperDetail, PaperDialog, RecordDialog, RecordPreview } from '../packages/react/dist/components/index.js';
+import { ArtifactPreview, OutputCard, OutputDetail, PaperDetail, PaperDialog, RecordDialog, RecordPreview, RecordView } from '../packages/react/dist/components/index.js';
 import { recordEntry } from '../packages/react/dist/lib/index.js';
 import { indexAnalysis } from '@astra-spec/sdk';
 import { collectInventoryPapers } from '../packages/react/dist/model/index.js';
@@ -268,6 +268,20 @@ test('the record dialog derives relations and evidence from the index', () => {
   assert.match(missing, /<dialog[^>]*data-kind="analysis"/);
   assert.match(missing, /no longer available/);
   assert.match(missing, /<p>gone<\/p>/);
+});
+
+test('a record view is the record dialog as a page, without a close control', () => {
+  const index = indexAnalysis(fixtureDocument);
+  const html = withinUi(React.createElement(RecordView, {
+    entry: recordEntry('outputs.headline', '$'),
+    document: fixtureDocument,
+    index,
+  }));
+  assert.match(html, /data-mode="embedded"[^>]*class="astra-dialog astra-record-view"/);
+  assert.doesNotMatch(html, /<dialog/);
+  assert.doesNotMatch(html, /data-slot="dialog-close"/);
+  assert.match(html, /Headline result/);
+  assert.match(html, /Input catalogue/);
 });
 
 test('the artifact box frames figures and tables and nothing else, host renderer or not', () => {
