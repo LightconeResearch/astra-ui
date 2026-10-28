@@ -270,14 +270,14 @@ test('the record dialog derives relations and evidence from the index', () => {
   assert.match(missing, /<p>gone<\/p>/);
 });
 
-test('a record view is the record dialog in the page, without a close control', () => {
+test('a record view is the record dialog as a page, without a close control', () => {
   const index = indexAnalysis(fixtureDocument);
   const html = withinUi(React.createElement(RecordView, {
     entry: recordEntry('outputs.headline', '$'),
     document: fixtureDocument,
     index,
   }));
-  assert.match(html, /data-mode="embedded"[^>]*class="astra-dialog"/);
+  assert.match(html, /data-mode="embedded"[^>]*class="astra-dialog astra-record-view"/);
   assert.doesNotMatch(html, /<dialog/);
   assert.doesNotMatch(html, /data-slot="dialog-close"/);
   assert.match(html, /Headline result/);
