@@ -19,6 +19,8 @@ export {
 export type { FindingEvidenceGroup, FindingEvidenceLink, LinkedRecord, OutputRelations } from './relations.js';
 export {
   analysesForPaperView,
+  arxivIdFromDoi,
+  arxivPaperMetadata,
   collectInventoryPapers,
   findPaper,
   insightDois,
