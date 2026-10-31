@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { indexAnalysis } from '@astra-spec/sdk';
-import { tablePreviewFromDelimited } from '../packages/react/dist/lib/index.js';
+import { artifactPreviewFromSource, tablePreviewFromDelimited } from '../packages/react/dist/lib/index.js';
 import {
+  arxivIdFromDoi,
+  arxivPaperMetadata,
   collectInventoryPapers,
   decisionInsights,
   findingEvidence,
@@ -197,4 +199,77 @@ test('output decisions follow every dependency path: own provenance first, then 
     ['decisions.method', ['outputs.upstream', 'outputs.loop_a']],
     ['clustering.decisions.weighting', ['outputs.imported_xi']],
   ], 'the detail relations use the same decision order and route attribution');
+});
+
+const citing = (...evidence) => ({
+  ...fixtureDocument,
+  analysis: {
+    ...fixtureDocument.analysis,
+    analyses: [],
+    findings: [],
+    prior_insights: [{ ...fixtureDocument.analysis.prior_insights[0], evidence }],
+  },
+});
+
+test('arXiv DOIs name their PDF; every other DOI is left to the DOI link', () => {
+  assert.equal(arxivIdFromDoi('https://doi.org/10.48550/arXiv.1804.09366'), '1804.09366');
+  assert.equal(arxivIdFromDoi('10.48550/arxiv.astro-ph/0604362'), 'astro-ph/0604362');
+  assert.equal(arxivIdFromDoi('10.48550/arxiv.not-an-id'), undefined);
+  assert.equal(arxivIdFromDoi('10.1093/mnras/stv1198'), undefined);
+  assert.deepEqual(
+    arxivPaperMetadata(citing(
+      { id: 'a', doi: '10.48550/arXiv.1804.09366', version: 2 },
+      { id: 'b', doi: '10.48550/arXiv.1804.09366', version: 3 },
+      { id: 'c', doi: '10.1093/mnras/stv1198' },
+    )),
+    { '10.48550/arxiv.1804.09366': { pdfUrl: 'https://arxiv.org/pdf/1804.09366v3' } },
+  );
+});
+
+test('an arXiv citation naming no revision reads the latest one', () => {
+  assert.deepEqual(
+    arxivPaperMetadata(citing(
+      { id: 'a', doi: '10.48550/arXiv.1804.09366', version: 7 },
+      { id: 'b', doi: '10.48550/arXiv.1804.09366' },
+    )),
+    { '10.48550/arxiv.1804.09366': { pdfUrl: 'https://arxiv.org/pdf/1804.09366' } },
+  );
+});
+
+const source = (text, size = text.length) => ({
+  url: 'https://host/files/out',
+  size,
+  reads: [],
+  async readText(maxBytes) {
+    this.reads.push(maxBytes);
+    return { text: text.slice(0, maxBytes), truncated: text.length > maxBytes };
+  },
+});
+const output = (type, format) => ({ ...fixtureDocument.analysis.outputs[0], type, format });
+
+test('a preview reads a bounded sample of the host-supplied bytes', async () => {
+  const table = source('a,b\n1,2\n');
+  assert.deepEqual(
+    await artifactPreviewFromSource(output('table', 'csv'), table),
+    tablePreviewFromDelimited('a,b\n1,2\n', { delimiter: ',', sourceTruncated: false }),
+  );
+  assert.deepEqual(table.reads, [65_536]);
+
+  assert.deepEqual(await artifactPreviewFromSource(output('figure', 'png'), source('')), {
+    kind: 'image',
+    url: 'https://host/files/out',
+  });
+  assert.equal((await artifactPreviewFromSource(output('metric', 'json'), source('{"value": 0.7}'))).value, 0.7);
+});
+
+test('a preview refuses what it would have to read whole', async () => {
+  const large = source('[]', 3_000_000);
+  assert.equal((await artifactPreviewFromSource(output('table', 'json'), large)).kind, 'unavailable');
+  assert.deepEqual(large.reads, []);
+  assert.deepEqual(await artifactPreviewFromSource(output('data', 'npz'), source('')), {
+    kind: 'unavailable',
+    reason: 'No bounded preview is available for .npz artifacts.',
+  });
+  assert.equal((await artifactPreviewFromSource(output('table', 'json'), source('not json'))).reason,
+    'The file is not a JSON table.');
 });
