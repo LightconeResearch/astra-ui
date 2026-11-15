@@ -67,7 +67,7 @@ test('the package declares its host peers and presentation dependencies explicit
 
   assert.equal(manifest.name, '@astra-spec/ui');
   assert.match(manifest.version, /^\d+\.\d+\.\d+/);
-  assert.equal(manifest.peerDependencies['@astra-spec/sdk'], '^0.2.0-rc.1');
+  assert.equal(manifest.peerDependencies['@astra-spec/sdk'], '^0.2.0-rc1');
   assert.equal(manifest.peerDependencies.react, '>=18 <20');
   assert.equal(manifest.peerDependencies['react-dom'], '>=18 <20');
   assert.deepEqual(manifest.dependencies, {

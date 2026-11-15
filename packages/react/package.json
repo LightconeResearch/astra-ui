@@ -3,14 +3,14 @@
   "version": "0.0.7",
   "description": "React components for rendering resolved ASTRA analyses",
   "license": "BSD-3-Clause",
-  "homepage": "https://github.com/LightconeResearch/astra-ui#readme",
+  "homepage": "https://github.com/astra-project/astra-ui#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/LightconeResearch/astra-ui.git",
+    "url": "git+https://github.com/astra-project/astra-ui.git",
     "directory": "packages/react"
   },
   "bugs": {
-    "url": "https://github.com/LightconeResearch/astra-ui/issues"
+    "url": "https://github.com/astra-project/astra-ui/issues"
   },
   "keywords": [
     "astra",
@@ -116,7 +116,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "peerDependencies": {
-    "@astra-spec/sdk": "^0.2.0-rc.1",
+    "@astra-spec/sdk": "^0.2.0-rc1",
     "react": ">=18 <20",
     "react-dom": ">=18 <20"
   },

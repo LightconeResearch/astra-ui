@@ -21,7 +21,7 @@ npm install @astra-spec/ui @astra-spec/sdk react react-dom
 ```
 
 The package is ESM-only and requires Node.js 20 or newer. Its peer dependency
-ranges are `@astra-spec/sdk@^0.2.0-rc.1` and React/React DOM 18 or 19.
+ranges are `@astra-spec/sdk@^0.2.0-rc1` and React/React DOM 18 or 19.
 
 ## Quick start
 
@@ -507,7 +507,7 @@ canvas to `<body>`, outside any scope, so one layered rule hides that
 
 ## Development and examples
 
-The [repository README](https://github.com/LightconeResearch/astra-ui#readme)
+The [repository README](https://github.com/astra-project/astra-ui#readme)
 documents the Ladle playground, integration examples, screenshots, and project
 development commands.
 
@@ -521,7 +521,7 @@ The report is flat: analyses use `key` (root `""`), elements use `ref`, and resu
 
 Record navigation entries retain the `canonicalPath` and `analysisPath` prop names for an element ref and analysis key. Optional `universeRef` on a record entry preserves pinned or explicitly selected universes while drilling into another result. `onOpenRecord(record, analysis, universeRef?)` carries that context.
 
-This branch depends on the SDK candidate through an immutable Git revision until its release is published. The package peer range is `^0.2.0-rc.1`; pre-0.1 reports are unsupported.
+Development uses the published SDK `0.2.0-rc1`. The package peer range is `^0.2.0-rc1`; pre-0.1 reports are unsupported.
 
 `outputRelations` groups `traceResultProvenance` occurrences from the SDK for display. Decision and upstream-route identities retain their effective universes, so two pins to the same varying output remain distinct rows.
 

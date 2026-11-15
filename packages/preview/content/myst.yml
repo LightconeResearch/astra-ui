@@ -11,7 +11,7 @@ project:
   license:
     content: CC-BY-4.0
     code: MIT
-  github: https://github.com/LightconeResearch/astra-ui
+  github: https://github.com/astra-project/astra-ui
   date: 2026-07-06
   thumbnail: results/baseline/bao_fit_plot.png
   authors:

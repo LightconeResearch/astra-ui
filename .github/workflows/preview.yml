@@ -63,16 +63,16 @@ jobs:
     env:
       HAS_VERCEL: ${{ secrets.VERCEL_TOKEN != '' && secrets.VERCEL_ORG_ID != '' && secrets.VERCEL_PROJECT_ID != '' }}
       # Argos builds belong to this repository's project; callers keep the artifact.
-      HAS_ARGOS: ${{ secrets.ARGOS_TOKEN != '' && github.repository == 'LightconeResearch/astra-ui' }}
+      HAS_ARGOS: ${{ secrets.ARGOS_TOKEN != '' && github.repository == 'astra-project/astra-ui' }}
       # Only astra-ui's own main is promoted; a caller's push builds a preview.
-      PRODUCTION: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'LightconeResearch/astra-ui' }}
+      PRODUCTION: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'astra-project/astra-ui' }}
     steps:
       # Called from another repository, `inputs.ui` names the astra-ui ref to
       # build; run here directly it is empty and the triggering commit is used.
       - name: Checkout astra-ui
         uses: actions/checkout@v7
         with:
-          repository: ${{ inputs.ui && 'LightconeResearch/astra-ui' || github.repository }}
+          repository: ${{ inputs.ui && 'astra-project/astra-ui' || github.repository }}
           ref: ${{ inputs.ui }}
 
       - uses: actions/setup-node@v7

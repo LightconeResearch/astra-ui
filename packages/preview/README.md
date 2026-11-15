@@ -1,6 +1,6 @@
 # Preview
 
-Renders the demo paper through [astra-theme](https://github.com/LightconeResearch/astra-theme)
+Renders the demo paper through [astra-theme](https://github.com/astra-project/astra-theme)
 against **this checkout's** `@astra-spec/ui` and exports it as a static site. CI runs it for
 every pull request and posts the URL, so a UI change can be reviewed inside a real
 [MyST](https://mystmd.org/) publication rather than in isolation.
@@ -135,7 +135,7 @@ permissions:
   pull-requests: write
 jobs:
   preview:
-    uses: LightconeResearch/astra-ui/.github/workflows/preview.yml@main
+    uses: astra-project/astra-ui/.github/workflows/preview.yml@main
     with:
       theme: ${{ github.event.pull_request.head.sha }}   # astra-theme; MySTRA passes mystra:
     secrets: inherit

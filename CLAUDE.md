@@ -149,7 +149,7 @@ working around one. It checks that:
 - the exported names of every layer match `tests/exports.snapshot.json` — update that file
   deliberately in the same commit as an API change;
 - `package.json` exports, `files` (which ships `src`), and the pinned peer ranges
-  (`@astra-spec/sdk@^0.2.0-rc.1`, `react >=18 <20`) — bump the manifest and the test together;
+  (`@astra-spec/sdk@^0.2.0-rc1`, `react >=18 <20`) — bump the manifest and the test together;
 - every `astra-*` class a TSX file emits has a CSS rule, and every rule is emitted by some component
   (add the class and its rule together, and import a new sheet into the right bundle);
 - every `var(--astra-*)` a sheet consumes has a default in `tokens.css`, nothing declared there is

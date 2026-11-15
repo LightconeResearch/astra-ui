@@ -1,9 +1,9 @@
 {
   "ui": {
-    "repository": "https://github.com/LightconeResearch/astra-ui.git"
+    "repository": "https://github.com/astra-project/astra-ui.git"
   },
   "theme": {
-    "repository": "https://github.com/LightconeResearch/astra-theme.git",
+    "repository": "https://github.com/astra-project/astra-theme.git",
     "ref": "295b6ac9bcd313c1916f75036230af61bf614275",
     "template": "themes/article"
   },
@@ -12,7 +12,7 @@
     "path": "packages/preview/content"
   },
   "mystra": {
-    "repository": "https://github.com/LightconeResearch/MySTRA.git",
+    "repository": "https://github.com/astra-project/MySTRA.git",
     "ref": "9865e7559103cdb255ac8c8e1637d2e19f8a2ec6"
   }
 }
