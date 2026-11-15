@@ -7,7 +7,7 @@ Composable, themable React components for resolved
 [ASTRA](https://astra-spec.org/) analyses.
 
 `@astra-spec/ui` turns the resolved data model from
-[`@astra-spec/sdk`](https://github.com/LightconeResearch/astra-typescript) into
+[`@astra-spec/sdk`](https://github.com/astra-project/astra-typescript) into
 accessible inventory views, record details, hover/focus record previews,
 dialogs, artifact previews, and
 lower-level building blocks. The library stays presentation-only: applications
@@ -22,7 +22,7 @@ retain control of loading, files, network requests, routing, and state.
 
 [Token reference](packages/react/TOKENS.md) ·
 [ASTRA specification](https://astra-spec.org/) ·
-[TypeScript SDK](https://github.com/LightconeResearch/astra-typescript)
+[TypeScript SDK](https://github.com/astra-project/astra-typescript)
 
 ## Highlights
 

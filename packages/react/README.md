@@ -4,7 +4,7 @@ Composable, themable React components for resolved
 [ASTRA](https://astra-spec.org/) analyses.
 
 `@astra-spec/ui` renders `ResolvedAnalysis` and the public report elements
-from [`@astra-spec/sdk`](https://github.com/LightconeResearch/astra-typescript).
+from [`@astra-spec/sdk`](https://github.com/astra-project/astra-typescript).
 It owns presentation: applications keep control of project loading, artifact
 bytes and URLs, paper fetching, routing, and state.
 

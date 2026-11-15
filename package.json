@@ -31,7 +31,7 @@
   },
   "devDependencies": {
     "@argos-ci/cli": "6.9.2",
-    "@astra-spec/sdk": "git+https://github.com/LightconeResearch/astra-typescript.git#d8ef3bf7e3c28086e38222925107ada0e8f1ef85",
+    "@astra-spec/sdk": "git+https://github.com/astra-project/astra-typescript.git#d8ef3bf7e3c28086e38222925107ada0e8f1ef85",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.6",
