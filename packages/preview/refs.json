@@ -4,7 +4,7 @@
   },
   "theme": {
     "repository": "https://github.com/astra-project/astra-theme.git",
-    "ref": "295b6ac9bcd313c1916f75036230af61bf614275",
+    "ref": "7a3d3c3f658fe647a025e496b41002c3e58b3c9c",
     "template": "themes/article"
   },
   "content": {
@@ -13,6 +13,6 @@
   },
   "mystra": {
     "repository": "https://github.com/astra-project/MySTRA.git",
-    "ref": "9865e7559103cdb255ac8c8e1637d2e19f8a2ec6"
+    "ref": "ebe95c23edaecde8fe425af298f6d1ab413882f2"
   }
 }
