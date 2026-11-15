@@ -62,20 +62,18 @@ export const OutputEntry = forwardRef<HTMLButtonElement, OutputEntryProps>(funct
       <OutputStatusIndicator status={status} />
       <span className="astra-output-entry__name">
         {title}
-        {result?.universe ? <small>{result.universe}</small> : null}
         {!metric && absenceNote && !status ? <span className="astra-output-entry__status">{absenceNote}</span> : null}
       </span>
       {metric ? (
         <span className="astra-output-entry__value">
-          {status?.bytes?.state === 'absent' ? (
-            <span className="astra-artifact__metric-value" aria-label="No value">
-              –
-            </span>
-          ) : (
-            (renderArtifact?.(output, { compact: true, result, status, universeRef }) ?? (
+          {renderArtifact?.(output, { compact: true, result, status, universeRef }) ??
+            (status?.bytes?.state === 'absent' ? (
+              <span className="astra-artifact__metric-value" aria-label="No value">
+                –
+              </span>
+            ) : (
               <span className="astra-output-entry__status">{absenceNote ?? 'Preview unavailable'}</span>
-            ))
-          )}
+            ))}
         </span>
       ) : null}
     </button>

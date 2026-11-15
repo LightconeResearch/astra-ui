@@ -64,7 +64,6 @@ export const OutputCard = forwardRef<HTMLButtonElement, OutputCardProps>(functio
         {output.type !== 'figure' ? <span className="astra-output-card__kind">{output.type}</span> : null}
         <strong>{title}</strong>
         {output.label ? <code>{recordId(output)}</code> : null}
-        {result?.universe ? <small>{result.universe}</small> : null}
       </span>
     </button>
   );
