@@ -167,13 +167,14 @@ jobs:
           retention-days: 7
 
       - name: Upload screenshots to Argos
+        id: argos
         if: env.HAS_ARGOS == 'true'
         env:
           ARGOS_TOKEN: ${{ secrets.ARGOS_TOKEN }}
         run: npm exec -- argos upload packages/preview/screenshots
 
       - name: Keep the screenshots as an artifact
-        if: env.HAS_ARGOS != 'true'
+        if: always() && (env.HAS_ARGOS != 'true' || steps.argos.outcome == 'failure')
         uses: actions/upload-artifact@v7
         with:
           name: preview-screenshots
