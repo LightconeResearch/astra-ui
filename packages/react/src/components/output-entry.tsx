@@ -39,7 +39,7 @@ export const OutputEntry = forwardRef<HTMLButtonElement, OutputEntryProps>(funct
   const metric = output.type === 'metric';
   // Why the document itself has nothing to show, before any host status.
   const absenceNote = !result
-    ? 'Inactive'
+    ? 'No planned result'
     : status?.bytes?.state === 'absent'
       ? 'Bytes unavailable'
       : status?.state === 'missing'

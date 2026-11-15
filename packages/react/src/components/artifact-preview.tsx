@@ -37,7 +37,7 @@ function compactValue(value: string | number | undefined, locale: string | undef
 }
 
 function unavailableReason(result: Result | undefined, status: Status | undefined): string {
-  if (!result) return 'This output is not active in the selected universe.';
+  if (!result) return 'No result is planned for this output in the selected universe.';
   if (status?.bytes?.state === 'absent') return 'The recorded output bytes are not available.';
   if (status?.state === 'missing') return 'This output has no valid provenance record.';
   return 'This host has not supplied an artifact preview.';

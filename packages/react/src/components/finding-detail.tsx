@@ -72,12 +72,12 @@ export const FindingDetail = forwardRef<HTMLDivElement, FindingDetailProps>(func
   const runs = [figures.length, tables.length, metrics.length, files.length + unresolved.length];
   const labelled = runs.filter(Boolean).length > 1;
   const open = (group: ResolvedGroup) => () => {
-    onOpenRecord?.(group.output, group.analysis, group.result?.universe);
+    onOpenRecord?.(group.output, group.analysis, group.universeRef);
   };
   // Say what the result is to this finding; the card's own name would only
   // say what kind of artifact it is.
   const resultLabel = (group: ResolvedGroup) =>
-    `View supporting result: ${recordTitle(group.output)}${group.result?.universe ? ` (${group.result.universe})` : ''}`;
+    `View supporting result: ${recordTitle(group.output)}${group.universeRef ? ` (${group.universeRef})` : ''}`;
   return (
     <DetailLayout
       data-slot="finding-detail"
@@ -116,7 +116,7 @@ export const FindingDetail = forwardRef<HTMLDivElement, FindingDetailProps>(func
                           key={group.key}
                           output={group.output}
                           result={group.result}
-                          universeRef={group.result?.universe}
+                          universeRef={group.universeRef}
                           status={group.result ? statusReport?.statuses[group.result.id] : undefined}
                           renderArtifact={renderArtifact}
                           aria-label={resultLabel(group)}
@@ -135,7 +135,7 @@ export const FindingDetail = forwardRef<HTMLDivElement, FindingDetailProps>(func
                         <OutputEntry
                           output={group.output}
                           result={group.result}
-                          universeRef={group.result?.universe}
+                          universeRef={group.universeRef}
                           status={group.result ? statusReport?.statuses[group.result.id] : undefined}
                           renderArtifact={renderArtifact}
                           aria-label={resultLabel(group)}
@@ -154,7 +154,7 @@ export const FindingDetail = forwardRef<HTMLDivElement, FindingDetailProps>(func
                         <OutputEntry
                           output={group.output}
                           result={group.result}
-                          universeRef={group.result?.universe}
+                          universeRef={group.universeRef}
                           status={group.result ? statusReport?.statuses[group.result.id] : undefined}
                           aria-label={resultLabel(group)}
                           onOpen={open(group)}

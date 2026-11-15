@@ -118,7 +118,7 @@ test('artifact previews render only host-safe values', () => {
   const inactive = withinUi(React.createElement(ArtifactPreview, {
     output: fixtureDocument.analyses[0].outputs[1],
   }));
-  assert.match(inactive, /not active in the selected universe/);
+  assert.match(inactive, /No result is planned for this output in the selected universe/);
 
   const loading = withinUi(React.createElement(ArtifactPreview, {
     output,
@@ -441,7 +441,7 @@ test('metric tiles carry an accessible name and consult the host renderer like t
   assert.deepEqual(rendered, ['outputs.neff']);
   assert.match(html, /Host preview/);
   const hostless = withinUi(React.createElement(OutputsList, { analysis, onOpenRecord: () => undefined }));
-  assert.match(hostless, /Inactive/);
+  assert.match(hostless, /No planned result/);
 });
 
 test('table previews say whether their total is exact or unknown, and stay quiet when compact', () => {

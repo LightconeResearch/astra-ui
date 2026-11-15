@@ -43,7 +43,7 @@ export function relationItemsForLinks(links: LinkedRecord[], onOpen: OpenRecordH
   return links.map((link) => {
     const { record, analysis } = link,
       key = JSON.stringify([link.canonicalPath, link.universeRef]);
-    if (!record) return { key, label: link.canonicalPath, identifier: link.canonicalPath };
+    if (!record) return { key, label: link.canonicalPath, identifier: link.canonicalPath, detail: link.universeRef };
     const qualified = (contexts.get(link.canonicalPath)?.size ?? 0) > 1 && link.universeRef !== undefined;
     const title = recordTitle(record);
     return relationItemForRecord(record, analysis, onOpen, {

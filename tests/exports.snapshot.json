@@ -98,8 +98,6 @@
     "linkedRecord",
     "locateRecord",
     "normalizeDoi",
-    "outputDecisionPaths",
-    "outputDecisionRoutes",
     "outputRelations",
     "outputResult",
     "paperEvidence",

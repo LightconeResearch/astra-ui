@@ -199,7 +199,7 @@ export function RecordDialog({
           body: (
             <FindingDetail
               record={record}
-              evidence={findingEvidence(index, record)}
+              evidence={findingEvidence(index, record, universeRef)}
               statusReport={statusReport}
               renderText={renderText}
               renderArtifact={renderArtifact}

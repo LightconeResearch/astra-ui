@@ -1,7 +1,7 @@
 {
   "document": {
     "spec_version": "0.1.0",
-    "head": "861f8c3b64485289cadeb720efced3b4e522a79c",
+    "head": "3b45abaa441be256802ed3c655d9b96b0bda4576",
     "analyses": [
       {
         "key": "",
@@ -461,6 +461,7 @@
             "format": "tar",
             "description": "DESI DR1 iron v1.5 LSS clustering catalogs (data + 18 randoms per cap).\nUsed by reconstruction (raw catalogs) and clustering (pre-recon xi).\nAll tracers live here -- LRG_{NGC,SGC}_clustering.{dat,ran_i}.fits,\nELG_LOPnotqso_*, QSO_*.\n",
             "tags": [],
+            "inputs": [],
             "decisions": []
           },
           {
@@ -469,6 +470,7 @@
             "format": "txt",
             "description": "DESI RascalC analytic covariance for BGS_BRIGHT-21.5, GCcomb, z=0.1-0.4,\npost-recon (IFFT recsym, sm15). Consumed by the BGS post-recon BAO fit\n(1D monopole fit; ~4σ detection).\n",
             "tags": [],
+            "inputs": [],
             "decisions": [
               "decisions.covariance_source"
             ]
@@ -479,6 +481,7 @@
             "format": "txt",
             "description": "DESI RascalC analytic covariance for BGS_BRIGHT-21.5, GCcomb, z=0.1-0.4,\nPRE-recon. Used for the BGS pre-reconstruction BAO fit.\n",
             "tags": [],
+            "inputs": [],
             "decisions": [
               "decisions.covariance_source"
             ]
@@ -489,6 +492,7 @@
             "format": "txt",
             "description": "DESI pre-computed RascalC analytic covariance for LRG, GCcomb,\nz=0.4-0.6, post-recon (IFFT recsym, sm15), default+FKP weights,\nlin4 binning, s=20-200 Mpc/h. ASCII matrix.\n",
             "tags": [],
+            "inputs": [],
             "decisions": [
               "decisions.covariance_source"
             ]
@@ -499,6 +503,7 @@
             "format": "txt",
             "description": "DESI pre-computed RascalC analytic covariance for LRG, GCcomb,\nz=0.4-0.6, PRE-recon, default+FKP weights, lin4 binning, s=20-200 Mpc/h.\nUsed for the pre-reconstruction BAO fit.\n",
             "tags": [],
+            "inputs": [],
             "decisions": [
               "decisions.covariance_source"
             ]
@@ -509,6 +514,7 @@
             "format": "txt",
             "description": "DESI pre-computed RascalC analytic covariance for LRG, GCcomb,\nz=0.6-0.8, post-recon (IFFT recsym, sm15). Same format as\ndesi_rascalc_cov_lrg1.\n",
             "tags": [],
+            "inputs": [],
             "decisions": [
               "decisions.covariance_source"
             ]
@@ -519,6 +525,7 @@
             "format": "txt",
             "description": "DESI pre-computed RascalC analytic covariance for LRG, GCcomb,\nz=0.6-0.8, PRE-recon. Used for the pre-reconstruction BAO fit.\n",
             "tags": [],
+            "inputs": [],
             "decisions": [
               "decisions.covariance_source"
             ]
@@ -529,6 +536,7 @@
             "format": "txt",
             "description": "DESI RascalC analytic covariance for LRG, GCcomb, z=0.8-1.1, post-recon\n(IFFT recsym, sm15). Consumed by the LRG3 post-recon BAO fit.\n",
             "tags": [],
+            "inputs": [],
             "decisions": [
               "decisions.covariance_source"
             ]
@@ -539,6 +547,7 @@
             "format": "txt",
             "description": "DESI RascalC analytic covariance for LRG, GCcomb, z=0.8-1.1, PRE-recon.\nUsed for the LRG3 pre-reconstruction BAO fit.\n",
             "tags": [],
+            "inputs": [],
             "decisions": [
               "decisions.covariance_source"
             ]
@@ -549,6 +558,7 @@
             "format": "txt",
             "description": "DESI RascalC analytic covariance for ELG_LOPnotqso, GCcomb, z=0.8-1.1,\npost-recon (IFFT recsym, sm15). Consumed by the ELG1 post-recon BAO fit\n(1D monopole fit).\n",
             "tags": [],
+            "inputs": [],
             "decisions": [
               "decisions.covariance_source"
             ]
@@ -559,6 +569,7 @@
             "format": "txt",
             "description": "DESI RascalC analytic covariance for ELG_LOPnotqso, GCcomb, z=0.8-1.1,\nPRE-recon. Used for the ELG1 pre-reconstruction BAO fit.\n",
             "tags": [],
+            "inputs": [],
             "decisions": [
               "decisions.covariance_source"
             ]
@@ -569,6 +580,7 @@
             "format": "txt",
             "description": "DESI RascalC analytic covariance for ELG_LOPnotqso, GCcomb, z=1.1-1.6,\npost-recon (IFFT recsym, sm15). Consumed by the ELG2 post-recon BAO fit\n(2D monopole + quadrupole).\n",
             "tags": [],
+            "inputs": [],
             "decisions": [
               "decisions.covariance_source"
             ]
@@ -579,6 +591,7 @@
             "format": "txt",
             "description": "DESI RascalC analytic covariance for ELG_LOPnotqso, GCcomb, z=1.1-1.6,\nPRE-recon. Used for the ELG2 pre-reconstruction BAO fit.\n",
             "tags": [],
+            "inputs": [],
             "decisions": [
               "decisions.covariance_source"
             ]
@@ -589,6 +602,7 @@
             "format": "txt",
             "description": "DESI RascalC analytic covariance for the LRG+ELG_LOPnotqso combined\ntracer, GCcomb, z=0.8-1.1, post-recon (IFFT recsym, sm15). Consumed\nby the LRG3+ELG1 combined-tracer fit (headline row).\n",
             "tags": [],
+            "inputs": [],
             "decisions": [
               "decisions.covariance_source"
             ]
@@ -599,6 +613,7 @@
             "format": "txt",
             "description": "DESI RascalC analytic covariance for QSO, GCcomb, z=0.8-2.1,\npost-recon (IFFT recsym, sm30 — fiducial smoothing for QSO).\nConsumed by the QSO post-recon BAO fit (1D monopole fit;\n~4.2σ detection).\n",
             "tags": [],
+            "inputs": [],
             "decisions": [
               "decisions.covariance_source"
             ]
@@ -609,6 +624,7 @@
             "format": "txt",
             "description": "DESI RascalC analytic covariance for QSO, GCcomb, z=0.8-2.1,\nPRE-recon. Used for the QSO pre-reconstruction BAO fit.\n",
             "tags": [],
+            "inputs": [],
             "decisions": [
               "decisions.covariance_source"
             ]
@@ -619,6 +635,7 @@
             "format": "txt",
             "description": "DESI RascalC analytic covariance for the LRG+ELG_LOPnotqso combined\ntracer, GCcomb, z=0.8-1.1, PRE-recon. Used for the combined-tracer\npre-reconstruction BAO fit.\n",
             "tags": [],
+            "inputs": [],
             "decisions": [
               "decisions.covariance_source"
             ]
@@ -629,6 +646,12 @@
             "format": "npy",
             "description": "Pre-recon xi(s, mu) for BGS (z=0.1-0.4). Monopole-only fit.\nPublication copy of clustering.xi_pre_recon_bgs.",
             "tags": [],
+            "inputs": [
+              {
+                "entry": "clustering.xi_pre_recon_bgs",
+                "target": "clustering.outputs.xi_pre_recon_bgs"
+              }
+            ],
             "decisions": []
           },
           {
@@ -637,6 +660,12 @@
             "format": "npy",
             "description": "Post-recon xi(s, mu) for BGS (RecSym). BGS parent recon spans 0.1 <= z <= 0.4 (no sub-binning).\nPublication copy of clustering.xi_post_recon_bgs.",
             "tags": [],
+            "inputs": [
+              {
+                "entry": "clustering.xi_post_recon_bgs",
+                "target": "clustering.outputs.xi_post_recon_bgs"
+              }
+            ],
             "decisions": []
           },
           {
@@ -645,6 +674,12 @@
             "format": "npy",
             "description": "Pre-recon xi(s, mu) for LRG1. pycorr TwoPointCorrelationFunction (.npy),\nGCcomb, s in [0, 200] Mpc/h at 4 Mpc/h bins, mu in [-1, 1] at 200 bins.\n\nPublication copy of clustering.xi_pre_recon_lrg1.",
             "tags": [],
+            "inputs": [
+              {
+                "entry": "clustering.xi_pre_recon_lrg1",
+                "target": "clustering.outputs.xi_pre_recon_lrg1"
+              }
+            ],
             "decisions": []
           },
           {
@@ -653,6 +688,12 @@
             "format": "npy",
             "description": "Post-recon xi(s, mu) for LRG1 (RecSym). Slices the LRG parent post-recon\ncatalog to 0.4 <= z <= 0.6.\n\nPublication copy of clustering.xi_post_recon_lrg1.",
             "tags": [],
+            "inputs": [
+              {
+                "entry": "clustering.xi_post_recon_lrg1",
+                "target": "clustering.outputs.xi_post_recon_lrg1"
+              }
+            ],
             "decisions": []
           },
           {
@@ -661,6 +702,12 @@
             "format": "npy",
             "description": "Pre-recon xi(s, mu) for LRG2. Same format as xi_pre_recon_lrg1.\nPublication copy of clustering.xi_pre_recon_lrg2.",
             "tags": [],
+            "inputs": [
+              {
+                "entry": "clustering.xi_pre_recon_lrg2",
+                "target": "clustering.outputs.xi_pre_recon_lrg2"
+              }
+            ],
             "decisions": []
           },
           {
@@ -669,6 +716,12 @@
             "format": "npy",
             "description": "Post-recon xi(s, mu) for LRG2 (RecSym). Slices LRG parent NPZ to 0.6 <= z <= 0.8.\nPublication copy of clustering.xi_post_recon_lrg2.",
             "tags": [],
+            "inputs": [
+              {
+                "entry": "clustering.xi_post_recon_lrg2",
+                "target": "clustering.outputs.xi_post_recon_lrg2"
+              }
+            ],
             "decisions": []
           },
           {
@@ -677,6 +730,12 @@
             "format": "npy",
             "description": "Pre-recon xi(s, mu) for LRG3 (z=0.8-1.1). Same format as xi_pre_recon_lrg1.\nPublication copy of clustering.xi_pre_recon_lrg3.",
             "tags": [],
+            "inputs": [
+              {
+                "entry": "clustering.xi_pre_recon_lrg3",
+                "target": "clustering.outputs.xi_pre_recon_lrg3"
+              }
+            ],
             "decisions": []
           },
           {
@@ -685,6 +744,12 @@
             "format": "npy",
             "description": "Post-recon xi(s, mu) for LRG3 (RecSym). Slices LRG parent NPZ to 0.8 <= z <= 1.1.\nPublication copy of clustering.xi_post_recon_lrg3.",
             "tags": [],
+            "inputs": [
+              {
+                "entry": "clustering.xi_post_recon_lrg3",
+                "target": "clustering.outputs.xi_post_recon_lrg3"
+              }
+            ],
             "decisions": []
           },
           {
@@ -693,6 +758,12 @@
             "format": "npy",
             "description": "Pre-recon xi(s, mu) for ELG1 (z=0.8-1.1). Monopole-only fit.\nPublication copy of clustering.xi_pre_recon_elg1.",
             "tags": [],
+            "inputs": [
+              {
+                "entry": "clustering.xi_pre_recon_elg1",
+                "target": "clustering.outputs.xi_pre_recon_elg1"
+              }
+            ],
             "decisions": []
           },
           {
@@ -701,6 +772,12 @@
             "format": "npy",
             "description": "Post-recon xi(s, mu) for ELG1 (RecSym). Slices ELG parent NPZ to 0.8 <= z <= 1.1.\nPublication copy of clustering.xi_post_recon_elg1.",
             "tags": [],
+            "inputs": [
+              {
+                "entry": "clustering.xi_post_recon_elg1",
+                "target": "clustering.outputs.xi_post_recon_elg1"
+              }
+            ],
             "decisions": []
           },
           {
@@ -709,6 +786,12 @@
             "format": "npy",
             "description": "Pre-recon xi(s, mu) for ELG2 (z=1.1-1.6). Same format as xi_pre_recon_lrg1.\nPublication copy of clustering.xi_pre_recon_elg2.",
             "tags": [],
+            "inputs": [
+              {
+                "entry": "clustering.xi_pre_recon_elg2",
+                "target": "clustering.outputs.xi_pre_recon_elg2"
+              }
+            ],
             "decisions": []
           },
           {
@@ -717,6 +800,12 @@
             "format": "npy",
             "description": "Post-recon xi(s, mu) for ELG2 (RecSym). Slices ELG parent NPZ to 1.1 <= z <= 1.6.\nPublication copy of clustering.xi_post_recon_elg2.",
             "tags": [],
+            "inputs": [
+              {
+                "entry": "clustering.xi_post_recon_elg2",
+                "target": "clustering.outputs.xi_post_recon_elg2"
+              }
+            ],
             "decisions": []
           },
           {
@@ -725,6 +814,12 @@
             "format": "npy",
             "description": "Pre-recon xi(s, mu) for the LRG3+ELG1 combined tracer (0.8 < z < 1.1).\nPublication copy of clustering.xi_pre_recon_lrg3_elg1.",
             "tags": [],
+            "inputs": [
+              {
+                "entry": "clustering.xi_pre_recon_lrg3_elg1",
+                "target": "clustering.outputs.xi_pre_recon_lrg3_elg1"
+              }
+            ],
             "decisions": []
           },
           {
@@ -733,6 +828,12 @@
             "format": "npy",
             "description": "Post-recon xi(s, mu) for the LRG3+ELG1 combined tracer (RecSym).\nPublication copy of clustering.xi_post_recon_lrg3_elg1.",
             "tags": [],
+            "inputs": [
+              {
+                "entry": "clustering.xi_post_recon_lrg3_elg1",
+                "target": "clustering.outputs.xi_post_recon_lrg3_elg1"
+              }
+            ],
             "decisions": []
           },
           {
@@ -741,6 +842,12 @@
             "format": "npy",
             "description": "Pre-recon xi(s, mu) for QSO (z=0.8-2.1). Monopole-only fit.\nPublication copy of clustering.xi_pre_recon_qso.",
             "tags": [],
+            "inputs": [
+              {
+                "entry": "clustering.xi_pre_recon_qso",
+                "target": "clustering.outputs.xi_pre_recon_qso"
+              }
+            ],
             "decisions": []
           },
           {
@@ -749,6 +856,12 @@
             "format": "npy",
             "description": "Post-recon xi(s, mu) for QSO (RecSym, sm30). QSO parent recon spans\n0.8 <= z <= 2.1 (no sub-binning) with Sigma_sm = 30 h^-1 Mpc — matches\nthe sm30 RascalC cov.\n\nPublication copy of clustering.xi_post_recon_qso.",
             "tags": [],
+            "inputs": [
+              {
+                "entry": "clustering.xi_post_recon_qso",
+                "target": "clustering.outputs.xi_post_recon_qso"
+              }
+            ],
             "decisions": []
           },
           {
@@ -762,6 +875,16 @@
               "memory": "32GB",
               "time_limit": "1h"
             },
+            "inputs": [
+              {
+                "entry": "xi_pre_recon_bgs",
+                "target": "outputs.xi_pre_recon_bgs"
+              },
+              {
+                "entry": "desi_rascalc_cov_bgs_pre",
+                "target": "outputs.desi_rascalc_cov_bgs_pre"
+              }
+            ],
             "decisions": [
               "decisions.broadband",
               "decisions.damping_prior",
@@ -787,6 +910,16 @@
               "memory": "32GB",
               "time_limit": "1h"
             },
+            "inputs": [
+              {
+                "entry": "xi_post_recon_bgs",
+                "target": "outputs.xi_post_recon_bgs"
+              },
+              {
+                "entry": "desi_rascalc_cov_bgs",
+                "target": "outputs.desi_rascalc_cov_bgs"
+              }
+            ],
             "decisions": [
               "decisions.broadband",
               "decisions.damping_prior",
@@ -812,6 +945,16 @@
               "memory": "32GB",
               "time_limit": "1h"
             },
+            "inputs": [
+              {
+                "entry": "xi_pre_recon_lrg1",
+                "target": "outputs.xi_pre_recon_lrg1"
+              },
+              {
+                "entry": "desi_rascalc_cov_lrg1_pre",
+                "target": "outputs.desi_rascalc_cov_lrg1_pre"
+              }
+            ],
             "decisions": [
               "decisions.broadband",
               "decisions.damping_prior",
@@ -837,6 +980,16 @@
               "memory": "32GB",
               "time_limit": "1h"
             },
+            "inputs": [
+              {
+                "entry": "xi_post_recon_lrg1",
+                "target": "outputs.xi_post_recon_lrg1"
+              },
+              {
+                "entry": "desi_rascalc_cov_lrg1",
+                "target": "outputs.desi_rascalc_cov_lrg1"
+              }
+            ],
             "decisions": [
               "decisions.broadband",
               "decisions.damping_prior",
@@ -862,6 +1015,16 @@
               "memory": "32GB",
               "time_limit": "1h"
             },
+            "inputs": [
+              {
+                "entry": "xi_pre_recon_lrg1",
+                "target": "outputs.xi_pre_recon_lrg1"
+              },
+              {
+                "entry": "desi_rascalc_cov_lrg1_pre",
+                "target": "outputs.desi_rascalc_cov_lrg1_pre"
+              }
+            ],
             "decisions": [
               "decisions.broadband",
               "decisions.damping_prior",
@@ -887,6 +1050,16 @@
               "memory": "32GB",
               "time_limit": "1h"
             },
+            "inputs": [
+              {
+                "entry": "xi_post_recon_lrg1",
+                "target": "outputs.xi_post_recon_lrg1"
+              },
+              {
+                "entry": "desi_rascalc_cov_lrg1",
+                "target": "outputs.desi_rascalc_cov_lrg1"
+              }
+            ],
             "decisions": [
               "decisions.broadband",
               "decisions.damping_prior",
@@ -912,6 +1085,16 @@
               "memory": "32GB",
               "time_limit": "1h"
             },
+            "inputs": [
+              {
+                "entry": "xi_pre_recon_lrg2",
+                "target": "outputs.xi_pre_recon_lrg2"
+              },
+              {
+                "entry": "desi_rascalc_cov_lrg2_pre",
+                "target": "outputs.desi_rascalc_cov_lrg2_pre"
+              }
+            ],
             "decisions": [
               "decisions.broadband",
               "decisions.damping_prior",
@@ -937,6 +1120,16 @@
               "memory": "32GB",
               "time_limit": "1h"
             },
+            "inputs": [
+              {
+                "entry": "xi_post_recon_lrg2",
+                "target": "outputs.xi_post_recon_lrg2"
+              },
+              {
+                "entry": "desi_rascalc_cov_lrg2",
+                "target": "outputs.desi_rascalc_cov_lrg2"
+              }
+            ],
             "decisions": [
               "decisions.broadband",
               "decisions.damping_prior",
@@ -962,6 +1155,16 @@
               "memory": "32GB",
               "time_limit": "1h"
             },
+            "inputs": [
+              {
+                "entry": "xi_pre_recon_lrg2",
+                "target": "outputs.xi_pre_recon_lrg2"
+              },
+              {
+                "entry": "desi_rascalc_cov_lrg2_pre",
+                "target": "outputs.desi_rascalc_cov_lrg2_pre"
+              }
+            ],
             "decisions": [
               "decisions.broadband",
               "decisions.damping_prior",
@@ -987,6 +1190,16 @@
               "memory": "32GB",
               "time_limit": "1h"
             },
+            "inputs": [
+              {
+                "entry": "xi_post_recon_lrg2",
+                "target": "outputs.xi_post_recon_lrg2"
+              },
+              {
+                "entry": "desi_rascalc_cov_lrg2",
+                "target": "outputs.desi_rascalc_cov_lrg2"
+              }
+            ],
             "decisions": [
               "decisions.broadband",
               "decisions.damping_prior",
@@ -1012,6 +1225,16 @@
               "memory": "32GB",
               "time_limit": "1h"
             },
+            "inputs": [
+              {
+                "entry": "xi_pre_recon_lrg3",
+                "target": "outputs.xi_pre_recon_lrg3"
+              },
+              {
+                "entry": "desi_rascalc_cov_lrg3_pre",
+                "target": "outputs.desi_rascalc_cov_lrg3_pre"
+              }
+            ],
             "decisions": [
               "decisions.broadband",
               "decisions.damping_prior",
@@ -1037,6 +1260,16 @@
               "memory": "32GB",
               "time_limit": "1h"
             },
+            "inputs": [
+              {
+                "entry": "xi_post_recon_lrg3",
+                "target": "outputs.xi_post_recon_lrg3"
+              },
+              {
+                "entry": "desi_rascalc_cov_lrg3",
+                "target": "outputs.desi_rascalc_cov_lrg3"
+              }
+            ],
             "decisions": [
               "decisions.broadband",
               "decisions.damping_prior",
@@ -1062,6 +1295,16 @@
               "memory": "32GB",
               "time_limit": "1h"
             },
+            "inputs": [
+              {
+                "entry": "xi_pre_recon_lrg3",
+                "target": "outputs.xi_pre_recon_lrg3"
+              },
+              {
+                "entry": "desi_rascalc_cov_lrg3_pre",
+                "target": "outputs.desi_rascalc_cov_lrg3_pre"
+              }
+            ],
             "decisions": [
               "decisions.broadband",
               "decisions.damping_prior",
@@ -1087,6 +1330,16 @@
               "memory": "32GB",
               "time_limit": "1h"
             },
+            "inputs": [
+              {
+                "entry": "xi_post_recon_lrg3",
+                "target": "outputs.xi_post_recon_lrg3"
+              },
+              {
+                "entry": "desi_rascalc_cov_lrg3",
+                "target": "outputs.desi_rascalc_cov_lrg3"
+              }
+            ],
             "decisions": [
               "decisions.broadband",
               "decisions.damping_prior",
@@ -1112,6 +1365,16 @@
               "memory": "32GB",
               "time_limit": "1h"
             },
+            "inputs": [
+              {
+                "entry": "xi_pre_recon_elg1",
+                "target": "outputs.xi_pre_recon_elg1"
+              },
+              {
+                "entry": "desi_rascalc_cov_elg1_pre",
+                "target": "outputs.desi_rascalc_cov_elg1_pre"
+              }
+            ],
             "decisions": [
               "decisions.broadband",
               "decisions.damping_prior",
@@ -1137,6 +1400,16 @@
               "memory": "32GB",
               "time_limit": "1h"
             },
+            "inputs": [
+              {
+                "entry": "xi_post_recon_elg1",
+                "target": "outputs.xi_post_recon_elg1"
+              },
+              {
+                "entry": "desi_rascalc_cov_elg1",
+                "target": "outputs.desi_rascalc_cov_elg1"
+              }
+            ],
             "decisions": [
               "decisions.broadband",
               "decisions.damping_prior",
@@ -1162,6 +1435,16 @@
               "memory": "32GB",
               "time_limit": "1h"
             },
+            "inputs": [
+              {
+                "entry": "xi_pre_recon_elg2",
+                "target": "outputs.xi_pre_recon_elg2"
+              },
+              {
+                "entry": "desi_rascalc_cov_elg2_pre",
+                "target": "outputs.desi_rascalc_cov_elg2_pre"
+              }
+            ],
             "decisions": [
               "decisions.broadband",
               "decisions.damping_prior",
@@ -1187,6 +1470,16 @@
               "memory": "32GB",
               "time_limit": "1h"
             },
+            "inputs": [
+              {
+                "entry": "xi_post_recon_elg2",
+                "target": "outputs.xi_post_recon_elg2"
+              },
+              {
+                "entry": "desi_rascalc_cov_elg2",
+                "target": "outputs.desi_rascalc_cov_elg2"
+              }
+            ],
             "decisions": [
               "decisions.broadband",
               "decisions.damping_prior",
@@ -1212,6 +1505,16 @@
               "memory": "32GB",
               "time_limit": "1h"
             },
+            "inputs": [
+              {
+                "entry": "xi_pre_recon_elg2",
+                "target": "outputs.xi_pre_recon_elg2"
+              },
+              {
+                "entry": "desi_rascalc_cov_elg2_pre",
+                "target": "outputs.desi_rascalc_cov_elg2_pre"
+              }
+            ],
             "decisions": [
               "decisions.broadband",
               "decisions.damping_prior",
@@ -1237,6 +1540,16 @@
               "memory": "32GB",
               "time_limit": "1h"
             },
+            "inputs": [
+              {
+                "entry": "xi_post_recon_elg2",
+                "target": "outputs.xi_post_recon_elg2"
+              },
+              {
+                "entry": "desi_rascalc_cov_elg2",
+                "target": "outputs.desi_rascalc_cov_elg2"
+              }
+            ],
             "decisions": [
               "decisions.broadband",
               "decisions.damping_prior",
@@ -1262,6 +1575,16 @@
               "memory": "32GB",
               "time_limit": "1h"
             },
+            "inputs": [
+              {
+                "entry": "xi_pre_recon_lrg3_elg1",
+                "target": "outputs.xi_pre_recon_lrg3_elg1"
+              },
+              {
+                "entry": "desi_rascalc_cov_lrg3_elg1_pre",
+                "target": "outputs.desi_rascalc_cov_lrg3_elg1_pre"
+              }
+            ],
             "decisions": [
               "decisions.broadband",
               "decisions.damping_prior",
@@ -1287,6 +1610,16 @@
               "memory": "32GB",
               "time_limit": "1h"
             },
+            "inputs": [
+              {
+                "entry": "xi_post_recon_lrg3_elg1",
+                "target": "outputs.xi_post_recon_lrg3_elg1"
+              },
+              {
+                "entry": "desi_rascalc_cov_lrg3_elg1",
+                "target": "outputs.desi_rascalc_cov_lrg3_elg1"
+              }
+            ],
             "decisions": [
               "decisions.broadband",
               "decisions.damping_prior",
@@ -1312,6 +1645,16 @@
               "memory": "32GB",
               "time_limit": "1h"
             },
+            "inputs": [
+              {
+                "entry": "xi_pre_recon_lrg3_elg1",
+                "target": "outputs.xi_pre_recon_lrg3_elg1"
+              },
+              {
+                "entry": "desi_rascalc_cov_lrg3_elg1_pre",
+                "target": "outputs.desi_rascalc_cov_lrg3_elg1_pre"
+              }
+            ],
             "decisions": [
               "decisions.broadband",
               "decisions.damping_prior",
@@ -1337,6 +1680,16 @@
               "memory": "32GB",
               "time_limit": "1h"
             },
+            "inputs": [
+              {
+                "entry": "xi_post_recon_lrg3_elg1",
+                "target": "outputs.xi_post_recon_lrg3_elg1"
+              },
+              {
+                "entry": "desi_rascalc_cov_lrg3_elg1",
+                "target": "outputs.desi_rascalc_cov_lrg3_elg1"
+              }
+            ],
             "decisions": [
               "decisions.broadband",
               "decisions.damping_prior",
@@ -1362,6 +1715,16 @@
               "memory": "32GB",
               "time_limit": "1h"
             },
+            "inputs": [
+              {
+                "entry": "xi_pre_recon_qso",
+                "target": "outputs.xi_pre_recon_qso"
+              },
+              {
+                "entry": "desi_rascalc_cov_qso_pre",
+                "target": "outputs.desi_rascalc_cov_qso_pre"
+              }
+            ],
             "decisions": [
               "decisions.broadband",
               "decisions.damping_prior",
@@ -1387,6 +1750,16 @@
               "memory": "32GB",
               "time_limit": "1h"
             },
+            "inputs": [
+              {
+                "entry": "xi_post_recon_qso",
+                "target": "outputs.xi_post_recon_qso"
+              },
+              {
+                "entry": "desi_rascalc_cov_qso",
+                "target": "outputs.desi_rascalc_cov_qso"
+              }
+            ],
             "decisions": [
               "decisions.broadband",
               "decisions.damping_prior",
@@ -1407,6 +1780,72 @@
             "format": "csv",
             "description": "BAO dilation parameters for all eight DESI DR1 tracer–redshift bins,\nbefore (`Pre`) and after (`Post`) reconstruction. Each row gives the\nposterior mean and dispersion of the isotropic dilation\n$\\alpha_\\mathrm{iso}$ (`qiso`, `alpha1_*`) and — for the 2D fits —\nthe anisotropic Alcock–Paczyński parameter $\\alpha_\\mathrm{AP}$\n(`qap`, `alpha2_*`); the 1D-fit tracers (BGS, ELG1, QSO) constrain\n$\\alpha_\\mathrm{iso}$ only. The `_std` columns fold in the combined\nmodelling-systematic budget, with the statistical-only error kept in\n`_std_stat`; `r_off` is the posterior correlation between the two\n$\\alpha$'s, and the last two columns give the fit $\\chi^2$ and the\nnumber of degrees of freedom.\n",
             "tags": [],
+            "inputs": [
+              {
+                "entry": "bao_fit_pre_iso_bgs",
+                "target": "outputs.bao_fit_pre_iso_bgs"
+              },
+              {
+                "entry": "bao_fit_post_iso_bgs",
+                "target": "outputs.bao_fit_post_iso_bgs"
+              },
+              {
+                "entry": "bao_fit_pre_iso_ap_lrg1",
+                "target": "outputs.bao_fit_pre_iso_ap_lrg1"
+              },
+              {
+                "entry": "bao_fit_post_iso_ap_lrg1",
+                "target": "outputs.bao_fit_post_iso_ap_lrg1"
+              },
+              {
+                "entry": "bao_fit_pre_iso_ap_lrg2",
+                "target": "outputs.bao_fit_pre_iso_ap_lrg2"
+              },
+              {
+                "entry": "bao_fit_post_iso_ap_lrg2",
+                "target": "outputs.bao_fit_post_iso_ap_lrg2"
+              },
+              {
+                "entry": "bao_fit_pre_iso_ap_lrg3",
+                "target": "outputs.bao_fit_pre_iso_ap_lrg3"
+              },
+              {
+                "entry": "bao_fit_post_iso_ap_lrg3",
+                "target": "outputs.bao_fit_post_iso_ap_lrg3"
+              },
+              {
+                "entry": "bao_fit_pre_iso_elg1",
+                "target": "outputs.bao_fit_pre_iso_elg1"
+              },
+              {
+                "entry": "bao_fit_post_iso_elg1",
+                "target": "outputs.bao_fit_post_iso_elg1"
+              },
+              {
+                "entry": "bao_fit_pre_iso_ap_elg2",
+                "target": "outputs.bao_fit_pre_iso_ap_elg2"
+              },
+              {
+                "entry": "bao_fit_post_iso_ap_elg2",
+                "target": "outputs.bao_fit_post_iso_ap_elg2"
+              },
+              {
+                "entry": "bao_fit_pre_iso_ap_lrg3_elg1",
+                "target": "outputs.bao_fit_pre_iso_ap_lrg3_elg1"
+              },
+              {
+                "entry": "bao_fit_post_iso_ap_lrg3_elg1",
+                "target": "outputs.bao_fit_post_iso_ap_lrg3_elg1"
+              },
+              {
+                "entry": "bao_fit_pre_iso_qso",
+                "target": "outputs.bao_fit_pre_iso_qso"
+              },
+              {
+                "entry": "bao_fit_post_iso_qso",
+                "target": "outputs.bao_fit_post_iso_qso"
+              }
+            ],
             "decisions": [
               "decisions.systematic_error_treatment"
             ]
@@ -1417,6 +1856,48 @@
             "format": "csv",
             "description": "alpha_perp / alpha_par / r_off per (tracer, recon).\nDerived from the iso_ap chains (qper / qpar are derived params there);\na native perp_par sampling pass is not run since the basis-Jacobian\neffects are negligible at our precision. BGS, ELG1, and\nQSO are 1D-only and omitted.\n",
             "tags": [],
+            "inputs": [
+              {
+                "entry": "bao_fit_pre_iso_ap_lrg1",
+                "target": "outputs.bao_fit_pre_iso_ap_lrg1"
+              },
+              {
+                "entry": "bao_fit_post_iso_ap_lrg1",
+                "target": "outputs.bao_fit_post_iso_ap_lrg1"
+              },
+              {
+                "entry": "bao_fit_pre_iso_ap_lrg2",
+                "target": "outputs.bao_fit_pre_iso_ap_lrg2"
+              },
+              {
+                "entry": "bao_fit_post_iso_ap_lrg2",
+                "target": "outputs.bao_fit_post_iso_ap_lrg2"
+              },
+              {
+                "entry": "bao_fit_pre_iso_ap_lrg3",
+                "target": "outputs.bao_fit_pre_iso_ap_lrg3"
+              },
+              {
+                "entry": "bao_fit_post_iso_ap_lrg3",
+                "target": "outputs.bao_fit_post_iso_ap_lrg3"
+              },
+              {
+                "entry": "bao_fit_pre_iso_ap_elg2",
+                "target": "outputs.bao_fit_pre_iso_ap_elg2"
+              },
+              {
+                "entry": "bao_fit_post_iso_ap_elg2",
+                "target": "outputs.bao_fit_post_iso_ap_elg2"
+              },
+              {
+                "entry": "bao_fit_pre_iso_ap_lrg3_elg1",
+                "target": "outputs.bao_fit_pre_iso_ap_lrg3_elg1"
+              },
+              {
+                "entry": "bao_fit_post_iso_ap_lrg3_elg1",
+                "target": "outputs.bao_fit_post_iso_ap_lrg3_elg1"
+              }
+            ],
             "decisions": [
               "decisions.systematic_error_treatment"
             ]
@@ -1432,6 +1913,24 @@
               "memory": "32GB",
               "time_limit": "15m"
             },
+            "inputs": [
+              {
+                "entry": "bao_fit_pre_iso_bgs",
+                "target": "outputs.bao_fit_pre_iso_bgs"
+              },
+              {
+                "entry": "bao_fit_post_iso_bgs",
+                "target": "outputs.bao_fit_post_iso_bgs"
+              },
+              {
+                "entry": "xi_pre_recon_bgs",
+                "target": "outputs.xi_pre_recon_bgs"
+              },
+              {
+                "entry": "xi_post_recon_bgs",
+                "target": "outputs.xi_post_recon_bgs"
+              }
+            ],
             "decisions": [
               "decisions.broadband",
               "decisions.damping_prior",
@@ -1456,6 +1955,24 @@
               "memory": "32GB",
               "time_limit": "15m"
             },
+            "inputs": [
+              {
+                "entry": "bao_fit_pre_iso_ap_lrg1",
+                "target": "outputs.bao_fit_pre_iso_ap_lrg1"
+              },
+              {
+                "entry": "bao_fit_post_iso_ap_lrg1",
+                "target": "outputs.bao_fit_post_iso_ap_lrg1"
+              },
+              {
+                "entry": "xi_pre_recon_lrg1",
+                "target": "outputs.xi_pre_recon_lrg1"
+              },
+              {
+                "entry": "xi_post_recon_lrg1",
+                "target": "outputs.xi_post_recon_lrg1"
+              }
+            ],
             "decisions": [
               "decisions.broadband",
               "decisions.damping_prior",
@@ -1480,6 +1997,24 @@
               "memory": "32GB",
               "time_limit": "15m"
             },
+            "inputs": [
+              {
+                "entry": "bao_fit_pre_iso_ap_lrg2",
+                "target": "outputs.bao_fit_pre_iso_ap_lrg2"
+              },
+              {
+                "entry": "bao_fit_post_iso_ap_lrg2",
+                "target": "outputs.bao_fit_post_iso_ap_lrg2"
+              },
+              {
+                "entry": "xi_pre_recon_lrg2",
+                "target": "outputs.xi_pre_recon_lrg2"
+              },
+              {
+                "entry": "xi_post_recon_lrg2",
+                "target": "outputs.xi_post_recon_lrg2"
+              }
+            ],
             "decisions": [
               "decisions.broadband",
               "decisions.damping_prior",
@@ -1504,6 +2039,24 @@
               "memory": "32GB",
               "time_limit": "15m"
             },
+            "inputs": [
+              {
+                "entry": "bao_fit_pre_iso_ap_lrg3",
+                "target": "outputs.bao_fit_pre_iso_ap_lrg3"
+              },
+              {
+                "entry": "bao_fit_post_iso_ap_lrg3",
+                "target": "outputs.bao_fit_post_iso_ap_lrg3"
+              },
+              {
+                "entry": "xi_pre_recon_lrg3",
+                "target": "outputs.xi_pre_recon_lrg3"
+              },
+              {
+                "entry": "xi_post_recon_lrg3",
+                "target": "outputs.xi_post_recon_lrg3"
+              }
+            ],
             "decisions": [
               "decisions.broadband",
               "decisions.damping_prior",
@@ -1528,6 +2081,24 @@
               "memory": "32GB",
               "time_limit": "15m"
             },
+            "inputs": [
+              {
+                "entry": "bao_fit_pre_iso_elg1",
+                "target": "outputs.bao_fit_pre_iso_elg1"
+              },
+              {
+                "entry": "bao_fit_post_iso_elg1",
+                "target": "outputs.bao_fit_post_iso_elg1"
+              },
+              {
+                "entry": "xi_pre_recon_elg1",
+                "target": "outputs.xi_pre_recon_elg1"
+              },
+              {
+                "entry": "xi_post_recon_elg1",
+                "target": "outputs.xi_post_recon_elg1"
+              }
+            ],
             "decisions": [
               "decisions.broadband",
               "decisions.damping_prior",
@@ -1552,6 +2123,24 @@
               "memory": "32GB",
               "time_limit": "15m"
             },
+            "inputs": [
+              {
+                "entry": "bao_fit_pre_iso_ap_elg2",
+                "target": "outputs.bao_fit_pre_iso_ap_elg2"
+              },
+              {
+                "entry": "bao_fit_post_iso_ap_elg2",
+                "target": "outputs.bao_fit_post_iso_ap_elg2"
+              },
+              {
+                "entry": "xi_pre_recon_elg2",
+                "target": "outputs.xi_pre_recon_elg2"
+              },
+              {
+                "entry": "xi_post_recon_elg2",
+                "target": "outputs.xi_post_recon_elg2"
+              }
+            ],
             "decisions": [
               "decisions.broadband",
               "decisions.damping_prior",
@@ -1576,6 +2165,24 @@
               "memory": "32GB",
               "time_limit": "15m"
             },
+            "inputs": [
+              {
+                "entry": "bao_fit_pre_iso_ap_lrg3_elg1",
+                "target": "outputs.bao_fit_pre_iso_ap_lrg3_elg1"
+              },
+              {
+                "entry": "bao_fit_post_iso_ap_lrg3_elg1",
+                "target": "outputs.bao_fit_post_iso_ap_lrg3_elg1"
+              },
+              {
+                "entry": "xi_pre_recon_lrg3_elg1",
+                "target": "outputs.xi_pre_recon_lrg3_elg1"
+              },
+              {
+                "entry": "xi_post_recon_lrg3_elg1",
+                "target": "outputs.xi_post_recon_lrg3_elg1"
+              }
+            ],
             "decisions": [
               "decisions.broadband",
               "decisions.damping_prior",
@@ -1600,6 +2207,24 @@
               "memory": "32GB",
               "time_limit": "15m"
             },
+            "inputs": [
+              {
+                "entry": "bao_fit_pre_iso_qso",
+                "target": "outputs.bao_fit_pre_iso_qso"
+              },
+              {
+                "entry": "bao_fit_post_iso_qso",
+                "target": "outputs.bao_fit_post_iso_qso"
+              },
+              {
+                "entry": "xi_pre_recon_qso",
+                "target": "outputs.xi_pre_recon_qso"
+              },
+              {
+                "entry": "xi_post_recon_qso",
+                "target": "outputs.xi_post_recon_qso"
+              }
+            ],
             "decisions": [
               "decisions.broadband",
               "decisions.damping_prior",
@@ -1619,6 +2244,40 @@
             "format": "png",
             "description": "The isolated BAO feature in the DESI DR1 correlation functions.\nEach panel shows $s^2\\,\\Delta\\ xi_\\ell(s)$ — the measured multipole\nminus the smooth (no-wiggle) part of the best-fit model — for one\ntracer–redshift bin, before (open symbols) and after (filled\nsymbols) density-field reconstruction, with the best-fit damped-BAO\ntemplate overlaid as solid curves. Two-row panels show the monopole\n($\\ell=0$, top) and quadrupole ($\\ell=2$, bottom) for the tracers\nfit in 2D; the 1D-fit tracers show the monopole only. The acoustic\npeak near $s \\approx 100\\,h^{-1}\\,\\mathrm{Mpc}$ is visibly sharper\nafter reconstruction.\n",
             "tags": [],
+            "inputs": [
+              {
+                "entry": "bao_fit_isolated_bgs",
+                "target": "outputs.bao_fit_isolated_bgs"
+              },
+              {
+                "entry": "bao_fit_isolated_lrg1",
+                "target": "outputs.bao_fit_isolated_lrg1"
+              },
+              {
+                "entry": "bao_fit_isolated_lrg2",
+                "target": "outputs.bao_fit_isolated_lrg2"
+              },
+              {
+                "entry": "bao_fit_isolated_lrg3",
+                "target": "outputs.bao_fit_isolated_lrg3"
+              },
+              {
+                "entry": "bao_fit_isolated_elg1",
+                "target": "outputs.bao_fit_isolated_elg1"
+              },
+              {
+                "entry": "bao_fit_isolated_elg2",
+                "target": "outputs.bao_fit_isolated_elg2"
+              },
+              {
+                "entry": "bao_fit_isolated_lrg3_elg1",
+                "target": "outputs.bao_fit_isolated_lrg3_elg1"
+              },
+              {
+                "entry": "bao_fit_isolated_qso",
+                "target": "outputs.bao_fit_isolated_qso"
+              }
+            ],
             "decisions": []
           },
           {
@@ -1632,6 +2291,12 @@
               "memory": "32GB",
               "time_limit": "15m"
             },
+            "inputs": [
+              {
+                "entry": "xi_post_recon_bgs",
+                "target": "outputs.xi_post_recon_bgs"
+              }
+            ],
             "decisions": [
               "decisions.broadband",
               "decisions.damping_prior",
@@ -1656,6 +2321,12 @@
               "memory": "32GB",
               "time_limit": "15m"
             },
+            "inputs": [
+              {
+                "entry": "xi_post_recon_lrg1",
+                "target": "outputs.xi_post_recon_lrg1"
+              }
+            ],
             "decisions": [
               "decisions.broadband",
               "decisions.damping_prior",
@@ -1680,6 +2351,12 @@
               "memory": "32GB",
               "time_limit": "15m"
             },
+            "inputs": [
+              {
+                "entry": "xi_post_recon_lrg2",
+                "target": "outputs.xi_post_recon_lrg2"
+              }
+            ],
             "decisions": [
               "decisions.broadband",
               "decisions.damping_prior",
@@ -1704,6 +2381,12 @@
               "memory": "32GB",
               "time_limit": "15m"
             },
+            "inputs": [
+              {
+                "entry": "xi_post_recon_lrg3",
+                "target": "outputs.xi_post_recon_lrg3"
+              }
+            ],
             "decisions": [
               "decisions.broadband",
               "decisions.damping_prior",
@@ -1728,6 +2411,12 @@
               "memory": "32GB",
               "time_limit": "15m"
             },
+            "inputs": [
+              {
+                "entry": "xi_post_recon_elg1",
+                "target": "outputs.xi_post_recon_elg1"
+              }
+            ],
             "decisions": [
               "decisions.broadband",
               "decisions.damping_prior",
@@ -1752,6 +2441,12 @@
               "memory": "32GB",
               "time_limit": "15m"
             },
+            "inputs": [
+              {
+                "entry": "xi_post_recon_elg2",
+                "target": "outputs.xi_post_recon_elg2"
+              }
+            ],
             "decisions": [
               "decisions.broadband",
               "decisions.damping_prior",
@@ -1776,6 +2471,12 @@
               "memory": "32GB",
               "time_limit": "15m"
             },
+            "inputs": [
+              {
+                "entry": "xi_post_recon_lrg3_elg1",
+                "target": "outputs.xi_post_recon_lrg3_elg1"
+              }
+            ],
             "decisions": [
               "decisions.broadband",
               "decisions.damping_prior",
@@ -1800,6 +2501,12 @@
               "memory": "32GB",
               "time_limit": "15m"
             },
+            "inputs": [
+              {
+                "entry": "xi_post_recon_qso",
+                "target": "outputs.xi_post_recon_qso"
+              }
+            ],
             "decisions": [
               "decisions.broadband",
               "decisions.damping_prior",
@@ -1819,6 +2526,40 @@
             "format": "png",
             "description": "BAO detection significance per tracer. $\\Delta\\chi^2$ between a\nno-BAO (broadband-only) reference and the damped-BAO template, as a\nfunction of the isotropic dilation $\\alpha_\\mathrm{iso}$, for each\npost-reconstruction correlation function. A well-defined minimum\nnear $\\alpha_\\mathrm{iso} = 1$ signals a detection of the acoustic\nfeature at the expected scale, and the depth of the minimum sets\nthe per-tracer detection significance quoted in the legend.\n",
             "tags": [],
+            "inputs": [
+              {
+                "entry": "bao_detection_chi2_bgs",
+                "target": "outputs.bao_detection_chi2_bgs"
+              },
+              {
+                "entry": "bao_detection_chi2_lrg1",
+                "target": "outputs.bao_detection_chi2_lrg1"
+              },
+              {
+                "entry": "bao_detection_chi2_lrg2",
+                "target": "outputs.bao_detection_chi2_lrg2"
+              },
+              {
+                "entry": "bao_detection_chi2_lrg3",
+                "target": "outputs.bao_detection_chi2_lrg3"
+              },
+              {
+                "entry": "bao_detection_chi2_elg1",
+                "target": "outputs.bao_detection_chi2_elg1"
+              },
+              {
+                "entry": "bao_detection_chi2_elg2",
+                "target": "outputs.bao_detection_chi2_elg2"
+              },
+              {
+                "entry": "bao_detection_chi2_lrg3_elg1",
+                "target": "outputs.bao_detection_chi2_lrg3_elg1"
+              },
+              {
+                "entry": "bao_detection_chi2_qso",
+                "target": "outputs.bao_detection_chi2_qso"
+              }
+            ],
             "decisions": []
           },
           {
@@ -1827,6 +2568,40 @@
             "format": "csv",
             "description": "Final DESI DR1 BAO distance constraints, per tracer at its\neffective redshift $z_\\mathrm{eff}$: the comoving transverse\ndistance $D_M/r_d$, the Hubble distance $D_H/r_d$, the\nangle-averaged distance $D_V/r_d$, and the ratio $D_M/D_H$, all\nrelative to the sound horizon at the drag epoch $r_d$. Values are\nderived from the post-reconstruction chains, with the combined\nmodelling + HOD + fiducial-cosmology systematic budget folded into\nthe quoted uncertainties (`_std` columns); `r_off` is the\n$D_M$–$D_H$ posterior correlation. The 1D-fit tracers (BGS, ELG1,\nQSO) constrain only $D_V/r_d$, so their $D_M$ and $D_H$ entries\nare empty.\n",
             "tags": [],
+            "inputs": [
+              {
+                "entry": "bao_fit_post_iso_bgs",
+                "target": "outputs.bao_fit_post_iso_bgs"
+              },
+              {
+                "entry": "bao_fit_post_iso_ap_lrg1",
+                "target": "outputs.bao_fit_post_iso_ap_lrg1"
+              },
+              {
+                "entry": "bao_fit_post_iso_ap_lrg2",
+                "target": "outputs.bao_fit_post_iso_ap_lrg2"
+              },
+              {
+                "entry": "bao_fit_post_iso_ap_lrg3",
+                "target": "outputs.bao_fit_post_iso_ap_lrg3"
+              },
+              {
+                "entry": "bao_fit_post_iso_ap_lrg3_elg1",
+                "target": "outputs.bao_fit_post_iso_ap_lrg3_elg1"
+              },
+              {
+                "entry": "bao_fit_post_iso_elg1",
+                "target": "outputs.bao_fit_post_iso_elg1"
+              },
+              {
+                "entry": "bao_fit_post_iso_ap_elg2",
+                "target": "outputs.bao_fit_post_iso_ap_elg2"
+              },
+              {
+                "entry": "bao_fit_post_iso_qso",
+                "target": "outputs.bao_fit_post_iso_qso"
+              }
+            ],
             "decisions": [
               "decisions.systematic_error_treatment"
             ]
@@ -1837,6 +2612,40 @@
             "format": "png",
             "description": "Corner plot of post-recon BAO distance posteriors with α residuals\nfrom fiducial Planck 2018-ΛCDM in a top inset.\n",
             "tags": [],
+            "inputs": [
+              {
+                "entry": "bao_fit_post_iso_bgs",
+                "target": "outputs.bao_fit_post_iso_bgs"
+              },
+              {
+                "entry": "bao_fit_post_iso_ap_lrg1",
+                "target": "outputs.bao_fit_post_iso_ap_lrg1"
+              },
+              {
+                "entry": "bao_fit_post_iso_ap_lrg2",
+                "target": "outputs.bao_fit_post_iso_ap_lrg2"
+              },
+              {
+                "entry": "bao_fit_post_iso_ap_lrg3",
+                "target": "outputs.bao_fit_post_iso_ap_lrg3"
+              },
+              {
+                "entry": "bao_fit_post_iso_ap_lrg3_elg1",
+                "target": "outputs.bao_fit_post_iso_ap_lrg3_elg1"
+              },
+              {
+                "entry": "bao_fit_post_iso_elg1",
+                "target": "outputs.bao_fit_post_iso_elg1"
+              },
+              {
+                "entry": "bao_fit_post_iso_ap_elg2",
+                "target": "outputs.bao_fit_post_iso_ap_elg2"
+              },
+              {
+                "entry": "bao_fit_post_iso_qso",
+                "target": "outputs.bao_fit_post_iso_qso"
+              }
+            ],
             "decisions": []
           },
           {
@@ -1845,6 +2654,44 @@
             "format": "png",
             "description": "The DESI DR1 BAO distances on the Hubble diagram. From top to\nbottom: $D_M/r_d$, $D_H/r_d$, $D_V/r_d$, and $D_M/D_H$ as a\nfunction of redshift, each divided by the prediction of the DESI\nfiducial cosmology (Planck 2018 $\\Lambda$CDM), so the line at\nunity is the fiducial model. Coloured points are the DESI DR1\ntracers measured in this analysis; grey symbols are earlier\nmeasurements from 6dFGS, WiggleZ, SDSS DR16, and DES Y6.\n",
             "tags": [],
+            "inputs": [
+              {
+                "entry": "bao_distance_table",
+                "target": "outputs.bao_distance_table"
+              },
+              {
+                "entry": "bao_fit_post_iso_bgs",
+                "target": "outputs.bao_fit_post_iso_bgs"
+              },
+              {
+                "entry": "bao_fit_post_iso_ap_lrg1",
+                "target": "outputs.bao_fit_post_iso_ap_lrg1"
+              },
+              {
+                "entry": "bao_fit_post_iso_ap_lrg2",
+                "target": "outputs.bao_fit_post_iso_ap_lrg2"
+              },
+              {
+                "entry": "bao_fit_post_iso_ap_lrg3",
+                "target": "outputs.bao_fit_post_iso_ap_lrg3"
+              },
+              {
+                "entry": "bao_fit_post_iso_ap_lrg3_elg1",
+                "target": "outputs.bao_fit_post_iso_ap_lrg3_elg1"
+              },
+              {
+                "entry": "bao_fit_post_iso_elg1",
+                "target": "outputs.bao_fit_post_iso_elg1"
+              },
+              {
+                "entry": "bao_fit_post_iso_ap_elg2",
+                "target": "outputs.bao_fit_post_iso_ap_elg2"
+              },
+              {
+                "entry": "bao_fit_post_iso_qso",
+                "target": "outputs.bao_fit_post_iso_qso"
+              }
+            ],
             "decisions": []
           },
           {
@@ -1853,6 +2700,12 @@
             "format": "png",
             "description": "Publication copy of clustering.xi_multipoles_plot.",
             "tags": [],
+            "inputs": [
+              {
+                "entry": "clustering.xi_multipoles_plot",
+                "target": "clustering.outputs.xi_multipoles_plot"
+              }
+            ],
             "decisions": []
           },
           {
@@ -1861,6 +2714,12 @@
             "format": "json",
             "description": "Publication copy of reconstruction.mean_displacement_bgs_full.",
             "tags": [],
+            "inputs": [
+              {
+                "entry": "reconstruction.mean_displacement_bgs_full",
+                "target": "reconstruction.outputs.mean_displacement_bgs_full"
+              }
+            ],
             "decisions": []
           }
         ],
@@ -2602,13 +3461,21 @@
             "claim": "The BAO feature in ξ(s) visibly sharpens from pre- to post-reconstruction across tracers.",
             "evidence": [
               {
-                "cites": [
-                  "bao_fit_plot#baseline"
-                ],
                 "quote": {
                   "exact": "Isolated BAO feature + best-fit xi model, pre vs post, one row per tracer; post-recon curves show a sharper peak."
                 },
-                "artifact": "bao_fit_plot#baseline"
+                "artifact": "bao_fit_plot#baseline",
+                "bindings": [
+                  {
+                    "universe": "universes.baseline",
+                    "output": "outputs.bao_fit_plot",
+                    "target_universe": "universes.baseline",
+                    "result": "bao_fit_plot#baseline"
+                  }
+                ],
+                "cites": [
+                  "bao_fit_plot#baseline"
+                ]
               }
             ],
             "label": "BAO peak sharpens",
@@ -2622,13 +3489,21 @@
             "claim": "The acoustic feature is detected post-reconstruction in every tracer.",
             "evidence": [
               {
-                "cites": [
-                  "bao_detection_plot#baseline"
-                ],
                 "quote": {
                   "exact": "Δχ²(α_iso) vs α_iso per tracer, BAO template vs no-BAO; per-tracer minimum quantifies detection significance."
                 },
-                "artifact": "bao_detection_plot#baseline"
+                "artifact": "bao_detection_plot#baseline",
+                "bindings": [
+                  {
+                    "universe": "universes.baseline",
+                    "output": "outputs.bao_detection_plot",
+                    "target_universe": "universes.baseline",
+                    "result": "bao_detection_plot#baseline"
+                  }
+                ],
+                "cites": [
+                  "bao_detection_plot#baseline"
+                ]
               }
             ],
             "label": "BAO detected post-recon",
@@ -2642,13 +3517,21 @@
             "claim": "Reconstruction shrinks σ(α_iso) across every fitted tracer.",
             "evidence": [
               {
-                "cites": [
-                  "bao_alpha_values#baseline"
-                ],
                 "quote": {
                   "exact": "lrg1,Pre,chain,qiso,0.9709,0.0167 ... lrg1,Post,chain,qiso,0.9776,0.0114 ... lrg2,Pre,qiso,0.9396,0.0198 ... lrg2,Post,qiso,0.9558,0.0113 ... lrg3,Pre,qiso,1.0039,0.0131 ... lrg3,Post,qiso,1.0001,0.0093 ... elg1,Pre,qiso,1.0075,0.0772 ... elg1,Post,qiso,0.9892,0.0266"
                 },
-                "artifact": "bao_alpha_values#baseline"
+                "artifact": "bao_alpha_values#baseline",
+                "bindings": [
+                  {
+                    "universe": "universes.baseline",
+                    "output": "outputs.bao_alpha_values",
+                    "target_universe": "universes.baseline",
+                    "result": "bao_alpha_values#baseline"
+                  }
+                ],
+                "cites": [
+                  "bao_alpha_values#baseline"
+                ]
               }
             ],
             "label": "Reconstruction tightens α_iso",
@@ -2662,13 +3545,21 @@
             "claim": "Post-recon α_iso is measured at roughly 1 % fractional precision per 2D LRG bin.",
             "evidence": [
               {
-                "cites": [
-                  "bao_alpha_values#baseline"
-                ],
                 "quote": {
                   "exact": "lrg1,Post,chain,qiso,0.9776,0.0114 ; lrg2,Post,chain,qiso,0.9558,0.0113 ; lrg3,Post,chain,qiso,1.0001,0.0093"
                 },
-                "artifact": "bao_alpha_values#baseline"
+                "artifact": "bao_alpha_values#baseline",
+                "bindings": [
+                  {
+                    "universe": "universes.baseline",
+                    "output": "outputs.bao_alpha_values",
+                    "target_universe": "universes.baseline",
+                    "result": "bao_alpha_values#baseline"
+                  }
+                ],
+                "cites": [
+                  "bao_alpha_values#baseline"
+                ]
               }
             ],
             "label": "~1 % α_iso precision",
@@ -2682,13 +3573,21 @@
             "claim": "Post-recon fits return χ²/dof consistent with the number of degrees of freedom.",
             "evidence": [
               {
-                "cites": [
-                  "bao_alpha_values#baseline"
-                ],
                 "quote": {
                   "exact": "lrg1,Post,...,38.0902,39 ; lrg2,Post,...,36.5192,39 ; lrg3,Post,...,27.4651,39 ; elg1,Post,...,20.4308,19"
                 },
-                "artifact": "bao_alpha_values#baseline"
+                "artifact": "bao_alpha_values#baseline",
+                "bindings": [
+                  {
+                    "universe": "universes.baseline",
+                    "output": "outputs.bao_alpha_values",
+                    "target_universe": "universes.baseline",
+                    "result": "bao_alpha_values#baseline"
+                  }
+                ],
+                "cites": [
+                  "bao_alpha_values#baseline"
+                ]
               }
             ],
             "label": "χ²/dof near dof",
@@ -2752,7 +3651,8 @@
             "description": "Imaging-weight null-test configuration; preview bytes have not been materialized.",
             "tags": []
           }
-        ]
+        ],
+        "switches": []
       },
       {
         "key": "clustering",
@@ -2803,6 +3703,16 @@
               "memory": "128GB",
               "time_limit": "2h"
             },
+            "inputs": [
+              {
+                "entry": "parent.desi_fiducial_cosmology",
+                "target": "inputs.desi_fiducial_cosmology"
+              },
+              {
+                "entry": "parent.desi_dr1_lss_catalogs",
+                "target": "outputs.desi_dr1_lss_catalogs"
+              }
+            ],
             "decisions": [
               "clustering.decisions.imaging_weights"
             ]
@@ -2818,6 +3728,16 @@
               "memory": "128GB",
               "time_limit": "2h"
             },
+            "inputs": [
+              {
+                "entry": "parent.desi_fiducial_cosmology",
+                "target": "inputs.desi_fiducial_cosmology"
+              },
+              {
+                "entry": "parent.reconstruction.post_recon_catalog_bgs_full",
+                "target": "reconstruction.outputs.post_recon_catalog_bgs_full"
+              }
+            ],
             "decisions": [
               "clustering.decisions.imaging_weights"
             ]
@@ -2833,6 +3753,16 @@
               "memory": "128GB",
               "time_limit": "2h"
             },
+            "inputs": [
+              {
+                "entry": "parent.desi_fiducial_cosmology",
+                "target": "inputs.desi_fiducial_cosmology"
+              },
+              {
+                "entry": "parent.desi_dr1_lss_catalogs",
+                "target": "outputs.desi_dr1_lss_catalogs"
+              }
+            ],
             "decisions": [
               "clustering.decisions.imaging_weights"
             ]
@@ -2848,6 +3778,16 @@
               "memory": "128GB",
               "time_limit": "2h"
             },
+            "inputs": [
+              {
+                "entry": "parent.desi_fiducial_cosmology",
+                "target": "inputs.desi_fiducial_cosmology"
+              },
+              {
+                "entry": "parent.reconstruction.post_recon_catalog_lrg_full",
+                "target": "reconstruction.outputs.post_recon_catalog_lrg_full"
+              }
+            ],
             "decisions": [
               "clustering.decisions.imaging_weights"
             ]
@@ -2863,6 +3803,16 @@
               "memory": "128GB",
               "time_limit": "2h"
             },
+            "inputs": [
+              {
+                "entry": "parent.desi_fiducial_cosmology",
+                "target": "inputs.desi_fiducial_cosmology"
+              },
+              {
+                "entry": "parent.desi_dr1_lss_catalogs",
+                "target": "outputs.desi_dr1_lss_catalogs"
+              }
+            ],
             "decisions": [
               "clustering.decisions.imaging_weights"
             ]
@@ -2878,6 +3828,16 @@
               "memory": "128GB",
               "time_limit": "2h"
             },
+            "inputs": [
+              {
+                "entry": "parent.desi_fiducial_cosmology",
+                "target": "inputs.desi_fiducial_cosmology"
+              },
+              {
+                "entry": "parent.reconstruction.post_recon_catalog_lrg_full",
+                "target": "reconstruction.outputs.post_recon_catalog_lrg_full"
+              }
+            ],
             "decisions": [
               "clustering.decisions.imaging_weights"
             ]
@@ -2893,6 +3853,16 @@
               "memory": "128GB",
               "time_limit": "2h"
             },
+            "inputs": [
+              {
+                "entry": "parent.desi_fiducial_cosmology",
+                "target": "inputs.desi_fiducial_cosmology"
+              },
+              {
+                "entry": "parent.desi_dr1_lss_catalogs",
+                "target": "outputs.desi_dr1_lss_catalogs"
+              }
+            ],
             "decisions": [
               "clustering.decisions.imaging_weights"
             ]
@@ -2908,6 +3878,16 @@
               "memory": "128GB",
               "time_limit": "2h"
             },
+            "inputs": [
+              {
+                "entry": "parent.desi_fiducial_cosmology",
+                "target": "inputs.desi_fiducial_cosmology"
+              },
+              {
+                "entry": "parent.reconstruction.post_recon_catalog_lrg_full",
+                "target": "reconstruction.outputs.post_recon_catalog_lrg_full"
+              }
+            ],
             "decisions": [
               "clustering.decisions.imaging_weights"
             ]
@@ -2923,6 +3903,16 @@
               "memory": "128GB",
               "time_limit": "2h"
             },
+            "inputs": [
+              {
+                "entry": "parent.desi_fiducial_cosmology",
+                "target": "inputs.desi_fiducial_cosmology"
+              },
+              {
+                "entry": "parent.desi_dr1_lss_catalogs",
+                "target": "outputs.desi_dr1_lss_catalogs"
+              }
+            ],
             "decisions": [
               "clustering.decisions.imaging_weights"
             ]
@@ -2938,6 +3928,16 @@
               "memory": "128GB",
               "time_limit": "2h"
             },
+            "inputs": [
+              {
+                "entry": "parent.desi_fiducial_cosmology",
+                "target": "inputs.desi_fiducial_cosmology"
+              },
+              {
+                "entry": "parent.reconstruction.post_recon_catalog_elg_full",
+                "target": "reconstruction.outputs.post_recon_catalog_elg_full"
+              }
+            ],
             "decisions": [
               "clustering.decisions.imaging_weights"
             ]
@@ -2953,6 +3953,16 @@
               "memory": "128GB",
               "time_limit": "2h"
             },
+            "inputs": [
+              {
+                "entry": "parent.desi_fiducial_cosmology",
+                "target": "inputs.desi_fiducial_cosmology"
+              },
+              {
+                "entry": "parent.desi_dr1_lss_catalogs",
+                "target": "outputs.desi_dr1_lss_catalogs"
+              }
+            ],
             "decisions": [
               "clustering.decisions.imaging_weights"
             ]
@@ -2968,6 +3978,16 @@
               "memory": "128GB",
               "time_limit": "2h"
             },
+            "inputs": [
+              {
+                "entry": "parent.desi_fiducial_cosmology",
+                "target": "inputs.desi_fiducial_cosmology"
+              },
+              {
+                "entry": "parent.reconstruction.post_recon_catalog_elg_full",
+                "target": "reconstruction.outputs.post_recon_catalog_elg_full"
+              }
+            ],
             "decisions": [
               "clustering.decisions.imaging_weights"
             ]
@@ -2983,6 +4003,16 @@
               "memory": "128GB",
               "time_limit": "4h"
             },
+            "inputs": [
+              {
+                "entry": "parent.desi_fiducial_cosmology",
+                "target": "inputs.desi_fiducial_cosmology"
+              },
+              {
+                "entry": "parent.desi_dr1_lss_catalogs",
+                "target": "outputs.desi_dr1_lss_catalogs"
+              }
+            ],
             "decisions": [
               "clustering.decisions.imaging_weights"
             ]
@@ -2998,6 +4028,20 @@
               "memory": "128GB",
               "time_limit": "4h"
             },
+            "inputs": [
+              {
+                "entry": "parent.desi_fiducial_cosmology",
+                "target": "inputs.desi_fiducial_cosmology"
+              },
+              {
+                "entry": "parent.reconstruction.post_recon_catalog_lrg_full",
+                "target": "reconstruction.outputs.post_recon_catalog_lrg_full"
+              },
+              {
+                "entry": "parent.reconstruction.post_recon_catalog_elg_full",
+                "target": "reconstruction.outputs.post_recon_catalog_elg_full"
+              }
+            ],
             "decisions": [
               "clustering.decisions.imaging_weights"
             ]
@@ -3013,6 +4057,16 @@
               "memory": "128GB",
               "time_limit": "2h"
             },
+            "inputs": [
+              {
+                "entry": "parent.desi_fiducial_cosmology",
+                "target": "inputs.desi_fiducial_cosmology"
+              },
+              {
+                "entry": "parent.desi_dr1_lss_catalogs",
+                "target": "outputs.desi_dr1_lss_catalogs"
+              }
+            ],
             "decisions": [
               "clustering.decisions.imaging_weights"
             ]
@@ -3028,6 +4082,16 @@
               "memory": "128GB",
               "time_limit": "2h"
             },
+            "inputs": [
+              {
+                "entry": "parent.desi_fiducial_cosmology",
+                "target": "inputs.desi_fiducial_cosmology"
+              },
+              {
+                "entry": "parent.reconstruction.post_recon_catalog_qso_full",
+                "target": "reconstruction.outputs.post_recon_catalog_qso_full"
+              }
+            ],
             "decisions": [
               "clustering.decisions.imaging_weights"
             ]
@@ -3038,12 +4102,79 @@
             "format": "png",
             "description": "Pre- and post-recon xi_ell(s) multipoles (ell = 0, 2, 4) plotted as\ns^2 * xi(s), one row per tracer so the BAO feature at s ~ 100 Mpc/h\nis visible. Post-recon monopole should show a sharper BAO peak.\n",
             "tags": [],
+            "inputs": [
+              {
+                "entry": "xi_pre_recon_bgs",
+                "target": "clustering.outputs.xi_pre_recon_bgs"
+              },
+              {
+                "entry": "xi_post_recon_bgs",
+                "target": "clustering.outputs.xi_post_recon_bgs"
+              },
+              {
+                "entry": "xi_pre_recon_lrg1",
+                "target": "clustering.outputs.xi_pre_recon_lrg1"
+              },
+              {
+                "entry": "xi_post_recon_lrg1",
+                "target": "clustering.outputs.xi_post_recon_lrg1"
+              },
+              {
+                "entry": "xi_pre_recon_lrg2",
+                "target": "clustering.outputs.xi_pre_recon_lrg2"
+              },
+              {
+                "entry": "xi_post_recon_lrg2",
+                "target": "clustering.outputs.xi_post_recon_lrg2"
+              },
+              {
+                "entry": "xi_pre_recon_lrg3",
+                "target": "clustering.outputs.xi_pre_recon_lrg3"
+              },
+              {
+                "entry": "xi_post_recon_lrg3",
+                "target": "clustering.outputs.xi_post_recon_lrg3"
+              },
+              {
+                "entry": "xi_pre_recon_elg1",
+                "target": "clustering.outputs.xi_pre_recon_elg1"
+              },
+              {
+                "entry": "xi_post_recon_elg1",
+                "target": "clustering.outputs.xi_post_recon_elg1"
+              },
+              {
+                "entry": "xi_pre_recon_elg2",
+                "target": "clustering.outputs.xi_pre_recon_elg2"
+              },
+              {
+                "entry": "xi_post_recon_elg2",
+                "target": "clustering.outputs.xi_post_recon_elg2"
+              },
+              {
+                "entry": "xi_pre_recon_lrg3_elg1",
+                "target": "clustering.outputs.xi_pre_recon_lrg3_elg1"
+              },
+              {
+                "entry": "xi_post_recon_lrg3_elg1",
+                "target": "clustering.outputs.xi_post_recon_lrg3_elg1"
+              },
+              {
+                "entry": "xi_pre_recon_qso",
+                "target": "clustering.outputs.xi_pre_recon_qso"
+              },
+              {
+                "entry": "xi_post_recon_qso",
+                "target": "clustering.outputs.xi_post_recon_qso"
+              }
+            ],
             "decisions": []
           }
         ],
         "prior_insights": [],
         "findings": [],
-        "universes": []
+        "universes": [],
+        "switches": []
       },
       {
         "key": "reconstruction",
@@ -3176,6 +4307,16 @@
               "memory": "128GB",
               "time_limit": "2h"
             },
+            "inputs": [
+              {
+                "entry": "parent.desi_dr1_lss_catalogs",
+                "target": "outputs.desi_dr1_lss_catalogs"
+              },
+              {
+                "entry": "parent.desi_fiducial_cosmology",
+                "target": "inputs.desi_fiducial_cosmology"
+              }
+            ],
             "decisions": [
               "reconstruction.decisions.algorithm",
               "reconstruction.decisions.convention",
@@ -3195,6 +4336,16 @@
               "memory": "128GB",
               "time_limit": "2h"
             },
+            "inputs": [
+              {
+                "entry": "parent.desi_dr1_lss_catalogs",
+                "target": "outputs.desi_dr1_lss_catalogs"
+              },
+              {
+                "entry": "parent.desi_fiducial_cosmology",
+                "target": "inputs.desi_fiducial_cosmology"
+              }
+            ],
             "decisions": [
               "reconstruction.decisions.algorithm",
               "reconstruction.decisions.convention",
@@ -3214,6 +4365,16 @@
               "memory": "128GB",
               "time_limit": "2h"
             },
+            "inputs": [
+              {
+                "entry": "parent.desi_dr1_lss_catalogs",
+                "target": "outputs.desi_dr1_lss_catalogs"
+              },
+              {
+                "entry": "parent.desi_fiducial_cosmology",
+                "target": "inputs.desi_fiducial_cosmology"
+              }
+            ],
             "decisions": [
               "reconstruction.decisions.algorithm",
               "reconstruction.decisions.convention",
@@ -3233,6 +4394,16 @@
               "memory": "128GB",
               "time_limit": "2h"
             },
+            "inputs": [
+              {
+                "entry": "parent.desi_dr1_lss_catalogs",
+                "target": "outputs.desi_dr1_lss_catalogs"
+              },
+              {
+                "entry": "parent.desi_fiducial_cosmology",
+                "target": "inputs.desi_fiducial_cosmology"
+              }
+            ],
             "decisions": [
               "reconstruction.decisions.algorithm",
               "reconstruction.decisions.convention",
@@ -3252,6 +4423,16 @@
               "memory": "128GB",
               "time_limit": "2h"
             },
+            "inputs": [
+              {
+                "entry": "parent.desi_dr1_lss_catalogs",
+                "target": "outputs.desi_dr1_lss_catalogs"
+              },
+              {
+                "entry": "parent.desi_fiducial_cosmology",
+                "target": "inputs.desi_fiducial_cosmology"
+              }
+            ],
             "decisions": [
               "reconstruction.decisions.algorithm",
               "reconstruction.decisions.convention",
@@ -3271,6 +4452,16 @@
               "memory": "128GB",
               "time_limit": "2h"
             },
+            "inputs": [
+              {
+                "entry": "parent.desi_dr1_lss_catalogs",
+                "target": "outputs.desi_dr1_lss_catalogs"
+              },
+              {
+                "entry": "parent.desi_fiducial_cosmology",
+                "target": "inputs.desi_fiducial_cosmology"
+              }
+            ],
             "decisions": [
               "reconstruction.decisions.algorithm",
               "reconstruction.decisions.convention",
@@ -3290,6 +4481,16 @@
               "memory": "128GB",
               "time_limit": "2h"
             },
+            "inputs": [
+              {
+                "entry": "parent.desi_dr1_lss_catalogs",
+                "target": "outputs.desi_dr1_lss_catalogs"
+              },
+              {
+                "entry": "parent.desi_fiducial_cosmology",
+                "target": "inputs.desi_fiducial_cosmology"
+              }
+            ],
             "decisions": [
               "reconstruction.decisions.algorithm",
               "reconstruction.decisions.convention",
@@ -3309,6 +4510,16 @@
               "memory": "128GB",
               "time_limit": "2h"
             },
+            "inputs": [
+              {
+                "entry": "parent.desi_dr1_lss_catalogs",
+                "target": "outputs.desi_dr1_lss_catalogs"
+              },
+              {
+                "entry": "parent.desi_fiducial_cosmology",
+                "target": "inputs.desi_fiducial_cosmology"
+              }
+            ],
             "decisions": [
               "reconstruction.decisions.algorithm",
               "reconstruction.decisions.convention",
@@ -3320,7 +4531,8 @@
         ],
         "prior_insights": [],
         "findings": [],
-        "universes": []
+        "universes": [],
+        "switches": []
       }
     ],
     "results": [
@@ -8385,7 +9597,7 @@
     "schema_version": "astra-tools.resolved-analysis.v1"
   },
   "status": {
-    "head": "861f8c3b64485289cadeb720efced3b4e522a79c",
+    "head": "3b45abaa441be256802ed3c655d9b96b0bda4576",
     "statuses": {
       "desi_dr1_lss_catalogs": {
         "state": "missing",

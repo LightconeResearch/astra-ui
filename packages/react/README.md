@@ -517,10 +517,12 @@ BSD-3-Clause. See [LICENSE](./LICENSE).
 
 ## ASTRA 0.1 migration
 
-The report is flat: analyses use `key` (root `""`), elements use `ref`, and results use opaque `id` values. `locateRecord` returns `{kind, record, analysis}` while preserving the original report element. The UI's `AstraRecord` union and `recordKind`/`recordId` helpers are presentation vocabulary, not a second resolved model. Evidence identity is its insight ref plus array index; all effective result citations remain visible, including pins across universes.
+The report is flat: analyses use `key` (root `""`), elements use `ref`, and results use opaque `id` values. `locateRecord` returns `{kind, record, analysis}` while preserving the original report element. The UI's `AstraRecord` union and `recordKind`/`recordId` helpers are presentation vocabulary, not a second resolved model. Evidence identity is its insight ref plus array index. The SDK's contextual bindings select the applicable output and result for the viewed universe, including once-built switch cases and explicit pins. Reports without binding metadata retain their aggregate citation behavior.
 
 Record navigation entries retain the `canonicalPath` and `analysisPath` prop names for an element ref and analysis key. Optional `universeRef` on a record entry preserves pinned or explicitly selected universes while drilling into another result. `onOpenRecord(record, analysis, universeRef?)` carries that context.
 
 This branch depends on the SDK candidate through an immutable Git revision until its release is published. The package peer range is `^0.2.0-rc.1`; pre-0.1 reports are unsupported.
 
-`outputDecisionPaths` and `outputDecisionRoutes` are unique-ref graph summaries. Render selected options and provenance from `outputRelations`, whose decision and upstream-route identities include their effective universes. Two pins to the same varying output remain distinct contextual rows.
+`outputRelations` groups `traceResultProvenance` occurrences from the SDK for display. Decision and upstream-route identities retain their effective universes, so two pins to the same varying output remain distinct rows.
+
+When an output has no planned result, its canonical authored inputs remain visible as declared dependencies; directly referenced switch cases are listed without choosing a case. Absence of a planned result is not presented as proof that the output is inactive.

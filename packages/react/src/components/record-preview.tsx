@@ -1,5 +1,4 @@
-import { getSelectedOption, getEvidenceOutput } from '@astra-spec/sdk/reports';
-import { locateRecord } from '../model/locate-record.js';
+import { getSelectedOption } from '@astra-spec/sdk/reports';
 import type { AstraRecord } from '../model/records.js';
 import { KindGlyph } from '../primitives/kind-glyph.js';
 import type {
@@ -18,7 +17,7 @@ import { cn } from '../lib/cn.js';
 import { useLabels } from '../lib/labels.js';
 import { doiHref } from '../model/doi.js';
 import { analysisTitle, recordTitle, recordKind, recordId, isInsight, isOutput } from '../model/records.js';
-import { decisionInsights, outputResult } from '../model/relations.js';
+import { decisionInsights, outputResult, outputRelations, findingEvidence } from '../model/relations.js';
 import { Prose } from '../primitives/prose.js';
 import type { TextRenderer } from '../lib/prose.js';
 import { type SurfaceKind } from '../model/kind.js';
@@ -300,6 +299,7 @@ function DecisionPreview({
 function FindingPreview({
   record,
   index,
+  universeRef,
   statusReport,
   renderArtifact,
   renderText,
@@ -308,6 +308,7 @@ function FindingPreview({
   renderRecordReference,
 }: SharedPreviewProps & { record: Insight }) {
   const labels = useLabels();
+  const links = findingEvidence(index, record, universeRef);
   return (
     <>
       <PreviewHeader kind="finding" kindLabel={labels.kinds.finding} title={recordTitle(record)} />
@@ -330,24 +331,16 @@ function FindingPreview({
             <h4>{labels.preview.evidence}</h4>
             <ul className="astra-record-preview__evidence">
               {record.evidence.flatMap((evidence, indexInRecord) => {
-                const citations = (evidence.cites ?? []).flatMap((id) => {
-                  const result = index.resultById.get(id);
-                  return result ? [result] : [];
-                });
-                return (citations.length ? citations : [undefined]).map((cited, citationIndex) => {
-                  const fallback = cited ? undefined : getEvidenceOutput(index, record.ref, indexInRecord);
-                  const candidate = cited
-                    ? locateRecord(index, cited.output)
-                    : fallback
-                      ? locateRecord(index, fallback.ref)
-                      : undefined;
-                  const output = candidate?.kind === 'output' ? candidate.record : undefined;
+                const matched = links.filter((link) => link.evidence === evidence);
+                if (!matched.length && evidence.bindings !== undefined && !evidence.quote && !evidence.doi) return [];
+                if (!matched.length) matched.push({ evidence });
+                return matched.map(({ output, result: cited, universeRef: targetUniverse }, citationIndex) => {
                   const artifact =
                     output && renderArtifact
                       ? renderArtifact(output, {
                           compact: true,
                           result: cited,
-                          universeRef: cited?.universe,
+                          universeRef: targetUniverse,
                           status: cited ? statusReport?.statuses[cited.id] : undefined,
                         })
                       : null;
@@ -357,7 +350,7 @@ function FindingPreview({
                       {output ? (
                         <RelatedRecord
                           record={output}
-                          universeRef={cited?.universe}
+                          universeRef={targetUniverse}
                           index={index}
                           detail={output.type}
                           onOpenRecord={onOpenRecord}
@@ -418,11 +411,9 @@ function OutputRecordPreview({
 }: SharedPreviewProps & { record: Output }) {
   const labels = useLabels();
   const result = outputResult(index, record, universeRef);
-  const inputNames = (result?.inputs ?? []).map((source) => {
-    const ref = source.input ?? (source.result ? index.resultById.get(source.result)?.output : undefined);
-    const input = ref ? locateRecord(index, ref)?.record : undefined;
-    return input ? recordTitle(input) : (ref ?? source.entry);
-  });
+  const inputNames = outputRelations(index, record, universeRef).inputs.map((link) =>
+    link.record ? recordTitle(link.record) : link.canonicalPath,
+  );
   const recipe = result?.command;
   const flow = [inputNames.length ? inputNames.join(', ') : undefined, recipe, record.ref].filter(
     (value): value is string => Boolean(value),

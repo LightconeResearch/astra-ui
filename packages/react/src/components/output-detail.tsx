@@ -220,12 +220,27 @@ export const OutputDetail = forwardRef<HTMLDivElement, OutputDetailProps>(functi
       />
       <RelationList
         className="astra-detail__relations"
-        title="Inputs and upstream outputs"
+        title={result ? 'Inputs and upstream outputs' : 'Declared dependencies'}
         items={relationItemsForLinks(relations.inputs, onOpenRecord).map((item) =>
           item.kind === 'output' ? { ...item, detail: 'intermediate output' } : item,
         )}
         empty="No upstream dependencies are declared for this output."
       />
+      {relations.switches?.map((reference) => (
+        <RelationList
+          key={reference.ref}
+          className="astra-detail__relations"
+          title={`Switch ${reference.ref}`}
+          description={`Decision: ${reference.decision}`}
+          items={Object.entries(reference.cases).map(([option, target]) => ({
+            key: option,
+            label: option,
+            identifier: target.target,
+            detail: target.universe,
+          }))}
+          empty="No cases are declared for this switch."
+        />
+      ))}
       {result?.command ? (
         <section className="astra-output-detail__recipe">
           <div className="astra-output-detail__recipe-heading">

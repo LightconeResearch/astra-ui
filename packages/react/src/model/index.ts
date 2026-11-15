@@ -12,8 +12,6 @@ export {
   groupFindingEvidence,
   informedDecisions,
   linkedRecord,
-  outputDecisionPaths,
-  outputDecisionRoutes,
   outputRelations,
   outputResult,
 } from './relations.js';

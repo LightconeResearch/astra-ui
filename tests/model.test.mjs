@@ -8,8 +8,6 @@ import {
   findingEvidence,
   findingLiterature,
   groupFindingEvidence,
-  outputDecisionPaths,
-  outputDecisionRoutes,
   informedDecisions,
   locateRecord,
   outputRelations,
@@ -197,15 +195,28 @@ test('result dependencies follow pinned universes, driven sub-analyses and share
   );
   const index = indexResolvedAnalysis(document),
     universe = 'universes.baseline';
-  assert.deepEqual(outputDecisionPaths(index, downstream, universe), ['decisions.method']);
-  assert.deepEqual(outputDecisionPaths(index, loopA, universe), ['decisions.method']);
-  assert.deepEqual(outputDecisionPaths(index, fit, universe), ['decisions.method', 'clustering.decisions.weighting']);
   assert.deepEqual(
-    outputDecisionRoutes(index, multiple, universe),
-    new Map([
-      ['decisions.method', new Set(['outputs.upstream', 'outputs.loop_a'])],
-      ['clustering.decisions.weighting', new Set(['outputs.imported_xi'])],
+    outputRelations(index, downstream, universe).decisions.map((link) => link.canonicalPath),
+    ['decisions.method'],
+  );
+  assert.deepEqual(
+    outputRelations(index, loopA, universe).decisions.map((link) => link.canonicalPath),
+    ['decisions.method'],
+  );
+  assert.deepEqual(
+    outputRelations(index, fit, universe).decisions.map((link) => link.canonicalPath),
+    ['decisions.method', 'clustering.decisions.weighting'],
+  );
+  assert.deepEqual(
+    outputRelations(index, multiple, universe).decisions.map((link) => [
+      link.canonicalPath,
+      link.via?.map((via) => via.canonicalPath),
     ]),
+    [
+      ['decisions.direct', undefined],
+      ['decisions.method', ['outputs.upstream', 'outputs.loop_a']],
+      ['clustering.decisions.weighting', ['outputs.imported_xi']],
+    ],
   );
   assert.deepEqual(
     outputRelations(index, fit, universe).decisions.map(({ record, analysis }) => [record.ref, analysis.key]),
@@ -260,11 +271,6 @@ test('two pins to one varying output retain both decision selections and route c
       ['decisions.method', 'universes.alternate', [['outputs.headline', 'universes.alternate']]],
     ],
   );
-  assert.deepEqual(
-    outputDecisionPaths(index, compare, 'universes.baseline'),
-    ['decisions.method'],
-    'ref-only summaries intentionally omit selection context',
-  );
 });
 
 test('unplanned evidence links an authored output name through the SDK without fabricating a result', () => {
@@ -277,4 +283,136 @@ test('unplanned evidence links an authored output name through the SDK without f
   assert.equal(link.analysis.key, '');
   assert.equal(link.result, undefined);
   assert.equal(link.evidence.artifact, 'headline');
+});
+
+test('binding context selects once-built switch cases and preserves pinned target context', () => {
+  const document = structuredClone(fixtureDocument),
+    root = document.analyses[0],
+    finding = root.findings[0];
+  root.outputs.push(
+    ...['a', 'b'].map((id) => ({ ref: `outputs.fixed_${id}`, type: 'data', format: 'txt', tags: [], decisions: [] })),
+  );
+  document.results.push(
+    ...['a', 'b'].map((id) => ({ id: `fixed-${id}`, output: `outputs.fixed_${id}`, places: [], inputs: [] })),
+  );
+  finding.evidence = [
+    {
+      artifact: 'choice',
+      cites: ['fixed-a', 'fixed-b'],
+      bindings: [
+        { universe: 'universes.baseline', output: 'outputs.fixed_a', result: 'fixed-a' },
+        { universe: 'universes.alternate', output: 'outputs.fixed_b', result: 'fixed-b' },
+      ],
+    },
+  ];
+  let index = indexResolvedAnalysis(document);
+  assert.deepEqual(
+    findingEvidence(index, finding, 'universes.baseline').map((link) => link.result.id),
+    ['fixed-a'],
+  );
+  assert.deepEqual(
+    findingEvidence(index, finding, 'universes.alternate').map((link) => link.result.id),
+    ['fixed-b'],
+  );
+  finding.evidence = [
+    {
+      artifact: 'summary#alternate',
+      cites: [],
+      bindings: [
+        { universe: 'universes.alternate', output: 'outputs.summary', target_universe: 'universes.alternate' },
+      ],
+    },
+  ];
+  index = indexResolvedAnalysis(document);
+  const [pinned] = findingEvidence(index, finding, 'universes.baseline');
+  assert.equal(pinned.output.ref, 'outputs.summary');
+  assert.equal(pinned.universeRef, 'universes.alternate');
+  assert.equal(pinned.result, undefined);
+});
+
+test('explicit empty bindings do not fall back to authored output identity', () => {
+  const document = structuredClone(fixtureDocument),
+    finding = document.analyses[0].findings[0];
+  finding.evidence = [{ artifact: 'headline', cites: [], bindings: [] }];
+  assert.deepEqual(findingEvidence(indexResolvedAnalysis(document), finding, 'universes.baseline'), []);
+});
+
+test('an unplanned output exposes authored canonical inputs and relevant switch cases', () => {
+  const document = structuredClone(fixtureDocument),
+    root = document.analyses[0],
+    output = root.outputs[1];
+  output.inputs = [
+    { entry: 'catalog', target: 'inputs.catalog' },
+    { entry: 'headline#alternate', target: 'outputs.headline', universe: 'universes.alternate' },
+    { entry: 'choice', target: 'switches.choice' },
+  ];
+  root.switches = [
+    {
+      ref: 'switches.choice',
+      decision: 'decisions.method',
+      cases: {
+        fiducial: { entry: 'headline', target: 'outputs.headline' },
+        alternate: { entry: 'clustering.correlation', target: 'clustering.outputs.correlation' },
+      },
+    },
+  ];
+  const relations = outputRelations(indexResolvedAnalysis(document), output, 'universes.baseline');
+  assert.deepEqual(
+    relations.inputs.map((link) => [link.canonicalPath, link.universeRef]),
+    [
+      ['inputs.catalog', undefined],
+      ['outputs.headline', 'universes.alternate'],
+      ['switches.choice', undefined],
+    ],
+  );
+  assert.deepEqual(relations.switches, root.switches);
+  assert.equal(
+    document.results.some((result) => result.output === output.ref),
+    false,
+  );
+});
+
+test('a decision selecting a seed input switch is direct even though its trace contains a source edge', () => {
+  const document = structuredClone(fixtureDocument),
+    root = document.analyses[0];
+  const compare = {
+    ref: 'outputs.compare',
+    type: 'data',
+    format: 'json',
+    tags: [],
+    decisions: [],
+    inputs: [{ entry: 'choice', target: 'switches.choice' }],
+  };
+  root.outputs.push(compare);
+  root.switches = [
+    {
+      ref: 'switches.choice',
+      decision: 'decisions.method',
+      cases: { fiducial: { entry: 'headline', target: 'outputs.headline' } },
+    },
+  ];
+  document.results.push({
+    id: 'compare',
+    output: compare.ref,
+    universe: 'universes.baseline',
+    places: [],
+    inputs: [{ entry: 'choice', result: 'outputs.headline#baseline' }],
+  });
+  const relations = outputRelations(indexResolvedAnalysis(document), compare, 'universes.baseline');
+  assert.equal(relations.decisions.length, 1);
+  assert.equal(relations.decisions[0].canonicalPath, 'decisions.method');
+  assert.equal(relations.decisions[0].via, undefined);
+});
+
+test('a switch binding with no case retains unavailable evidence and its evaluation context', () => {
+  const document = structuredClone(fixtureDocument),
+    root = document.analyses[0],
+    finding = root.findings[0];
+  finding.evidence = [{ artifact: 'choice', cites: [], bindings: [{ universe: 'universes.baseline' }] }];
+  const links = findingEvidence(indexResolvedAnalysis(document), finding, 'universes.baseline');
+  assert.equal(links.length, 1);
+  assert.equal(links[0].output, undefined);
+  assert.equal(links[0].result, undefined);
+  assert.equal(links[0].universeRef, 'universes.baseline');
+  assert.equal(groupFindingEvidence(links)[0].artifact, 'choice');
 });

@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { Analysis, IndexedElement } from '@astra-spec/sdk/reports';
 
-type AstraRecord = Exclude<IndexedElement, {collection: 'universes'}>['element'];
+type AstraRecord = Exclude<IndexedElement, {collection: 'universes' | 'switches'}>['element'];
 
 /** What a detail surface is showing: a record, or a paper (optionally focused on an insight). */
 export type DetailEntry =
