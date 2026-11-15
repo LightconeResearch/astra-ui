@@ -1,5 +1,5 @@
 import { KindGlyph } from '../primitives/kind-glyph.js';
-import type { ResolvedInsight } from '@astra-spec/sdk';
+import type { Insight } from '@astra-spec/sdk/reports';
 import {
   forwardRef,
   type ButtonHTMLAttributes,
@@ -29,7 +29,7 @@ export function InsightEvidenceTitle({ name, tag }: InsightEvidenceTitleProps) {
 }
 
 export interface InsightTriggerProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
-  insight: ResolvedInsight;
+  insight: Insight;
   onOpen: () => void;
   /** Tag shown after the name in the `title` variant; `null` hides it. */
   tag?: string | null | undefined;

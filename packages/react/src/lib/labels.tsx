@@ -11,6 +11,7 @@ export interface AstraLabels {
   };
   outline: string;
   analysisTree: string;
+  universe: string;
   back: string;
   backTo: string;
   close: string;
@@ -44,8 +45,8 @@ export interface AstraLabels {
   };
   /** Host-supplied execution status, shown as a marker on inventory results; the states are `lc status`'s. */
   status: {
-    current: string;
-    behind: string;
+    unchanged: string;
+    missing: string;
     stale: string;
     withDetail: (label: string, detail: string) => string;
   };
@@ -128,6 +129,7 @@ export const defaultLabels: AstraLabels = {
   },
   outline: 'On this page',
   analysisTree: 'Project hierarchy',
+  universe: 'Universe',
   back: 'Back',
   backTo: 'Back to previous record',
   close: 'Close all details',
@@ -159,8 +161,8 @@ export const defaultLabels: AstraLabels = {
     locate: 'Locate',
   },
   status: {
-    current: 'Current',
-    behind: 'Behind',
+    unchanged: 'Unchanged',
+    missing: 'Missing',
     stale: 'Stale',
     withDetail: (label, detail) => `${label}: ${detail}`,
   },

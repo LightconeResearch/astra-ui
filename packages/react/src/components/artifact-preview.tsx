@@ -1,20 +1,26 @@
-import type { ResolvedOutput } from '@astra-spec/sdk';
+import type { Output, Result, Status } from '@astra-spec/sdk/reports';
 import { forwardRef, useEffect, useState, type HTMLAttributes, type ReactNode } from 'react';
+import { recordId } from '../model/records.js';
 import { cn } from '../lib/cn.js';
 import type { ArtifactPreviewData } from '../lib/preview-data.js';
 
 export interface ArtifactRenderOptions {
   compact: boolean;
+  result?: Result | undefined;
+  universeRef?: string | undefined;
+  status?: Status | undefined;
 }
 
 /** Controlled host slot. Reading, decoding, URLs, and caching remain outside astra-ui. */
 export type ArtifactRenderer = (
-  output: ResolvedOutput,
+  output: Output,
   options: ArtifactRenderOptions,
 ) => ReactNode;
 
 export interface ArtifactPreviewProps extends Omit<HTMLAttributes<HTMLElement>, 'children'> {
-  output: ResolvedOutput;
+  output: Output;
+  result?: Result | undefined;
+  status?: Status | undefined;
   preview?: ArtifactPreviewData | undefined;
   compact?: boolean | undefined;
   caption?: ReactNode | undefined;
@@ -30,25 +36,28 @@ function compactValue(value: string | number | undefined, locale: string | undef
     : value;
 }
 
-function unavailableReason(output: ResolvedOutput): string {
-  if (!output.active) return 'This output is not active in the selected universe.';
-  if (!output.artifact) return 'This output has not been materialized.';
+function unavailableReason(result: Result | undefined, status: Status | undefined): string {
+  if (!result) return 'This output is not active in the selected universe.';
+  if (status?.bytes?.state === 'absent') return 'The recorded output bytes are not available.';
+  if (status?.state === 'missing') return 'This output has no valid provenance record.';
   return 'This host has not supplied an artifact preview.';
 }
 
 /** Pure renderer for a resolved output and optional host-supplied preview data. */
 export const ArtifactPreview = forwardRef<HTMLElement, ArtifactPreviewProps>(function ArtifactPreview({
   output,
+  result,
+  status,
   preview,
   compact = false,
-  caption = output.label ?? output.id,
+  caption = output.label ?? recordId(output),
   locale,
   className,
   ...props
 }, ref) {
   const [imageFailed, setImageFailed] = useState(false);
   const imageUrl = preview?.kind === 'image' ? preview.url : undefined;
-  useEffect(() => { setImageFailed(false); }, [imageUrl, output.canonicalPath]);
+  useEffect(() => { setImageFailed(false); }, [imageUrl, output.ref]);
 
   const type = preview?.kind ?? output.type;
   const shared = {
@@ -71,8 +80,8 @@ export const ArtifactPreview = forwardRef<HTMLElement, ArtifactPreviewProps>(fun
   if (!preview || preview.kind === 'unavailable') {
     return (
       <div {...shared} ref={ref as never} className={cn(rootClass, 'astra-artifact__placeholder')} role="status">
-        <span aria-hidden="true">{output.active ? '↳' : '○'}</span>
-        <span>{preview?.reason ?? unavailableReason(output)}</span>
+        <span aria-hidden="true">{result ? '↳' : '○'}</span>
+        <span>{preview?.reason ?? unavailableReason(result, status)}</span>
       </div>
     );
   }
@@ -90,7 +99,7 @@ export const ArtifactPreview = forwardRef<HTMLElement, ArtifactPreviewProps>(fun
       <figure {...shared} ref={ref} className={rootClass}>
         <img
           src={preview.url}
-          alt={preview.alt ?? `Preview of ${output.label ?? output.id}`}
+          alt={preview.alt ?? `Preview of ${output.label ?? recordId(output)}`}
           width={preview.width}
           height={preview.height}
           onError={() => { setImageFailed(true); }}

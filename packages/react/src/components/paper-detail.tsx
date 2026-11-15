@@ -1,5 +1,5 @@
 import { KindGlyph } from '../primitives/kind-glyph.js';
-import type { ResolvedDecision, ResolvedEvidence, ResolvedInsight } from '@astra-spec/sdk';
+import type { Decision, Evidence, Insight } from '@astra-spec/sdk/reports';
 import { forwardRef, useCallback, useId, useMemo, useRef, useState, type HTMLAttributes } from 'react';
 import { doiHref } from '../model/doi.js';
 import { recordTitle } from '../model/records.js';
@@ -21,23 +21,24 @@ export interface PaperDetailProps extends Omit<HTMLAttributes<HTMLDivElement>, '
   /** Fetch state for this DOI, if the host tracks it. */
   metadata?: Pick<InventoryPaperMetadata, 'status' | 'error'> | undefined;
   /** Insight whose first quoted passage is located initially. */
-  focusInsight?: ResolvedInsight | undefined;
+  focusInsight?: Insight | undefined;
   renderText?: TextRenderer | undefined;
   /** Supplies pdf.js; with it and a `pdfUrl`, the paper is read in place and its passages located. */
   loadPdfJs?: PdfJsLoader | undefined;
   /** Notify the host to fetch this DOI; refreshed metadata returns through props. */
   onFetchPaper?: ((doi: string) => void) | undefined;
-  onOpenInsight?: ((insight: ResolvedInsight) => void) | undefined;
-  onOpenDecision?: ((decision: ResolvedDecision) => void) | undefined;
+  onOpenInsight?: ((insight: Insight) => void) | undefined;
+  onOpenDecision?: ((decision: Decision) => void) | undefined;
 }
 
-function passageFor(key: string, evidence: ResolvedEvidence): PdfPassage {
-  return { key, quote: evidence.quote?.exact, page: evidence.location?.page };
+function passageFor(key: string, evidence: Evidence): PdfPassage {
+  const page = evidence.location?.value ? /(?:^|&)page=(\d+)(?:&|$)/.exec(evidence.location.value) : null;
+  return { key, quote: evidence.quote?.exact, page: page ? Number(page[1]) : undefined };
 }
 
-function initialPassage(paper: InventoryPaper, focusInsight: ResolvedInsight | undefined): PdfPassage | undefined {
+function initialPassage(paper: InventoryPaper, focusInsight: Insight | undefined): PdfPassage | undefined {
   const evidence = focusInsight ? paperEvidence(focusInsight, paper.doi)[0] : undefined;
-  return focusInsight && evidence ? passageFor(`${focusInsight.canonicalPath}-source`, evidence) : undefined;
+  return focusInsight && evidence ? passageFor(`${focusInsight.ref}-source`, evidence) : undefined;
 }
 
 /** PDF paper content beside the insights and decisions it supports. */
@@ -60,7 +61,7 @@ export const PaperDetail = forwardRef<HTMLDivElement, PaperDetailProps>(function
   const pickerId = useId();
   // Keyed by URL so a failure for one paper never outlives it inside a persistent dialog.
   const [failedPdfUrl, setFailedPdfUrl] = useState<string | undefined>(undefined);
-  const key = `${paper.doi}|${focusInsight?.canonicalPath ?? ''}`;
+  const key = `${paper.doi}|${focusInsight?.ref ?? ''}`;
   if (focusKey !== key) {
     setFocusKey(key);
     setOverride(undefined);
@@ -72,16 +73,16 @@ export const PaperDetail = forwardRef<HTMLDivElement, PaperDetailProps>(function
   const passage = useMemo(() => override ?? initialPassage(paper, focusInsight), [override, paper, focusInsight]);
   const sequence = useRef(0);
   const canLocate = Boolean(paper.pdfUrl && loadPdfJs) && failedPdfUrl !== paper.pdfUrl;
-  const locate = useCallback((insight: ResolvedInsight, evidence: ResolvedEvidence) => {
+  const locate = useCallback((insight: Insight, evidence: Evidence) => {
     sequence.current += 1;
-    setOverride(passageFor(`${insight.canonicalPath}-${sequence.current}`, evidence));
+    setOverride(passageFor(`${insight.ref}-${sequence.current}`, evidence));
   }, []);
   const fetching = metadata?.status === 'fetching';
-  const filterDecision = paper.decisions.find((decision) => decision.canonicalPath === decisionFilter);
+  const filterDecision = paper.decisions.find((decision) => decision.ref === decisionFilter);
   const visibleInsights = useMemo(() => {
     if (!filterDecision) return paper.insights;
     const cited = new Set(decisionInsightPaths(filterDecision));
-    return paper.insights.filter((insight) => cited.has(insight.canonicalPath));
+    return paper.insights.filter((insight) => cited.has(insight.ref));
   }, [paper, filterDecision]);
 
   return (
@@ -134,7 +135,7 @@ export const PaperDetail = forwardRef<HTMLDivElement, PaperDetailProps>(function
                   >
                     <option value="">Any decision</option>
                     {paper.decisions.map((decision) => (
-                      <option key={decision.canonicalPath} value={decision.canonicalPath}>
+                      <option key={decision.ref} value={decision.ref}>
                         {recordTitle(decision)}
                       </option>
                     ))}
@@ -157,7 +158,7 @@ export const PaperDetail = forwardRef<HTMLDivElement, PaperDetailProps>(function
             {visibleInsights.map((insight) => {
               const evidence = paperEvidence(insight, paper.doi);
               return (
-                <li key={insight.canonicalPath} className="astra-evidence__item astra-paper-insight">
+                <li key={insight.ref} className="astra-evidence__item astra-paper-insight">
                   <KindGlyph className="astra-paper-insight__glyph" kind="prior_insight" />
                   <div className="astra-paper-insight__claim">
                     <Prose text={insight.claim} field="claim" renderText={renderText} />
@@ -179,7 +180,7 @@ export const PaperDetail = forwardRef<HTMLDivElement, PaperDetailProps>(function
                           {evidence.map((source, index) => (
                             // Kept focusable after a load failure so keyboard focus never drops out of the dialog.
                             <button
-                              key={`${insight.canonicalPath}-${index}`}
+                              key={`${insight.ref}-${index}`}
                               type="button"
                               className="astra-paper-insight__locate"
                               aria-disabled={canLocate ? undefined : true}

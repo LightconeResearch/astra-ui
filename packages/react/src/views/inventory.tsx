@@ -1,19 +1,26 @@
+import type { AstraRecord } from '../model/records.js';
 import {
-  indexAnalysis,
-  type AnalysisIndex,
-  type ResolvedAnalysisDocument,
-  type ResolvedAnalysisNode,
-  type ResolvedOutput,
-  type ResolvedRecord,
-} from '@astra-spec/sdk';
+  indexResolvedAnalysis,
+  type ResolvedAnalysisIndex,
+  type ResolvedAnalysis,
+  type Analysis,
+  type Output,
+  type StatusReport,
+} from '@astra-spec/sdk/reports';
 import { forwardRef, useEffect, useMemo, useRef, useState, type HTMLAttributes, type ReactNode } from 'react';
-import { collectInventoryPapers, findPaper, paperForDoi, type InventoryPaper, type InventoryPaperMetadataMap } from '../model/papers.js';
+import {
+  collectInventoryPapers,
+  findPaper,
+  paperForDoi,
+  type InventoryPaper,
+  type InventoryPaperMetadataMap,
+} from '../model/papers.js';
 import { locateRecord } from '../model/locate-record.js';
 import { cn } from '../lib/cn.js';
 import { LabelsProvider, useLabels, type AstraLabelOverrides } from '../lib/labels.js';
 import type { OpenPaperFileHandler } from '../components/paper-detail.js';
 import type { PdfJsLoader } from '../lib/pdf-runtime.js';
-import type { OutputStatusLookup } from '../model/output-status.js';
+import type { OutputContext, OutputStatusLookup } from '../model/output-status.js';
 import { RecordDialog } from '../components/record-dialog.js';
 import { useDetailStack, type DetailEntry } from '../lib/detail-stack.js';
 import type { ArtifactRenderer } from '../components/artifact-preview.js';
@@ -31,9 +38,14 @@ import { sectionKind, type InventorySectionId } from '../model/kind.js';
 export const DEFAULT_SECTIONS: readonly InventorySectionId[] = ['outputs', 'decisions', 'inputs', 'findings', 'papers'];
 
 export interface InventoryProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
-  document: ResolvedAnalysisDocument;
+  document: ResolvedAnalysis;
   /** Pass a prebuilt index to share it with the host; otherwise one is derived from `document`. */
-  index?: AnalysisIndex | undefined;
+  index?: ResolvedAnalysisIndex | undefined;
+  /** Universe selection is client-side over the complete resolved report. */
+  universeRef?: string | undefined;
+  defaultUniverseRef?: string | undefined;
+  onUniverseChange?: ((ref: string) => void) | undefined;
+  statusReport?: StatusReport | undefined;
   /** Controlled analysis selection; pair with `onSelectAnalysis`. Omit to let Inventory navigate internally. Unknown paths show the root. */
   analysisPath?: string | undefined;
   /** Observe navigation, or update `analysisPath` when controlling selection. */
@@ -48,15 +60,15 @@ export interface InventoryProps extends Omit<HTMLAttributes<HTMLDivElement>, 'ch
   labels?: AstraLabelOverrides | undefined;
   renderArtifact?: ArtifactRenderer | undefined;
   /** Host renderer for recorded output provenance, shown below Recipe. */
-  renderProvenance?: ((output: ResolvedOutput) => ReactNode) | undefined;
+  renderProvenance?: ((output: Output, context: OutputContext) => ReactNode) | undefined;
   /** Optional execution status, keyed by the host to the selected universe. */
   getOutputStatus?: OutputStatusLookup | undefined;
   /** Host-provided link to the current code file, shown beside Recipe. */
-  renderCodeLink?: ((output: ResolvedOutput) => ReactNode) | undefined;
+  renderCodeLink?: ((output: Output, context: OutputContext) => ReactNode) | undefined;
   renderText?: TextRenderer | undefined;
   loadPdfJs?: PdfJsLoader | undefined;
   onOpenPaperFile?: OpenPaperFileHandler | undefined;
-  onOpenArtifact?: ((output: ResolvedOutput) => void | Promise<void>) | undefined;
+  onOpenArtifact?: ((output: Output) => void | Promise<void>) | undefined;
   paperMetadata?: InventoryPaperMetadataMap | undefined;
   /** Notify the host to fetch this DOI; update paperMetadata when complete. */
   onFetchPaper?: ((doi: string) => void) | undefined;
@@ -74,8 +86,8 @@ const EMPTY_PAPER_METADATA: InventoryPaperMetadataMap = {};
 
 function entryLabel(entry: DetailEntry, papers: readonly InventoryPaper[]): string {
   return entry.kind === 'paper'
-    ? findPaper(papers, entry.doi)?.title ?? entry.doi
-    : entry.canonicalPath.split('.').at(-1) ?? entry.canonicalPath;
+    ? (findPaper(papers, entry.doi)?.title ?? entry.doi)
+    : (entry.canonicalPath.split('.').at(-1) ?? entry.canonicalPath);
 }
 
 /**
@@ -91,42 +103,63 @@ export const Inventory = forwardRef<HTMLDivElement, InventoryProps>(function Inv
   );
 });
 
-const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(function ExplorerBody({
-  document,
-  index: providedIndex,
-  analysisPath,
-  onSelectAnalysis,
-  sections = DEFAULT_SECTIONS,
-  idPrefix = '',
-  showOutline = true,
-  showHierarchy = true,
-  renderArtifact,
-  renderProvenance,
-  getOutputStatus,
-  renderCodeLink,
-  renderText,
-  loadPdfJs,
-  onOpenPaperFile,
-  onOpenArtifact,
-  paperMetadata = EMPTY_PAPER_METADATA,
-  onFetchPaper,
-  decisionTagLabels = {},
-  detailMode = 'modal',
-  detail,
-  defaultDetail,
-  onDetailChange,
-  className,
-  children,
-  ...rest
-}, ref) {
+const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(function ExplorerBody(
+  {
+    document,
+    index: providedIndex,
+    universeRef: controlledUniverse,
+    defaultUniverseRef,
+    onUniverseChange,
+    statusReport,
+    analysisPath,
+    onSelectAnalysis,
+    sections = DEFAULT_SECTIONS,
+    idPrefix = '',
+    showOutline = true,
+    showHierarchy = true,
+    renderArtifact,
+    renderProvenance,
+    getOutputStatus,
+    renderCodeLink,
+    renderText,
+    loadPdfJs,
+    onOpenPaperFile,
+    onOpenArtifact,
+    paperMetadata = EMPTY_PAPER_METADATA,
+    onFetchPaper,
+    decisionTagLabels = {},
+    detailMode = 'modal',
+    detail,
+    defaultDetail,
+    onDetailChange,
+    className,
+    children,
+    ...rest
+  },
+  ref,
+) {
   const labels = useLabels();
-  const index = useMemo(() => providedIndex ?? indexAnalysis(document), [document, providedIndex]);
-  const [internalAnalysisPath, setInternalAnalysisPath] = useState('$');
+  const index = useMemo(() => providedIndex ?? indexResolvedAnalysis(document), [document, providedIndex]);
+  const [internalAnalysisPath, setInternalAnalysisPath] = useState('');
   // Reset a removed selection so reintroducing that path does not navigate back.
-  if (analysisPath === undefined && internalAnalysisPath !== '$' && !index.analysisByPath.has(internalAnalysisPath)) {
-    setInternalAnalysisPath('$');
+  if (analysisPath === undefined && internalAnalysisPath !== '' && !index.analysisByKey.has(internalAnalysisPath)) {
+    setInternalAnalysisPath('');
   }
-  const analysis = index.analysisByPath.get(analysisPath ?? internalAnalysisPath) ?? document.analysis;
+  const analysis = index.analysisByKey.get(analysisPath ?? internalAnalysisPath) ?? index.analysisByKey.get('');
+  if (!analysis) throw new Error('Resolved report has no root analysis');
+  const universes = document.analyses.flatMap((candidate) => candidate.universes);
+  const firstUniverse = index.analysisByKey.get('')?.universes[0]?.ref ?? universes[0]?.ref;
+  const [internalUniverse, setInternalUniverse] = useState(defaultUniverseRef ?? firstUniverse);
+  const requestedUniverse = controlledUniverse ?? internalUniverse;
+  const universeRef = universes.some((candidate) => candidate.ref === requestedUniverse)
+    ? requestedUniverse
+    : firstUniverse;
+  const universe = universes.find((candidate) => candidate.ref === universeRef);
+  if (controlledUniverse === undefined && internalUniverse !== universeRef) setInternalUniverse(universeRef);
+  const selectUniverse = (ref: string) => {
+    if (controlledUniverse === undefined) setInternalUniverse(ref);
+    onUniverseChange?.(ref);
+  };
   const selectAnalysis = (path: string) => {
     if (analysisPath === undefined) setInternalAnalysisPath(path);
     onSelectAnalysis?.(path);
@@ -143,34 +176,54 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(
   // makes at most one change: closing must not be followed by a prune of the
   // stack it just replaced. It runs after render, never inside it, because it
   // notifies the host.
-  const lastAnalysis = useRef(analysis.canonicalPath);
+  const lastAnalysis = useRef(analysis.key);
   useEffect(() => {
-    const analysisChanged = lastAnalysis.current !== analysis.canonicalPath;
-    lastAnalysis.current = analysis.canonicalPath;
+    const analysisChanged = lastAnalysis.current !== analysis.key;
+    lastAnalysis.current = analysis.key;
     if (analysisChanged && detail === undefined) {
       if (stack.stack.length) stack.close();
       return;
     }
     const resolves = (entry: DetailEntry) => {
-      const owner = index.analysisByPath.get(entry.analysisPath);
+      const owner = index.analysisByKey.get(entry.analysisPath);
       if (!owner) return false;
-      if (entry.kind === 'paper') return Boolean(findPaper(papers, entry.doi) ?? paperForDoi(document, index, owner, entry.doi, paperMetadata));
+      if (entry.kind === 'paper')
+        return Boolean(findPaper(papers, entry.doi) ?? paperForDoi(document, index, owner, entry.doi, paperMetadata));
       return Boolean(locateRecord(index, entry.canonicalPath));
     };
     const next = stack.stack.filter(resolves);
     if (next.length !== stack.stack.length) stack.set(next);
-  }, [analysis.canonicalPath, detail, document, index, paperMetadata, papers, stack]);
+  }, [analysis.key, detail, document, index, paperMetadata, papers, stack]);
 
-  const openRecord = (record: ResolvedRecord, owner: ResolvedAnalysisNode) => { stack.openRecord(record, owner); };
+  const openRecord = (record: AstraRecord, owner: Analysis) => {
+    stack.openRecord(record, owner);
+  };
 
   const sectionContent: Record<InventorySectionId, { count: number; content: ReactNode }> = {
     outputs: {
       count: analysis.outputs.length,
-      content: <OutputsList analysis={analysis} getOutputStatus={getOutputStatus} renderArtifact={renderArtifact} onOpenRecord={openRecord} />,
+      content: (
+        <OutputsList
+          analysis={analysis}
+          index={index}
+          universeRef={universeRef}
+          statusReport={statusReport}
+          getOutputStatus={getOutputStatus}
+          renderArtifact={renderArtifact}
+          onOpenRecord={openRecord}
+        />
+      ),
     },
     decisions: {
       count: analysis.decisions.length,
-      content: <DecisionsList analysis={analysis} tagLabels={decisionTagLabels} onOpenRecord={openRecord} />,
+      content: (
+        <DecisionsList
+          analysis={analysis}
+          universe={universe}
+          tagLabels={decisionTagLabels}
+          onOpenRecord={openRecord}
+        />
+      ),
     },
     inputs: {
       count: analysis.inputs.length,
@@ -186,7 +239,9 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(
         <PapersList
           papers={papers}
           analysis={analysis}
-          onOpenPaper={(paper, owner) => { stack.openPaper(paper.doi, owner); }}
+          onOpenPaper={(paper, owner) => {
+            stack.openPaper(paper.doi, owner);
+          }}
         />
       ),
     },
@@ -195,6 +250,24 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(
 
   return (
     <div data-slot="inventory" {...rest} ref={ref} className={cn('astra-inventory', className)}>
+      {universes.length ? (
+        <label>
+          {labels.universe}{' '}
+          <select
+            aria-label={labels.universe}
+            value={universeRef}
+            onChange={(event) => {
+              selectUniverse(event.target.value);
+            }}
+          >
+            {universes.map((candidate) => (
+              <option key={candidate.ref} value={candidate.ref}>
+                {candidate.label ?? candidate.ref}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
       <div className="astra-inventory__layout" data-sidebar={showOutline || showHierarchy ? '' : undefined}>
         <div className="astra-inventory__sections">
           {sections.map((section) => (
@@ -213,20 +286,18 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(
         </div>
         {showOutline || showHierarchy ? (
           <div className="astra-inventory__sidebar" data-has-tree={showHierarchy ? '' : undefined}>
-            {showOutline ? <InventoryOutline
-              entries={sections.map((section) => ({
-                id: anchorId(section),
-                label: labels.sections[section],
-                count: sectionContent[section].count,
-                kind: sectionKind(section),
-              }))}
-            /> : null}
-            {showHierarchy ? (
-              <AnalysisTree
-                document={document}
-                analysisPath={analysis.canonicalPath}
-                onSelectAnalysis={selectAnalysis}
+            {showOutline ? (
+              <InventoryOutline
+                entries={sections.map((section) => ({
+                  id: anchorId(section),
+                  label: labels.sections[section],
+                  count: sectionContent[section].count,
+                  kind: sectionKind(section),
+                }))}
               />
+            ) : null}
+            {showHierarchy ? (
+              <AnalysisTree document={document} analysisPath={analysis.key} onSelectAnalysis={selectAnalysis} />
             ) : null}
           </div>
         ) : null}
@@ -238,6 +309,8 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(
             fallback={<p>{labels.notFound}</p>}
             document={document}
             index={index}
+            universeRef={universeRef}
+            statusReport={statusReport}
             papers={papers}
             paperMetadata={paperMetadata}
             renderArtifact={renderArtifact}

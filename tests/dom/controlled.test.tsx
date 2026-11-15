@@ -1,6 +1,7 @@
+import { analysisAt } from '../helpers.js';
 import { act, cleanup, fireEvent, render, renderHook, screen } from '@testing-library/react';
-import type { ResolvedAnalysisDocument, ResolvedOutput } from '@astra-spec/sdk';
-import { indexAnalysis } from '@astra-spec/sdk';
+import type { ResolvedAnalysis, Output } from '@astra-spec/sdk';
+import { indexResolvedAnalysis } from '@astra-spec/sdk';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Button } from '../../packages/react/src/primitives/index.js';
 import { OutputDialog, PaperDetail } from '../../packages/react/src/components/index.js';
@@ -8,9 +9,9 @@ import { useDetailStack } from '../../packages/react/src/lib/index.js';
 import { collectInventoryPapers } from '../../packages/react/src/model/papers.js';
 import { fixtureDocument as untypedFixture } from '../fixture.mjs';
 
-const fixtureDocument = untypedFixture as unknown as ResolvedAnalysisDocument;
-const index = indexAnalysis(fixtureDocument);
-const record = <T,>(path: string) => index.recordByPath.get(path) as T;
+const fixtureDocument = untypedFixture as unknown as ResolvedAnalysis;
+const index = indexResolvedAnalysis(fixtureDocument);
+const record = <T,>(path: string) => index.elementByRef.get(path)?.element as T;
 
 afterEach(cleanup);
 
@@ -18,8 +19,8 @@ describe('useDetailStack (controlled)', () => {
   it('proposes each change from the value the host rendered, never from an unaccepted proposal', () => {
     const onChange = vi.fn();
     const { result } = renderHook(() => useDetailStack({ value: [], onChange }));
-    const a = { kind: 'record', canonicalPath: 'a', analysisPath: '$' } as const;
-    const b = { kind: 'record', canonicalPath: 'b', analysisPath: '$' } as const;
+    const a = { kind: 'record', canonicalPath: 'a', analysisPath: '' } as const;
+    const b = { kind: 'record', canonicalPath: 'b', analysisPath: '' } as const;
     act(() => { result.current.push(a); });
     act(() => { result.current.push(b); });
     expect(onChange.mock.calls).toEqual([[[a]], [[b]]]);
@@ -30,8 +31,8 @@ describe('useDetailStack (controlled)', () => {
 describe('useOutputExpanded (controlled)', () => {
   it('asks the host to leave full screen when the record changes', () => {
     const onExpandedChange = vi.fn();
-    const figure = record<ResolvedOutput>('outputs.headline');
-    const other = record<ResolvedOutput>('clustering.outputs.correlation');
+    const figure = record<Output>('outputs.headline');
+    const other = record<Output>('clustering.outputs.correlation');
     const relations = { inputs: [], decisions: [] };
     const { rerender } = render(
       <OutputDialog record={figure} relations={relations} expanded onExpandedChange={onExpandedChange} onClose={() => undefined} />,
@@ -55,7 +56,7 @@ describe('Slot prop merging', () => {
 
 describe('PaperDetail decision filter', () => {
   it('narrows the insights to the one decision picked, and restores them', () => {
-    const paper = collectInventoryPapers(fixtureDocument, index, fixtureDocument.analysis)[0];
+    const paper = collectInventoryPapers(fixtureDocument, index, analysisAt(fixtureDocument, 0))[0];
     if (!paper) throw new Error('fixture paper missing');
     const onOpenInsight = vi.fn();
     render(<PaperDetail record={paper} onOpenInsight={onOpenInsight} />);
@@ -65,8 +66,8 @@ describe('PaperDetail decision filter', () => {
     expect(insights().length).toBe(2);
 
     const picker = screen.getByRole('combobox', { name: /Informs decision/ });
-    fireEvent.change(picker, { target: { value: paper.decisions[0]?.canonicalPath } });
-    expect((picker as HTMLSelectElement).value).toBe(paper.decisions[0]?.canonicalPath);
+    fireEvent.change(picker, { target: { value: paper.decisions[0]?.ref } });
+    expect((picker as HTMLSelectElement).value).toBe(paper.decisions[0]?.ref);
     expect(insights().length).toBe(1);
 
     // The claim is prose, not a control: only its name opens the insight.
@@ -84,7 +85,7 @@ describe('PaperDetail decision filter', () => {
   // the same marks as everywhere else: the kind is readable at a glance here
   // too, not only where the record is named in full.
   it('marks every insight it lists and the decisions it filters by', () => {
-    const paper = collectInventoryPapers(fixtureDocument, index, fixtureDocument.analysis)[0];
+    const paper = collectInventoryPapers(fixtureDocument, index, analysisAt(fixtureDocument, 0))[0];
     if (!paper) throw new Error('fixture paper missing');
     const onOpenDecision = vi.fn();
     const { container } = render(<PaperDetail record={paper} onOpenDecision={onOpenDecision} />);
@@ -100,7 +101,7 @@ describe('PaperDetail decision filter', () => {
 
     // The open action belongs to the decision picked, and appears only once one is.
     expect(screen.queryByRole('button', { name: /^Open decision/ })).toBeNull();
-    fireEvent.change(picker, { target: { value: paper.decisions[0]?.canonicalPath } });
+    fireEvent.change(picker, { target: { value: paper.decisions[0]?.ref } });
     fireEvent.click(screen.getByRole('button', { name: /^Open decision/ }));
     expect(onOpenDecision).toHaveBeenCalledWith(paper.decisions[0]);
   });

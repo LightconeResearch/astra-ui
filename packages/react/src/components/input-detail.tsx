@@ -1,4 +1,4 @@
-import type { ResolvedInput } from '@astra-spec/sdk';
+import type { Input } from '@astra-spec/sdk/reports';
 import { forwardRef, type HTMLAttributes } from 'react';
 import { recordTitle } from '../model/records.js';
 import { useLabels } from '../lib/labels.js';
@@ -8,7 +8,7 @@ import { Prose } from '../primitives/prose.js';
 import type { TextRenderer } from '../lib/prose.js';
 
 export interface InputDetailProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
-  record: ResolvedInput;
+  record: Input;
   renderText?: TextRenderer | undefined;
 }
 
@@ -19,8 +19,8 @@ export const InputDetail = forwardRef<HTMLDivElement, InputDetailProps>(function
   className,
   ...props
 }, ref) {
-  const declared = record.source ?? record.ref;
-  const primary = record.resolvedFrom ?? declared ?? 'Source not declared';
+  const declared = record.path;
+  const primary = declared;
   return (
     <DetailLayout data-slot="input-detail" {...props} ref={ref} layout="single" className={className}>
       <DetailMain>
@@ -30,17 +30,11 @@ export const InputDetail = forwardRef<HTMLDivElement, InputDetailProps>(function
           </DetailSection>
         ) : null}
         <section className="astra-input-source">
-          <h4>{record.resolvedFrom ? 'Resolved from' : 'Source'}</h4>
+          <h4>Source</h4>
           {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- long paths scroll horizontally */}
           <code tabIndex={0} title={primary}>{primary}</code>
         </section>
-        {record.resolvedFrom && declared ? (
-          <section className="astra-input-source">
-            <h4>Source</h4>
-            {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- long paths scroll horizontally */}
-            <code tabIndex={0} title={declared}>{declared}</code>
-          </section>
-        ) : null}
+
       </DetailMain>
     </DetailLayout>
   );

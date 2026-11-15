@@ -4,9 +4,11 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "predev": "npm run fixture",
     "dev": "ladle serve",
     "build": "ladle build",
-    "fixture": "node scripts/resolve-fixture.mjs"
+    "fixture": "node scripts/resolve-fixture.mjs",
+    "prebuild": "npm run fixture"
   },
   "devDependencies": {
     "@astra-spec/ui": "file:../react",

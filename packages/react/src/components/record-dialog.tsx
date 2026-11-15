@@ -1,17 +1,20 @@
+import type { OutputContext } from '../model/output-status.js';
+import { getSelectedOption } from '@astra-spec/sdk/reports';
+import type { AstraRecord } from '../model/records.js';
 import type {
-  AnalysisIndex,
-  ResolvedAnalysisDocument,
-  ResolvedAnalysisNode,
-  ResolvedDecision,
-  ResolvedInsight,
-  ResolvedOutput,
-  ResolvedRecord,
-} from '@astra-spec/sdk';
+  ResolvedAnalysisIndex,
+  ResolvedAnalysis,
+  Analysis,
+  Decision,
+  Insight,
+  Output,
+  StatusReport,
+} from '@astra-spec/sdk/reports';
 import type { ReactNode } from 'react';
 import { locateRecord } from '../model/locate-record.js';
 import { findPaper, paperForDoi, paperMetadataFor, type InventoryPaper, type InventoryPaperMetadataMap } from '../model/papers.js';
 import { isInsight, isVisualOutput, recordTitle } from '../model/records.js';
-import { decisionInsights, findingEvidence, informedDecisions, outputRelations } from '../model/relations.js';
+import { decisionInsights, findingEvidence, informedDecisions, outputRelations, outputResult } from '../model/relations.js';
 import { useLabels } from '../lib/labels.js';
 import type { ArtifactRenderer } from './artifact-preview.js';
 import { DetailDialog, type DetailDialogProps, type DialogLayout } from '../primitives/dialog.js';
@@ -30,24 +33,26 @@ import type { PdfJsLoader } from '../lib/pdf-runtime.js';
 
 export interface RecordDialogProps extends Pick<DetailDialogProps, 'mode' | 'backText' | 'className' | 'onBack' | 'onClose'> {
   entry: DetailEntry;
-  document: ResolvedAnalysisDocument;
-  index: AnalysisIndex;
+  document: ResolvedAnalysis;
+  index: ResolvedAnalysisIndex;
+  universeRef?: string | undefined;
+  statusReport?: StatusReport | undefined;
   /** Papers in scope, from `collectInventoryPapers()`; needed for paper entries and insight sources. */
   papers?: readonly InventoryPaper[] | undefined;
   paperMetadata?: InventoryPaperMetadataMap | undefined;
   renderArtifact?: ArtifactRenderer | undefined;
   /** Host renderer for recorded output provenance, shown below Recipe. */
-  renderProvenance?: ((output: ResolvedOutput) => ReactNode) | undefined;
+  renderProvenance?: ((output: Output, context: OutputContext) => ReactNode) | undefined;
   /** Host-provided link to the current code file, shown beside Recipe. */
-  renderCodeLink?: ((output: ResolvedOutput) => ReactNode) | undefined;
+  renderCodeLink?: ((output: Output, context: OutputContext) => ReactNode) | undefined;
   renderText?: TextRenderer | undefined;
   loadPdfJs?: PdfJsLoader | undefined;
   onOpenPaperFile?: OpenPaperFileHandler | undefined;
-  onOpenArtifact?: ((output: ResolvedOutput) => void | Promise<void>) | undefined;
+  onOpenArtifact?: ((output: Output) => void | Promise<void>) | undefined;
   onFetchPaper?: ((doi: string) => void) | undefined;
   /** Navigation to another record from within the detail (drill-down). */
-  onOpenRecord?: ((record: ResolvedRecord, analysis: ResolvedAnalysisNode) => void) | undefined;
-  onOpenPaper?: ((doi: string, analysis: ResolvedAnalysisNode, focusInsightPath?: string) => void) | undefined;
+  onOpenRecord?: ((record: AstraRecord, analysis: Analysis, universeRef?: string) => void) | undefined;
+  onOpenPaper?: ((doi: string, analysis: Analysis, focusInsightPath?: string) => void) | undefined;
   /** Body rendered (inside the dialog shell) when the entry no longer resolves, e.g. after a document refresh; nothing renders without it. */
   fallback?: ReactNode | undefined;
 }
@@ -70,6 +75,8 @@ export function RecordDialog({
   entry,
   document,
   index,
+  universeRef: parentUniverseRef,
+  statusReport,
   papers = [],
   paperMetadata = {},
   renderArtifact,
@@ -86,7 +93,8 @@ export function RecordDialog({
   ...dialog
 }: RecordDialogProps) {
   const labels = useLabels();
-  const analysis = index.analysisByPath.get(entry.analysisPath);
+  const universeRef = entry.kind === 'record' ? entry.universeRef ?? parentUniverseRef : parentUniverseRef;
+  const analysis = index.analysisByKey.get(entry.analysisPath);
   const located = entry.kind === 'record' ? locateRecord(index, entry.canonicalPath) : undefined;
   // Papers are looked up in the host's list first, then derived for the
   // entry's own analysis: a record reached by drill-down may cite a paper the
@@ -94,19 +102,19 @@ export function RecordDialog({
   const paper = entry.kind === 'paper' && analysis
     ? findPaper(papers, entry.doi) ?? paperForDoi(document, index, analysis, entry.doi, paperMetadata)
     : undefined;
-  const output = located?.record.kind === 'output' ? located.record : undefined;
+  const output = located?.kind === 'output' ? located.record : undefined;
   const [expanded, setExpanded] = useOutputExpanded(output ?? PLACEHOLDER_OUTPUT);
 
   const openByPath = (canonicalPath: string) => {
     const target = locateRecord(index, canonicalPath);
-    if (target) onOpenRecord?.(target.record, target.analysis);
+    if (target) onOpenRecord?.(target.record, target.analysis, universeRef);
   };
-  const openInsight = (insight: ResolvedInsight) => { openByPath(insight.canonicalPath); };
-  const openDecision = (decision: ResolvedDecision) => { openByPath(decision.canonicalPath); };
+  const openInsight = (insight: Insight) => { openByPath(insight.ref); };
+  const openDecision = (decision: Decision) => { openByPath(decision.ref); };
 
   let chrome: Chrome | undefined;
   if (entry.kind === 'paper' && paper && analysis) {
-    const focusRecord = entry.focusInsightPath ? index.recordByPath.get(entry.focusInsightPath) : undefined;
+    const focusRecord = entry.focusInsightPath ? locateRecord(index, entry.focusInsightPath)?.record : undefined;
     chrome = {
       kind: 'paper',
       kindLabel: labels.kinds.paper,
@@ -127,8 +135,8 @@ export function RecordDialog({
       ),
     };
   } else if (located && analysis) {
-    const { record } = located;
-    switch (record.kind) {
+    const { record, kind } = located;
+    switch (kind) {
       case 'output':
         chrome = {
           kind: 'output',
@@ -141,7 +149,10 @@ export function RecordDialog({
           body: (
             <OutputDetail
               record={record}
-              relations={outputRelations(index, record)}
+              relations={outputRelations(index, record, universeRef)}
+              result={outputResult(index, record, universeRef)}
+              status={statusReport?.statuses[outputResult(index, record, universeRef)?.id ?? ""]}
+              universeRef={universeRef}
               renderArtifact={renderArtifact}
               renderProvenance={renderProvenance}
               renderCodeLink={renderCodeLink}
@@ -169,7 +180,8 @@ export function RecordDialog({
           body: (
             <DecisionDetail
               record={record}
-              insights={decisionInsights(index, record)}
+              insights={decisionInsights(index, record, universeRef)}
+              selectedOptionId={universeRef ? getSelectedOption(index, universeRef, record.ref)?.id : undefined}
               renderText={renderText}
               onOpenInsight={openInsight}
             />
@@ -188,6 +200,7 @@ export function RecordDialog({
             <FindingDetail
               record={record}
               evidence={findingEvidence(index, record)}
+              statusReport={statusReport}
               renderText={renderText}
               renderArtifact={renderArtifact}
               onOpenRecord={onOpenRecord}
@@ -212,7 +225,7 @@ export function RecordDialog({
               decisions={informedDecisions(document, record)}
               renderText={renderText}
               onOpenSource={sourcePaper && onOpenPaper
-                ? () => { onOpenPaper(sourcePaper.doi, analysis, record.canonicalPath); }
+                ? () => { onOpenPaper(sourcePaper.doi, analysis, record.ref); }
                 : undefined}
               onOpenDecision={openDecision}
             />
@@ -246,4 +259,4 @@ export function RecordDialog({
   );
 }
 
-const PLACEHOLDER_OUTPUT = { canonicalPath: '' } as ResolvedOutput;
+const PLACEHOLDER_OUTPUT: Output = { ref: '', type: 'file', format: 'bin', tags: [], decisions: [] };

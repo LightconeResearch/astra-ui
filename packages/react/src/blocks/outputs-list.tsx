@@ -1,18 +1,22 @@
-import type { ResolvedAnalysisNode, ResolvedOutput } from '@astra-spec/sdk';
+import type { Analysis, Output, ResolvedAnalysisIndex, Result, StatusReport } from '@astra-spec/sdk/reports';
 import { forwardRef, useId, type HTMLAttributes } from 'react';
 import { cn } from '../lib/cn.js';
 import { useLabels } from '../lib/labels.js';
-import type { OutputStatusLookup } from '../model/output-status.js';
+import { outputResult } from '../model/relations.js';
+import type { OutputContext, OutputStatusLookup } from '../model/output-status.js';
 import type { ArtifactRenderer } from '../components/artifact-preview.js';
 import { EmptyState } from '../primitives/record-list.js';
 import { OutputCard } from '../components/output-card.js';
 import { OutputEntry } from '../components/output-entry.js';
 
 export interface OutputsListProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
-  analysis: ResolvedAnalysisNode;
+  analysis: Analysis;
+  index?: ResolvedAnalysisIndex | undefined;
+  universeRef?: string | undefined;
+  statusReport?: StatusReport | undefined;
   renderArtifact?: ArtifactRenderer | undefined;
   getOutputStatus?: OutputStatusLookup | undefined;
-  onOpenRecord: (output: ResolvedOutput, analysis: ResolvedAnalysisNode) => void;
+  onOpenRecord: (output: Output, analysis: Analysis) => void;
 }
 
 /**
@@ -25,15 +29,15 @@ function OutputGroup({
   outputs,
   variant,
   renderArtifact,
-  getOutputStatus,
+  context,
   onOpen,
 }: {
   title: string;
-  outputs: ResolvedOutput[];
+  outputs: readonly Output[];
   variant: 'gallery' | 'compact';
   renderArtifact?: ArtifactRenderer | undefined;
-  getOutputStatus?: OutputStatusLookup | undefined;
-  onOpen: (output: ResolvedOutput) => void;
+  context: (output: Output) => OutputContext;
+  onOpen: (output: Output) => void;
 }) {
   const id = useId();
   if (!outputs.length) return null;
@@ -46,9 +50,9 @@ function OutputGroup({
         <div className="astra-inventory-outputs__gallery">
           {outputs.map((output) => (
             <OutputCard
-              key={output.canonicalPath}
+              key={output.ref}
               output={output}
-              status={getOutputStatus?.(output)}
+              {...context(output)}
               renderArtifact={renderArtifact}
               onOpen={() => { onOpen(output); }}
             />
@@ -57,10 +61,10 @@ function OutputGroup({
       ) : (
         <ul className="astra-inventory-outputs__compact-grid" data-layout={outputs[0]?.type === 'metric' ? 'tiles' : 'grid'}>
           {outputs.map((output) => (
-            <li key={output.canonicalPath}>
+            <li key={output.ref}>
               <OutputEntry
                 output={output}
-                status={getOutputStatus?.(output)}
+                {...context(output)}
                 renderArtifact={renderArtifact}
                 onOpen={() => { onOpen(output); }}
               />
@@ -72,11 +76,14 @@ function OutputGroup({
   );
 }
 
-const GROUPED_TYPES = new Set<ResolvedOutput['type']>(['figure', 'table', 'metric']);
+const GROUPED_TYPES = new Set<Output['type']>(['figure', 'table', 'metric']);
 
 /** Figures and tables as galleries, metrics as compact tiles, files as a compact grid. */
 export const OutputsList = forwardRef<HTMLDivElement, OutputsListProps>(function OutputsList({
   analysis,
+  index,
+  universeRef,
+  statusReport,
   renderArtifact,
   getOutputStatus,
   onOpenRecord,
@@ -91,13 +98,17 @@ export const OutputsList = forwardRef<HTMLDivElement, OutputsListProps>(function
   if (!analysis.outputs.length) {
     return <EmptyState data-slot="outputs-list" {...props} ref={ref} className={className}>{labels.empty.outputs}</EmptyState>;
   }
-  const open = (output: ResolvedOutput) => { onOpenRecord(output, analysis); };
+  const context = (output: Output): OutputContext => {
+    const result: Result | undefined = index ? outputResult(index, output, universeRef) : undefined;
+    return { result, universeRef, status: (result ? statusReport?.statuses[result.id] : undefined) ?? getOutputStatus?.(output, result) };
+  };
+  const open = (output: Output) => { onOpenRecord(output, analysis); };
   return (
     <div data-slot="outputs-list" {...props} ref={ref} className={cn('astra-inventory-outputs', className)}>
-      <OutputGroup variant="gallery" title="Figures" outputs={figures} renderArtifact={renderArtifact} getOutputStatus={getOutputStatus} onOpen={open} />
-      <OutputGroup variant="gallery" title="Tables" outputs={tables} renderArtifact={renderArtifact} getOutputStatus={getOutputStatus} onOpen={open} />
-      <OutputGroup variant="compact" title="Metrics" outputs={metrics} renderArtifact={renderArtifact} getOutputStatus={getOutputStatus} onOpen={open} />
-      <OutputGroup variant="compact" title="Output files" outputs={files} getOutputStatus={getOutputStatus} onOpen={open} />
+      <OutputGroup variant="gallery" title="Figures" outputs={figures} renderArtifact={renderArtifact} context={context} onOpen={open} />
+      <OutputGroup variant="gallery" title="Tables" outputs={tables} renderArtifact={renderArtifact} context={context} onOpen={open} />
+      <OutputGroup variant="compact" title="Metrics" outputs={metrics} renderArtifact={renderArtifact} context={context} onOpen={open} />
+      <OutputGroup variant="compact" title="Output files" outputs={files} context={context} onOpen={open} />
     </div>
   );
 });

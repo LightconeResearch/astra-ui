@@ -1,5 +1,6 @@
+import type { OutputContext } from '../model/output-status.js';
 import type { ReactNode } from 'react';
-import type { ResolvedOutput } from '@astra-spec/sdk';
+import type { Output, Result, Status } from '@astra-spec/sdk/reports';
 import type { OutputRelations } from '../model/relations.js';
 import { isVisualOutput, recordTitle } from '../model/records.js';
 import { useLabels } from '../lib/labels.js';
@@ -11,15 +12,18 @@ import { useOutputExpanded } from '../lib/use-output-expanded.js';
 import type { OpenRecordHandler } from '../lib/detail-stack.js';
 
 export interface OutputDialogProps extends Pick<DetailDialogProps, 'mode' | 'backText' | 'className' | 'onBack' | 'onClose'> {
-  record: ResolvedOutput;
+  record: Output;
+  result?: Result | undefined;
+  status?: Status | undefined;
+  universeRef?: string | undefined;
   relations: OutputRelations;
   renderArtifact?: ArtifactRenderer | undefined;
   /** Host renderer for recorded output provenance, shown below Recipe. */
-  renderProvenance?: ((output: ResolvedOutput) => ReactNode) | undefined;
+  renderProvenance?: ((output: Output, context: OutputContext) => ReactNode) | undefined;
   /** Host-provided link to the current code file, shown beside Recipe. */
-  renderCodeLink?: ((output: ResolvedOutput) => ReactNode) | undefined;
+  renderCodeLink?: ((output: Output, context: OutputContext) => ReactNode) | undefined;
   renderText?: TextRenderer | undefined;
-  onOpenArtifact?: ((output: ResolvedOutput) => void | Promise<void>) | undefined;
+  onOpenArtifact?: ((output: Output) => void | Promise<void>) | undefined;
   onOpenRecord?: OpenRecordHandler | undefined;
   expanded?: boolean | undefined;
   onExpandedChange?: ((expanded: boolean) => void) | undefined;
@@ -27,6 +31,9 @@ export interface OutputDialogProps extends Pick<DetailDialogProps, 'mode' | 'bac
 
 export function OutputDialog({
   record: output,
+  result,
+  status,
+  universeRef,
   relations,
   renderArtifact,
   renderProvenance,
@@ -60,6 +67,9 @@ export function OutputDialog({
       <OutputDetail
         record={output}
         relations={relations}
+        result={result}
+        status={status}
+        universeRef={universeRef}
         renderArtifact={renderArtifact}
         renderProvenance={renderProvenance}
         renderCodeLink={renderCodeLink}

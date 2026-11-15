@@ -1,4 +1,4 @@
-import type { ResolvedAnalysisNode, ResolvedInput } from '@astra-spec/sdk';
+import type { Analysis, Input } from '@astra-spec/sdk/reports';
 import { forwardRef, type HTMLAttributes } from 'react';
 import { recordTitle } from '../model/records.js';
 import { useLabels } from '../lib/labels.js';
@@ -7,8 +7,8 @@ import { EmptyState, RecordIdentity, RecordList } from '../primitives/record-lis
 import { InventoryRecords } from './section.js';
 
 export interface InputsListProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
-  analysis: ResolvedAnalysisNode;
-  onOpenRecord: (input: ResolvedInput, analysis: ResolvedAnalysisNode) => void;
+  analysis: Analysis;
+  onOpenRecord: (input: Input, analysis: Analysis) => void;
 }
 
 /** Inputs with their declared source and type. */
@@ -35,13 +35,13 @@ export const InputsList = forwardRef<HTMLDivElement, InputsListProps>(function I
           { className: 'astra-record-list__arrow' },
         ]}
         rows={records.map((record) => ({
-          key: record.canonicalPath,
+          key: record.ref,
           accessibleLabel: recordTitle(record),
           onOpen: () => { onOpenRecord(record, analysis); },
           cells: [
             <RecordIdentity kind="input" title={recordTitle(record)} />,
             <code title={inputSourceLabel(record)}>{inputSourceLabel(record)}</code>,
-            <span className="astra-record-list__tag">{record.type}</span>,
+            <span className="astra-record-list__tag">{"file"}</span>,
             <span aria-hidden="true">→</span>,
           ],
         }))}

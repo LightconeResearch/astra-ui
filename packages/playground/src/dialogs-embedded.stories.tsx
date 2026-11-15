@@ -1,10 +1,10 @@
-import { indexAnalysis, type ResolvedDecision, type ResolvedOutput } from '@astra-spec/sdk';
+import { indexResolvedAnalysis, type Decision, type Output } from '@astra-spec/sdk/reports';
 import type { Story } from '@ladle/react';
 import { ArtifactPreview, DecisionDialog, OutputDialog, PaperDialog } from '@astra-spec/ui/components';
-import { collectInventoryPapers, decisionInsights, outputRelations } from '@astra-spec/ui/model';
+import { collectInventoryPapers, decisionInsights, outputRelations, outputResult } from '@astra-spec/ui/model';
 import { DialogProvider } from '@astra-spec/ui/primitives';
 import { byPath } from './derive';
-import { analysisDocument, paperMetadata, renderArtifact, renderProvenance, loadPdfJs } from './host';
+import { analysisDocument, paperMetadata, renderArtifact, renderProvenance, loadPdfJs, defaultUniverse , analysisRoot } from './host';
 
 // The embedded shell is what jupyterlab-astra mounts. The demo paper preview
 // opens every record kind as a modal, so only what is specific to embedding
@@ -13,15 +13,17 @@ import { analysisDocument, paperMetadata, renderArtifact, renderProvenance, load
 export default { title: 'Dialogs / Embedded' };
 
 const noop = () => undefined;
-const index = indexAnalysis(analysisDocument);
+const index = indexResolvedAnalysis(analysisDocument);
 
 export const OutputFigure: Story = () => {
-  const record = byPath<ResolvedOutput>(analysisDocument, 'outputs.bao_fit_plot');
+  const record = byPath<Output>(analysisDocument, 'outputs.bao_fit_plot');
   return (
     <DialogProvider mode="embedded">
       <OutputDialog
         record={record}
-        relations={outputRelations(index, record)}
+        relations={outputRelations(index, record, defaultUniverse)}
+        result={outputResult(index, record, defaultUniverse)}
+        universeRef={defaultUniverse}
         renderArtifact={renderArtifact}
         renderProvenance={renderProvenance}
         onOpenArtifact={noop}
@@ -35,7 +37,7 @@ export const OutputFigure: Story = () => {
 // The fixture ships no metric artifact, so this stands in for the host that
 // reads one: a metric has no picture to frame, and its value is a pill in the
 // provenance rather than a figure stretched across a reader column.
-const renderMetric = (output: ResolvedOutput, { compact }: { compact: boolean }) => (
+const renderMetric = (output: Output, { compact }: { compact: boolean }) => (
   <ArtifactPreview
     output={output}
     compact={compact}
@@ -44,12 +46,14 @@ const renderMetric = (output: ResolvedOutput, { compact }: { compact: boolean })
 );
 
 export const OutputMetric: Story = () => {
-  const record = byPath<ResolvedOutput>(analysisDocument, 'reconstruction.outputs.mean_displacement_bgs_full');
+  const record = byPath<Output>(analysisDocument, 'reconstruction.outputs.mean_displacement_bgs_full');
   return (
     <DialogProvider mode="embedded">
       <OutputDialog
         record={record}
-        relations={outputRelations(index, record)}
+        relations={outputRelations(index, record, defaultUniverse)}
+        result={outputResult(index, record, defaultUniverse)}
+        universeRef={defaultUniverse}
         renderArtifact={renderMetric}
         onOpenArtifact={noop}
         onOpenRecord={noop}
@@ -60,7 +64,7 @@ export const OutputMetric: Story = () => {
 };
 
 export const Paper: Story = () => {
-  const [paper] = collectInventoryPapers(analysisDocument, index, analysisDocument.analysis, paperMetadata);
+  const [paper] = collectInventoryPapers(analysisDocument, index, analysisRoot, paperMetadata);
   if (!paper) throw new Error('Fixture has no papers');
   return (
     <DialogProvider mode="embedded">
@@ -79,7 +83,7 @@ export const Paper: Story = () => {
 // the first fixture paper is cited by none: without this story no screenshot
 // covers the picker, its decision mark, or the open action beside it.
 export const PaperInformingDecisions: Story = () => {
-  const papers = collectInventoryPapers(analysisDocument, index, analysisDocument.analysis, paperMetadata);
+  const papers = collectInventoryPapers(analysisDocument, index, analysisRoot, paperMetadata);
   const paper = papers.find((candidate) => candidate.decisions.length > 1);
   if (!paper) throw new Error('Fixture has no paper informing more than one decision');
   return (
@@ -97,7 +101,7 @@ export const PaperInformingDecisions: Story = () => {
 };
 
 export const WithBackTrail: Story = () => {
-  const record = byPath<ResolvedDecision>(analysisDocument, 'decisions.broadband');
+  const record = byPath<Decision>(analysisDocument, 'decisions.broadband');
   return (
     <DialogProvider mode="embedded" backText="BAO fit plot">
       <DecisionDialog

@@ -1,5 +1,5 @@
 /** Model: pure, React-free derivations over the SDK's resolved analysis. */
-export { analysisTitle, countLabel, decisionTagLabel, inputSourceLabel, isInsight, isVisualOutput, recordTitle, selectedOptionLabel } from './records.js';
+export { analysisTitle, recordKind, recordId, isOutput, countLabel, decisionTagLabel, inputSourceLabel, isInsight, isVisualOutput, recordTitle, selectedOptionLabel } from './records.js';
 export { sectionKind, surfaceGlyph } from './kind.js';
 export type { InventorySectionId, SurfaceKind } from './kind.js';
 export { locateRecord } from './locate-record.js';
@@ -15,6 +15,7 @@ export {
   outputDecisionPaths,
   outputDecisionRoutes,
   outputRelations,
+  outputResult,
 } from './relations.js';
 export type { FindingEvidenceGroup, FindingEvidenceLink, LinkedRecord, OutputRelations } from './relations.js';
 export {
@@ -33,6 +34,8 @@ export type {
   InventoryPaperMetadataMap,
   PaperFetchStatus,
 } from './papers.js';
-export { doiHref } from './doi.js';
-export type { OutputStatus, OutputStatusLookup } from './output-status.js';
-export type { OutputProvenanceData, OutputRun } from './output-provenance.js';
+export { doiHref, normalizeDoi } from './doi.js';
+export type { OutputStatus, OutputStatusLookup, OutputContext } from './output-status.js';
+export type { OutputProvenanceData } from './output-provenance.js';
+
+export type { AstraRecord, RecordKind } from './records.js';

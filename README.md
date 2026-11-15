@@ -46,11 +46,11 @@ npm install @astra-spec/ui @astra-spec/sdk react react-dom
 ```
 
 ```tsx
-import type { ResolvedAnalysisDocument } from '@astra-spec/sdk';
+import type { ResolvedAnalysis } from '@astra-spec/sdk';
 import { Inventory } from '@astra-spec/ui/views';
 import '@astra-spec/ui/styles.css';
 
-export function AnalysisView({ document }: { document: ResolvedAnalysisDocument }) {
+export function AnalysisView({ document }: { document: ResolvedAnalysis }) {
   return (
     <div className="astra-ui">
       <Inventory document={document} />
@@ -68,7 +68,7 @@ support.
 
 | Layer | Responsibility |
 | --- | --- |
-| `@astra-spec/sdk` | Validation, resolution, canonical paths, provenance, artifact bindings, and indexes |
+| `@astra-spec/sdk` | Validation, resolution, canonical paths, provenance, result places, and indexes |
 | `@astra-spec/ui` | Primitives, record and paper details, dialogs, inventory blocks and views, and the token contract |
 | Host application | Project reading, loading and refresh, artifact bytes and URLs, paper fetching, routing, and state |
 
@@ -104,7 +104,7 @@ npm run playground
 ```
 
 The playground opens at <http://localhost:61000> and exercises the package over
-a committed resolved ASTRA project. Run
+the owned ASTRA 0.1 DESI demo. Startup regenerates its report fixture and browser resources through the native SDK. Run
 `VITE_ASTRA_THEME=none npm run playground` to display only the package defaults.
 
 | Command | Purpose |

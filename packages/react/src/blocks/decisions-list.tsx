@@ -1,4 +1,4 @@
-import type { ResolvedAnalysisNode, ResolvedDecision } from '@astra-spec/sdk';
+import type { Analysis, Decision, Universe } from '@astra-spec/sdk/reports';
 import { forwardRef, useState, type HTMLAttributes } from 'react';
 import { countLabel, decisionTagLabel, recordTitle, selectedOptionLabel } from '../model/records.js';
 import { useLabels } from '../lib/labels.js';
@@ -8,19 +8,21 @@ import { InventoryRecords } from './section.js';
 export const ALL_TAGS = 'all';
 
 export interface DecisionsListProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
-  analysis: ResolvedAnalysisNode;
+  analysis: Analysis;
+  universe?: Universe | undefined;
   /** Display names for decision tags. */
   tagLabels?: Readonly<Record<string, string>> | undefined;
   /** Active tag filter (controlled); `'all'` shows every decision. */
   tagFilter?: string | undefined;
   defaultTagFilter?: string | undefined;
   onTagFilterChange?: ((tag: string) => void) | undefined;
-  onOpenRecord: (decision: ResolvedDecision, analysis: ResolvedAnalysisNode) => void;
+  onOpenRecord: (decision: Decision, analysis: Analysis) => void;
 }
 
 /** Decisions with a tag filter and the selected option of each. */
 export const DecisionsList = forwardRef<HTMLDivElement, DecisionsListProps>(function DecisionsList({
   analysis,
+  universe,
   tagLabels = {},
   tagFilter: controlledFilter,
   defaultTagFilter = ALL_TAGS,
@@ -31,9 +33,9 @@ export const DecisionsList = forwardRef<HTMLDivElement, DecisionsListProps>(func
 }, ref) {
   const labels = useLabels();
   const [internalFilter, setInternalFilter] = useState(defaultTagFilter);
-  const [lastAnalysis, setLastAnalysis] = useState(analysis.canonicalPath);
-  if (lastAnalysis !== analysis.canonicalPath) {
-    setLastAnalysis(analysis.canonicalPath);
+  const [lastAnalysis, setLastAnalysis] = useState(analysis.key);
+  if (lastAnalysis !== analysis.key) {
+    setLastAnalysis(analysis.key);
     setInternalFilter(defaultTagFilter);
   }
   const tagFilter = controlledFilter ?? internalFilter;
@@ -90,12 +92,12 @@ export const DecisionsList = forwardRef<HTMLDivElement, DecisionsListProps>(func
           { className: 'astra-record-list__arrow' },
         ]}
         rows={visibleRecords.map((record) => ({
-          key: record.canonicalPath,
-          accessibleLabel: `${recordTitle(record)}, selected option ${selectedOptionLabel(record)}`,
+          key: record.ref,
+          accessibleLabel: `${recordTitle(record)}, selected option ${selectedOptionLabel(record, universe)}`,
           onOpen: () => { onOpenRecord(record, analysis); },
           cells: [
             <RecordIdentity kind="decision" title={recordTitle(record)} />,
-            <span className="astra-record-list__selected">{selectedOptionLabel(record)}</span>,
+            <span className="astra-record-list__selected">{selectedOptionLabel(record, universe)}</span>,
             record.tags?.[0] ? (
               <span className="astra-record-list__tag">
                 {decisionTagLabel(record.tags[0], tagLabels)}

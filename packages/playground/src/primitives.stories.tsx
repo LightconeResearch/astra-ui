@@ -1,5 +1,5 @@
 import type { Story } from '@ladle/react';
-import type { ResolvedOutput } from '@astra-spec/sdk';
+import type { Output } from '@astra-spec/sdk/reports';
 import { ArtifactPreview } from '@astra-spec/ui/components';
 import {
   Badge,
@@ -13,7 +13,7 @@ import {
   SurfaceHeader,
 } from '@astra-spec/ui/primitives';
 import { byPath } from './derive';
-import { artifacts, analysisDocument } from './host';
+import { analysisDocument , fixtureArtifact , analysisRoot } from './host';
 
 export default { title: 'Primitives' };
 
@@ -62,12 +62,12 @@ export const Headers: Story = () => (
 );
 
 export const Artifacts: Story = () => {
-  const figure = byPath<ResolvedOutput>(analysisDocument, 'outputs.bao_fit_plot');
-  const table = byPath<ResolvedOutput>(analysisDocument, 'outputs.bao_distance_table');
-  const data = byPath<ResolvedOutput>(analysisDocument, 'outputs.xi_pre_recon_bgs');
+  const figure = byPath<Output>(analysisDocument, 'outputs.bao_fit_plot');
+  const table = byPath<Output>(analysisDocument, 'outputs.bao_distance_table');
+  const data = byPath<Output>(analysisDocument, 'outputs.xi_pre_recon_bgs');
   return (
     <div className="playground-stack playground-frame">
-      <ArtifactPreview output={figure} preview={{ kind: 'image', url: artifacts[figure.canonicalPath]?.url ?? '' }} />
+      <ArtifactPreview output={figure} preview={{ kind: 'image', url: fixtureArtifact(figure)?.url ?? '' }} />
       <ArtifactPreview
         output={table}
         preview={{ kind: 'table', headers: ['tracer', 'z_eff', 'DM/rd', 'DH/rd'], rows: [['BGS', 0.295, '—', '—'], ['LRG1', 0.51, 13.62, 20.98]] }}
@@ -89,12 +89,12 @@ export const RecordLists: Story = () => (
         { label: 'Type', className: 'astra-record-list__secondary' },
         { className: 'astra-record-list__arrow' },
       ]}
-      rows={analysisDocument.analysis.outputs.slice(0, 5).map((record) => ({
-        key: record.canonicalPath,
-        accessibleLabel: record.label ?? record.id,
+      rows={analysisRoot.outputs.slice(0, 5).map((record) => ({
+        key: record.ref,
+        accessibleLabel: record.label ?? record.ref,
         onOpen: noop,
         cells: [
-          <RecordIdentity kind="output" title={record.label ?? record.id} subtitle={record.id} />,
+          <RecordIdentity kind="output" title={record.label ?? record.ref} subtitle={record.ref} />,
           <span className="astra-record-list__tag">{record.type}</span>,
           <span aria-hidden="true">→</span>,
         ],
@@ -111,10 +111,10 @@ export const Relations: Story = () => (
       title="Decision dependencies"
       empty="None"
       description="Records this output depends on."
-      items={analysisDocument.analysis.decisions.slice(0, 3).map((decision) => ({
-        key: decision.canonicalPath,
-        label: decision.label ?? decision.id,
-        identifier: decision.canonicalPath,
+      items={analysisRoot.decisions.slice(0, 3).map((decision) => ({
+        key: decision.ref,
+        label: decision.label ?? decision.ref,
+        identifier: decision.ref,
         kind: 'decision' as const,
         onOpen: noop,
       }))}
@@ -123,10 +123,10 @@ export const Relations: Story = () => (
       className="astra-detail__relations"
       title="Static relations"
       empty="None"
-      items={analysisDocument.analysis.inputs.slice(0, 2).map((input) => ({
-        key: input.canonicalPath,
-        label: input.label ?? input.id,
-        detail: input.type,
+      items={analysisRoot.inputs.slice(0, 2).map((input) => ({
+        key: input.ref,
+        label: input.label ?? input.ref,
+        detail: input.path,
         kind: 'input' as const,
       }))}
     />

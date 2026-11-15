@@ -16,9 +16,9 @@ export const OutputStatusIndicator = forwardRef<HTMLSpanElement, OutputStatusInd
   ...props
 }, ref) {
   const labels = useLabels();
-  if (!status || status.state === 'current') return null;
+  if (!status || status.state === 'unchanged' && status.bytes?.state !== 'absent') return null;
   const label = labels.status[status.state];
-  const reason = status.detail?.trim();
+  const reason = [...status.why.map(item => item.message), ...(status.bytes?.state === 'absent' ? ['Recorded bytes are unavailable.'] : [])].join(' ').trim();
   const explanation = reason ? labels.status.withDetail(label, reason) : label;
   return (
     <Tooltip content={explanation}>

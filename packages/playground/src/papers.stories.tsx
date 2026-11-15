@@ -9,9 +9,9 @@ const paper: InventoryPaper = {
   title: 'Passage navigation (synthetic fixture)',
   pdfUrl: `${import.meta.env.BASE_URL}papers/navigation.pdf`,
   insights: [{
-    id: 'result', created_at: '2026-01-01T00:00:00Z', kind: 'prior_insight', canonicalPath: 'prior_insights.result',
+    ref: 'prior_insights.result', kind: 'prior_insight', tags: [],
     claim: 'A reproducible result appears on the final page.',
-    evidence: [{ id: 'source', doi: '10.1234/example', quote: { exact: 'A reproducible result appears on the final page.' } }],
+    evidence: [{ doi: '10.1234/example', quote: { exact: 'A reproducible result appears on the final page.' } }],
   }],
   decisions: [],
 };

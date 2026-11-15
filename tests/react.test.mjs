@@ -6,7 +6,7 @@ import { DetailDialog, DialogProvider, PreviewPopover, Prose } from '../packages
 import { renderProse } from '../packages/react/dist/lib/index.js';
 import { ArtifactPreview, OutputCard, OutputDetail, PaperDetail, PaperDialog, RecordDialog, RecordPreview } from '../packages/react/dist/components/index.js';
 import { recordEntry } from '../packages/react/dist/lib/index.js';
-import { indexAnalysis } from '@astra-spec/sdk';
+import { indexResolvedAnalysis } from '@astra-spec/sdk';
 import { collectInventoryPapers } from '../packages/react/dist/model/index.js';
 import { AnalysisTree, OutputsList } from '../packages/react/dist/blocks/index.js';
 import { Inventory } from '../packages/react/dist/views/index.js';
@@ -18,7 +18,7 @@ function withinUi(component) {
   );
 }
 
-test('the composed inventory consumes ResolvedAnalysisDocument directly', () => {
+test('the composed inventory consumes ResolvedAnalysis directly', () => {
   const renderedOutputs = [];
   const html = withinUi(React.createElement(Inventory, {
     document: fixtureDocument,
@@ -26,8 +26,8 @@ test('the composed inventory consumes ResolvedAnalysisDocument directly', () => 
       '10.1234/example': { title: 'A useful paper' },
     },
     renderArtifact: (output, { compact }) => {
-      renderedOutputs.push([output.canonicalPath, compact]);
-      return React.createElement('span', { 'data-preview': output.canonicalPath }, 'Host preview');
+      renderedOutputs.push([output.ref, compact]);
+      return React.createElement('span', { 'data-preview': output.ref }, 'Host preview');
     },
   }));
 
@@ -49,10 +49,10 @@ test('the composed inventory consumes ResolvedAnalysisDocument directly', () => 
 });
 
 test('record previews render on the server while closed popovers keep portal DOM out of hydration', () => {
-  const index = indexAnalysis(fixtureDocument);
-  const output = index.recordByPath.get('outputs.headline');
+  const index = indexResolvedAnalysis(fixtureDocument);
+  const output = index.elementByRef.get('outputs.headline')?.element;
   const content = React.createElement(RecordPreview, {
-    entry: { kind: 'record', record: output, analysis: fixtureDocument.analysis },
+    entry: { kind: 'record', record: output, analysis: fixtureDocument.analyses[0] },
     document: fixtureDocument,
     index,
     renderArtifact: () => React.createElement('span', null, 'Static artifact'),
@@ -99,7 +99,7 @@ test('the analysis picker follows the SDK recursive analysis tree', () => {
 });
 
 test('artifact previews render only host-safe values', () => {
-  const output = fixtureDocument.analysis.outputs[0];
+  const output = fixtureDocument.analyses[0].outputs[0];
   const html = withinUi(React.createElement(ArtifactPreview, {
     output,
     caption: 'Preview supplied by host',
@@ -116,7 +116,7 @@ test('artifact previews render only host-safe values', () => {
   assert.doesNotMatch(html, /results\//);
 
   const inactive = withinUi(React.createElement(ArtifactPreview, {
-    output: fixtureDocument.analysis.outputs[1],
+    output: fixtureDocument.analyses[0].outputs[1],
   }));
   assert.match(inactive, /not active in the selected universe/);
 
@@ -163,8 +163,8 @@ test('authored prose accepts host-normalized custom math macros', () => {
 });
 
 test('paper dialogs render on the server without initializing PDF.js', () => {
-  const index = indexAnalysis(fixtureDocument);
-  const paper = collectInventoryPapers(fixtureDocument, index, fixtureDocument.analysis, {
+  const index = indexResolvedAnalysis(fixtureDocument);
+  const paper = collectInventoryPapers(fixtureDocument, index, fixtureDocument.analyses[0], {
     '10.1234/example': { title: 'A useful paper', pdfUrl: '/paper.pdf' },
   })[0];
   let loads = 0;
@@ -237,9 +237,10 @@ test('detail presentation preserves accessible modal and embedded shells', () =>
 });
 
 test('the record dialog derives relations and evidence from the index', () => {
-  const index = indexAnalysis(fixtureDocument);
+  const index = indexResolvedAnalysis(fixtureDocument);
   const output = withinUi(React.createElement(RecordDialog, {
-    entry: recordEntry('outputs.headline', '$'),
+    entry: recordEntry('outputs.headline', ''),
+    universeRef: 'universes.baseline',
     document: fixtureDocument,
     index,
     onClose: () => {},
@@ -249,7 +250,7 @@ test('the record dialog derives relations and evidence from the index', () => {
   assert.match(output, /Method choice/);
 
   const finding = withinUi(React.createElement(RecordDialog, {
-    entry: recordEntry('findings.headline_finding', '$'),
+    entry: recordEntry('findings.headline_finding', ''),
     document: fixtureDocument,
     index,
     onOpenRecord: () => {},
@@ -259,7 +260,7 @@ test('the record dialog derives relations and evidence from the index', () => {
   assert.match(finding, /View supporting result: Headline result/);
 
   const missing = withinUi(React.createElement(RecordDialog, {
-    entry: recordEntry('outputs.gone', '$'),
+    entry: recordEntry('outputs.gone', ''),
     document: fixtureDocument,
     index,
     onClose: () => {},
@@ -271,9 +272,9 @@ test('the record dialog derives relations and evidence from the index', () => {
 });
 
 test('the artifact box frames figures and tables and nothing else, host renderer or not', () => {
-  const index = indexAnalysis(fixtureDocument);
-  const figure = index.recordByPath.get('outputs.headline');
-  const data = { ...figure, id: 'raw', canonicalPath: 'outputs.raw', type: 'data', format: 'npy' };
+  const index = indexResolvedAnalysis(fixtureDocument);
+  const figure = index.elementByRef.get('outputs.headline')?.element;
+  const data = { ...figure, id: 'raw', ref: 'outputs.raw', type: 'data', format: 'npy' };
   const relations = { inputs: [], decisions: [] };
   const box = /astra-output-detail__artifact/;
   const hostPreview = () => React.createElement('span', null, 'host preview');
@@ -288,9 +289,9 @@ test('the artifact box frames figures and tables and nothing else, host renderer
 });
 
 test('a metric shows the host rendering as a pill above the description', () => {
-  const index = indexAnalysis(fixtureDocument);
-  const figure = index.recordByPath.get('outputs.headline');
-  const metric = { ...figure, id: 'alpha', canonicalPath: 'outputs.alpha', type: 'metric', format: 'json' };
+  const index = indexResolvedAnalysis(fixtureDocument);
+  const figure = index.elementByRef.get('outputs.headline')?.element;
+  const metric = { ...figure, id: 'alpha', ref: 'outputs.alpha', type: 'metric', format: 'json' };
   const relations = { inputs: [], decisions: [] };
   const hosted = withinUi(React.createElement(OutputDetail, {
     record: metric,
@@ -307,8 +308,8 @@ test('a metric shows the host rendering as a pill above the description', () => 
 });
 
 test('a figure whose host renderer opts out falls back to the single-column layout', () => {
-  const index = indexAnalysis(fixtureDocument);
-  const figure = index.recordByPath.get('outputs.headline');
+  const index = indexResolvedAnalysis(fixtureDocument);
+  const figure = index.elementByRef.get('outputs.headline')?.element;
   const relations = { inputs: [], decisions: [] };
   assert.match(withinUi(React.createElement(OutputDetail, { record: figure, relations })), /data-layout="reader"/);
   const optedOut = withinUi(React.createElement(OutputDetail, { record: figure, relations, renderArtifact: () => null }));
@@ -318,16 +319,16 @@ test('a figure whose host renderer opts out falls back to the single-column layo
 });
 
 test('output dialogs list every decision on a dependency path in one list, including those of a sub-analysis', () => {
-  const index = indexAnalysis(fixtureDocument);
-  const figure = index.recordByPath.get('outputs.headline');
-  const method = index.recordByPath.get('decisions.method');
-  const clustering = fixtureDocument.analysis.analyses[0];
-  const weighting = { ...method, id: 'weighting', label: 'Weighting scheme', canonicalPath: 'clustering.decisions.weighting' };
+  const index = indexResolvedAnalysis(fixtureDocument);
+  const figure = index.elementByRef.get('outputs.headline')?.element;
+  const method = index.elementByRef.get('decisions.method')?.element;
+  const clustering = fixtureDocument.analyses[1];
+  const weighting = { ...method, id: 'weighting', label: 'Weighting scheme', ref: 'clustering.decisions.weighting' };
   const relations = {
     inputs: [],
     decisions: [
-      { canonicalPath: method.canonicalPath, record: method, analysis: fixtureDocument.analysis },
-      { canonicalPath: weighting.canonicalPath, record: weighting, analysis: clustering },
+      { canonicalPath: method.ref, record: method, analysis: fixtureDocument.analyses[0] },
+      { canonicalPath: weighting.ref, record: weighting, analysis: clustering },
     ],
   };
   const html = withinUi(React.createElement(OutputDetail, { record: figure, relations }));
@@ -339,20 +340,20 @@ test('output dialogs list every decision on a dependency path in one list, inclu
 });
 
 test('an inherited decision names every upstream origin to assistive technology, even read-only', () => {
-  const index = indexAnalysis(fixtureDocument);
-  const figure = index.recordByPath.get('outputs.headline');
-  const method = index.recordByPath.get('decisions.method');
-  const upstream = { ...figure, id: 'upstream', label: 'Upstream fit', canonicalPath: 'outputs.upstream' };
-  const loop = { ...figure, id: 'loop', label: 'Loop fit', canonicalPath: 'outputs.loop' };
+  const index = indexResolvedAnalysis(fixtureDocument);
+  const figure = index.elementByRef.get('outputs.headline')?.element;
+  const method = index.elementByRef.get('decisions.method')?.element;
+  const upstream = { ...figure, id: 'upstream', label: 'Upstream fit', ref: 'outputs.upstream' };
+  const loop = { ...figure, id: 'loop', label: 'Loop fit', ref: 'outputs.loop' };
   const relations = {
     inputs: [],
     decisions: [{
-      canonicalPath: method.canonicalPath,
+      canonicalPath: method.ref,
       record: method,
-      analysis: fixtureDocument.analysis,
+      analysis: fixtureDocument.analyses[0],
       via: [
-        { canonicalPath: upstream.canonicalPath, record: upstream, analysis: fixtureDocument.analysis },
-        { canonicalPath: loop.canonicalPath, record: loop, analysis: fixtureDocument.analysis },
+        { canonicalPath: upstream.ref, record: upstream, analysis: fixtureDocument.analyses[0] },
+        { canonicalPath: loop.ref, record: loop, analysis: fixtureDocument.analyses[0] },
       ],
     }],
   };
@@ -368,25 +369,25 @@ test('an inherited decision names every upstream origin to assistive technology,
 });
 
 test('output cards carry an accessible name instead of their preview cells', () => {
-  const index = indexAnalysis(fixtureDocument);
-  const html = withinUi(React.createElement(OutputCard, { output: index.recordByPath.get('outputs.headline'), onOpen: () => undefined }));
+  const index = indexResolvedAnalysis(fixtureDocument);
+  const html = withinUi(React.createElement(OutputCard, { output: index.elementByRef.get('outputs.headline')?.element, onOpen: () => undefined }));
   assert.match(html, /<button[^>]*aria-label="Open figure: Headline result"/);
 });
 
 test('a paper fetch error is announced', () => {
-  const index = indexAnalysis(fixtureDocument);
-  const paper = collectInventoryPapers(fixtureDocument, index, fixtureDocument.analysis)[0];
+  const index = indexResolvedAnalysis(fixtureDocument);
+  const paper = collectInventoryPapers(fixtureDocument, index, fixtureDocument.analyses[0])[0];
   const html = withinUi(React.createElement(PaperDetail, { record: paper, metadata: { status: 'error', error: 'Not in cache' }, onFetchPaper: () => undefined }));
   assert.match(html, /<p role="alert">Not in cache<\/p>/);
 });
 
 test('an insight opened from another analysis still offers its source passage', () => {
-  const index = indexAnalysis(fixtureDocument);
-  const clustering = fixtureDocument.analysis.analyses[0];
+  const index = indexResolvedAnalysis(fixtureDocument);
+  const clustering = fixtureDocument.analyses[1];
   const papersOfClustering = collectInventoryPapers(fixtureDocument, index, clustering);
   assert.equal(papersOfClustering.some(({ doi }) => doi === '10.1234/example'), false, 'the viewed analysis does not list the paper');
   const html = withinUi(React.createElement(RecordDialog, {
-    entry: recordEntry('prior_insights.published_method', '$'),
+    entry: recordEntry('prior_insights.published_method', ''),
     document: fixtureDocument,
     index,
     papers: papersOfClustering,
@@ -400,9 +401,9 @@ test('an insight opened from another analysis still offers its source passage', 
 });
 
 test('an insight whose host cannot open papers links its source on doi.org', () => {
-  const index = indexAnalysis(fixtureDocument);
+  const index = indexResolvedAnalysis(fixtureDocument);
   const html = withinUi(React.createElement(RecordDialog, {
-    entry: recordEntry('prior_insights.published_method', '$'),
+    entry: recordEntry('prior_insights.published_method', ''),
     document: fixtureDocument,
     index,
     papers: [],
@@ -414,8 +415,8 @@ test('an insight whose host cannot open papers links its source on doi.org', () 
 });
 
 test('metric previews round numbers, keep strings verbatim, and drop a blank uncertainty', () => {
-  const index = indexAnalysis(fixtureDocument);
-  const output = index.recordByPath.get('outputs.headline');
+  const index = indexResolvedAnalysis(fixtureDocument);
+  const output = index.elementByRef.get('outputs.headline')?.element;
   const rounded = withinUi(React.createElement(ArtifactPreview, { output, preview: { kind: 'metric', value: 1.012345678, uncertainty: 0.024567891 }, locale: 'en-US' }));
   assert.match(rounded, /1\.0123<\/strong>/);
   assert.match(rounded, /± 0\.024568</);
@@ -427,25 +428,25 @@ test('metric previews round numbers, keep strings verbatim, and drop a blank unc
 });
 
 test('metric tiles carry an accessible name and consult the host renderer like the gallery', () => {
-  const headline = fixtureDocument.analysis.outputs[0];
-  const metric = { ...headline, id: 'neff', canonicalPath: 'outputs.neff', label: 'Effective sample size', type: 'metric', format: 'json', artifact: undefined };
-  const analysis = { ...fixtureDocument.analysis, outputs: [metric] };
+  const headline = fixtureDocument.analyses[0].outputs[0];
+  const metric = { ...headline, id: 'neff', ref: 'outputs.neff', label: 'Effective sample size', type: 'metric', format: 'json', artifact: undefined };
+  const analysis = { ...fixtureDocument.analyses[0], outputs: [metric] };
   const rendered = [];
   const html = withinUi(React.createElement(OutputsList, {
     analysis,
-    renderArtifact: (output) => { rendered.push(output.canonicalPath); return React.createElement('span', null, 'Host preview'); },
+    renderArtifact: (output) => { rendered.push(output.ref); return React.createElement('span', null, 'Host preview'); },
     onOpenRecord: () => undefined,
   }));
   assert.match(html, /<button[^>]*aria-label="Open metric: Effective sample size"/);
   assert.deepEqual(rendered, ['outputs.neff']);
   assert.match(html, /Host preview/);
   const hostless = withinUi(React.createElement(OutputsList, { analysis, onOpenRecord: () => undefined }));
-  assert.match(hostless, /Not yet generated/);
+  assert.match(hostless, /Inactive/);
 });
 
 test('table previews say whether their total is exact or unknown, and stay quiet when compact', () => {
-  const index = indexAnalysis(fixtureDocument);
-  const output = index.recordByPath.get('outputs.headline');
+  const index = indexResolvedAnalysis(fixtureDocument);
+  const output = index.elementByRef.get('outputs.headline')?.element;
   const rows = [['1', '2'], ['3', '4']];
   const exact = withinUi(React.createElement(ArtifactPreview, { output, preview: { kind: 'table', headers: ['a', 'b'], rows, totalRows: 5 } }));
   assert.match(exact, /Showing 2 of 5 rows and 2 of 2 columns\./);

@@ -1,5 +1,5 @@
 import { KindGlyph } from '../primitives/kind-glyph.js';
-import type { ResolvedAnalysisNode, ResolvedInsight } from '@astra-spec/sdk';
+import type { Analysis, Insight } from '@astra-spec/sdk/reports';
 import { forwardRef, type HTMLAttributes } from 'react';
 import { recordTitle } from '../model/records.js';
 import { useLabels } from '../lib/labels.js';
@@ -7,8 +7,8 @@ import { EmptyState, RecordList } from '../primitives/record-list.js';
 import { InventoryRecords } from './section.js';
 
 export interface FindingsListProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
-  analysis: ResolvedAnalysisNode;
-  onOpenRecord: (finding: ResolvedInsight, analysis: ResolvedAnalysisNode) => void;
+  analysis: Analysis;
+  onOpenRecord: (finding: Insight, analysis: Analysis) => void;
 }
 
 function evidenceLabel(count: number): string {
@@ -39,7 +39,7 @@ export const FindingsList = forwardRef<HTMLDivElement, FindingsListProps>(functi
         rows={records.map((record) => {
           const count = record.evidence.length;
           return {
-            key: record.canonicalPath,
+            key: record.ref,
             accessibleLabel: `${recordTitle(record)}: ${record.claim} ${evidenceLabel(count)}`,
             onOpen: () => { onOpenRecord(record, analysis); },
             cells: [

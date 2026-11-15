@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-`@astra-spec/ui` — composable, themable React components that render a `ResolvedAnalysisDocument`
+`@astra-spec/ui` — composable, themable React components that render a `ResolvedAnalysis`
 from `@astra-spec/sdk`. npm workspaces: `packages/react` (the published package),
 `packages/playground` (private Ladle workspace) and `packages/preview` (private; renders the demo
 paper against the local package). Node >= 20.
@@ -35,7 +35,7 @@ npx eslint packages/react/src/primitives/button.tsx               # lint one fil
 ```
 
 `tests/*.test.mjs` are SSR/contract tests (`renderToStaticMarkup` over `tests/fixture.mjs`, a
-hand-written minimal `ResolvedAnalysisDocument`). `tests/dom/*.test.tsx` are interaction tests.
+hand-written minimal `ResolvedAnalysis`). `tests/dom/*.test.tsx` are interaction tests.
 
 Playground, screenshots, and the sibling consumers:
 
@@ -46,7 +46,7 @@ npm run screenshots                    # build + static Ladle build + Playwright
 node packages/preview/screenshot.mjs stories --filter <substring> --width 960
 npm run preview:screenshots            # every page of packages/preview/dist, light+dark, 1280/960/640, hover + dialogs
 npm run check:consumers                # typecheck ../jupyterlab-lightcone, ../vscode-astra, ../astra-theme2 against this dist
-npm run fixture --workspace astra-ui-playground [projectRoot] [universeId]   # regenerate fixtures/desi.json (default: the preview's pinned content clone)
+npm run fixture --workspace astra-ui-playground [projectRoot]   # regenerate fixtures/desi.json (default: the owned ASTRA 0.1 DESI demo)
 node scripts/tokens-doc.mjs            # regenerate packages/react/TOKENS.md from styles/tokens.css
 npm run preview                        # demo paper via astra-theme + MySTRA against the working tree, on :4310
 node packages/preview/build.mjs --theme ../astra-theme --content ../myst_proto --serve   # local checkouts
@@ -66,10 +66,10 @@ There is no local baseline: Argos on the PR is the comparison.
 ## Architecture
 
 **Boundary.** The package is presentation only. The SDK owns validation, resolution, canonical
-paths, provenance and `indexAnalysis`; the host owns file access, artifact bytes/URLs, paper
+paths, provenance and `indexResolvedAnalysis`; the host owns file access, artifact bytes/URLs, paper
 fetching, routing and application state. Nothing in `src/` may resolve an analysis, touch `node:`,
 JupyterLab or MyST, or keep session/storage state — a contract test greps for all of it. Hosts call
-the SDK's `indexAnalysis(document)` themselves; there is no local index wrapper.
+the SDK's `indexResolvedAnalysis(document)` themselves; there is no local index wrapper.
 
 **Layers.** No root entry; each entry is imported on its own, and every file is also a subpath
 (`@astra-spec/ui/components/output-dialog`). Two kinds of layer, never mixed: machinery renders
@@ -149,7 +149,7 @@ working around one. It checks that:
 - the exported names of every layer match `tests/exports.snapshot.json` — update that file
   deliberately in the same commit as an API change;
 - `package.json` exports, `files` (which ships `src`), and the pinned peer ranges
-  (`@astra-spec/sdk@^0.1.1`, `react >=18 <20`) — bump the manifest and the test together;
+  (`@astra-spec/sdk@^0.2.0-rc.1`, `react >=18 <20`) — bump the manifest and the test together;
 - every `astra-*` class a TSX file emits has a CSS rule, and every rule is emitted by some component
   (add the class and its rule together, and import a new sheet into the right bundle);
 - every `var(--astra-*)` a sheet consumes has a default in `tokens.css`, nothing declared there is

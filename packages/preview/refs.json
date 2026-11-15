@@ -4,15 +4,15 @@
   },
   "theme": {
     "repository": "https://github.com/LightconeResearch/astra-theme.git",
-    "ref": "f4835c850fa73c087223e75a63f9224c8c3a3207",
+    "ref": "feat/astra-01-sdk",
     "template": "themes/article"
   },
   "content": {
     "repository": "https://github.com/EiffL/myst_proto.git",
-    "ref": "3735fcc965e3aa56fb088d25177dea3d3ea1bf9f"
+    "path": "packages/preview/content"
   },
   "mystra": {
     "repository": "https://github.com/LightconeResearch/MySTRA.git",
-    "ref": null
+    "ref": "feat/astra-01-sdk"
   }
 }

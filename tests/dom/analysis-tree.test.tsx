@@ -1,19 +1,18 @@
+import { analysisAt } from '../helpers.js';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { ResolvedAnalysisDocument, ResolvedAnalysisNode } from '@astra-spec/sdk';
+import type { ResolvedAnalysis, Analysis } from '@astra-spec/sdk';
 import { afterEach, expect, it, vi } from 'vitest';
 import { AnalysisTree } from '../../packages/react/src/blocks/analysis-tree.js';
 import { Inventory } from '../../packages/react/src/views/inventory.js';
 import { fixtureDocument as untypedFixture } from '../fixture.mjs';
 
-const fixture = untypedFixture as unknown as ResolvedAnalysisDocument;
-const child = fixture.analysis.analyses[0] as ResolvedAnalysisNode;
-const document: ResolvedAnalysisDocument = {
+const fixture = untypedFixture as unknown as ResolvedAnalysis;
+const child = analysisAt(fixture, 1) as Analysis;
+const document: ResolvedAnalysis = {
   ...fixture,
-  analysis: { ...fixture.analysis, analyses: [{
-    ...child, id: 'clustering',
-    analyses: [{ ...child, id: 'checks', name: 'Checks', canonicalPath: 'clustering.checks', outputs: [], prior_insights: [], analyses: [] }],
-  }] },
+  analyses: [analysisAt(fixture, 0), { ...child, declares: { checks: 'clustering.checks' } },
+    { ...child, key: 'clustering.checks', label: 'Checks', declares: {}, outputs: [], prior_insights: [] }],
 };
 
 afterEach(cleanup);
@@ -34,7 +33,7 @@ it('selects nested analyses by keyboard while keeping the whole hierarchy visibl
 
 it('puts controlled analysis navigation after the contents and updates the selected inventory', () => {
   const onSelectAnalysis = vi.fn();
-  const { container, rerender } = render(<Inventory document={document} analysisPath="$" onSelectAnalysis={onSelectAnalysis} />);
+  const { container, rerender } = render(<Inventory document={document} analysisPath="" onSelectAnalysis={onSelectAnalysis} />);
   const sidebar = container.querySelector('.astra-inventory__sidebar') as HTMLElement;
   expect(sidebar.children[0]?.getAttribute('data-slot')).toBe('inventory-outline');
   expect(sidebar.children[1]?.getAttribute('data-slot')).toBe('analysis-tree');
@@ -48,7 +47,7 @@ it('puts controlled analysis navigation after the contents and updates the selec
 });
 
 it('keeps navigation available without the contents and handles a single analysis', () => {
-  const single = { ...fixture, analysis: { ...fixture.analysis, analyses: [] } };
+  const single = { ...fixture, analyses: [{ ...analysisAt(fixture, 0), declares: {} }] };
   render(<Inventory document={single} showOutline={false} />);
   expect(screen.queryByLabelText('On this page')).toBeNull();
   const nav = screen.getByRole('navigation', { name: 'Project hierarchy' });
@@ -81,7 +80,7 @@ it('observes internal navigation and retains selection across refresh without re
   expect(screen.getByRole('button', { name: /Correlation function/ })).toBeTruthy();
   rerender(<Inventory document={{ ...document }} onSelectAnalysis={onSelectAnalysis} />);
   expect(screen.getByRole('button', { name: 'Clustering' }).getAttribute('aria-current')).toBe('page');
-  rerender(<Inventory document={{ ...document, analysis: { ...document.analysis, analyses: [] } }} onSelectAnalysis={onSelectAnalysis} />);
+  rerender(<Inventory document={{ ...document, analyses: [{ ...analysisAt(document, 0), declares: {} }] }} onSelectAnalysis={onSelectAnalysis} />);
   expect(screen.getByRole('button', { name: 'DESI demo' }).getAttribute('aria-current')).toBe('page');
   rerender(<Inventory document={document} onSelectAnalysis={onSelectAnalysis} />);
   expect(screen.getByRole('button', { name: 'DESI demo' }).getAttribute('aria-current')).toBe('page');
@@ -90,7 +89,7 @@ it('observes internal navigation and retains selection across refresh without re
 
 it('closes uncontrolled details when navigating internally', () => {
   const onDetailChange = vi.fn();
-  render(<Inventory document={document} onDetailChange={onDetailChange} defaultDetail={[{ kind: 'record', canonicalPath: 'outputs.headline', analysisPath: '$' }]} />);
+  render(<Inventory document={document} onDetailChange={onDetailChange} defaultDetail={[{ kind: 'record', canonicalPath: 'outputs.headline', analysisPath: '' }]} />);
   expect(screen.getByRole('dialog', { hidden: true })).toBeTruthy();
   fireEvent.click(screen.getByRole('button', { name: 'Clustering', hidden: true }));
   expect(screen.queryByRole('dialog', { hidden: true })).toBeNull();
@@ -112,5 +111,17 @@ it('lets a host recover from a controlled path that stopped resolving', () => {
   const root = screen.getByRole('button', { name: 'DESI demo' });
   expect(root.getAttribute('aria-current')).toBe('page');
   fireEvent.click(root);
-  expect(onSelectAnalysis).toHaveBeenCalledExactlyOnceWith('$');
+  expect(onSelectAnalysis).toHaveBeenCalledExactlyOnceWith('');
+});
+
+it('terminates declaration cycles while keeping their back-reference selectable', () => {
+  const cyclic = {...fixture, analyses: [analysisAt(fixture, 0), {...child, declares: {parent: ''}}]};
+  const onSelect = vi.fn();
+  render(<AnalysisTree document={cyclic} onSelectAnalysis={onSelect}/>);
+  const roots = screen.getAllByRole('button', {name:'DESI demo'});
+  expect(roots).toHaveLength(2);
+  const backReference = roots[1];
+  if (!backReference) throw new Error('Missing back-reference');
+  fireEvent.click(backReference);
+  expect(onSelect).toHaveBeenCalledWith('');
 });

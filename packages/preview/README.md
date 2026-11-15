@@ -9,7 +9,7 @@ every pull request and posts the URL, so a UI change can be reviewed inside a re
 packages/react ──npm pack──▶ tarball ──npm install──▶ astra-theme/packages/astra
                                                           │ npm run build:article
                                                           ▼
-myst_proto (astra.yaml + index.md) ──myst build --html──▶ dist/  (static site)
+content/ (astra.yaml + index.md) ──myst build --html──▶ dist/  (static site)
         with the MySTRA plugin              ▲
                                             └── site.template = the built theme
 ```
@@ -27,7 +27,7 @@ build fails if the two installations differ. Select a published brand version th
 ```bash
 npm run preview                  # build against your working tree, then serve on :4310
 npm run preview:build            # build only, into packages/preview/dist
-node packages/preview/build.mjs --theme ../astra-theme --content ../myst_proto --serve
+node packages/preview/build.mjs --theme ../astra-theme --mystra ../MySTRA --serve
 ```
 
 Flags: `--ui`, `--theme`, `--content` take a local directory or a git ref; `--mystra` takes a
@@ -36,7 +36,10 @@ Local checkouts are copied into the cache directory (`packages/preview/.cache/` 
 or `PREVIEW_CACHE` says otherwise) and never modified. Dependencies and MyST's
 cache in `.cache/` survive between runs, so a second build takes about a minute, dominated by
 the theme's Remix build. The first run also clones the pinned theme and content and installs the
-theme's dependencies.
+theme's dependencies. The default content is the owned ASTRA 0.1 DESI fixture in
+`packages/preview/content`; local content copies receive an isolated Git snapshot
+so the SDK can validate tracked inputs. See its README for the source, included
+precomputed artifacts and deliberately missing provenance records.
 
 ## Pinned refs
 
@@ -45,7 +48,8 @@ theme's dependencies.
 | Field | Meaning |
 | --- | --- |
 | `theme.ref` | astra-theme tag, branch or commit; `theme.template` is the template directory to build |
-| `content.ref` | commit of the MyST project (its `astra.yaml`, pages and `results/`) |
+| `content.path` | owned ASTRA 0.1 MyST project, relative to the UI repository |
+| `content.repository` | repository used only when `--content` names a Git ref |
 | `mystra.ref` | MySTRA git ref to bundle, or `null` to keep the pin in the content's `myst.yml` |
 | `ui.repository` | only used when `--ui` names a ref instead of a checkout |
 

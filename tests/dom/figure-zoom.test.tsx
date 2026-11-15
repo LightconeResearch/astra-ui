@@ -1,13 +1,14 @@
+import { analysisAt } from '../helpers.js';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, expect, it } from 'vitest';
-import type { ResolvedOutput } from '@astra-spec/sdk';
+import type { Output } from '@astra-spec/sdk';
 import { OutputDetail } from '../../packages/react/src/components/index.js';
 import { LabelsProvider } from '../../packages/react/src/lib/index.js';
 import { fixtureDocument } from '../fixture.mjs';
 
 afterEach(cleanup);
 
-const figure = fixtureDocument.analysis.outputs[0] as ResolvedOutput;
+const figure = analysisAt(fixtureDocument, 0).outputs[0] as Output;
 const relations = { inputs: [], decisions: [] };
 const renderArtifact = () => <img src="figure.png" alt="BAO fit" />;
 
@@ -48,12 +49,12 @@ it('magnifies a host figure within bounds, supports keyboard zoom, and resets to
 });
 
 it('resets zoom for another figure; tables keep their own scrolling', () => {
-  const content = (record: ResolvedOutput) => (
+  const content = (record: Output) => (
     <OutputDetail record={record} relations={relations} renderArtifact={renderArtifact} />
   );
   const { rerender } = render(content(figure));
   fireEvent.click(screen.getByRole('button', { name: 'Zoom figure in' }));
-  rerender(content({ ...figure, canonicalPath: 'outputs.other' }));
+  rerender(content({ ...figure, ref: 'outputs.other' }));
   expect(screen.getByRole('img', { name: 'BAO fit' }).closest('.astra-figure-zoom__canvas')?.getAttribute('style')).toContain('scale(1)');
   rerender(content({ ...figure, type: 'table' }));
   expect(screen.queryByRole('group', { name: 'Figure zoom' })).toBeNull();

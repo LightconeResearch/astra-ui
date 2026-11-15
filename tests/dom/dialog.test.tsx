@@ -1,3 +1,4 @@
+import { analysisAt } from '../helpers.js';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { StrictMode, useState } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -14,10 +15,10 @@ import { OutputDetail } from '../../packages/react/src/components/index.js';
 import { useDetailStack } from '../../packages/react/src/lib/index.js';
 import { Inventory } from '../../packages/react/src/views/index.js';
 import { renderHook, act } from '@testing-library/react';
-import type { ResolvedAnalysisDocument, ResolvedOutput } from '@astra-spec/sdk';
+import type { ResolvedAnalysis, Output } from '@astra-spec/sdk';
 import { fixtureDocument as untypedFixture } from '../fixture.mjs';
 
-const fixtureDocument = untypedFixture as unknown as ResolvedAnalysisDocument;
+const fixtureDocument = untypedFixture as unknown as ResolvedAnalysis;
 
 afterEach(cleanup);
 
@@ -75,7 +76,7 @@ describe('Dialog', () => {
 
   it('lets Escape exit a full-screen artifact, and only the next Escape closes the dialog', () => {
     const onClose = vi.fn();
-    const output = fixtureDocument.analysis.outputs[0] as ResolvedOutput;
+    const output = analysisAt(fixtureDocument, 0).outputs[0] as Output;
     function Host() {
       const [expanded, setExpanded] = useState(true);
       return (
@@ -105,7 +106,7 @@ describe('Dialog', () => {
   });
 
   it('treats the full-screen layer as a modal: focus enters it, the rest is inert, focus returns on exit', () => {
-    const output = fixtureDocument.analysis.outputs[0] as ResolvedOutput;
+    const output = analysisAt(fixtureDocument, 0).outputs[0] as Output;
     function Host() {
       const [expanded, setExpanded] = useState(false);
       return (
@@ -133,7 +134,7 @@ describe('Dialog', () => {
 
   it('exits a full-screen artifact on Escape when no modal dialog owns the key', () => {
     const onExpandedChange = vi.fn();
-    const output = fixtureDocument.analysis.outputs[0] as ResolvedOutput;
+    const output = analysisAt(fixtureDocument, 0).outputs[0] as Output;
     render(<OutputDetail record={output} relations={{ inputs: [], decisions: [] }} expanded onExpandedChange={onExpandedChange} />);
     fireEvent.keyDown(document, { key: 'Escape' });
     expect(onExpandedChange).toHaveBeenCalledWith(false);
@@ -260,13 +261,13 @@ describe('Inventory detail stack', () => {
     const onDetailChange = vi.fn();
     render(<Inventory document={fixtureDocument} onDetailChange={onDetailChange} />);
     fireEvent.click(screen.getByRole('button', { name: /Headline result/ }));
-    expect(onDetailChange).toHaveBeenLastCalledWith([{ kind: 'record', canonicalPath: 'outputs.headline', analysisPath: '$' }]);
+    expect(onDetailChange).toHaveBeenLastCalledWith([{ kind: 'record', canonicalPath: 'outputs.headline', analysisPath: '' }]);
     expect(screen.getByRole('dialog', { hidden: true }).getAttribute('data-kind')).toBe('output');
 
     fireEvent.click(screen.getByRole('button', { name: 'View decision: Method choice' }));
     expect(onDetailChange).toHaveBeenLastCalledWith([
-      { kind: 'record', canonicalPath: 'outputs.headline', analysisPath: '$' },
-      { kind: 'record', canonicalPath: 'decisions.method', analysisPath: '$' },
+      { kind: 'record', canonicalPath: 'outputs.headline', analysisPath: '' },
+      { kind: 'record', canonicalPath: 'decisions.method', analysisPath: '', universeRef: 'universes.baseline' },
     ]);
     const dialog = screen.getByRole('dialog', { hidden: true });
     expect(dialog.getAttribute('data-kind')).toBe('decision');
@@ -284,13 +285,13 @@ describe('Inventory detail stack', () => {
     const onChange = vi.fn();
     const { result } = renderHook(() => useDetailStack({ onChange }));
     act(() => {
-      result.current.open({ kind: 'record', canonicalPath: 'a', analysisPath: '$' });
-      result.current.push({ kind: 'record', canonicalPath: 'b', analysisPath: '$' });
+      result.current.open({ kind: 'record', canonicalPath: 'a', analysisPath: '' });
+      result.current.push({ kind: 'record', canonicalPath: 'b', analysisPath: '' });
     });
     expect(result.current.stack.map((entry) => entry.kind === 'record' && entry.canonicalPath)).toEqual(['a', 'b']);
     expect(onChange).toHaveBeenCalledTimes(2);
     act(() => { result.current.back(); });
-    expect(result.current.active).toEqual({ kind: 'record', canonicalPath: 'a', analysisPath: '$' });
+    expect(result.current.active).toEqual({ kind: 'record', canonicalPath: 'a', analysisPath: '' });
   });
 
   it('is controllable from the host', () => {
@@ -301,7 +302,7 @@ describe('Inventory detail stack', () => {
     rerender(
       <Inventory
         document={fixtureDocument}
-        detail={[{ kind: 'record', canonicalPath: 'inputs.catalog', analysisPath: '$' }]}
+        detail={[{ kind: 'record', canonicalPath: 'inputs.catalog', analysisPath: '' }]}
       />,
     );
     expect(screen.getByRole('dialog', { hidden: true }).getAttribute('data-kind')).toBe('input');

@@ -3,16 +3,16 @@
 Composable, themable React components for resolved
 [ASTRA](https://astra-spec.org/) analyses.
 
-`@astra-spec/ui` renders `ResolvedAnalysisDocument` and the `Resolved*` records
+`@astra-spec/ui` renders `ResolvedAnalysis` and the public report elements
 from [`@astra-spec/sdk`](https://github.com/LightconeResearch/astra-typescript).
 It owns presentation: applications keep control of project loading, artifact
 bytes and URLs, paper fetching, routing, and state.
 
 | Layer | Responsibility |
 | --- | --- |
-| `@astra-spec/sdk` | Validate and resolve ASTRA projects; build canonical paths, provenance, artifact bindings, and indexes |
+| `@astra-spec/sdk` | Validate and resolve ASTRA projects; build canonical paths, provenance, result places, and indexes |
 | `@astra-spec/ui` | Render primitives, record details, dialogs, inventory blocks, full views, and the theming contract |
-| Your application | Provide a `ProjectReader`, load and refresh data, decode artifacts, fetch papers, and own navigation |
+| Your application | Provide a `SourceProvider`, load and refresh data, decode artifacts, fetch papers, and own navigation |
 
 ## Installation
 
@@ -21,7 +21,7 @@ npm install @astra-spec/ui @astra-spec/sdk react react-dom
 ```
 
 The package is ESM-only and requires Node.js 20 or newer. Its peer dependency
-ranges are `@astra-spec/sdk@^0.1.1` and React/React DOM 18 or 19.
+ranges are `@astra-spec/sdk@^0.2.0-rc.1` and React/React DOM 18 or 19.
 
 ## Quick start
 
@@ -30,11 +30,11 @@ load the stylesheet for the view layer. The `astra-ui` class is required: it
 scopes the package's styles and design tokens.
 
 ```tsx
-import type { ResolvedAnalysisDocument } from '@astra-spec/sdk';
+import type { ResolvedAnalysis } from '@astra-spec/sdk';
 import { Inventory } from '@astra-spec/ui/views';
 import '@astra-spec/ui/styles.css';
 
-export function AnalysisView({ document }: { document: ResolvedAnalysisDocument }) {
+export function AnalysisView({ document }: { document: ResolvedAnalysis }) {
   return (
     <div className="astra-ui">
       <Inventory document={document} />
@@ -47,11 +47,10 @@ Resolving a project is deliberately outside the UI package. For example, a
 Node.js host can resolve one with the SDK before rendering it:
 
 ```ts
-import { resolveAnalysis } from '@astra-spec/sdk';
-import { createNodeProjectReader } from '@astra-spec/sdk/node';
+import { resolve, status } from '@astra-spec/sdk/node';
 
-const reader = createNodeProjectReader('/path/to/astra-project');
-const { document } = await resolveAnalysis(reader, { universeId: 'baseline' });
+const document = await resolve('/path/to/astra-project');
+const statusReport = await status('/path/to/astra-project');
 ```
 
 ## Entry points
@@ -83,7 +82,7 @@ optional outline and a drill-down detail stack.
 Its most useful options are:
 
 - Inventory shows the project hierarchy and handles navigation automatically; `<Inventory document={document} />` is sufficient.
-- Pass `analysisPath` with `onSelectAnalysis` to control selection from the host (`$` is the project root). The callback alone observes navigation without taking over state.
+- Pass `analysisPath` with `onSelectAnalysis` to control selection from the host (`""` is the project root). The callback alone observes navigation without taking over state.
 - `sections` changes which inventory sections appear and their order.
 - `showOutline` and `idPrefix` control outline navigation.
 - `renderArtifact` and `renderText` replace host-owned content.
@@ -93,7 +92,9 @@ Its most useful options are:
 - `showHierarchy={false}` hides project navigation independently of `showOutline`. On narrow panels the hierarchy moves above the sections so navigation remains available. Internal navigation preserves selection through refresh, falls back to the root when the selected analysis disappears, and closes uncontrolled record details on selection changes.
 - `detailMode="embedded"` renders details as an inline panel instead of a modal.
 - `labels` overrides user-facing strings.
-- `index` accepts an `AnalysisIndex` the host has already built.
+- `index` accepts a `ResolvedAnalysisIndex` the host has already built.
+- `universeRef` with `onUniverseChange` controls the universe; `defaultUniverseRef` selects an initial universe for internal navigation. Switching uses the same complete report and requires no resolution or I/O.
+- `statusReport` supplies native provenance and byte availability, joined by result ID. Once-built outputs remain available across universes; driven child results follow their owning universe.
 
 ### Inventory blocks
 
@@ -101,10 +102,10 @@ Use blocks when your application owns the page layout or routing:
 
 | Component | Purpose |
 | --- | --- |
-| `AnalysisTree` | Recursive picker for the root analysis and its sub-analyses |
+| `AnalysisTree` | Declaration-graph picker that terminates cycles and retains back-references |
 | `OutputsList` | Figure and table galleries plus a list of other outputs, with optional compact artifact previews |
 | `DecisionsList` | Decision rows, selected options, and a controlled or uncontrolled tag filter |
-| `InputsList` | Inputs with their source and declared type |
+| `InputsList` | Inputs with their repository file paths |
 | `FindingsList` | Findings with claims and evidence counts |
 | `PapersList`, `PaperRows` | Cited papers derived with `collectInventoryPapers` |
 | `InventorySection`, `InventoryRecords`, `InventoryOutline` | Section chrome, kind-aware record layout, and anchor navigation for custom inventories |
@@ -179,14 +180,16 @@ with Escape. Preview content may contain links, buttons, and nested previews,
 so it is exposed as a non-modal dialog rather than a tooltip.
 
 ```tsx
-import { indexAnalysis, type ResolvedDecision } from '@astra-spec/sdk';
+import { indexResolvedAnalysis } from '@astra-spec/sdk';
 import { RecordPreview } from '@astra-spec/ui/components';
 import { PreviewPopover } from '@astra-spec/ui/primitives';
 import '@astra-spec/ui/components.css';
 
-const index = indexAnalysis(document);
-const decision = index.recordByPath.get('decisions.method') as ResolvedDecision;
-const analysis = index.analysisByRecordPath.get(decision.canonicalPath)!;
+const index = indexResolvedAnalysis(document);
+const target = index.elementByRef.get('decisions.method');
+if (target?.collection !== 'decisions') throw new Error('Decision missing');
+const decision = target.element;
+const analysis = target.analysis;
 
 <PreviewPopover
   label={`Decision preview: ${decision.label}`}
@@ -232,10 +235,12 @@ import type { ArtifactPreviewData } from '@astra-spec/ui/lib';
 export function createArtifactRenderer(
   previews: ReadonlyMap<string, ArtifactPreviewData>,
 ): ArtifactRenderer {
-  return (output, { compact }) => (
+  return (output, { compact, result, status }) => (
     <ArtifactPreview
       output={output}
-      preview={previews.get(output.canonicalPath)}
+      result={result}
+      status={status}
+      preview={result ? previews.get(result.id) : undefined}
       compact={compact}
     />
   );
@@ -267,27 +272,15 @@ name merging (`cn`), prose parsing and the label helpers are in `@astra-spec/ui/
 
 ## Host extension points
 
-- `renderArtifact(output, { compact })` renders host-decoded artifact content.
+- `renderArtifact(output, { compact, result, universeRef, status })` renders host-decoded artifact content.
   Without it, outputs use `ArtifactPreview`'s unavailable state. Compact previews
   ask it for every output type; the output detail frames only a figure or a table
   and asks for a metric's value as a compact pill, so a data file or another
   non-visual type is not rendered there.
 - `renderCodeLink(output)` adds an optional action beside Recipe. The host resolves
   the current source file and opens it; return `null` when no file is available.
-- `getOutputStatus(output)` supplies optional execution status for inventory
-  results in the states `lc status` reports: `current`, `behind`, or `stale`,
-  with a `detail` reason. Only behind and stale results show a marker, with
-  `detail` on hover; current results stay quiet. Markers sit at card/pill
-  corners and inside file rows without changing result dimensions. The host owns lookup; unavailable status has no marker.
-  `OutputStatus` and `OutputStatusLookup` are in `@astra-spec/ui/model`, the
-  `OutputStatusGlyph` primitive draws the mark, and the marker's strings are
-  overridable through `labels.status`.
-- `renderProvenance(output)` adds recorded execution information below Recipe in
-  output details. `OutputProvenance` renders a compact status, last-run time and
-  Git revision, with a Details popup for the recorded recipe, input versions,
-  environment and CLI version. Hosts supply `OutputRun` data; `null` means no
-  recorded run, while `undefined` means loading. Copy is configurable through
-  `labels.provenance` and `labels.status`.
+- `statusReport` supplies the SDK's `Status` values (`unchanged`, `stale`, or `missing`). `bytes.state` independently records availability of the recorded content. Unchanged provenance with unavailable bytes is never presented as stale. `getOutputStatus(output, result)` is an optional lookup slot returning the same SDK `Status` type, without a host-specific state model.
+- `renderProvenance(output, context)` can replace the default native provenance display below the effective result command. `OutputProvenance` consumes `status` and an optional public `ProvenanceRecord`; its popup shows recorded hashes, inputs, environment IRI and runner metadata. The record contains no authored recipe snapshot, so the UI does not invent one. Copy is configurable through `labels.provenance` and `labels.status`.
 - `renderText(text, { field })` replaces the built-in prose renderer. The
   default understands inline code, `$inline$` math, and `$$display$$` math.
   Hosts that only need custom math commands can reuse that renderer with
@@ -521,3 +514,13 @@ development commands.
 ## License
 
 BSD-3-Clause. See [LICENSE](./LICENSE).
+
+## ASTRA 0.1 migration
+
+The report is flat: analyses use `key` (root `""`), elements use `ref`, and results use opaque `id` values. `locateRecord` returns `{kind, record, analysis}` while preserving the original report element. The UI's `AstraRecord` union and `recordKind`/`recordId` helpers are presentation vocabulary, not a second resolved model. Evidence identity is its insight ref plus array index; all effective result citations remain visible, including pins across universes.
+
+Record navigation entries retain the `canonicalPath` and `analysisPath` prop names for an element ref and analysis key. Optional `universeRef` on a record entry preserves pinned or explicitly selected universes while drilling into another result. `onOpenRecord(record, analysis, universeRef?)` carries that context.
+
+This branch depends on the SDK candidate through an immutable Git revision until its release is published. The package peer range is `^0.2.0-rc.1`; pre-0.1 reports are unsupported.
+
+`outputDecisionPaths` and `outputDecisionRoutes` are unique-ref graph summaries. Render selected options and provenance from `outputRelations`, whose decision and upstream-route identities include their effective universes. Two pins to the same varying output remain distinct contextual rows.

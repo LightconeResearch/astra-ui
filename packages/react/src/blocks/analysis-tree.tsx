@@ -1,46 +1,63 @@
-import type { ResolvedAnalysisDocument, ResolvedAnalysisNode } from '@astra-spec/sdk';
+import {
+  indexResolvedAnalysis,
+  type ResolvedAnalysis,
+  type Analysis,
+  type ResolvedAnalysisIndex,
+} from '@astra-spec/sdk/reports';
 import { forwardRef, useId, type HTMLAttributes } from 'react';
 import { analysisTitle } from '../model/records.js';
 import { cn } from '../lib/cn.js';
 import { useLabels } from '../lib/labels.js';
-
 export interface AnalysisTreeProps extends Omit<HTMLAttributes<HTMLElement>, 'children'> {
-  document: ResolvedAnalysisDocument;
-  /** Canonical path of the selected analysis; `$` is the project root. */
+  document: ResolvedAnalysis;
+  /** The selected analysis key; the root is the empty string. */
   analysisPath?: string | undefined;
-  onSelectAnalysis: (canonicalPath: string) => void;
-  /** Hide the heading (e.g. inside a popover). */
+  onSelectAnalysis: (key: string) => void;
   showHeading?: boolean | undefined;
 }
-
 function AnalysisNode({
   analysis,
+  index,
   selectedPath,
   onSelectAnalysis,
+  ancestors,
 }: {
-  analysis: ResolvedAnalysisNode;
+  analysis: Analysis;
+  index: ResolvedAnalysisIndex;
   selectedPath: string;
-  onSelectAnalysis: (canonicalPath: string) => void;
+  onSelectAnalysis: (key: string) => void;
+  ancestors: ReadonlySet<string>;
 }) {
-  const title = analysisTitle(analysis);
+  const repeated = ancestors.has(analysis.key),
+    next = new Set([...ancestors, analysis.key]);
+  const children = repeated
+    ? []
+    : [...new Set(Object.values(analysis.declares))].flatMap((key) => {
+        const child = index.analysisByKey.get(key);
+        return child ? [child] : [];
+      });
   return (
     <li>
       <button
         type="button"
         className="astra-analysis-tree__select"
-        aria-current={analysis.canonicalPath === selectedPath ? 'page' : undefined}
-        onClick={() => { onSelectAnalysis(analysis.canonicalPath); }}
+        aria-current={analysis.key === selectedPath ? 'page' : undefined}
+        onClick={() => {
+          onSelectAnalysis(analysis.key);
+        }}
       >
-        <span>{title}</span>
+        <span>{analysisTitle(analysis)}</span>
       </button>
-      {analysis.analyses.length ? (
+      {children.length ? (
         <ul>
-          {analysis.analyses.map((child) => (
+          {children.map((child) => (
             <AnalysisNode
-              key={child.canonicalPath}
+              key={child.key}
               analysis={child}
+              index={index}
               selectedPath={selectedPath}
               onSelectAnalysis={onSelectAnalysis}
+              ancestors={next}
             />
           ))}
         </ul>
@@ -48,19 +65,15 @@ function AnalysisNode({
     </li>
   );
 }
-
-/** The recursive analysis picker: the project root and its sub-analyses. */
-export const AnalysisTree = forwardRef<HTMLElement, AnalysisTreeProps>(function AnalysisTree({
-  document,
-  analysisPath = '$',
-  onSelectAnalysis,
-  showHeading = true,
-  className,
-  'aria-label': hostLabel,
-  ...props
-}, ref) {
-  const labels = useLabels();
-  const headingId = useId();
+/** Declaration navigation follows the report graph and stops at back-references. */
+export const AnalysisTree = forwardRef<HTMLElement, AnalysisTreeProps>(function AnalysisTree(
+  { document, analysisPath = '', onSelectAnalysis, showHeading = true, className, 'aria-label': hostLabel, ...props },
+  ref,
+) {
+  const labels = useLabels(),
+    headingId = useId(),
+    index = indexResolvedAnalysis(document),
+    root = index.analysisByKey.get('');
   return (
     <nav
       data-slot="analysis-tree"
@@ -72,11 +85,15 @@ export const AnalysisTree = forwardRef<HTMLElement, AnalysisTreeProps>(function 
     >
       {showHeading ? <h2 id={headingId}>{labels.analysisTree}</h2> : null}
       <ul>
-        <AnalysisNode
-          analysis={document.analysis}
-          selectedPath={analysisPath}
-          onSelectAnalysis={onSelectAnalysis}
-        />
+        {root ? (
+          <AnalysisNode
+            analysis={root}
+            index={index}
+            selectedPath={analysisPath}
+            onSelectAnalysis={onSelectAnalysis}
+            ancestors={new Set()}
+          />
+        ) : null}
       </ul>
     </nav>
   );
