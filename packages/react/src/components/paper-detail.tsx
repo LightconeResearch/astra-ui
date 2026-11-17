@@ -4,7 +4,7 @@ import { forwardRef, useCallback, useId, useMemo, useRef, useState, type HTMLAtt
 import { doiHref } from '../model/doi.js';
 import { recordTitle } from '../model/records.js';
 import { decisionInsightPaths } from '../model/relations.js';
-import { paperEvidence, type InventoryPaper, type InventoryPaperMetadata } from '../model/papers.js';
+import { evidencePage, paperEvidence, type InventoryPaper, type InventoryPaperMetadata } from '../model/papers.js';
 import { cn } from '../lib/cn.js';
 import { useLabels } from '../lib/labels.js';
 import { CountHeading } from '../primitives/detail-layout.js';
@@ -32,8 +32,7 @@ export interface PaperDetailProps extends Omit<HTMLAttributes<HTMLDivElement>, '
 }
 
 function passageFor(key: string, evidence: Evidence): PdfPassage {
-  const page = evidence.location?.value ? /(?:^|&)page=(\d+)(?:&|$)/.exec(evidence.location.value) : null;
-  return { key, quote: evidence.quote?.exact, page: page ? Number(page[1]) : undefined };
+  return { key, quote: evidence.quote?.exact, page: evidencePage(evidence) };
 }
 
 function initialPassage(paper: InventoryPaper, focusInsight: Insight | undefined): PdfPassage | undefined {

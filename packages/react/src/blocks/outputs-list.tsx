@@ -3,7 +3,7 @@ import { forwardRef, useId, type HTMLAttributes } from 'react';
 import { cn } from '../lib/cn.js';
 import { useLabels } from '../lib/labels.js';
 import { outputResult } from '../model/relations.js';
-import type { OutputContext } from '../model/output-status.js';
+import { resultStatus, type OutputContext } from '../model/output-status.js';
 import type { ArtifactRenderer } from '../components/artifact-preview.js';
 import { EmptyState } from '../primitives/record-list.js';
 import { OutputCard } from '../components/output-card.js';
@@ -98,7 +98,7 @@ export const OutputsList = forwardRef<HTMLDivElement, OutputsListProps>(function
   }
   const context = (output: Output): OutputContext => {
     const result = outputResult(index, output, universeRef);
-    return { result, universeRef, status: result ? statusReport?.statuses[result.id] : undefined };
+    return { result, universeRef, status: resultStatus(statusReport, result) };
   };
   const open = (output: Output) => { onOpenRecord(output, analysis); };
   return (

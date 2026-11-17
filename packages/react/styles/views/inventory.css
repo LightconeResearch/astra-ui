@@ -75,7 +75,13 @@
     font-size: var(--astra-font-size-xs);
   }
 
+  /* The same control as the paper picker: without a themed surface the
+     browser keeps a light field under dark-mode text. */
   :where(.astra-ui) .astra-inventory__universe select {
+    padding: 2px 4px;
+    border: 1px solid var(--astra-color-border);
+    border-radius: var(--astra-radius-control);
+    background: var(--astra-color-surface-raised);
     font: inherit;
     color: var(--astra-color-text);
   }

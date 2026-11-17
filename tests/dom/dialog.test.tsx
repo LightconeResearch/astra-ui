@@ -265,9 +265,10 @@ describe('Inventory detail stack', () => {
     expect(screen.getByRole('dialog', { hidden: true }).getAttribute('data-kind')).toBe('output');
 
     fireEvent.click(screen.getByRole('button', { name: 'View decision: Method choice' }));
+    // Reached in the viewed universe, so it follows the inventory rather than pinning it.
     expect(onDetailChange).toHaveBeenLastCalledWith([
       { kind: 'record', ref: 'outputs.headline', analysisKey: '' },
-      { kind: 'record', ref: 'decisions.method', analysisKey: '', universeRef: 'universes.baseline' },
+      { kind: 'record', ref: 'decisions.method', analysisKey: '' },
     ]);
     const dialog = screen.getByRole('dialog', { hidden: true });
     expect(dialog.getAttribute('data-kind')).toBe('decision');

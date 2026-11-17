@@ -17,6 +17,9 @@ export const OutputStatusIndicator = forwardRef<HTMLSpanElement, OutputStatusInd
 }, ref) {
   const labels = useLabels();
   if (!status || status.state === 'unchanged' && status.bytes?.state !== 'absent') return null;
+  // An unchanged result is marked only for its absent bytes, which a rebuild
+  // restores: it wears the missing mark, not a checkmark in the stale colour.
+  const marker = status.state === 'unchanged' ? 'missing' : status.state;
   const label = labels.status[status.state];
   const reason = [...status.why.map(item => item.message), ...(status.bytes?.state === 'absent' ? [labels.status.bytesUnavailable] : [])].join(' ').trim();
   const explanation = reason ? labels.status.withDetail(label, reason) : label;
@@ -29,9 +32,9 @@ export const OutputStatusIndicator = forwardRef<HTMLSpanElement, OutputStatusInd
         {...props}
         ref={ref}
         className={cn('astra-output-status', className)}
-        data-state={status.state}
+        data-state={marker}
       >
-        <OutputStatusGlyph state={status.state} />
+        <OutputStatusGlyph state={marker} />
       </span>
     </Tooltip>
   );

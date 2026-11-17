@@ -96,3 +96,26 @@ it('explains report diagnostics in a tooltip and keeps byte absence separate fro
   view.rerender(<OutputStatusIndicator status={{ ...status('unchanged'), bytes: { state: 'absent' } }} />);
   expect(screen.getByRole('img', { name: 'Unchanged: Recorded bytes are unavailable.' })).toBeTruthy();
 });
+it('keeps a recorded finish time the Date parser rejects', () => {
+  render(
+    <OutputProvenance
+      status={status('unchanged')}
+      record={{ ...record, generated_by: { ...record.generated_by, finished: '30/08/2026 14:22' } }}
+    />,
+  );
+  expect(screen.getByText('30/08/2026 14:22')).toBeTruthy();
+  expect(screen.queryByText('Invalid Date')).toBeNull();
+});
+it('says a record the host is still loading is loading, not absent', () => {
+  render(<OutputProvenance status={status('unchanged')} loading />);
+  expect(screen.getByRole('status').textContent).toBe('Loading run record…');
+  expect(screen.queryByText('No recorded run yet.')).toBeNull();
+});
+it('marks an unchanged result whose recorded bytes are absent as missing, not stale', () => {
+  const { container } = render(
+    <OutputStatusIndicator status={{ ...status('unchanged'), bytes: { state: 'absent' } }} />,
+  );
+  const marker = container.querySelector('[data-slot="output-status"]');
+  expect(marker?.getAttribute('data-state')).toBe('missing');
+  expect(marker?.getAttribute('aria-label')).toBe('Unchanged: Recorded bytes are unavailable.');
+});

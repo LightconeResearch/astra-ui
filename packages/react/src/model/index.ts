@@ -12,13 +12,16 @@ export {
   groupFindingEvidence,
   informedDecisions,
   linkedRecord,
+  outputInputs,
   outputRelations,
   outputResult,
 } from './relations.js';
+export { analysisUniverses, universeTitles } from './universes.js';
 export type { FindingEvidenceGroup, FindingEvidenceLink, LinkedRecord, OutputRelations } from './relations.js';
 export {
   analysesForPaperView,
   collectInventoryPapers,
+  evidencePage,
   findPaper,
   insightDois,
   paperEvidence,
@@ -33,6 +36,7 @@ export type {
   PaperFetchStatus,
 } from './papers.js';
 export { doiHref } from './doi.js';
+export { resultStatus } from './output-status.js';
 export type { OutputContext } from './output-status.js';
 export type { OutputProvenanceData } from './output-provenance.js';
 

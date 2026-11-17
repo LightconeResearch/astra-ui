@@ -288,7 +288,8 @@ export const OutputDetail = forwardRef<HTMLDivElement, OutputDetailProps>(functi
               </div>
             ) : null}
             <div className="astra-output-detail__preview" data-type={output.type}>
-              {output.type === 'figure' ? <FigureZoom key={output.ref}>{artifact}</FigureZoom> : artifact}
+              {/* Keyed by result: the same figure in another universe starts unzoomed. */}
+              {output.type === 'figure' ? <FigureZoom key={result?.id ?? output.ref}>{artifact}</FigureZoom> : artifact}
             </div>
           </div>
         ) : null}
@@ -299,23 +300,38 @@ export const OutputDetail = forwardRef<HTMLDivElement, OutputDetailProps>(functi
   );
 });
 
+/** Open an output's artifact in the host: the result, universe and status say which bytes. */
+export type OpenArtifactHandler = (output: Output, context: OutputContext) => void | Promise<void>;
+
 export interface OutputDialogActionsProps {
   record: Output;
   /** The result shown; without one there is no artifact to open. */
   result?: Result | undefined;
-  onOpenArtifact?: ((output: Output) => void | Promise<void>) | undefined;
+  /** Its status; when the recorded bytes are absent there is nothing to open. */
+  status?: Status | undefined;
+  universeRef?: string | undefined;
+  onOpenArtifact?: OpenArtifactHandler | undefined;
   expanded: boolean;
   onExpandedChange: (expanded: boolean) => void;
 }
 
 /** Header actions: open the artifact in the host, or expand a table. */
-export function OutputDialogActions({ record: output, result, onOpenArtifact, expanded, onExpandedChange }: OutputDialogActionsProps) {
+export function OutputDialogActions({
+  record: output,
+  result,
+  status,
+  universeRef,
+  onOpenArtifact,
+  expanded,
+  onExpandedChange,
+}: OutputDialogActionsProps) {
   const labels = useLabels();
   const canExpand = output.type === 'table';
+  const canOpen = Boolean(onOpenArtifact && result && status?.bytes?.state !== 'absent');
   return (
     <>
-      {onOpenArtifact && result ? (
-        <DialogAction onClick={() => { void onOpenArtifact(output); }}>
+      {canOpen && onOpenArtifact ? (
+        <DialogAction onClick={() => { void onOpenArtifact(output, { result, status, universeRef }); }}>
           <span aria-hidden="true">↗</span>
           <span>{labels.actions.openArtifact}</span>
         </DialogAction>

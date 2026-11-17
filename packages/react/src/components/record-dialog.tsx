@@ -1,4 +1,4 @@
-import type { OutputContext } from '../model/output-status.js';
+import { resultStatus, type OutputContext } from '../model/output-status.js';
 import { getSelectedOption } from '@astra-spec/sdk/reports';
 import type { AstraRecord } from '../model/records.js';
 import type {
@@ -26,7 +26,7 @@ import { FindingDetail } from './finding-detail.js';
 import { InputDetail } from './input-detail.js';
 import { InsightDetail } from './insight-detail.js';
 import { primaryLiteratureEvidence } from '../model/papers.js';
-import { OutputDetail, OutputDialogActions } from './output-detail.js';
+import { OutputDetail, OutputDialogActions, type OpenArtifactHandler } from './output-detail.js';
 import { useOutputExpanded } from '../lib/use-output-expanded.js';
 import { PaperDetail, PaperDialogActions, type OpenPaperFileHandler } from './paper-detail.js';
 import type { PdfJsLoader } from '../lib/pdf-runtime.js';
@@ -48,7 +48,7 @@ export interface RecordDialogProps extends Pick<DetailDialogProps, 'mode' | 'bac
   renderText?: TextRenderer | undefined;
   loadPdfJs?: PdfJsLoader | undefined;
   onOpenPaperFile?: OpenPaperFileHandler | undefined;
-  onOpenArtifact?: ((output: Output) => void | Promise<void>) | undefined;
+  onOpenArtifact?: OpenArtifactHandler | undefined;
   onFetchPaper?: ((doi: string) => void) | undefined;
   /** Navigation to another record from within the detail (drill-down). */
   onOpenRecord?: ((record: AstraRecord, analysis: Analysis, universeRef?: string) => void) | undefined;
@@ -103,7 +103,9 @@ export function RecordDialog({
     ? findPaper(papers, entry.doi) ?? paperForDoi(document, index, analysis, entry.doi, paperMetadata)
     : undefined;
   const output = located?.kind === 'output' ? located.record : undefined;
-  const [expanded, setExpanded] = useOutputExpanded(output ?? PLACEHOLDER_OUTPUT);
+  const result = output ? outputResult(index, output, universeRef) : undefined;
+  const status = resultStatus(statusReport, result);
+  const [expanded, setExpanded] = useOutputExpanded(output ?? PLACEHOLDER_OUTPUT, undefined, result?.id);
 
   const openByRef = (ref: string) => {
     const target = locateRecord(index, ref);
@@ -138,21 +140,28 @@ export function RecordDialog({
     const { record, kind } = located;
     switch (kind) {
       case 'output': {
-        const result = outputResult(index, record, universeRef);
         chrome = {
           kind: 'output',
           kindLabel: record.type,
           title: recordTitle(record),
           layout: isVisualOutput(record) ? 'reader' : undefined,
           actions: (
-            <OutputDialogActions record={record} result={result} onOpenArtifact={onOpenArtifact} expanded={expanded} onExpandedChange={setExpanded} />
+            <OutputDialogActions
+              record={record}
+              result={result}
+              status={status}
+              universeRef={universeRef}
+              onOpenArtifact={onOpenArtifact}
+              expanded={expanded}
+              onExpandedChange={setExpanded}
+            />
           ),
           body: (
             <OutputDetail
               record={record}
               relations={outputRelations(index, record, universeRef)}
               result={result}
-              status={result ? statusReport?.statuses[result.id] : undefined}
+              status={status}
               universeRef={universeRef}
               renderArtifact={renderArtifact}
               renderProvenance={renderProvenance}

@@ -1,6 +1,8 @@
 import type { Analysis, Insight, Output, StatusReport } from '@astra-spec/sdk/reports';
 import { Fragment, forwardRef, useId, type HTMLAttributes, type ReactNode } from 'react';
 import { doiHref } from '../model/doi.js';
+import { resultStatus } from '../model/output-status.js';
+import { evidencePage } from '../model/papers.js';
 import { recordTitle } from '../model/records.js';
 import {
   findingLiterature,
@@ -105,7 +107,7 @@ export const FindingDetail = forwardRef<HTMLDivElement, FindingDetailProps>(func
                           output={group.output}
                           result={group.result}
                           universeRef={group.universeRef}
-                          status={group.result ? statusReport?.statuses[group.result.id] : undefined}
+                          status={resultStatus(statusReport, group.result)}
                           renderArtifact={renderArtifact}
                           aria-label={resultLabel(group)}
                           onOpen={open(group)}
@@ -124,7 +126,7 @@ export const FindingDetail = forwardRef<HTMLDivElement, FindingDetailProps>(func
                           output={group.output}
                           result={group.result}
                           universeRef={group.universeRef}
-                          status={group.result ? statusReport?.statuses[group.result.id] : undefined}
+                          status={resultStatus(statusReport, group.result)}
                           renderArtifact={renderArtifact}
                           aria-label={resultLabel(group)}
                           onOpen={open(group)}
@@ -143,7 +145,7 @@ export const FindingDetail = forwardRef<HTMLDivElement, FindingDetailProps>(func
                           output={group.output}
                           result={group.result}
                           universeRef={group.universeRef}
-                          status={group.result ? statusReport?.statuses[group.result.id] : undefined}
+                          status={resultStatus(statusReport, group.result)}
                           aria-label={resultLabel(group)}
                           onOpen={open(group)}
                         />
@@ -162,7 +164,9 @@ export const FindingDetail = forwardRef<HTMLDivElement, FindingDetailProps>(func
         </section>
         {literature.map((source, index) => {
           const doi = source.doi ?? '';
-          const location = source.location?.value ? ` · ${source.location.value}` : '';
+          // A page reads as one; any other fragment selector is shown as recorded.
+          const page = evidencePage(source);
+          const location = page !== undefined ? ` · page ${page}` : source.location?.value ? ` · ${source.location.value}` : '';
           return (
             <Fragment key={`${doi}-${index}`}>
               <section className="astra-insight-detail__paper astra-paper-doi">

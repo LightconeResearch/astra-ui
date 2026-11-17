@@ -7,7 +7,7 @@ import { useLabels } from '../lib/labels.js';
 import type { ArtifactRenderer } from './artifact-preview.js';
 import { DetailDialog, type DetailDialogProps } from '../primitives/dialog.js';
 import type { TextRenderer } from '../lib/prose.js';
-import { OutputDetail, OutputDialogActions } from './output-detail.js';
+import { OutputDetail, OutputDialogActions, type OpenArtifactHandler } from './output-detail.js';
 import { useOutputExpanded } from '../lib/use-output-expanded.js';
 import type { OpenRecordHandler } from '../lib/detail-stack.js';
 
@@ -23,7 +23,7 @@ export interface OutputDialogProps extends Pick<DetailDialogProps, 'mode' | 'bac
   /** Host-provided link to the current code file, shown beside Recipe. */
   renderCodeLink?: ((output: Output, context: OutputContext) => ReactNode) | undefined;
   renderText?: TextRenderer | undefined;
-  onOpenArtifact?: ((output: Output) => void | Promise<void>) | undefined;
+  onOpenArtifact?: OpenArtifactHandler | undefined;
   onOpenRecord?: OpenRecordHandler | undefined;
   expanded?: boolean | undefined;
   onExpandedChange?: ((expanded: boolean) => void) | undefined;
@@ -46,7 +46,7 @@ export function OutputDialog({
   ...dialog
 }: OutputDialogProps) {
   const labels = useLabels();
-  const [expanded, setExpanded] = useOutputExpanded(output, { expanded: controlledExpanded, onExpandedChange });
+  const [expanded, setExpanded] = useOutputExpanded(output, { expanded: controlledExpanded, onExpandedChange }, result?.id);
   return (
     <DetailDialog
       {...dialog}
@@ -59,6 +59,8 @@ export function OutputDialog({
         <OutputDialogActions
           record={output}
           result={result}
+          status={status}
+          universeRef={universeRef}
           onOpenArtifact={onOpenArtifact}
           expanded={expanded}
           onExpandedChange={setExpanded}

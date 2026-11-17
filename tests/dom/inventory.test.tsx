@@ -430,3 +430,95 @@ it('renders every effective finding citation with its own result, status and dri
     { kind: 'record', ref: 'outputs.headline', analysisKey: '', universeRef: 'universes.alternate' },
   ]);
 });
+
+it('opens the artifact of the result shown, and offers nothing whose recorded bytes are absent', () => {
+  const onOpenArtifact = vi.fn();
+  const props = { document: fixtureDocument, statusReport: fixtureStatus, onOpenArtifact, defaultDetail: [headline] };
+  const view = render(<Inventory {...props} universeRef="universes.baseline" />);
+  fireEvent.click(screen.getByRole('button', { name: 'Open artifact' }));
+  // The host is told which result, universe and status the dialog shows.
+  expect(onOpenArtifact).toHaveBeenCalledWith(
+    expect.objectContaining({ ref: 'outputs.headline' }),
+    expect.objectContaining({
+      result: expect.objectContaining({ id: 'outputs.headline#baseline' }),
+      universeRef: 'universes.baseline',
+      status: expect.objectContaining({ state: 'unchanged' }),
+    }),
+  );
+  view.rerender(<Inventory {...props} universeRef="universes.alternate" />);
+  expect(screen.queryByRole('button', { name: 'Open artifact' })).toBeNull();
+});
+
+it('offers only the universes that evaluate the viewed analysis', () => {
+  const child = analysisAt(fixtureDocument, 1);
+  const document: ResolvedAnalysis = {
+    ...fixtureDocument,
+    analyses: [
+      analysisAt(fixtureDocument, 0),
+      { ...child, universes: [{ ref: 'clustering.universes.fast', label: 'Fast', selection: {}, tags: [] }] },
+    ],
+  };
+  const options = () =>
+    Array.from(screen.getByRole('combobox', { name: 'Universe' }).querySelectorAll('option'), (option) => option.textContent);
+  const view = render(<Inventory document={document} />);
+  expect(options()).toEqual(['Baseline', 'Alternate']);
+  view.rerender(<Inventory document={document} analysisKey={child.key} />);
+  expect(options()).toEqual(['Fast', 'Baseline', 'Alternate']);
+});
+
+it('moves a drill-down stack reached in the viewed universe along with it', () => {
+  const props = { document: fixtureDocument, detailMode: 'embedded' as const, defaultDetail: [headline] };
+  const view = render(<Inventory {...props} universeRef="universes.baseline" />);
+  fireEvent.click(screen.getByRole('button', { name: 'View decision: Method choice' }));
+  expect(screen.getByText('Selected').closest('li')?.textContent).toContain('Fiducial');
+  view.rerender(<Inventory {...props} universeRef="universes.alternate" />);
+  // The decision and the output under it read the same universe.
+  expect(screen.getByText('Selected').closest('li')?.textContent).toContain('Alternate');
+  fireEvent.click(screen.getByRole('button', { name: 'Back to previous record' }));
+  expect(screen.getByText('python alternative.py')).toBeTruthy();
+});
+
+it('prunes an entry pinned to a universe the refreshed report no longer has', () => {
+  const onDetailChange = vi.fn();
+  render(
+    <Inventory
+      document={fixtureDocument}
+      detail={[headline, { ...method, universeRef: 'universes.removed' }]}
+      onDetailChange={onDetailChange}
+    />,
+  );
+  expect(onDetailChange).toHaveBeenCalledWith([headline]);
+});
+
+it('names the page of a cited paper, as the paper reader reads it', () => {
+  const root = analysisAt(fixtureDocument);
+  const finding = root.findings[0] as Insight;
+  const document: ResolvedAnalysis = {
+    ...fixtureDocument,
+    analyses: [
+      {
+        ...root,
+        findings: [{ ...finding, evidence: [{ doi: '10.9999/finding', location: { value: 'page=22' } }] }],
+      },
+      ...fixtureDocument.analyses.slice(1),
+    ],
+  };
+  render(<Inventory document={document} defaultDetail={[{ kind: 'record', ref: finding.ref, analysisKey: '' }]} />);
+  expect(screen.getByRole('link', { name: /10\.9999\/finding · page 22/ })).toBeTruthy();
+});
+
+it('starts a figure unzoomed when it is shown with another result', () => {
+  const props = {
+    document: fixtureDocument,
+    detailMode: 'embedded' as const,
+    defaultDetail: [headline],
+    renderArtifact: () => <img src="figure.png" alt="Headline figure" />,
+  };
+  // The inventory card shows the same image; only the detail's is zoomable.
+  const scale = () => document.querySelector('.astra-figure-zoom__canvas')?.getAttribute('style');
+  const view = render(<Inventory {...props} universeRef="universes.baseline" />);
+  fireEvent.click(screen.getByRole('button', { name: 'Zoom figure in' }));
+  expect(scale()).toContain('scale(1.25)');
+  view.rerender(<Inventory {...props} universeRef="universes.alternate" />);
+  expect(scale()).toContain('scale(1)');
+});

@@ -11,6 +11,8 @@ import { useLabels } from '../lib/labels.js';
 
 export interface AnalysisTreeProps extends Omit<HTMLAttributes<HTMLElement>, 'children'> {
   document: ResolvedAnalysis;
+  /** The host's or Inventory's index of `document`; one is derived when omitted. */
+  index?: ResolvedAnalysisIndex | undefined;
   /** The selected analysis key; the root is the empty string. */
   analysisKey?: string | undefined;
   onSelectAnalysis: (key: string) => void;
@@ -69,12 +71,12 @@ function AnalysisNode({
 }
 /** Declaration navigation follows the report graph and stops at back-references. */
 export const AnalysisTree = forwardRef<HTMLElement, AnalysisTreeProps>(function AnalysisTree(
-  { document, analysisKey = '', onSelectAnalysis, showHeading = true, className, 'aria-label': hostLabel, ...props },
+  { document, index: providedIndex, analysisKey = '', onSelectAnalysis, showHeading = true, className, 'aria-label': hostLabel, ...props },
   ref,
 ) {
   const labels = useLabels(),
     headingId = useId(),
-    index = useMemo(() => indexResolvedAnalysis(document), [document]),
+    index = useMemo(() => providedIndex ?? indexResolvedAnalysis(document), [document, providedIndex]),
     root = index.analysisByKey.get('');
   return (
     <nav

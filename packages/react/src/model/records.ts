@@ -1,16 +1,24 @@
-import type { Analysis, Decision, Input, Insight, Output, Universe } from '@astra-spec/sdk/reports';
+import type { Analysis, Decision, Input, Insight, Output, ResolvedAnalysisIndex, Universe } from '@astra-spec/sdk/reports';
+import { locateRecord } from './locate-record.js';
 
 /** The report elements the UI shows as records. */
 export type AstraRecord = Input | Decision | Output | Insight;
 export type RecordKind = 'input' | 'decision' | 'output' | 'prior_insight' | 'finding';
 
 /**
- * A record's kind, read from its shape: report elements carry no kind of their
- * own except insights. Prefer `locateRecord(...).kind` when an index is at hand.
+ * A record's kind. With an index it is the collection that declares the ref.
+ * Without one it is read from the fields each element type requires: report
+ * elements carry no kind of their own except insights, and the schema is open,
+ * so a single extra field (an input's `format`, say) must not decide it.
  */
-export function recordKind(record: AstraRecord): RecordKind {
+export function recordKind(record: AstraRecord, index?: ResolvedAnalysisIndex): RecordKind {
+  const located = index ? locateRecord(index, record.ref) : undefined;
+  if (located) return located.kind;
   if (record.kind === 'prior_insight' || record.kind === 'finding') return record.kind;
-  if (typeof record.format === 'string') return 'output';
+  if (Array.isArray(record.options)) return 'decision';
+  if (typeof record.type === 'string' && typeof record.format === 'string' && Array.isArray(record.decisions)) {
+    return 'output';
+  }
   if (typeof record.path === 'string') return 'input';
   return 'decision';
 }
@@ -36,7 +44,7 @@ export function recordTitle(record: AstraRecord): string {
 
 /** The option `universe` selects for a decision; without a universe nothing is selected. */
 export function selectedOptionLabel(decision: Decision, universe?: Universe): string {
-  const selected = universe?.selection[decision.ref];
+  const selected = universe && Object.hasOwn(universe.selection, decision.ref) ? universe.selection[decision.ref] : undefined;
   return decision.options.find(({ id }) => id === selected)?.label ?? selected ?? 'Not selected';
 }
 

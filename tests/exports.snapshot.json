@@ -79,12 +79,14 @@
   "model": [
     "analysesForPaperView",
     "analysisTitle",
+    "analysisUniverses",
     "collectInventoryPapers",
     "countLabel",
     "decisionInsightPaths",
     "decisionInsights",
     "decisionTagLabel",
     "doiHref",
+    "evidencePage",
     "findPaper",
     "findingEvidence",
     "findingLiterature",
@@ -97,6 +99,7 @@
     "isVisualOutput",
     "linkedRecord",
     "locateRecord",
+    "outputInputs",
     "outputRelations",
     "outputResult",
     "paperEvidence",
@@ -106,9 +109,11 @@
     "recordId",
     "recordKind",
     "recordTitle",
+    "resultStatus",
     "sectionKind",
     "selectedOptionLabel",
-    "surfaceGlyph"
+    "surfaceGlyph",
+    "universeTitles"
   ],
   "lib": [
     "LabelsProvider",

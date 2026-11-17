@@ -10,6 +10,8 @@ import {
 import { forwardRef, useEffect, useMemo, useRef, useState, type HTMLAttributes, type ReactNode } from 'react';
 import { collectInventoryPapers, findPaper, paperForDoi, type InventoryPaper, type InventoryPaperMetadataMap } from '../model/papers.js';
 import { locateRecord } from '../model/locate-record.js';
+import { analysisUniverses, universeTitles } from '../model/universes.js';
+import type { OpenArtifactHandler } from '../components/output-detail.js';
 import { cn } from '../lib/cn.js';
 import { LabelsProvider, useLabels, type AstraLabelOverrides } from '../lib/labels.js';
 import type { OpenPaperFileHandler } from '../components/paper-detail.js';
@@ -61,7 +63,7 @@ export interface InventoryProps extends Omit<HTMLAttributes<HTMLDivElement>, 'ch
   renderText?: TextRenderer | undefined;
   loadPdfJs?: PdfJsLoader | undefined;
   onOpenPaperFile?: OpenPaperFileHandler | undefined;
-  onOpenArtifact?: ((output: Output) => void | Promise<void>) | undefined;
+  onOpenArtifact?: OpenArtifactHandler | undefined;
   paperMetadata?: InventoryPaperMetadataMap | undefined;
   /** Notify the host to fetch this DOI; update paperMetadata when complete. */
   onFetchPaper?: ((doi: string) => void) | undefined;
@@ -139,14 +141,17 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(
   }
   const analysis = index.analysisByKey.get(analysisKey ?? internalAnalysisPath) ?? index.analysisByKey.get('');
   if (!analysis) throw new Error('Resolved report has no root analysis');
-  const universes = document.analyses.flatMap((candidate) => candidate.universes);
-  const firstUniverse = index.analysisByKey.get('')?.universes[0]?.ref ?? universes[0]?.ref;
+  // Only the universes that evaluate the viewed analysis: a sub-analysis's own
+  // universe selects nothing its parent shows.
+  const universes = useMemo(() => analysisUniverses(index, analysis), [index, analysis]);
+  const firstUniverse = universes[0]?.ref;
   const [internalUniverse, setInternalUniverse] = useState(defaultUniverseRef ?? firstUniverse);
   const requestedUniverse = controlledUniverse ?? internalUniverse;
   const universeRef = universes.some((candidate) => candidate.ref === requestedUniverse)
     ? requestedUniverse
     : firstUniverse;
   const universe = universes.find((candidate) => candidate.ref === universeRef);
+  const universeNames = universeTitles(universes);
   if (controlledUniverse === undefined && internalUniverse !== universeRef) setInternalUniverse(universeRef);
   const selectUniverse = (ref: string) => {
     if (controlledUniverse === undefined) setInternalUniverse(ref);
@@ -180,6 +185,7 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(
       const owner = index.analysisByKey.get(entry.analysisKey);
       if (!owner) return false;
       if (entry.kind === 'paper') return Boolean(findPaper(papers, entry.doi) ?? paperForDoi(document, index, owner, entry.doi, paperMetadata));
+      if (entry.universeRef !== undefined && index.elementByRef.get(entry.universeRef)?.collection !== 'universes') return false;
       return Boolean(locateRecord(index, entry.ref));
     };
     const next = stack.stack.filter(resolves);
@@ -188,6 +194,13 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(
 
   const openRecord = (record: AstraRecord, owner: Analysis) => {
     stack.openRecord(record, owner);
+  };
+  // Drill-down pins a record to the universe it was reached in only when that
+  // differs from the inventory's (a pinned evidence result, say). One reached
+  // in the viewed universe follows it, so the whole stack moves together when
+  // the universe changes instead of mixing old and new selections.
+  const pushRecord = (record: AstraRecord, owner: Analysis, target?: string) => {
+    stack.pushRecord(record, owner, target === universeRef ? undefined : target);
   };
 
   const sectionContent: Record<InventorySectionId, { count: number; content: ReactNode }> = {
@@ -242,9 +255,9 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(
         <label className="astra-inventory__universe">
           {labels.universe}
           <select value={universeRef} onChange={(event) => { selectUniverse(event.target.value); }}>
-            {universes.map((candidate) => (
+            {universes.map((candidate, position) => (
               <option key={candidate.ref} value={candidate.ref}>
-                {candidate.label ?? candidate.ref}
+                {universeNames[position]}
               </option>
             ))}
           </select>
@@ -277,7 +290,7 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(
               }))}
             /> : null}
             {showHierarchy ? (
-              <AnalysisTree document={document} analysisKey={analysis.key} onSelectAnalysis={selectAnalysis} />
+              <AnalysisTree document={document} index={index} analysisKey={analysis.key} onSelectAnalysis={selectAnalysis} />
             ) : null}
           </div>
         ) : null}
@@ -301,7 +314,7 @@ const ExplorerBody = forwardRef<HTMLDivElement, Omit<InventoryProps, 'labels'>>(
             onOpenPaperFile={onOpenPaperFile}
             onOpenArtifact={onOpenArtifact}
             onFetchPaper={onFetchPaper}
-            onOpenRecord={stack.pushRecord}
+            onOpenRecord={pushRecord}
             onOpenPaper={stack.pushPaper}
             onBack={stack.previous ? stack.back : undefined}
             onClose={stack.close}

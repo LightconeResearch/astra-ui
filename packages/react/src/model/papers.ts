@@ -31,6 +31,12 @@ export interface InventoryPaperMetadata {
 
 export type InventoryPaperMetadataMap = Readonly<Record<string, InventoryPaperMetadata>>;
 
+/** The page a literature location names (`page=N` in its fragment selector), if any. */
+export function evidencePage(evidence: Evidence): number | undefined {
+  const match = evidence.location?.value ? /(?:^|&)page=(\d+)(?:&|$)/.exec(evidence.location.value) : null;
+  return match ? Number(match[1]) : undefined;
+}
+
 /** Looks up metadata by DOI, whichever spelling the host used as the key. */
 export function paperMetadataFor(doi: string, metadata: InventoryPaperMetadataMap): InventoryPaperMetadata | undefined {
   const direct = metadata[normalizeDoi(doi)] ?? metadata[doi];

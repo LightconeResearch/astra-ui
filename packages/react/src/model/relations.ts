@@ -1,6 +1,8 @@
 import {
   getResult,
   getEvidenceBindings,
+  getEvidenceOutput,
+  getSelectedOption,
   traceResultProvenance,
   selectResult,
   type Analysis,
@@ -89,8 +91,11 @@ function decisionLinks(
   }
   return [...groups.values()].map(({ link, via }) => ({ ...link, ...(via.size ? { via: [...via.values()] } : {}) }));
 }
-/** Planned results expose effective edges; unplanned outputs retain their canonical authored references. */
-export function outputRelations(index: ResolvedAnalysisIndex, output: Output, universeRef?: string): OutputRelations {
+/**
+ * An output's inputs and upstream outputs, without tracing its decisions:
+ * effective edges for a planned result, authored references otherwise.
+ */
+export function outputInputs(index: ResolvedAnalysisIndex, output: Output, universeRef?: string): LinkedRecord[] {
   const result = outputResult(index, output, universeRef);
   const inputs = result
     ? result.inputs.flatMap((source) => {
@@ -99,12 +104,17 @@ export function outputRelations(index: ResolvedAnalysisIndex, output: Output, un
         return ref ? [linkedRecord(index, ref, upstream?.universe)] : [];
       })
     : (output.inputs ?? []).map((reference) => linkedRecord(index, reference.target, reference.universe));
+  return [...new Map(inputs.map((link) => [contextKey(link.ref, link.universeRef), link])).values()];
+}
+/** Planned results expose effective edges; unplanned outputs retain their canonical authored references. */
+export function outputRelations(index: ResolvedAnalysisIndex, output: Output, universeRef?: string): OutputRelations {
+  const inputs = outputInputs(index, output, universeRef);
   const switches = inputs.flatMap((link) => {
     const found = index.elementByRef.get(link.ref);
     return found?.collection === 'switches' ? [found.element] : [];
   });
   return {
-    inputs: [...new Map(inputs.map((link) => [contextKey(link.ref, link.universeRef), link])).values()],
+    inputs,
     decisions: decisionLinks(index, output, universeRef),
     ...(switches.length ? { switches: [...new Map(switches.map((value) => [value.ref, value])).values()] } : {}),
   };
@@ -113,10 +123,29 @@ export function outputRelations(index: ResolvedAnalysisIndex, output: Output, un
  * Artifact-backed evidence of a finding, one link per SDK binding applicable in
  * the viewed universe (all of them when none is given). A binding names the
  * output and result the evidence resolves to there; DOI-only evidence has none.
+ *
+ * A report without binding information (the SDK returns undefined, which is not
+ * an empty selection) still names the artifact: it is followed to its output,
+ * shown with the viewed universe's result unless the address pins another
+ * universe, and an address that does not resolve is kept as an unresolved link.
  */
 export function findingEvidence(index: ResolvedAnalysisIndex, finding: Insight, universeRef?: string): FindingEvidenceLink[] {
-  return finding.evidence.flatMap((evidence, position) =>
-    (getEvidenceBindings(index, finding.ref, position, universeRef) ?? []).map((binding) => {
+  return finding.evidence.flatMap((evidence, position): FindingEvidenceLink[] => {
+    const bindings = getEvidenceBindings(index, finding.ref, position, universeRef);
+    if (bindings === undefined) {
+      if (!evidence.artifact) return [];
+      const output = getEvidenceOutput(index, finding.ref, position);
+      const found = output ? locateRecord(index, output.ref) : undefined;
+      if (found?.kind !== 'output') return [{ evidence }];
+      const pinned = evidence.artifact.includes('#');
+      return [{
+        evidence,
+        output: found.record,
+        analysis: found.analysis,
+        ...(pinned ? {} : { universeRef, result: outputResult(index, found.record, universeRef) }),
+      }];
+    }
+    return bindings.map((binding) => {
       const found = binding.output ? locateRecord(index, binding.output) : undefined;
       return {
         evidence,
@@ -124,8 +153,8 @@ export function findingEvidence(index: ResolvedAnalysisIndex, finding: Insight, 
         result: binding.result ? index.resultById.get(binding.result) : undefined,
         ...(found?.kind === 'output' ? { output: found.record, analysis: found.analysis } : {}),
       };
-    }),
-  );
+    });
+  });
 }
 
 /** A supporting result and every evidence entry a finding anchors into it. */
@@ -190,8 +219,7 @@ export function decisionInsightPaths(decision: Decision, selectedId?: string): s
 
 /** The insights a decision's options cite, the option selected in `universeRef` first. */
 export function decisionInsights(index: ResolvedAnalysisIndex, decision: Decision, universeRef?: string): Insight[] {
-  const universe = universeRef ? index.elementByRef.get(universeRef) : undefined;
-  const selected = universe?.collection === 'universes' ? universe.element.selection[decision.ref] : undefined;
+  const selected = universeRef ? getSelectedOption(index, universeRef, decision.ref)?.id : undefined;
   return decisionInsightPaths(decision, selected)
     .map((ref) => locateRecord(index, ref)?.record)
     .filter(isInsight);

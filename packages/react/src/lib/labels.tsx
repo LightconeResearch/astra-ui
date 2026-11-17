@@ -60,6 +60,7 @@ export interface AstraLabels {
     noInputs: string;
     title: string;
     unknown: string;
+    loading: string;
     noRun: string;
     lastRun: string;
     revision: string;
@@ -178,6 +179,7 @@ export const defaultLabels: AstraLabels = {
     noInputs: 'No input versions recorded.',
     title: 'Provenance',
     unknown: 'Status unavailable',
+    loading: 'Loading run record…',
     noRun: 'No recorded run yet.',
     lastRun: 'Last run',
     revision: 'Git revision',

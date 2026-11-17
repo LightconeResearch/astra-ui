@@ -3,8 +3,13 @@ import test from 'node:test';
 import { indexResolvedAnalysis } from '@astra-spec/sdk';
 import { tablePreviewFromDelimited } from '../packages/react/dist/lib/index.js';
 import {
+  analysisUniverses,
   collectInventoryPapers,
   decisionInsights,
+  doiHref,
+  evidencePage,
+  recordKind,
+  universeTitles,
   findingEvidence,
   findingLiterature,
   groupFindingEvidence,
@@ -399,4 +404,80 @@ test('a switch binding with no case retains unavailable evidence and its evaluat
   assert.equal(links[0].result, undefined);
   assert.equal(links[0].universeRef, 'universes.baseline');
   assert.equal(groupFindingEvidence(links)[0].artifact, 'choice');
+});
+
+test('a DOI written with its label and its resolver URL normalizes to one key', () => {
+  assert.equal(doiHref('doi: https://doi.org/10.48550/arXiv.2404.03000 '), 'https://doi.org/10.48550/arxiv.2404.03000');
+  assert.equal(doiHref(' DOI:10.1234/EXAMPLE'), 'https://doi.org/10.1234/example');
+});
+
+test('a literature location names a page only through its page fragment', () => {
+  assert.equal(evidencePage({ location: { value: 'page=22' } }), 22);
+  assert.equal(evidencePage({ location: { value: 'section=2&page=7' } }), 7);
+  assert.equal(evidencePage({ location: { value: 'section=2' } }), undefined);
+  assert.equal(evidencePage({}), undefined);
+});
+
+test('artifact evidence without binding information still names its output, not an empty selection', () => {
+  const document = structuredClone(fixtureDocument);
+  // An older report: the decoder accepts evidence with no `bindings` key.
+  document.analyses[0].findings[0].evidence = [
+    { artifact: 'headline' },
+    { artifact: 'nowhere' },
+    { artifact: 'headline#alternate' },
+    { doi: '10.9999/finding' },
+  ];
+  const index = indexResolvedAnalysis(document);
+  const links = findingEvidence(index, document.analyses[0].findings[0], 'universes.alternate');
+  assert.deepEqual(
+    links.map(({ evidence, output, result, universeRef }) => [evidence.artifact, output?.ref, result?.id, universeRef]),
+    [
+      // Shown with the viewed universe's result...
+      ['headline', 'outputs.headline', 'outputs.headline#alternate', 'universes.alternate'],
+      // ...kept, unresolved, when the address names no output...
+      ['nowhere', undefined, undefined, undefined],
+      // ...and never re-bound to the viewed universe when the address pins one.
+      ['headline#alternate', 'outputs.headline', undefined, undefined],
+    ],
+  );
+});
+
+test('the universes offered for an analysis are the ones that evaluate it', () => {
+  const document = structuredClone(fixtureDocument);
+  // The child declares a universe of its own, labelled like one of the root's,
+  // and its output is also built in the root's baseline.
+  document.analyses[1].universes = [{ ref: 'clustering.universes.fast', label: 'Baseline', selection: {}, tags: [] }];
+  document.results[2] = { ...document.results[2], id: 'clustering.outputs.correlation#baseline', universe: 'universes.baseline' };
+  const index = indexResolvedAnalysis(document);
+  const refs = (analysis) => analysisUniverses(index, analysis).map(({ ref }) => ref);
+  // The child's universe evaluates nothing the root declares.
+  assert.deepEqual(refs(document.analyses[0]), ['universes.baseline', 'universes.alternate']);
+  // A sub-analysis is evaluated in its own universes and in every one its parent declares.
+  assert.deepEqual(refs(document.analyses[1]), ['clustering.universes.fast', 'universes.baseline', 'universes.alternate']);
+  assert.deepEqual(universeTitles(analysisUniverses(index, document.analyses[1])), [
+    'Baseline (clustering.universes.fast)',
+    'Baseline (universes.baseline)',
+    'Alternate',
+  ]);
+});
+
+test('a back-reference to the parent does not make a sub-analysis its parent\'s ancestor', () => {
+  const document = structuredClone(fixtureDocument);
+  document.analyses[1].declares = { parent: '' };
+  document.analyses[1].universes = [{ ref: 'clustering.universes.fast', selection: {}, tags: [] }];
+  const index = indexResolvedAnalysis(document);
+  assert.deepEqual(
+    analysisUniverses(index, document.analyses[0]).map(({ ref }) => ref),
+    ['universes.baseline', 'universes.alternate'],
+  );
+});
+
+test('a record kind comes from the declaring collection, or from every field its type requires', () => {
+  const index = indexResolvedAnalysis(fixtureDocument);
+  // An open-schema input may carry a `format` of its own.
+  assert.equal(recordKind({ ref: 'inputs.raw', path: 'data/raw.fits', format: 'fits', tags: [] }), 'input');
+  assert.equal(recordKind(fixtureDocument.analyses[0].outputs[0]), 'output');
+  assert.equal(recordKind(fixtureDocument.analyses[0].decisions[0]), 'decision');
+  // With an index the collection decides, whatever the shape.
+  assert.equal(recordKind({ ref: 'outputs.headline', path: 'x', tags: [] }, index), 'output');
 });

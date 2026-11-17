@@ -8,7 +8,7 @@ import { OutputStatusGlyph } from '../primitives/output-status-glyph.js';
 export type OutputProvenanceProps = HTMLAttributes<HTMLDivElement> & OutputProvenanceData;
 /** Provenance and byte availability are independent facts in the SDK status report. */
 export const OutputProvenance = forwardRef<HTMLDivElement, OutputProvenanceProps>(function OutputProvenance(
-  { status, record: suppliedRecord, error, className, ...props },
+  { status, record: suppliedRecord, loading = false, error, className, ...props },
   ref,
 ) {
   const labels = useLabels(),
@@ -17,6 +17,10 @@ export const OutputProvenance = forwardRef<HTMLDivElement, OutputProvenanceProps
   const [detailsOpen, setDetailsOpen] = useState(false);
   const generated = record?.generated_by,
     finished = generated?.finished;
+  // Runner timestamps are not guaranteed to be ISO: keep the recorded string
+  // rather than print "Invalid Date".
+  const finishedDate = finished ? new Date(finished) : undefined;
+  const finishedLabel = finishedDate && !Number.isNaN(finishedDate.getTime()) ? finishedDate.toLocaleString() : finished;
   return (
     <div data-slot="output-provenance" {...props} ref={ref} className={cn('astra-output-provenance', className)}>
       <div className="astra-output-provenance__heading">
@@ -65,7 +69,7 @@ export const OutputProvenance = forwardRef<HTMLDivElement, OutputProvenanceProps
           <div>
             <dt>{copy.lastRun}</dt>
             <dd>
-              <time dateTime={finished}>{new Date(finished).toLocaleString()}</time>
+              <time dateTime={finished}>{finishedLabel}</time>
             </dd>
           </div>
         ) : null}
@@ -78,7 +82,13 @@ export const OutputProvenance = forwardRef<HTMLDivElement, OutputProvenanceProps
           </div>
         ) : null}
       </dl>
-      {error ? <p role="alert">{error}</p> : !record ? <p>{copy.noRun}</p> : null}
+      {error ? (
+        <p role="alert">{error}</p>
+      ) : !record && loading ? (
+        <p role="status">{copy.loading}</p>
+      ) : !record ? (
+        <p>{copy.noRun}</p>
+      ) : null}
       {detailsOpen && record && generated ? (
         <DetailDialog
           mode="modal"
