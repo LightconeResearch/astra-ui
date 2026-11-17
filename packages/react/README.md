@@ -246,6 +246,13 @@ export function createArtifactRenderer(
 `metricPreviewFromJson` from `@astra-spec/ui/lib` turn already-loaded host data
 into preview values. They perform no I/O.
 
+`artifactPreviewFromSource(output, source)` composes them into the bounded
+preview hosts share: a figure in an image format as an image, a CSV/TSV table
+from a 64 KiB sample, a JSON table or metric parsed under 2 MB, and an
+unavailable reason for anything else. It reads only through the host's
+`ArtifactSource` (`url`, `size`, and a `readText(maxBytes)` the host
+implements), so file access stays with the host.
+
 ### Primitives
 
 The primitive layer is useful for building surfaces that match the library:
@@ -301,6 +308,12 @@ name merging (`cn`), prose parsing and the label helpers are in `@astra-spec/ui/
 
 The host owns paper discovery, downloading, authentication and resource URLs;
 the viewer only loads the URL it is given.
+
+`arxivPaperMetadata(document)` from `@astra-spec/ui/model` supplies one such
+URL that needs no host at all: every cited arXiv DOI mapped to
+`arxiv.org/pdf/<id>`, which serves PDFs with CORS and byte ranges. When
+insights cite different revisions, the newest wins, and a citation naming no
+revision reads the latest. Merge it under the host's own `paperMetadata`.
 
 ## PDF reading and passage navigation
 

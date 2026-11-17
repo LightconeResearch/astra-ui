@@ -7,6 +7,8 @@ export type { DetailEntry, DetailStack, DetailStackOptions, OpenRecordHandler } 
 export { parseProse, renderProse } from './prose.js';
 export type { ProseContext, ProseField, ProseMathMacros, ProseRenderOptions, ProseToken, TextRenderer } from './prose.js';
 export { metricPreviewFromJson, tablePreviewFromDelimited, tablePreviewFromRows } from './preview-data.js';
+export { artifactPreviewFromSource } from './artifact-source.js';
+export type { ArtifactSource } from './artifact-source.js';
 export type {
   ArtifactPreviewData,
   DelimitedPreviewOptions,

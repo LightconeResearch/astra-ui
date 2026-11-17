@@ -79,6 +79,8 @@
   "model": [
     "analysesForPaperView",
     "analysisTitle",
+    "arxivIdFromDoi",
+    "arxivPaperMetadata",
     "collectInventoryPapers",
     "countLabel",
     "decisionInsightPaths",
@@ -110,6 +112,7 @@
   ],
   "lib": [
     "LabelsProvider",
+    "artifactPreviewFromSource",
     "cn",
     "defaultLabels",
     "mergeLabels",
