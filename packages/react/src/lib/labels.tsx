@@ -48,6 +48,8 @@ export interface AstraLabels {
     unchanged: string;
     missing: string;
     stale: string;
+    /** Reason shown when the recorded bytes of a result are unavailable. */
+    bytesUnavailable: string;
     withDetail: (label: string, detail: string) => string;
   };
   /** Recorded execution summaries and run details. */
@@ -58,15 +60,17 @@ export interface AstraLabels {
     noInputs: string;
     title: string;
     unknown: string;
-    loading: string;
     noRun: string;
     lastRun: string;
     revision: string;
     details: string;
-    recipe: string;
+    bytes: string;
+    bytesPresent: string;
+    bytesAbsent: string;
+    content: string;
     inputs: string;
     environment: string;
-    cliVersion: string;
+    runner: string;
   };
   /** Figure magnification and panning. */
   figure: {
@@ -164,6 +168,7 @@ export const defaultLabels: AstraLabels = {
     unchanged: 'Unchanged',
     missing: 'Missing',
     stale: 'Stale',
+    bytesUnavailable: 'Recorded bytes are unavailable.',
     withDetail: (label, detail) => `${label}: ${detail}`,
   },
   provenance: {
@@ -173,15 +178,17 @@ export const defaultLabels: AstraLabels = {
     noInputs: 'No input versions recorded.',
     title: 'Provenance',
     unknown: 'Status unavailable',
-    loading: 'Loading run record…',
     noRun: 'No recorded run yet.',
     lastRun: 'Last run',
     revision: 'Git revision',
     details: 'Details',
-    recipe: 'Executed recipe',
+    bytes: 'Recorded bytes',
+    bytesPresent: 'Available',
+    bytesAbsent: 'Unavailable',
+    content: 'Recorded content',
     inputs: 'Input versions',
     environment: 'Environment',
-    cliVersion: 'Lightcone version',
+    runner: 'Runner',
   },
   figure: {
     controls: 'Figure zoom',

@@ -46,7 +46,7 @@ npm run screenshots                    # build + static Ladle build + Playwright
 node packages/preview/screenshot.mjs stories --filter <substring> --width 960
 npm run preview:screenshots            # every page of packages/preview/dist, light+dark, 1280/960/640, hover + dialogs
 npm run check:consumers                # typecheck ../jupyterlab-lightcone, ../vscode-astra, ../astra-theme2 against this dist
-npm run fixture --workspace astra-ui-playground [projectRoot]   # regenerate fixtures/desi.json (default: the owned ASTRA 0.1 DESI demo)
+npm run fixture --workspace astra-ui-playground [projectRoot]   # regenerate fixtures/desi.json (default: the preview's pinned content clone)
 node scripts/tokens-doc.mjs            # regenerate packages/react/TOKENS.md from styles/tokens.css
 npm run preview                        # demo paper via astra-theme + MySTRA against the working tree, on :4310
 node packages/preview/build.mjs --theme ../astra-theme --content ../myst_proto --serve   # local checkouts
@@ -110,8 +110,8 @@ never machinery. The one acknowledged piece of glue is `components/relation-item
 `RelationList` primitive's items from model records, which no lower layer can do, and says so.
 
 **Navigation state.** `useDetailStack` is headless and works controlled (`value` + `onChange`) or
-uncontrolled, like a React input; a `DetailEntry` is `{kind: 'record', canonicalPath, analysisPath}`
-or `{kind: 'paper', doi, analysisPath, focusInsightPath?}` — paths, never object identity, so a
+uncontrolled, like a React input; a `DetailEntry` is `{kind: 'record', ref, analysisKey, universeRef?}`
+or `{kind: 'paper', doi, analysisKey, focusInsightRef?}` — refs and keys, never object identity, so a
 document refresh can prune entries that stopped resolving.
 
 **Host extension points**, all optional props: `renderArtifact`, `renderText` (replaces the built-in

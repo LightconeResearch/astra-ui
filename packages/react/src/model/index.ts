@@ -32,8 +32,8 @@ export type {
   InventoryPaperMetadataMap,
   PaperFetchStatus,
 } from './papers.js';
-export { doiHref, normalizeDoi } from './doi.js';
-export type { OutputStatus, OutputStatusLookup, OutputContext } from './output-status.js';
+export { doiHref } from './doi.js';
+export type { OutputContext } from './output-status.js';
 export type { OutputProvenanceData } from './output-provenance.js';
 
 export type { AstraRecord, RecordKind } from './records.js';

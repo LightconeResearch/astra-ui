@@ -52,7 +52,7 @@ export interface RecordDialogProps extends Pick<DetailDialogProps, 'mode' | 'bac
   onFetchPaper?: ((doi: string) => void) | undefined;
   /** Navigation to another record from within the detail (drill-down). */
   onOpenRecord?: ((record: AstraRecord, analysis: Analysis, universeRef?: string) => void) | undefined;
-  onOpenPaper?: ((doi: string, analysis: Analysis, focusInsightPath?: string) => void) | undefined;
+  onOpenPaper?: ((doi: string, analysis: Analysis, focusInsightRef?: string) => void) | undefined;
   /** Body rendered (inside the dialog shell) when the entry no longer resolves, e.g. after a document refresh; nothing renders without it. */
   fallback?: ReactNode | undefined;
 }
@@ -94,8 +94,8 @@ export function RecordDialog({
 }: RecordDialogProps) {
   const labels = useLabels();
   const universeRef = entry.kind === 'record' ? entry.universeRef ?? parentUniverseRef : parentUniverseRef;
-  const analysis = index.analysisByKey.get(entry.analysisPath);
-  const located = entry.kind === 'record' ? locateRecord(index, entry.canonicalPath) : undefined;
+  const analysis = index.analysisByKey.get(entry.analysisKey);
+  const located = entry.kind === 'record' ? locateRecord(index, entry.ref) : undefined;
   // Papers are looked up in the host's list first, then derived for the
   // entry's own analysis: a record reached by drill-down may cite a paper the
   // viewed analysis does not list.
@@ -105,16 +105,16 @@ export function RecordDialog({
   const output = located?.kind === 'output' ? located.record : undefined;
   const [expanded, setExpanded] = useOutputExpanded(output ?? PLACEHOLDER_OUTPUT);
 
-  const openByPath = (canonicalPath: string) => {
-    const target = locateRecord(index, canonicalPath);
+  const openByRef = (ref: string) => {
+    const target = locateRecord(index, ref);
     if (target) onOpenRecord?.(target.record, target.analysis, universeRef);
   };
-  const openInsight = (insight: Insight) => { openByPath(insight.ref); };
-  const openDecision = (decision: Decision) => { openByPath(decision.ref); };
+  const openInsight = (insight: Insight) => { openByRef(insight.ref); };
+  const openDecision = (decision: Decision) => { openByRef(decision.ref); };
 
   let chrome: Chrome | undefined;
   if (entry.kind === 'paper' && paper && analysis) {
-    const focusRecord = entry.focusInsightPath ? locateRecord(index, entry.focusInsightPath)?.record : undefined;
+    const focusRecord = entry.focusInsightRef ? locateRecord(index, entry.focusInsightRef)?.record : undefined;
     chrome = {
       kind: 'paper',
       kindLabel: labels.kinds.paper,
@@ -137,21 +137,22 @@ export function RecordDialog({
   } else if (located && analysis) {
     const { record, kind } = located;
     switch (kind) {
-      case 'output':
+      case 'output': {
+        const result = outputResult(index, record, universeRef);
         chrome = {
           kind: 'output',
           kindLabel: record.type,
           title: recordTitle(record),
           layout: isVisualOutput(record) ? 'reader' : undefined,
           actions: (
-            <OutputDialogActions record={record} onOpenArtifact={onOpenArtifact} expanded={expanded} onExpandedChange={setExpanded} />
+            <OutputDialogActions record={record} result={result} onOpenArtifact={onOpenArtifact} expanded={expanded} onExpandedChange={setExpanded} />
           ),
           body: (
             <OutputDetail
               record={record}
               relations={outputRelations(index, record, universeRef)}
-              result={outputResult(index, record, universeRef)}
-              status={statusReport?.statuses[outputResult(index, record, universeRef)?.id ?? ""]}
+              result={result}
+              status={result ? statusReport?.statuses[result.id] : undefined}
               universeRef={universeRef}
               renderArtifact={renderArtifact}
               renderProvenance={renderProvenance}
@@ -164,6 +165,7 @@ export function RecordDialog({
           ),
         };
         break;
+      }
       case 'input':
         chrome = {
           kind: 'input',

@@ -12,15 +12,13 @@ export interface InputDetailProps extends Omit<HTMLAttributes<HTMLDivElement>, '
   renderText?: TextRenderer | undefined;
 }
 
-/** Description, the record an alias resolves from, and the declared source of an input. */
+/** Description and repository path of an input. */
 export const InputDetail = forwardRef<HTMLDivElement, InputDetailProps>(function InputDetail({
   record,
   renderText,
   className,
   ...props
 }, ref) {
-  const declared = record.path;
-  const primary = declared;
   return (
     <DetailLayout data-slot="input-detail" {...props} ref={ref} layout="single" className={className}>
       <DetailMain>
@@ -32,9 +30,8 @@ export const InputDetail = forwardRef<HTMLDivElement, InputDetailProps>(function
         <section className="astra-input-source">
           <h4>Source</h4>
           {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- long paths scroll horizontally */}
-          <code tabIndex={0} title={primary}>{primary}</code>
+          <code tabIndex={0} title={record.path}>{record.path}</code>
         </section>
-
       </DetailMain>
     </DetailLayout>
   );

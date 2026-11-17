@@ -88,7 +88,7 @@ test('sections, labels, and anchors are configurable', () => {
 test('the analysis picker follows the SDK recursive analysis tree', () => {
   const html = withinUi(React.createElement(AnalysisTree, {
     document: fixtureDocument,
-    analysisPath: 'clustering',
+    analysisKey: 'clustering',
     onSelectAnalysis: () => {},
   }));
 
@@ -327,8 +327,8 @@ test('output dialogs list every decision on a dependency path in one list, inclu
   const relations = {
     inputs: [],
     decisions: [
-      { canonicalPath: method.ref, record: method, analysis: fixtureDocument.analyses[0] },
-      { canonicalPath: weighting.ref, record: weighting, analysis: clustering },
+      { ref: method.ref, record: method, analysis: fixtureDocument.analyses[0] },
+      { ref: weighting.ref, record: weighting, analysis: clustering },
     ],
   };
   const html = withinUi(React.createElement(OutputDetail, { record: figure, relations }));
@@ -348,12 +348,12 @@ test('an inherited decision names every upstream origin to assistive technology,
   const relations = {
     inputs: [],
     decisions: [{
-      canonicalPath: method.ref,
+      ref: method.ref,
       record: method,
       analysis: fixtureDocument.analyses[0],
       via: [
-        { canonicalPath: upstream.ref, record: upstream, analysis: fixtureDocument.analyses[0] },
-        { canonicalPath: loop.ref, record: loop, analysis: fixtureDocument.analyses[0] },
+        { ref: upstream.ref, record: upstream, analysis: fixtureDocument.analyses[0] },
+        { ref: loop.ref, record: loop, analysis: fixtureDocument.analyses[0] },
       ],
     }],
   };
@@ -431,16 +431,18 @@ test('metric tiles carry an accessible name and consult the host renderer like t
   const headline = fixtureDocument.analyses[0].outputs[0];
   const metric = { ...headline, id: 'neff', ref: 'outputs.neff', label: 'Effective sample size', type: 'metric', format: 'json', artifact: undefined };
   const analysis = { ...fixtureDocument.analyses[0], outputs: [metric] };
+  const index = indexResolvedAnalysis(fixtureDocument);
   const rendered = [];
   const html = withinUi(React.createElement(OutputsList, {
     analysis,
+    index,
     renderArtifact: (output) => { rendered.push(output.ref); return React.createElement('span', null, 'Host preview'); },
     onOpenRecord: () => undefined,
   }));
   assert.match(html, /<button[^>]*aria-label="Open metric: Effective sample size"/);
   assert.deepEqual(rendered, ['outputs.neff']);
   assert.match(html, /Host preview/);
-  const hostless = withinUi(React.createElement(OutputsList, { analysis, onOpenRecord: () => undefined }));
+  const hostless = withinUi(React.createElement(OutputsList, { analysis, index, onOpenRecord: () => undefined }));
   assert.match(hostless, /No planned result/);
 });
 

@@ -35,7 +35,7 @@ it('shows native provenance below the effective command in the output details', 
       document={fixtureDocument}
       renderProvenance={() => <OutputProvenance status={status('missing')} />}
       renderArtifact={(output) => <img alt={output.ref} src="plot.svg" />}
-      defaultDetail={[{ kind: 'record', canonicalPath: 'outputs.headline', analysisPath: '' }]}
+      defaultDetail={[{ kind: 'record', ref: 'outputs.headline', analysisKey: '' }]}
     />,
   );
   const dialog = screen.getByRole('dialog', { hidden: true });
@@ -54,7 +54,7 @@ it('opens a public provenance record and closes only its metadata popup', () => 
       renderProvenance={() => (
         <OutputProvenance status={{ ...status('stale', 'Input changed'), bytes: { state: 'absent' }, record }} />
       )}
-      defaultDetail={[{ kind: 'record', canonicalPath: 'outputs.headline', analysisPath: '' }]}
+      defaultDetail={[{ kind: 'record', ref: 'outputs.headline', analysisKey: '' }]}
     />,
   );
   expect(screen.getByText('Stale')).toBeTruthy();

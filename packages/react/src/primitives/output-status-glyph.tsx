@@ -1,12 +1,12 @@
 import { forwardRef, type SVGAttributes } from 'react';
-import type { OutputStatus } from '../model/output-status.js';
+import type { Status } from '@astra-spec/sdk/reports';
 
 export interface OutputStatusGlyphProps extends SVGAttributes<SVGSVGElement> {
-  state: OutputStatus['state'];
+  state: Status['state'];
 }
 
 /** One 16×16 glyph per state, so every surface that draws a status draws the same mark. */
-const paths: Record<OutputStatus['state'], string> = {
+const paths: Record<Status['state'], string> = {
   unchanged: 'm3.5 8 3 3 6-6',
   missing: 'M12.5 5A5 5 0 1 0 13 9M12.5 1.5V5H9',
   stale: 'm4.5 4.5 7 7m0-7-7 7',

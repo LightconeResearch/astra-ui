@@ -4,6 +4,7 @@ import { useLabels } from '../lib/labels.js';
 import type { OutputProvenanceData } from '../model/output-provenance.js';
 import { DetailDialog } from '../primitives/dialog.js';
 import { OutputStatusGlyph } from '../primitives/output-status-glyph.js';
+
 export type OutputProvenanceProps = HTMLAttributes<HTMLDivElement> & OutputProvenanceData;
 /** Provenance and byte availability are independent facts in the SDK status report. */
 export const OutputProvenance = forwardRef<HTMLDivElement, OutputProvenanceProps>(function OutputProvenance(
@@ -53,9 +54,9 @@ export const OutputProvenance = forwardRef<HTMLDivElement, OutputProvenanceProps
         </div>
         {status?.bytes ? (
           <div>
-            <dt>Recorded bytes</dt>
+            <dt>{copy.bytes}</dt>
             <dd>
-              {status.bytes.state === 'present' ? 'Available' : 'Unavailable'}
+              {status.bytes.state === 'present' ? copy.bytesPresent : copy.bytesAbsent}
               {status.bytes.kept_by ? ` (${status.bytes.kept_by})` : ''}
             </dd>
           </div>
@@ -83,14 +84,12 @@ export const OutputProvenance = forwardRef<HTMLDivElement, OutputProvenanceProps
           mode="modal"
           title={copy.runDetails}
           closeLabel={copy.closeDetails}
-          onClose={() => {
-            setDetailsOpen(false);
-          }}
+          onClose={() => { setDetailsOpen(false); }}
           panelClassName="astra-output-provenance__dialog-panel"
         >
           <div className="astra-output-provenance__details">
             <section>
-              <h4>Recorded content</h4>
+              <h4>{copy.content}</h4>
               <p>
                 <code>{record.content_hash}</code> · {record.size} bytes
               </p>
@@ -119,7 +118,7 @@ export const OutputProvenance = forwardRef<HTMLDivElement, OutputProvenanceProps
               </p>
             </section>
             <section>
-              <h4>{copy.cliVersion}</h4>
+              <h4>{copy.runner}</h4>
               <p>
                 {generated.runner.id} {generated.runner.version}
               </p>

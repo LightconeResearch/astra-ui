@@ -27,11 +27,10 @@ export const InputsList = forwardRef<HTMLDivElement, InputsListProps>(function I
     <InventoryRecords {...props} ref={ref} kind="input" className={className}>
       <RecordList
         label={labels.sections.inputs}
-        columnTemplate="minmax(14rem, 1.1fr) minmax(12rem, 1fr) 6.875rem 1.5rem"
+        columnTemplate="minmax(14rem, 1.1fr) minmax(12rem, 1fr) 1.5rem"
         columns={[
           { label: 'Input', className: 'astra-record-list__primary' },
           { label: 'Source', className: 'astra-record-list__source' },
-          { label: 'Type', className: 'astra-record-list__secondary' },
           { className: 'astra-record-list__arrow' },
         ]}
         rows={records.map((record) => ({
@@ -41,7 +40,6 @@ export const InputsList = forwardRef<HTMLDivElement, InputsListProps>(function I
           cells: [
             <RecordIdentity kind="input" title={recordTitle(record)} />,
             <code title={inputSourceLabel(record)}>{inputSourceLabel(record)}</code>,
-            <span className="astra-record-list__tag">{"file"}</span>,
             <span aria-hidden="true">→</span>,
           ],
         }))}

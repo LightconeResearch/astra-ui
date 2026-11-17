@@ -1,26 +1,27 @@
 /** Navigation state for record details: what a detail surface shows, and the stack that drives drill-down. */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { Analysis, IndexedElement } from '@astra-spec/sdk/reports';
+import type { Analysis, Decision, Input, Insight, Output } from '@astra-spec/sdk/reports';
 
-type AstraRecord = Exclude<IndexedElement, {collection: 'universes' | 'switches'}>['element'];
+/** The records a detail can show; `model`'s `AstraRecord`, restated because `lib` cannot import `model`. */
+type AstraRecord = Input | Decision | Output | Insight;
 
 /** What a detail surface is showing: a record, or a paper (optionally focused on an insight). */
 export type DetailEntry =
-  | { kind: 'record'; canonicalPath: string; analysisPath: string; universeRef?: string | undefined }
-  | { kind: 'paper'; doi: string; analysisPath: string; focusInsightPath?: string | undefined };
+  | { kind: 'record'; ref: string; analysisKey: string; universeRef?: string | undefined }
+  | { kind: 'paper'; doi: string; analysisKey: string; focusInsightRef?: string | undefined };
 
-export function recordEntry(canonicalPath: string, analysisPath: string, universeRef?: string): DetailEntry {
-  return { kind: 'record', canonicalPath, analysisPath, ...(universeRef === undefined ? {} : {universeRef}) };
+export function recordEntry(ref: string, analysisKey: string, universeRef?: string): DetailEntry {
+  return { kind: 'record', ref, analysisKey, ...(universeRef === undefined ? {} : {universeRef}) };
 }
 
-export function paperEntry(doi: string, analysisPath: string, focusInsightPath?: string): DetailEntry {
-  return { kind: 'paper', doi, analysisPath, ...(focusInsightPath ? { focusInsightPath } : {}) };
+export function paperEntry(doi: string, analysisKey: string, focusInsightRef?: string): DetailEntry {
+  return { kind: 'paper', doi, analysisKey, ...(focusInsightRef ? { focusInsightRef } : {}) };
 }
 
 export function sameEntry(left: DetailEntry, right: DetailEntry): boolean {
-  if (left.kind !== right.kind || left.analysisPath !== right.analysisPath) return false;
+  if (left.kind !== right.kind || left.analysisKey !== right.analysisKey) return false;
   return left.kind === 'record'
-    ? left.canonicalPath === (right as Extract<DetailEntry, { kind: 'record' }>).canonicalPath && left.universeRef === (right as Extract<DetailEntry, { kind: 'record' }>).universeRef
+    ? left.ref === (right as Extract<DetailEntry, { kind: 'record' }>).ref && left.universeRef === (right as Extract<DetailEntry, { kind: 'record' }>).universeRef
     : left.doi === (right as Extract<DetailEntry, { kind: 'paper' }>).doi;
 }
 
@@ -41,11 +42,11 @@ export interface DetailStack {
   /** Replaces the stack with a single entry. */
   open: (entry: DetailEntry) => void;
   openRecord: (record: AstraRecord, analysis: Analysis, universeRef?: string) => void;
-  openPaper: (doi: string, analysis: Analysis, focusInsightPath?: string) => void;
+  openPaper: (doi: string, analysis: Analysis, focusInsightRef?: string) => void;
   /** Pushes an entry on top of the current one (drill-down). */
   push: (entry: DetailEntry) => void;
   pushRecord: (record: AstraRecord, analysis: Analysis, universeRef?: string) => void;
-  pushPaper: (doi: string, analysis: Analysis, focusInsightPath?: string) => void;
+  pushPaper: (doi: string, analysis: Analysis, focusInsightRef?: string) => void;
   back: () => void;
   close: () => void;
   set: (next: readonly DetailEntry[]) => void;
@@ -91,10 +92,10 @@ export function useDetailStack({ value, defaultValue, onChange }: DetailStackOpt
       previous: stack.length > 1 ? stack.at(-2) : undefined,
       open,
       openRecord: (record, analysis, universeRef) => { open(recordEntry(record.ref, analysis.key, universeRef)); },
-      openPaper: (doi, analysis, focusInsightPath) => { open(paperEntry(doi, analysis.key, focusInsightPath)); },
+      openPaper: (doi, analysis, focusInsightRef) => { open(paperEntry(doi, analysis.key, focusInsightRef)); },
       push,
       pushRecord: (record, analysis, universeRef) => { push(recordEntry(record.ref, analysis.key, universeRef)); },
-      pushPaper: (doi, analysis, focusInsightPath) => { push(paperEntry(doi, analysis.key, focusInsightPath)); },
+      pushPaper: (doi, analysis, focusInsightRef) => { push(paperEntry(doi, analysis.key, focusInsightRef)); },
       back: () => { update((current) => current.slice(0, -1)); },
       close: () => { update(() => EMPTY); },
       set,

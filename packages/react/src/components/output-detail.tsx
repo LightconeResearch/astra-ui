@@ -90,8 +90,8 @@ function decisionDependencyItems(relations: OutputRelations, onOpenRecord: OpenR
   return relationItemsForLinks(relations.decisions, onOpenRecord).map((item, index) => {
     const via = relations.decisions[index]?.via;
     const origins = via?.map(
-      ({ record, canonicalPath, universeRef }) =>
-        `${record ? recordTitle(record) : canonicalPath}${universeRef ? ` (${universeRef})` : ''}`,
+      ({ record, ref, universeRef }) =>
+        `${record ? recordTitle(record) : ref}${universeRef ? ` (${universeRef})` : ''}`,
     );
     if (!origins?.length) return item;
     const detail = `via ${origins.join(', ')}`;
@@ -100,23 +100,20 @@ function decisionDependencyItems(relations: OutputRelations, onOpenRecord: OpenR
       // The truncated text is for sighted readers; assistive technology gets
       // the full list, whether or not the row becomes a navigation trigger
       // (only a trigger carries `accessibleLabel`).
-      detail:
-        origins.length > 1 ? (
+      detail: origins.length > 1
+        ? (
           <span title={detail}>
-            <span aria-hidden="true">
-              via {origins[0]} +{origins.length - 1} more
-            </span>
+            <span aria-hidden="true">via {origins[0]} +{origins.length - 1} more</span>
             <span className="astra-output-detail__visually-hidden">{detail}</span>
           </span>
-        ) : (
-          detail
-        ),
+        )
+        : detail,
       accessibleLabel: item.accessibleLabel ? `${item.accessibleLabel}, ${detail}` : undefined,
     };
   });
 }
 
-/** Artifact preview with provenance: description, recipe, alias, decisions, and inputs. */
+/** Artifact preview with provenance: description, decisions, inputs, recipe and recorded status. */
 export const OutputDetail = forwardRef<HTMLDivElement, OutputDetailProps>(function OutputDetail(
   {
     record: output,
@@ -147,9 +144,7 @@ export const OutputDetail = forwardRef<HTMLDivElement, OutputDetailProps>(functi
   // artifact to frame: a host renderer may opt out of a figure or table by
   // returning null, and the details then take the single column instead.
   const visual = artifact != null;
-  const exitFullScreen = useCallback(() => {
-    onExpandedChange?.(false);
-  }, [onExpandedChange]);
+  const exitFullScreen = useCallback(() => { onExpandedChange?.(false); }, [onExpandedChange]);
   // Inside a modal dialog, Escape reaches the full-screen layer through the
   // dialog's cancel event (the guard), which fires after any keydown handling
   // and cannot close the dialog underneath. Elsewhere the layer listens itself.
@@ -162,9 +157,7 @@ export const OutputDetail = forwardRef<HTMLDivElement, OutputDetailProps>(functi
       if (event.key === 'Escape') exitFullScreen();
     };
     document.addEventListener('keydown', onKeyDown);
-    return () => {
-      document.removeEventListener('keydown', onKeyDown);
-    };
+    return () => { document.removeEventListener('keydown', onKeyDown); };
   }, [expanded, inModalDialog, exitFullScreen]);
   // The full-screen layer is a modal: focus enters it, everything outside it
   // (up to the enclosing native dialog, or the document) is inert while it
@@ -211,7 +204,6 @@ export const OutputDetail = forwardRef<HTMLDivElement, OutputDetailProps>(functi
           </div>
         </section>
       ) : null}
-
       <RelationList
         className="astra-detail__relations"
         title="Decision dependencies"
@@ -309,31 +301,21 @@ export const OutputDetail = forwardRef<HTMLDivElement, OutputDetailProps>(functi
 
 export interface OutputDialogActionsProps {
   record: Output;
+  /** The result shown; without one there is no artifact to open. */
   result?: Result | undefined;
-  status?: Status | undefined;
-  universeRef?: string | undefined;
   onOpenArtifact?: ((output: Output) => void | Promise<void>) | undefined;
   expanded: boolean;
   onExpandedChange: (expanded: boolean) => void;
 }
 
 /** Header actions: open the artifact in the host, or expand a table. */
-export function OutputDialogActions({
-  record: output,
-  onOpenArtifact,
-  expanded,
-  onExpandedChange,
-}: OutputDialogActionsProps) {
+export function OutputDialogActions({ record: output, result, onOpenArtifact, expanded, onExpandedChange }: OutputDialogActionsProps) {
   const labels = useLabels();
   const canExpand = output.type === 'table';
   return (
     <>
-      {onOpenArtifact ? (
-        <DialogAction
-          onClick={() => {
-            void onOpenArtifact(output);
-          }}
-        >
+      {onOpenArtifact && result ? (
+        <DialogAction onClick={() => { void onOpenArtifact(output); }}>
           <span aria-hidden="true">↗</span>
           <span>{labels.actions.openArtifact}</span>
         </DialogAction>
@@ -342,9 +324,7 @@ export function OutputDialogActions({
         <DialogAction
           aria-label={`View ${output.type} full screen`}
           aria-expanded={expanded}
-          onClick={() => {
-            onExpandedChange(true);
-          }}
+          onClick={() => { onExpandedChange(true); }}
         >
           <span aria-hidden="true">⛶</span>
           <span>{labels.actions.fullScreen}</span>

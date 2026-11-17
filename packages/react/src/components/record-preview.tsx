@@ -38,14 +38,19 @@ export interface RecordPreviewReference {
   trigger: ReactElement;
 }
 
-export type RecordPreviewReferenceRenderer = (reference: RecordPreviewReference) => ReactNode;
+export type RecordPreviewReferenceRenderer = (
+  reference: RecordPreviewReference,
+) => ReactNode;
 
 export interface RecordPreviewCitationContext {
   evidence: Evidence;
   record: Insight;
 }
 
-export type RecordPreviewCitationRenderer = (doi: string, context: RecordPreviewCitationContext) => ReactNode;
+export type RecordPreviewCitationRenderer = (
+  doi: string,
+  context: RecordPreviewCitationContext,
+) => ReactNode;
 
 export type RecordPreviewEntry =
   | {
@@ -70,7 +75,8 @@ export type RecordPreviewEntry =
       selection?: string | undefined;
     };
 
-export interface RecordPreviewProps extends Omit<HTMLAttributes<HTMLElement>, 'children'> {
+export interface RecordPreviewProps
+  extends Omit<HTMLAttributes<HTMLElement>, 'children'> {
   entry: RecordPreviewEntry;
   document: ResolvedAnalysis;
   index: ResolvedAnalysisIndex;
@@ -169,7 +175,6 @@ function RelatedRecord({
   record: AstraRecord;
   index: ResolvedAnalysisIndex;
   universeRef?: string | undefined;
-  statusReport?: StatusReport | undefined;
   onOpenRecord?: OpenRecordHandler | undefined;
   renderRecordReference?: RecordPreviewReferenceRenderer | undefined;
   detail?: ReactNode | undefined;
@@ -181,7 +186,9 @@ function RelatedRecord({
     <>
       <KindGlyph className="astra-record-preview__relation-glyph" kind={recordKind(record)} />
       <span className="astra-record-preview__relation-label">{label}</span>
-      {detail != null ? <small className="astra-record-preview__relation-detail">{detail}</small> : null}
+      {detail != null ? (
+        <small className="astra-record-preview__relation-detail">{detail}</small>
+      ) : null}
     </>
   );
   const trigger =
@@ -236,11 +243,19 @@ function DecisionPreview({
   const remaining = supporting.length - shown.length;
   return (
     <>
-      <PreviewHeader kind="decision" kindLabel={labels.kinds.decision} title={recordTitle(record)} />
+      <PreviewHeader
+        kind="decision"
+        kindLabel={labels.kinds.decision}
+        title={recordTitle(record)}
+      />
       <div className="astra-record-preview__body">
         {record.rationale ? (
           <div className="astra-record-preview__description">
-            <Prose text={record.rationale} field="rationale" renderText={renderText} />
+            <Prose
+              text={record.rationale}
+              field="rationale"
+              renderText={renderText}
+            />
           </div>
         ) : null}
         {record.options.length ? (
@@ -311,7 +326,11 @@ function FindingPreview({
   const links = findingEvidence(index, record, universeRef);
   return (
     <>
-      <PreviewHeader kind="finding" kindLabel={labels.kinds.finding} title={recordTitle(record)} />
+      <PreviewHeader
+        kind="finding"
+        kindLabel={labels.kinds.finding}
+        title={recordTitle(record)}
+      />
       <div className="astra-record-preview__body">
         <div className="astra-record-preview__claim">
           <Prose text={record.claim} field="claim" renderText={renderText} />
@@ -385,17 +404,30 @@ function InsightPreview({ record, renderText, renderCitation }: SharedPreviewPro
   const source = primaryLiteratureEvidence(record);
   return (
     <>
-      <PreviewHeader kind="prior_insight" kindLabel={labels.kinds.prior_insight} />
+      <PreviewHeader
+        kind="prior_insight"
+        kindLabel={labels.kinds.prior_insight}
+      />
       <div className="astra-record-preview__body">
         <div className="astra-record-preview__description">
           <Prose text={record.claim} field="claim" renderText={renderText} />
         </div>
         {source?.quote ? (
           <blockquote className="astra-record-preview__quote">
-            <Prose text={source.quote.exact} field="quote" renderText={renderText} />
+            <Prose
+              text={source.quote.exact}
+              field="quote"
+              renderText={renderText}
+            />
           </blockquote>
         ) : null}
-        {source ? <Citation evidence={source} record={record} renderCitation={renderCitation} /> : null}
+        {source ? (
+          <Citation
+            evidence={source}
+            record={record}
+            renderCitation={renderCitation}
+          />
+        ) : null}
       </div>
     </>
   );
@@ -412,7 +444,7 @@ function OutputRecordPreview({
   const labels = useLabels();
   const result = outputResult(index, record, universeRef);
   const inputNames = outputRelations(index, record, universeRef).inputs.map((link) =>
-    link.record ? recordTitle(link.record) : link.canonicalPath,
+    link.record ? recordTitle(link.record) : link.ref,
   );
   const recipe = result?.command;
   const flow = [inputNames.length ? inputNames.join(', ') : undefined, recipe, record.ref].filter(
@@ -428,14 +460,26 @@ function OutputRecordPreview({
     : null;
   return (
     <>
-      <PreviewHeader kind="output" kindLabel={labels.kinds.output} title={recordTitle(record)} />
+      <PreviewHeader
+        kind="output"
+        kindLabel={labels.kinds.output}
+        title={recordTitle(record)}
+      />
       <div className="astra-record-preview__body">
         {record.description ? (
           <div className="astra-record-preview__description">
-            <Prose text={record.description} field="description" renderText={renderText} />
+            <Prose
+              text={record.description}
+              field="description"
+              renderText={renderText}
+            />
           </div>
         ) : null}
-        {artifact != null ? <div className="astra-record-preview__artifact">{artifact}</div> : null}
+        {artifact != null ? (
+          <div className="astra-record-preview__artifact">
+            {artifact}
+          </div>
+        ) : null}
         {flow.length > 1 ? (
           <section className="astra-record-preview__section">
             <h4>{labels.preview.provenance}</h4>
@@ -458,11 +502,19 @@ function InputPreview({ record, renderText }: SharedPreviewProps & { record: Inp
   const source = record.path;
   return (
     <>
-      <PreviewHeader kind="input" kindLabel={labels.kinds.input} title={recordTitle(record)} />
+      <PreviewHeader
+        kind="input"
+        kindLabel={labels.kinds.input}
+        title={recordTitle(record)}
+      />
       <div className="astra-record-preview__body">
         {record.description ? (
           <div className="astra-record-preview__description">
-            <Prose text={record.description} field="description" renderText={renderText} />
+            <Prose
+              text={record.description}
+              field="description"
+              renderText={renderText}
+            />
           </div>
         ) : null}
         {source ? (
@@ -515,7 +567,9 @@ function AnalysisPreview({
     if (!href) return undefined;
     try {
       const parsed = new URL(href, 'https://astra-ui.invalid/');
-      return parsed.protocol === 'http:' || parsed.protocol === 'https:' ? href : undefined;
+      return parsed.protocol === 'http:' || parsed.protocol === 'https:'
+        ? href
+        : undefined;
     } catch {
       return undefined;
     }
@@ -542,11 +596,19 @@ function AnalysisPreview({
   }
   return (
     <>
-      <PreviewHeader kind="analysis" kindLabel={labels.kinds.analysis} title={titleNode} />
+      <PreviewHeader
+        kind="analysis"
+        kindLabel={labels.kinds.analysis}
+        title={titleNode}
+      />
       <div className="astra-record-preview__body">
         {analysis.description ? (
           <div className="astra-record-preview__description">
-            <Prose text={analysis.description} field="description" renderText={renderText} />
+            <Prose
+              text={analysis.description}
+              field="description"
+              renderText={renderText}
+            />
           </div>
         ) : null}
         <p className="astra-record-preview__counts">
@@ -577,17 +639,24 @@ function ValuePreview({
         title={
           <span className="astra-record-preview__value">
             {entry.value}
-            {entry.unit ? <small className="astra-record-preview__unit"> {entry.unit}</small> : null}
+            {entry.unit ? (
+              <small className="astra-record-preview__unit"> {entry.unit}</small>
+            ) : null}
           </span>
         }
       />
       <div className="astra-record-preview__body">
-        {entry.column || entry.filter || entry.product || entry.selection ? (
+        {entry.column ||
+        entry.filter ||
+        entry.product ||
+        entry.selection ? (
           <div className="astra-record-preview__selection">
             {entry.column ? <code>{entry.column}</code> : null}
             {entry.filter ? <span>{entry.filter}</span> : null}
             {entry.selection ? <code>{entry.selection}</code> : null}
-            {entry.product ? <span>{labels.preview.valueSource(entry.product)}</span> : null}
+            {entry.product ? (
+              <span>{labels.preview.valueSource(entry.product)}</span>
+            ) : null}
           </div>
         ) : null}
         {description ? (

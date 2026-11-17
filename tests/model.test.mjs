@@ -99,11 +99,11 @@ test('output relations deduplicate effective result inputs and direct decisions'
   const index = indexResolvedAnalysis(document);
   const relations = outputRelations(index, document.analyses[0].outputs[0], 'universes.baseline');
   assert.deepEqual(
-    relations.inputs.map(({ canonicalPath }) => canonicalPath),
+    relations.inputs.map(({ ref }) => ref),
     ['inputs.catalog'],
   );
   assert.deepEqual(
-    relations.decisions.map(({ canonicalPath }) => canonicalPath),
+    relations.decisions.map(({ ref }) => ref),
     ['decisions.method'],
   );
 });
@@ -121,42 +121,26 @@ test('finding literature is the DOI-bearing evidence, kept apart from artifact e
 test('delimited previews keep quoted delimiters, quotes, and line breaks inside one cell', () => {
   const preview = tablePreviewFromDelimited('name,note\r\n"Smith, J","says ""hi""\nand bye"\n\nplain,row\n');
   assert.deepEqual(preview.headers, ['name', 'note']);
-  assert.deepEqual(preview.rows, [
-    ['Smith, J', 'says "hi"\nand bye'],
-    ['plain', 'row'],
-  ]);
+  assert.deepEqual(preview.rows, [['Smith, J', 'says "hi"\nand bye'], ['plain', 'row']]);
   assert.equal(preview.totalRows, 2);
   assert.equal(preview.truncated, false);
 });
 
 test('a byte-limited delimited sample drops its cut-off last record and reports an unknown total', () => {
   const cut = tablePreviewFromDelimited('a,b\n1,2\n3,4\n5,', { sourceTruncated: true });
-  assert.deepEqual(cut.rows, [
-    ['1', '2'],
-    ['3', '4'],
-  ]);
+  assert.deepEqual(cut.rows, [['1', '2'], ['3', '4']]);
   assert.equal(cut.totalRows, undefined);
   assert.equal(cut.truncated, true);
 
   const cleanEnd = tablePreviewFromDelimited('a,b\n1,2\n3,4\n', { sourceTruncated: true });
-  assert.deepEqual(
-    cleanEnd.rows,
-    [
-      ['1', '2'],
-      ['3', '4'],
-    ],
-    'a sample ending on a newline keeps its last record',
-  );
+  assert.deepEqual(cleanEnd.rows, [['1', '2'], ['3', '4']], 'a sample ending on a newline keeps its last record');
   assert.equal(cleanEnd.totalRows, undefined);
 
   const openQuote = tablePreviewFromDelimited('a,b\n1,2\n3,"multi\nline', { sourceTruncated: true });
   assert.deepEqual(openQuote.rows, [['1', '2']], 'an unterminated quoted record is dropped');
 
   const exact = tablePreviewFromDelimited('a,b\n1,2\n3,4\n5,6\n', { maxRows: 2 });
-  assert.deepEqual(exact.rows, [
-    ['1', '2'],
-    ['3', '4'],
-  ]);
+  assert.deepEqual(exact.rows, [['1', '2'], ['3', '4']]);
   assert.equal(exact.totalRows, 3);
   assert.equal(exact.truncated, true);
 });
@@ -196,21 +180,21 @@ test('result dependencies follow pinned universes, driven sub-analyses and share
   const index = indexResolvedAnalysis(document),
     universe = 'universes.baseline';
   assert.deepEqual(
-    outputRelations(index, downstream, universe).decisions.map((link) => link.canonicalPath),
+    outputRelations(index, downstream, universe).decisions.map((link) => link.ref),
     ['decisions.method'],
   );
   assert.deepEqual(
-    outputRelations(index, loopA, universe).decisions.map((link) => link.canonicalPath),
+    outputRelations(index, loopA, universe).decisions.map((link) => link.ref),
     ['decisions.method'],
   );
   assert.deepEqual(
-    outputRelations(index, fit, universe).decisions.map((link) => link.canonicalPath),
+    outputRelations(index, fit, universe).decisions.map((link) => link.ref),
     ['decisions.method', 'clustering.decisions.weighting'],
   );
   assert.deepEqual(
     outputRelations(index, multiple, universe).decisions.map((link) => [
-      link.canonicalPath,
-      link.via?.map((via) => via.canonicalPath),
+      link.ref,
+      link.via?.map((via) => via.ref),
     ]),
     [
       ['decisions.direct', undefined],
@@ -262,9 +246,9 @@ test('two pins to one varying output retain both decision selections and route c
     relations = outputRelations(index, compare, 'universes.baseline');
   assert.deepEqual(
     relations.decisions.map((link) => [
-      link.canonicalPath,
+      link.ref,
       link.universeRef,
-      link.via.map((via) => [via.canonicalPath, via.universeRef]),
+      link.via.map((via) => [via.ref, via.universeRef]),
     ]),
     [
       ['decisions.method', 'universes.baseline', [['outputs.headline', 'universes.baseline']]],
@@ -276,7 +260,7 @@ test('two pins to one varying output retain both decision selections and route c
 test('unplanned evidence links an authored output name through the SDK without fabricating a result', () => {
   const document = structuredClone(fixtureDocument),
     finding = document.analyses[0].findings[0];
-  finding.evidence = [{ artifact: 'headline', cites: [] }];
+  finding.evidence = [{ artifact: 'headline', cites: [], bindings: [{ universe: 'universes.baseline', output: 'outputs.headline' }] }];
   document.results = document.results.filter((result) => result.output !== 'outputs.headline');
   const [link] = findingEvidence(indexResolvedAnalysis(document), finding);
   assert.equal(link.output.ref, 'outputs.headline');
@@ -358,7 +342,7 @@ test('an unplanned output exposes authored canonical inputs and relevant switch 
   ];
   const relations = outputRelations(indexResolvedAnalysis(document), output, 'universes.baseline');
   assert.deepEqual(
-    relations.inputs.map((link) => [link.canonicalPath, link.universeRef]),
+    relations.inputs.map((link) => [link.ref, link.universeRef]),
     [
       ['inputs.catalog', undefined],
       ['outputs.headline', 'universes.alternate'],
@@ -400,7 +384,7 @@ test('a decision selecting a seed input switch is direct even though its trace c
   });
   const relations = outputRelations(indexResolvedAnalysis(document), compare, 'universes.baseline');
   assert.equal(relations.decisions.length, 1);
-  assert.equal(relations.decisions[0].canonicalPath, 'decisions.method');
+  assert.equal(relations.decisions[0].ref, 'decisions.method');
   assert.equal(relations.decisions[0].via, undefined);
 });
 

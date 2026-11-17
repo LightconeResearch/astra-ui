@@ -1,10 +1,10 @@
-import { indexResolvedAnalysis, type Decision, type Output } from '@astra-spec/sdk/reports';
+import type { Decision, Output } from '@astra-spec/sdk/reports';
 import type { Story } from '@ladle/react';
 import { ArtifactPreview, DecisionDialog, OutputDialog, PaperDialog } from '@astra-spec/ui/components';
 import { collectInventoryPapers, decisionInsights, outputRelations, outputResult } from '@astra-spec/ui/model';
 import { DialogProvider } from '@astra-spec/ui/primitives';
-import { byPath } from './derive';
-import { analysisDocument, paperMetadata, renderArtifact, renderProvenance, loadPdfJs, defaultUniverse , analysisRoot } from './host';
+import { byRef } from './derive';
+import { analysisDocument, analysisRoot, defaultUniverse, index, loadPdfJs, paperMetadata, renderArtifact, statusReport } from './host';
 
 // The embedded shell is what jupyterlab-astra mounts. The demo paper preview
 // opens every record kind as a modal, so only what is specific to embedding
@@ -13,19 +13,19 @@ import { analysisDocument, paperMetadata, renderArtifact, renderProvenance, load
 export default { title: 'Dialogs / Embedded' };
 
 const noop = () => undefined;
-const index = indexResolvedAnalysis(analysisDocument);
 
 export const OutputFigure: Story = () => {
-  const record = byPath<Output>(analysisDocument, 'outputs.bao_fit_plot');
+  const record = byRef<Output>(analysisDocument, 'outputs.bao_fit_plot');
+  const result = outputResult(index, record, defaultUniverse);
   return (
     <DialogProvider mode="embedded">
       <OutputDialog
         record={record}
         relations={outputRelations(index, record, defaultUniverse)}
-        result={outputResult(index, record, defaultUniverse)}
+        result={result}
+        status={result ? statusReport.statuses[result.id] : undefined}
         universeRef={defaultUniverse}
         renderArtifact={renderArtifact}
-        renderProvenance={renderProvenance}
         onOpenArtifact={noop}
         onOpenRecord={noop}
         onClose={noop}
@@ -46,7 +46,7 @@ const renderMetric = (output: Output, { compact }: { compact: boolean }) => (
 );
 
 export const OutputMetric: Story = () => {
-  const record = byPath<Output>(analysisDocument, 'reconstruction.outputs.mean_displacement_bgs_full');
+  const record = byRef<Output>(analysisDocument, 'reconstruction.outputs.mean_displacement_bgs_full');
   return (
     <DialogProvider mode="embedded">
       <OutputDialog
@@ -101,7 +101,7 @@ export const PaperInformingDecisions: Story = () => {
 };
 
 export const WithBackTrail: Story = () => {
-  const record = byPath<Decision>(analysisDocument, 'decisions.broadband');
+  const record = byRef<Decision>(analysisDocument, 'decisions.broadband');
   return (
     <DialogProvider mode="embedded" backText="BAO fit plot">
       <DecisionDialog

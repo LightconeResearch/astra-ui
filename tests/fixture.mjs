@@ -76,7 +76,18 @@ export const fixtureDocument = parseResolvedAnalysis({
           claim: 'The headline result is significant.',
           tags: [],
           evidence: [
-            { artifact: 'headline', cites: ['outputs.headline#baseline'] },
+            {
+              artifact: 'headline',
+              cites: ['outputs.headline#baseline'],
+              bindings: [
+                {
+                  universe: 'universes.baseline',
+                  output: 'outputs.headline',
+                  target_universe: 'universes.baseline',
+                  result: 'outputs.headline#baseline',
+                },
+              ],
+            },
             { doi: '10.9999/finding' },
           ],
         },

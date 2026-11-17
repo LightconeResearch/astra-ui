@@ -261,13 +261,13 @@ describe('Inventory detail stack', () => {
     const onDetailChange = vi.fn();
     render(<Inventory document={fixtureDocument} onDetailChange={onDetailChange} />);
     fireEvent.click(screen.getByRole('button', { name: /Headline result/ }));
-    expect(onDetailChange).toHaveBeenLastCalledWith([{ kind: 'record', canonicalPath: 'outputs.headline', analysisPath: '' }]);
+    expect(onDetailChange).toHaveBeenLastCalledWith([{ kind: 'record', ref: 'outputs.headline', analysisKey: '' }]);
     expect(screen.getByRole('dialog', { hidden: true }).getAttribute('data-kind')).toBe('output');
 
     fireEvent.click(screen.getByRole('button', { name: 'View decision: Method choice' }));
     expect(onDetailChange).toHaveBeenLastCalledWith([
-      { kind: 'record', canonicalPath: 'outputs.headline', analysisPath: '' },
-      { kind: 'record', canonicalPath: 'decisions.method', analysisPath: '', universeRef: 'universes.baseline' },
+      { kind: 'record', ref: 'outputs.headline', analysisKey: '' },
+      { kind: 'record', ref: 'decisions.method', analysisKey: '', universeRef: 'universes.baseline' },
     ]);
     const dialog = screen.getByRole('dialog', { hidden: true });
     expect(dialog.getAttribute('data-kind')).toBe('decision');
@@ -285,13 +285,13 @@ describe('Inventory detail stack', () => {
     const onChange = vi.fn();
     const { result } = renderHook(() => useDetailStack({ onChange }));
     act(() => {
-      result.current.open({ kind: 'record', canonicalPath: 'a', analysisPath: '' });
-      result.current.push({ kind: 'record', canonicalPath: 'b', analysisPath: '' });
+      result.current.open({ kind: 'record', ref: 'a', analysisKey: '' });
+      result.current.push({ kind: 'record', ref: 'b', analysisKey: '' });
     });
-    expect(result.current.stack.map((entry) => entry.kind === 'record' && entry.canonicalPath)).toEqual(['a', 'b']);
+    expect(result.current.stack.map((entry) => entry.kind === 'record' && entry.ref)).toEqual(['a', 'b']);
     expect(onChange).toHaveBeenCalledTimes(2);
     act(() => { result.current.back(); });
-    expect(result.current.active).toEqual({ kind: 'record', canonicalPath: 'a', analysisPath: '' });
+    expect(result.current.active).toEqual({ kind: 'record', ref: 'a', analysisKey: '' });
   });
 
   it('is controllable from the host', () => {
@@ -302,7 +302,7 @@ describe('Inventory detail stack', () => {
     rerender(
       <Inventory
         document={fixtureDocument}
-        detail={[{ kind: 'record', canonicalPath: 'inputs.catalog', analysisPath: '' }]}
+        detail={[{ kind: 'record', ref: 'inputs.catalog', analysisKey: '' }]}
       />,
     );
     expect(screen.getByRole('dialog', { hidden: true }).getAttribute('data-kind')).toBe('input');

@@ -1,5 +1,4 @@
 import type { RecordKind } from './records.js';
-import type { } from '@astra-spec/sdk/reports';
 
 /** Record kinds plus the two non-record surfaces the UI colours. */
 export type SurfaceKind = RecordKind | 'analysis' | 'paper';

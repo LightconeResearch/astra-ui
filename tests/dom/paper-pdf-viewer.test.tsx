@@ -209,7 +209,7 @@ it('routes external opening through Inventory while keeping the action usable af
   const load = vi.fn(async (): Promise<PdfJs> => { throw new Error('Unavailable'); });
   const open = vi.fn();
   render(<Inventory document={document} paperMetadata={metadata} loadPdfJs={load} onOpenPaperFile={open}
-    defaultDetail={[{ kind: 'paper', doi: paper.doi, analysisPath: '' }]} />);
+    defaultDetail={[{ kind: 'paper', doi: paper.doi, analysisKey: '' }]} />);
   await screen.findByText('The PDF could not be loaded.');
   fireEvent.click(screen.getByRole('button', { name: 'Open' }));
   expect(open).toHaveBeenCalledWith(expect.objectContaining({ doi: paper.doi, pdfUrl: '/paper.pdf' }));

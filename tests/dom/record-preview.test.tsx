@@ -66,6 +66,14 @@ describe('RecordPreview', () => {
           id: 'combined',
           artifact: 'outputs.headline',
           cites: ['outputs.headline#baseline'],
+          bindings: [
+            {
+              universe: 'universes.baseline',
+              output: 'outputs.headline',
+              target_universe: 'universes.baseline',
+              result: 'outputs.headline#baseline',
+            },
+          ],
           doi: '10.9999/finding',
           quote: { exact: 'The measured signal is significant.' },
         },

@@ -19,8 +19,8 @@ describe('useDetailStack (controlled)', () => {
   it('proposes each change from the value the host rendered, never from an unaccepted proposal', () => {
     const onChange = vi.fn();
     const { result } = renderHook(() => useDetailStack({ value: [], onChange }));
-    const a = { kind: 'record', canonicalPath: 'a', analysisPath: '' } as const;
-    const b = { kind: 'record', canonicalPath: 'b', analysisPath: '' } as const;
+    const a = { kind: 'record', ref: 'a', analysisKey: '' } as const;
+    const b = { kind: 'record', ref: 'b', analysisKey: '' } as const;
     act(() => { result.current.push(a); });
     act(() => { result.current.push(b); });
     expect(onChange.mock.calls).toEqual([[[a]], [[b]]]);

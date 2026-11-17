@@ -97,7 +97,6 @@
     "isVisualOutput",
     "linkedRecord",
     "locateRecord",
-    "normalizeDoi",
     "outputRelations",
     "outputResult",
     "paperEvidence",

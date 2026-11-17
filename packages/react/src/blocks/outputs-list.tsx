@@ -1,9 +1,9 @@
-import type { Analysis, Output, ResolvedAnalysisIndex, Result, StatusReport } from '@astra-spec/sdk/reports';
+import type { Analysis, Output, ResolvedAnalysisIndex, StatusReport } from '@astra-spec/sdk/reports';
 import { forwardRef, useId, type HTMLAttributes } from 'react';
 import { cn } from '../lib/cn.js';
 import { useLabels } from '../lib/labels.js';
 import { outputResult } from '../model/relations.js';
-import type { OutputContext, OutputStatusLookup } from '../model/output-status.js';
+import type { OutputContext } from '../model/output-status.js';
 import type { ArtifactRenderer } from '../components/artifact-preview.js';
 import { EmptyState } from '../primitives/record-list.js';
 import { OutputCard } from '../components/output-card.js';
@@ -11,11 +11,10 @@ import { OutputEntry } from '../components/output-entry.js';
 
 export interface OutputsListProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
   analysis: Analysis;
-  index?: ResolvedAnalysisIndex | undefined;
+  index: ResolvedAnalysisIndex;
   universeRef?: string | undefined;
   statusReport?: StatusReport | undefined;
   renderArtifact?: ArtifactRenderer | undefined;
-  getOutputStatus?: OutputStatusLookup | undefined;
   onOpenRecord: (output: Output, analysis: Analysis) => void;
 }
 
@@ -85,7 +84,6 @@ export const OutputsList = forwardRef<HTMLDivElement, OutputsListProps>(function
   universeRef,
   statusReport,
   renderArtifact,
-  getOutputStatus,
   onOpenRecord,
   className,
   ...props
@@ -99,8 +97,8 @@ export const OutputsList = forwardRef<HTMLDivElement, OutputsListProps>(function
     return <EmptyState data-slot="outputs-list" {...props} ref={ref} className={className}>{labels.empty.outputs}</EmptyState>;
   }
   const context = (output: Output): OutputContext => {
-    const result: Result | undefined = index ? outputResult(index, output, universeRef) : undefined;
-    return { result, universeRef, status: (result ? statusReport?.statuses[result.id] : undefined) ?? getOutputStatus?.(output, result) };
+    const result = outputResult(index, output, universeRef);
+    return { result, universeRef, status: result ? statusReport?.statuses[result.id] : undefined };
   };
   const open = (output: Output) => { onOpenRecord(output, analysis); };
   return (

@@ -36,15 +36,15 @@ export function relationItemForRecord(
 export function relationItemsForLinks(links: LinkedRecord[], onOpen: OpenRecordHandler | undefined): RelationItem[] {
   const contexts = new Map<string, Set<string | undefined>>();
   for (const link of links) {
-    const values = contexts.get(link.canonicalPath) ?? new Set<string | undefined>();
+    const values = contexts.get(link.ref) ?? new Set<string | undefined>();
     values.add(link.universeRef);
-    contexts.set(link.canonicalPath, values);
+    contexts.set(link.ref, values);
   }
   return links.map((link) => {
     const { record, analysis } = link,
-      key = JSON.stringify([link.canonicalPath, link.universeRef]);
-    if (!record) return { key, label: link.canonicalPath, identifier: link.canonicalPath, detail: link.universeRef };
-    const qualified = (contexts.get(link.canonicalPath)?.size ?? 0) > 1 && link.universeRef !== undefined;
+      key = JSON.stringify([link.ref, link.universeRef]);
+    if (!record) return { key, label: link.ref, identifier: link.ref, detail: link.universeRef };
+    const qualified = (contexts.get(link.ref)?.size ?? 0) > 1 && link.universeRef !== undefined;
     const title = recordTitle(record);
     return relationItemForRecord(record, analysis, onOpen, {
       key,

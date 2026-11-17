@@ -4,17 +4,19 @@ import {
   type Analysis,
   type ResolvedAnalysisIndex,
 } from '@astra-spec/sdk/reports';
-import { forwardRef, useId, type HTMLAttributes } from 'react';
+import { forwardRef, useId, useMemo, type HTMLAttributes } from 'react';
 import { analysisTitle } from '../model/records.js';
 import { cn } from '../lib/cn.js';
 import { useLabels } from '../lib/labels.js';
+
 export interface AnalysisTreeProps extends Omit<HTMLAttributes<HTMLElement>, 'children'> {
   document: ResolvedAnalysis;
   /** The selected analysis key; the root is the empty string. */
-  analysisPath?: string | undefined;
+  analysisKey?: string | undefined;
   onSelectAnalysis: (key: string) => void;
   showHeading?: boolean | undefined;
 }
+
 function AnalysisNode({
   analysis,
   index,
@@ -67,12 +69,12 @@ function AnalysisNode({
 }
 /** Declaration navigation follows the report graph and stops at back-references. */
 export const AnalysisTree = forwardRef<HTMLElement, AnalysisTreeProps>(function AnalysisTree(
-  { document, analysisPath = '', onSelectAnalysis, showHeading = true, className, 'aria-label': hostLabel, ...props },
+  { document, analysisKey = '', onSelectAnalysis, showHeading = true, className, 'aria-label': hostLabel, ...props },
   ref,
 ) {
   const labels = useLabels(),
     headingId = useId(),
-    index = indexResolvedAnalysis(document),
+    index = useMemo(() => indexResolvedAnalysis(document), [document]),
     root = index.analysisByKey.get('');
   return (
     <nav
@@ -89,7 +91,7 @@ export const AnalysisTree = forwardRef<HTMLElement, AnalysisTreeProps>(function 
           <AnalysisNode
             analysis={root}
             index={index}
-            selectedPath={analysisPath}
+            selectedPath={analysisKey}
             onSelectAnalysis={onSelectAnalysis}
             ancestors={new Set()}
           />

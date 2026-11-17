@@ -1,6 +1,6 @@
 import type { Output, Result } from '@astra-spec/sdk/reports';
 import { forwardRef, type HTMLAttributes } from 'react';
-import type { OutputStatus } from '../model/output-status.js';
+import type { Status } from '@astra-spec/sdk/reports';
 import { OutputStatusIndicator } from './output-status.js';
 import { recordTitle, recordId } from '../model/records.js';
 import { cn } from '../lib/cn.js';
@@ -11,7 +11,7 @@ export interface OutputCardProps extends Omit<HTMLAttributes<HTMLButtonElement>,
   output: Output;
   result?: Result | undefined;
   universeRef?: string | undefined;
-  status?: OutputStatus | undefined;
+  status?: Status | undefined;
   renderArtifact?: ArtifactRenderer | undefined;
   onOpen: () => void;
 }
@@ -41,10 +41,7 @@ export const OutputCard = forwardRef<HTMLButtonElement, OutputCardProps>(functio
       type="button"
       className={cn('astra-output-card', className)}
       aria-label={hostLabel ?? `Open ${output.type}: ${title}`}
-      onClick={(event) => {
-        onClick?.(event);
-        onOpen();
-      }}
+      onClick={(event) => { onClick?.(event); onOpen(); }}
     >
       <OutputStatusIndicator status={status} />
       <span className="astra-output-card__preview">

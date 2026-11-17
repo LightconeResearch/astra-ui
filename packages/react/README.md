@@ -82,7 +82,7 @@ optional outline and a drill-down detail stack.
 Its most useful options are:
 
 - Inventory shows the project hierarchy and handles navigation automatically; `<Inventory document={document} />` is sufficient.
-- Pass `analysisPath` with `onSelectAnalysis` to control selection from the host (`""` is the project root). The callback alone observes navigation without taking over state.
+- Pass `analysisKey` with `onSelectAnalysis` to control selection from the host (`""` is the project root). The callback alone observes navigation without taking over state.
 - `sections` changes which inventory sections appear and their order.
 - `showOutline` and `idPrefix` control outline navigation.
 - `renderArtifact` and `renderText` replace host-owned content.
@@ -277,9 +277,14 @@ name merging (`cn`), prose parsing and the label helpers are in `@astra-spec/ui/
   ask it for every output type; the output detail frames only a figure or a table
   and asks for a metric's value as a compact pill, so a data file or another
   non-visual type is not rendered there.
-- `renderCodeLink(output)` adds an optional action beside Recipe. The host resolves
+- `renderCodeLink(output, context)` adds an optional action beside Recipe. The host resolves
   the current source file and opens it; return `null` when no file is available.
-- `statusReport` supplies the SDK's `Status` values (`unchanged`, `stale`, or `missing`). `bytes.state` independently records availability of the recorded content. Unchanged provenance with unavailable bytes is never presented as stale. `getOutputStatus(output, result)` is an optional lookup slot returning the same SDK `Status` type, without a host-specific state model.
+- `statusReport` supplies the SDK's status report. Each output's `Status`
+  (`unchanged`, `stale`, or `missing`) is looked up by the result it is shown
+  with; `bytes.state` separately records whether the recorded content is
+  available. Only stale, missing or byte-less results show a marker, with the
+  status's `why` messages on hover. `OutputStatusGlyph` draws the mark, and its
+  strings are overridable through `labels.status`.
 - `renderProvenance(output, context)` can replace the default native provenance display below the effective result command. `OutputProvenance` consumes `status` and an optional public `ProvenanceRecord`; its popup shows recorded hashes, inputs, environment IRI and runner metadata. The record contains no authored recipe snapshot, so the UI does not invent one. Copy is configurable through `labels.provenance` and `labels.status`.
 - `renderText(text, { field })` replaces the built-in prose renderer. The
   default understands inline code, `$inline$` math, and `$$display$$` math.
@@ -385,7 +390,7 @@ return {
 ### Locating passages
 
 Each quoted passage in the paper's insight rail has a Locate control, and a
-dialog opened with `focusInsightPath` locates that insight's first passage on
+dialog opened with `focusInsightRef` locates that insight's first passage on
 its own. The viewer searches the cited physical page first, prefers a
 complete match anywhere in the document to a shortened prefix, and labels
 partial results. When nothing matches it shows the cited page if the document
@@ -514,15 +519,3 @@ development commands.
 ## License
 
 BSD-3-Clause. See [LICENSE](./LICENSE).
-
-## ASTRA 0.1 migration
-
-The report is flat: analyses use `key` (root `""`), elements use `ref`, and results use opaque `id` values. `locateRecord` returns `{kind, record, analysis}` while preserving the original report element. The UI's `AstraRecord` union and `recordKind`/`recordId` helpers are presentation vocabulary, not a second resolved model. Evidence identity is its insight ref plus array index. The SDK's contextual bindings select the applicable output and result for the viewed universe, including once-built switch cases and explicit pins. Reports without binding metadata retain their aggregate citation behavior.
-
-Record navigation entries retain the `canonicalPath` and `analysisPath` prop names for an element ref and analysis key. Optional `universeRef` on a record entry preserves pinned or explicitly selected universes while drilling into another result. `onOpenRecord(record, analysis, universeRef?)` carries that context.
-
-Development uses the published SDK `0.2.0-rc1`. The package peer range is `^0.2.0-rc1`; pre-0.1 reports are unsupported.
-
-`outputRelations` groups `traceResultProvenance` occurrences from the SDK for display. Decision and upstream-route identities retain their effective universes, so two pins to the same varying output remain distinct rows.
-
-When an output has no planned result, its canonical authored inputs remain visible as declared dependencies; directly referenced switch cases are listed without choosing a case. Absence of a planned result is not presented as proof that the output is inactive.

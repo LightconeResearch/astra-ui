@@ -58,6 +58,7 @@ export function OutputDialog({
       actions={(
         <OutputDialogActions
           record={output}
+          result={result}
           onOpenArtifact={onOpenArtifact}
           expanded={expanded}
           onExpandedChange={setExpanded}

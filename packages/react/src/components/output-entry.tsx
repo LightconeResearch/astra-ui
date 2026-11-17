@@ -1,6 +1,6 @@
 import type { Output, Result } from '@astra-spec/sdk/reports';
 import { forwardRef, type HTMLAttributes } from 'react';
-import type { OutputStatus } from '../model/output-status.js';
+import type { Status } from '@astra-spec/sdk/reports';
 import { OutputStatusIndicator } from './output-status.js';
 import { recordTitle } from '../model/records.js';
 import { cn } from '../lib/cn.js';
@@ -10,7 +10,7 @@ export interface OutputEntryProps extends Omit<HTMLAttributes<HTMLButtonElement>
   output: Output;
   result?: Result | undefined;
   universeRef?: string | undefined;
-  status?: OutputStatus | undefined;
+  status?: Status | undefined;
   renderArtifact?: ArtifactRenderer | undefined;
   onOpen: () => void;
 }
@@ -54,10 +54,7 @@ export const OutputEntry = forwardRef<HTMLButtonElement, OutputEntryProps>(funct
       className={cn('astra-output-entry', className)}
       data-kind={metric ? 'metric' : 'file'}
       aria-label={hostLabel ?? `Open ${output.type}: ${title}`}
-      onClick={(event) => {
-        onClick?.(event);
-        onOpen();
-      }}
+      onClick={(event) => { onClick?.(event); onOpen(); }}
     >
       <OutputStatusIndicator status={status} />
       <span className="astra-output-entry__name">

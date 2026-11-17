@@ -36,7 +36,7 @@ it('opens each option context when a result depends on two pins to the same outp
   const view = render(
     <Inventory
       document={document}
-      defaultDetail={[{ kind: 'record', canonicalPath: compare.ref, analysisPath: '' }]}
+      defaultDetail={[{ kind: 'record', ref: compare.ref, analysisKey: '' }]}
     />,
   );
   expect(screen.getByRole('button', { name: /^View decision: Method choice \(universes.baseline\)/ })).toBeTruthy();
@@ -51,7 +51,10 @@ it('previews an unplanned output cited by its authored name, with no fabricated 
   const root = analysisAt(fixtureDocument),
     base = root.findings[0];
   if (!base) throw new Error('Fixture finding missing');
-  const finding = { ...base, evidence: [{ artifact: 'headline', cites: [] }] };
+  const finding = {
+    ...base,
+    evidence: [{ artifact: 'headline', cites: [], bindings: [{ universe: 'universes.baseline', output: 'outputs.headline' }] }],
+  };
   const document: ResolvedAnalysis = {
     ...fixtureDocument,
     analyses: [{ ...root, findings: [finding] }, ...fixtureDocument.analyses.slice(1)],
@@ -170,7 +173,7 @@ it('shows authored dependencies and switch cases for an output without a planned
     ],
   };
   render(
-    <Inventory document={document} defaultDetail={[{ kind: 'record', canonicalPath: output.ref, analysisPath: '' }]} />,
+    <Inventory document={document} defaultDetail={[{ kind: 'record', ref: output.ref, analysisKey: '' }]} />,
   );
   expect(screen.getByRole('heading', { name: /^Declared dependencies/ })).toBeTruthy();
   expect(screen.getByRole('heading', { name: /^Switch switches.choice/ })).toBeTruthy();

@@ -32,7 +32,8 @@ export interface FindingDetailProps extends Omit<HTMLAttributes<HTMLDivElement>,
 /** A resolved group, narrowed to the ones a result renderer can draw. */
 type ResolvedGroup = FindingEvidenceGroup & { output: Output; analysis: Analysis };
 
-const isResolved = (group: FindingEvidenceGroup): group is ResolvedGroup => Boolean(group.output && group.analysis);
+const isResolved = (group: FindingEvidenceGroup): group is ResolvedGroup =>
+  Boolean(group.output && group.analysis);
 
 /**
  * One run of results of a kind. The label only earns its space when a finding
@@ -43,9 +44,7 @@ function ResultRun({ label, labelled, children }: { label: string; labelled: boo
   if (!labelled) return <>{children}</>;
   return (
     <section aria-labelledby={id}>
-      <h5 id={id} className="astra-finding-detail__group-heading">
-        {label}
-      </h5>
+      <h5 id={id} className="astra-finding-detail__group-heading">{label}</h5>
       {children}
     </section>
   );
@@ -79,13 +78,7 @@ export const FindingDetail = forwardRef<HTMLDivElement, FindingDetailProps>(func
   const resultLabel = (group: ResolvedGroup) =>
     `View supporting result: ${recordTitle(group.output)}${group.universeRef ? ` (${group.universeRef})` : ''}`;
   return (
-    <DetailLayout
-      data-slot="finding-detail"
-      {...props}
-      ref={ref}
-      layout="single"
-      className={cn('astra-finding-detail', className)}
-    >
+    <DetailLayout data-slot="finding-detail" {...props} ref={ref} layout="single" className={cn('astra-finding-detail', className)}>
       <DetailMain>
         <DetailSection label="Claim" heading="section">
           <Prose text={record.claim} field="claim" renderText={renderText} />
@@ -102,12 +95,7 @@ export const FindingDetail = forwardRef<HTMLDivElement, FindingDetailProps>(func
           <CountHeading title="Supporting results" count={results.length} />
           {results.length ? (
             <>
-              {(
-                [
-                  ['Figures', figures],
-                  ['Tables', tables],
-                ] as const
-              ).map(([label, groups]) =>
+              {([['Figures', figures], ['Tables', tables]] as const).map(([label, groups]) => (
                 groups.length ? (
                   <ResultRun key={label} label={label} labelled={labelled}>
                     <div className="astra-finding-detail__gallery">
@@ -125,8 +113,8 @@ export const FindingDetail = forwardRef<HTMLDivElement, FindingDetailProps>(func
                       ))}
                     </div>
                   </ResultRun>
-                ) : null,
-              )}
+                ) : null
+              ))}
               {metrics.length ? (
                 <ResultRun label="Metrics" labelled={labelled}>
                   <ul className="astra-finding-detail__tiles">
@@ -170,9 +158,7 @@ export const FindingDetail = forwardRef<HTMLDivElement, FindingDetailProps>(func
                 </ResultRun>
               ) : null}
             </>
-          ) : (
-            <p>No supporting results are linked to this finding.</p>
-          )}
+          ) : <p>No supporting results are linked to this finding.</p>}
         </section>
         {literature.map((source, index) => {
           const doi = source.doi ?? '';
@@ -181,17 +167,12 @@ export const FindingDetail = forwardRef<HTMLDivElement, FindingDetailProps>(func
             <Fragment key={`${doi}-${index}`}>
               <section className="astra-insight-detail__paper astra-paper-doi">
                 <h4>Source paper</h4>
-                <a href={doiHref(doi)} target="_blank" rel="noreferrer">
-                  {doi}
-                  {location} ↗
-                </a>
+                <a href={doiHref(doi)} target="_blank" rel="noreferrer">{doi}{location} ↗</a>
               </section>
               {source.quote ? (
                 <section className="astra-insight-detail__source-quote">
                   <h4>Source passage</h4>
-                  <blockquote>
-                    <Prose text={source.quote.exact} field="quote" renderText={renderText} />
-                  </blockquote>
+                  <blockquote><Prose text={source.quote.exact} field="quote" renderText={renderText} /></blockquote>
                 </section>
               ) : null}
             </Fragment>
@@ -202,9 +183,7 @@ export const FindingDetail = forwardRef<HTMLDivElement, FindingDetailProps>(func
   );
 });
 
-export interface FindingDialogProps
-  extends Pick<DetailDialogProps, 'mode' | 'backText' | 'className' | 'onBack' | 'onClose'>,
-    Omit<FindingDetailProps, 'className'> {}
+export interface FindingDialogProps extends Pick<DetailDialogProps, 'mode' | 'backText' | 'className' | 'onBack' | 'onClose'>, Omit<FindingDetailProps, 'className'> {}
 
 export function FindingDialog({
   record,

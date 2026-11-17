@@ -65,6 +65,21 @@
     padding: 0;
   }
 
+  :where(.astra-ui) .astra-inventory__universe {
+    display: flex;
+    align-items: center;
+    gap: var(--astra-space-2);
+    margin-bottom: var(--astra-space-3);
+    color: var(--astra-color-text-muted);
+    font-family: var(--astra-font-ui);
+    font-size: var(--astra-font-size-xs);
+  }
+
+  :where(.astra-ui) .astra-inventory__universe select {
+    font: inherit;
+    color: var(--astra-color-text);
+  }
+
   :where(.astra-ui) .astra-inventory__layout {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 220px;

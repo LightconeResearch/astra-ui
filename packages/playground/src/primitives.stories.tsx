@@ -12,7 +12,7 @@ import {
   RelationList,
   SurfaceHeader,
 } from '@astra-spec/ui/primitives';
-import { byPath } from './derive';
+import { byRef } from './derive';
 import { analysisDocument , fixtureArtifact , analysisRoot } from './host';
 
 export default { title: 'Primitives' };
@@ -62,9 +62,9 @@ export const Headers: Story = () => (
 );
 
 export const Artifacts: Story = () => {
-  const figure = byPath<Output>(analysisDocument, 'outputs.bao_fit_plot');
-  const table = byPath<Output>(analysisDocument, 'outputs.bao_distance_table');
-  const data = byPath<Output>(analysisDocument, 'outputs.xi_pre_recon_bgs');
+  const figure = byRef<Output>(analysisDocument, 'outputs.bao_fit_plot');
+  const table = byRef<Output>(analysisDocument, 'outputs.bao_distance_table');
+  const data = byRef<Output>(analysisDocument, 'outputs.xi_pre_recon_bgs');
   return (
     <div className="playground-stack playground-frame">
       <ArtifactPreview output={figure} preview={{ kind: 'image', url: fixtureArtifact(figure)?.url ?? '' }} />

@@ -2,10 +2,7 @@ import type { Story } from '@ladle/react';
 import type { Output, Status, StatusReport } from '@astra-spec/sdk/reports';
 import { useEffect, useRef, type ComponentProps } from 'react';
 import {
-  ArtifactPreview,
-  OutputProvenance,
-  OutputStatusIndicator,
-  type ArtifactRenderer,
+  ArtifactPreview, OutputProvenance, OutputStatusIndicator, type ArtifactRenderer,
 } from '@astra-spec/ui/components';
 import type { ArtifactPreviewData } from '@astra-spec/ui/lib';
 import { Inventory } from '@astra-spec/ui/views';
@@ -90,6 +87,7 @@ export const CompactGrid: Story = () => (
     renderArtifact={renderArtifact}
   />
 );
+
 export const NarrowPanel: Story = () => (
   <div style={{ width: 360, maxWidth: '100%' }}>
     <CompactGrid />
@@ -133,6 +131,7 @@ function OpenedProvenance(props: ComponentProps<typeof OutputProvenance>) {
   }, []);
   return <OutputProvenance ref={ref} {...props} />;
 }
+
 export const Provenance: Story = () => (
   <div className="playground-stack playground-frame" style={{ maxWidth: 420 }}>
     <OutputProvenance status={{ ...status('unchanged'), bytes: { state: 'present' }, record: sampleRun }} />
@@ -142,6 +141,7 @@ export const Provenance: Story = () => (
     <OutputProvenance status={status('missing', 'No provenance record')} />
   </div>
 );
+
 export const ProvenanceDetails: Story = () => (
   <OpenedProvenance status={{ ...status('unchanged'), record: sampleRun }} />
 );
