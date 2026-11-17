@@ -28,7 +28,7 @@ import { useOutputExpanded } from '../lib/use-output-expanded.js';
 import { PaperDetail, PaperDialogActions, type OpenPaperFileHandler } from './paper-detail.js';
 import type { PdfJsLoader } from '../lib/pdf-runtime.js';
 
-export interface RecordDialogProps extends Pick<DetailDialogProps, 'mode' | 'backText' | 'className' | 'onBack' | 'onClose'> {
+export interface RecordDialogProps extends Pick<DetailDialogProps, 'mode' | 'backText' | 'className' | 'onBack' | 'onClose' | 'showCloseButton'> {
   entry: DetailEntry;
   document: ResolvedAnalysisDocument;
   index: AnalysisIndex;
