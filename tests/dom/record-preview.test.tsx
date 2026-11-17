@@ -1,11 +1,12 @@
+import { analysisAt } from '../helpers.js';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import {
-  indexAnalysis,
-  type ResolvedAnalysisDocument,
-  type ResolvedDecision,
-  type ResolvedInput,
-  type ResolvedInsight,
-  type ResolvedOutput,
+  indexResolvedAnalysis,
+  type ResolvedAnalysis,
+  type Decision,
+  type Input,
+  type Insight,
+  type Output,
 } from '@astra-spec/sdk';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
@@ -18,27 +19,27 @@ import {
 } from '../../packages/react/src/lib/index.js';
 import { fixtureDocument as untypedFixture } from '../fixture.mjs';
 
-const fixtureDocument = untypedFixture as unknown as ResolvedAnalysisDocument;
-const index = indexAnalysis(fixtureDocument);
-const record = <T,>(path: string) => index.recordByPath.get(path) as T;
+const fixtureDocument = untypedFixture as unknown as ResolvedAnalysis;
+const index = indexResolvedAnalysis(fixtureDocument);
+const record = <T,>(path: string) => index.elementByRef.get(path)?.element as T;
 
 afterEach(cleanup);
 
-const shared = { document: fixtureDocument, index };
+const shared = { document: fixtureDocument, index, universeRef: 'universes.baseline' };
 
 describe('RecordPreview', () => {
   it('renders a compact decision with options and bounded nested insight references', () => {
-    const decision = record<ResolvedDecision>('decisions.method');
+    const decision = record<Decision>('decisions.method');
     const onOpenRecord = vi.fn();
     const renderRecordReference = vi.fn<RecordPreviewReferenceRenderer>(
       ({ target, trigger }) => (
-        <span data-testid={`nested-${target.record.id}`}>{trigger}</span>
+        <span data-testid={`nested-${target.record.ref}`}>{trigger}</span>
       ),
     );
     render(
       <RecordPreview
         {...shared}
-        entry={{ kind: 'record', record: decision, analysis: fixtureDocument.analysis }}
+        entry={{ kind: 'record', record: decision, analysis: analysisAt(fixtureDocument, 0) }}
         maxSupportingInsights={0}
         onOpenRecord={onOpenRecord}
         renderRecordReference={renderRecordReference}
@@ -55,16 +56,24 @@ describe('RecordPreview', () => {
   });
 
   it('renders all finding evidence content through host artifact, citation, text, and nested-record slots', () => {
-    const base = record<ResolvedInsight>('findings.headline_finding');
-    const finding: ResolvedInsight = {
+    const base = record<Insight>('findings.headline_finding');
+    const finding: Insight = {
       ...base,
       scope: 'baseline universe',
-      notes: 'A cautious interpretation.',
+      description: 'A cautious interpretation.',
       evidence: [
         {
           id: 'combined',
-          artifact: 'headline',
-          resolvedOutputPath: 'outputs.headline',
+          artifact: 'outputs.headline',
+          cites: ['outputs.headline#baseline'],
+          bindings: [
+            {
+              universe: 'universes.baseline',
+              output: 'outputs.headline',
+              target_universe: 'universes.baseline',
+              result: 'outputs.headline#baseline',
+            },
+          ],
           doi: '10.9999/finding',
           quote: { exact: 'The measured signal is significant.' },
         },
@@ -79,7 +88,7 @@ describe('RecordPreview', () => {
     render(
       <RecordPreview
         {...shared}
-        entry={{ kind: 'record', record: finding, analysis: fixtureDocument.analysis }}
+        entry={{ kind: 'record', record: finding, analysis: analysisAt(fixtureDocument, 0) }}
         renderArtifact={renderArtifact}
         renderCitation={renderCitation}
         renderText={renderText}
@@ -96,8 +105,8 @@ describe('RecordPreview', () => {
     expect(screen.getByText(/Author 2026/)).toBeTruthy();
     expect(screen.getByTestId('nested-output')).toBeTruthy();
     expect(renderArtifact).toHaveBeenCalledWith(
-      expect.objectContaining({ canonicalPath: 'outputs.headline' }),
-      { compact: true },
+      expect.objectContaining({ ref: 'outputs.headline' }),
+      expect.objectContaining({ compact: true, result: expect.objectContaining({id: 'outputs.headline#baseline'}) }),
     );
     expect(renderCitation).toHaveBeenCalledWith(
       '10.9999/finding',
@@ -110,8 +119,8 @@ describe('RecordPreview', () => {
   });
 
   it('renders the full prior-insight claim, exact quote, and citation fallback or callback', () => {
-    const base = record<ResolvedInsight>('prior_insights.published_method');
-    const insight: ResolvedInsight = {
+    const base = record<Insight>('prior_insights.published_method');
+    const insight: Insight = {
       ...base,
       evidence: [
         { id: 'orphan-quote', quote: { exact: 'This quote has no paper.' } },
@@ -131,7 +140,7 @@ describe('RecordPreview', () => {
     render(
       <RecordPreview
         {...shared}
-        entry={{ kind: 'record', record: insight, analysis: fixtureDocument.analysis }}
+        entry={{ kind: 'record', record: insight, analysis: analysisAt(fixtureDocument, 0) }}
         renderCitation={renderCitation}
       />,
     );
@@ -146,17 +155,17 @@ describe('RecordPreview', () => {
     );
   });
 
-  it('renders output description, compact artifact, container-only recipe, inputs, and endpoint', () => {
-    const base = record<ResolvedOutput>('outputs.headline');
-    const output: ResolvedOutput = {
+  it('renders output description, compact artifact, effective command, inputs, and endpoint', () => {
+    const base = record<Output>('outputs.headline');
+    const output: Output = {
       ...base,
-      recipe: { container: 'ghcr.io/example/research:1' },
+
     };
     const renderArtifact = vi.fn(() => <div>Figure thumbnail</div>);
     render(
       <RecordPreview
         {...shared}
-        entry={{ kind: 'record', record: output, analysis: fixtureDocument.analysis }}
+        entry={{ kind: 'record', record: output, analysis: analysisAt(fixtureDocument, 0) }}
         renderArtifact={renderArtifact}
       />,
     );
@@ -164,30 +173,30 @@ describe('RecordPreview', () => {
     expect(screen.getByText('The primary result.')).toBeTruthy();
     expect(screen.getByText('Figure thumbnail')).toBeTruthy();
     expect(screen.getByText('Input catalogue')).toBeTruthy();
-    expect(screen.getByText('ghcr.io/example/research:1')).toBeTruthy();
+    expect(screen.getByText('python plot.py')).toBeTruthy();
     expect(screen.getByText('outputs.headline')).toBeTruthy();
   });
 
   it('omits artifact frames when the host renderer opts out', () => {
-    const output = record<ResolvedOutput>('outputs.headline');
-    const finding = record<ResolvedInsight>('findings.headline_finding');
+    const output = record<Output>('outputs.headline');
+    const finding = record<Insight>('findings.headline_finding');
     const renderArtifact = vi.fn(() => null);
     const { container, rerender } = render(
       <RecordPreview
         {...shared}
-        entry={{ kind: 'record', record: output, analysis: fixtureDocument.analysis }}
+        entry={{ kind: 'record', record: output, analysis: analysisAt(fixtureDocument, 0) }}
         renderArtifact={renderArtifact}
       />,
     );
 
     expect(container.querySelector('.astra-record-preview__artifact')).toBeNull();
-    expect(renderArtifact).toHaveBeenCalledWith(output, { compact: true });
+    expect(renderArtifact).toHaveBeenCalledWith(output, expect.objectContaining({compact:true, result:expect.objectContaining({id:'outputs.headline#baseline'})}));
 
     renderArtifact.mockClear();
     rerender(
       <RecordPreview
         {...shared}
-        entry={{ kind: 'record', record: finding, analysis: fixtureDocument.analysis }}
+        entry={{ kind: 'record', record: finding, analysis: analysisAt(fixtureDocument, 0) }}
         renderArtifact={renderArtifact}
       />,
     );
@@ -195,20 +204,18 @@ describe('RecordPreview', () => {
     expect(container.querySelector('.astra-record-preview__artifact')).toBeNull();
     expect(renderArtifact).toHaveBeenCalledTimes(1);
     expect(renderArtifact).toHaveBeenCalledWith(
-      expect.objectContaining({ canonicalPath: 'outputs.headline' }),
-      { compact: true },
+      expect.objectContaining({ ref: 'outputs.headline' }),
+      expect.objectContaining({ compact: true, result: expect.objectContaining({id: 'outputs.headline#baseline'}) }),
     );
   });
 
   it('renders input source and tolerates absent optional copy', () => {
-    const input = record<ResolvedInput>('inputs.catalog');
-    const bareInput: ResolvedInput = { ...input };
-    delete bareInput.source;
-    delete bareInput.label;
+    const input = record<Input>('inputs.catalog');
+    const bareInput: Input = {ref:input.ref,path:input.path,tags:input.tags};
     const { rerender } = render(
       <RecordPreview
         {...shared}
-        entry={{ kind: 'record', record: input, analysis: fixtureDocument.analysis }}
+        entry={{ kind: 'record', record: input, analysis: analysisAt(fixtureDocument, 0) }}
       />,
     );
     expect(screen.getByRole('heading', { name: 'Input catalogue' })).toBeTruthy();
@@ -220,16 +227,16 @@ describe('RecordPreview', () => {
         entry={{
           kind: 'record',
           record: bareInput,
-          analysis: fixtureDocument.analysis,
+          analysis: analysisAt(fixtureDocument, 0),
         }}
       />,
     );
     expect(screen.getByRole('heading', { name: 'catalog' })).toBeTruthy();
-    expect(screen.queryByRole('heading', { name: 'Source' })).toBeNull();
+    expect(screen.getByRole('heading', { name: 'Source' })).toBeTruthy();
   });
 
   it('renders an analysis description, counts, and explicit navigation only', () => {
-    const child = fixtureDocument.analysis.analyses[0];
+    const child = analysisAt(fixtureDocument, 1);
     if (!child) throw new Error('fixture child analysis missing');
     const onOpenAnalysis = vi.fn();
     const { rerender } = render(
@@ -265,14 +272,14 @@ describe('RecordPreview', () => {
   });
 
   it('renders value context, unit, and source-record description', () => {
-    const output = record<ResolvedOutput>('outputs.headline');
+    const output = record<Output>('outputs.headline');
     render(
       <RecordPreview
         {...shared}
         entry={{
           kind: 'value',
           record: output,
-          analysis: fixtureDocument.analysis,
+          analysis: analysisAt(fixtureDocument, 0),
           value: '19.88 ± 0.17',
           unit: 'Mpc',
           column: 'alpha_iso',
@@ -289,7 +296,7 @@ describe('RecordPreview', () => {
   });
 
   it('forwards root attributes/ref and honors label overrides', () => {
-    const insight = record<ResolvedInsight>('prior_insights.published_method');
+    const insight = record<Insight>('prior_insights.published_method');
     const ref = { current: null as HTMLElement | null };
     render(
       <LabelsProvider labels={{ kinds: { prior_insight: 'Literature insight' } }}>
@@ -299,7 +306,7 @@ describe('RecordPreview', () => {
           id="preview-id"
           className="host-preview"
           data-testid="preview"
-          entry={{ kind: 'record', record: insight, analysis: fixtureDocument.analysis }}
+          entry={{ kind: 'record', record: insight, analysis: analysisAt(fixtureDocument, 0) }}
         />
       </LabelsProvider>,
     );
@@ -313,17 +320,17 @@ describe('RecordPreview', () => {
   });
 
   it('routes all preview interface copy through label overrides', () => {
-    const decision = record<ResolvedDecision>('decisions.method');
-    const localizedDecision: ResolvedDecision = {
+    const decision = record<Decision>('decisions.method');
+    const localizedDecision: Decision = {
       ...decision,
       options: decision.options.map((option) =>
-        option.id === 'alternate' ? { ...option, excluded: true } : option,
+        option.id === 'alternate' ? { ...option, excluded: 'Outside the supported domain' } : option,
       ),
     };
-    const finding = record<ResolvedInsight>('findings.headline_finding');
-    const output = record<ResolvedOutput>('outputs.headline');
-    const input = record<ResolvedInput>('inputs.catalog');
-    const child = fixtureDocument.analysis.analyses[0];
+    const finding = record<Insight>('findings.headline_finding');
+    const output = record<Output>('outputs.headline');
+    const input = record<Input>('inputs.catalog');
+    const child = analysisAt(fixtureDocument, 1);
     if (!child) throw new Error('fixture child analysis missing');
     const labels: AstraLabelOverrides = {
       kinds: { prior_insight: 'Référence' },
@@ -350,7 +357,7 @@ describe('RecordPreview', () => {
           entry={{
             kind: 'record',
             record: localizedDecision,
-            analysis: fixtureDocument.analysis,
+            analysis: analysisAt(fixtureDocument, 0),
           }}
           maxSupportingInsights={0}
         />
@@ -369,7 +376,7 @@ describe('RecordPreview', () => {
       <LabelsProvider labels={labels}>
         <RecordPreview
           {...shared}
-          entry={{ kind: 'record', record: decision, analysis: fixtureDocument.analysis }}
+          entry={{ kind: 'record', record: decision, analysis: analysisAt(fixtureDocument, 0) }}
           maxSupportingInsights={1}
           onOpenRecord={() => undefined}
         />
@@ -383,7 +390,7 @@ describe('RecordPreview', () => {
       <LabelsProvider labels={labels}>
         <RecordPreview
           {...shared}
-          entry={{ kind: 'record', record: finding, analysis: fixtureDocument.analysis }}
+          entry={{ kind: 'record', record: finding, analysis: analysisAt(fixtureDocument, 0) }}
         />
       </LabelsProvider>,
     );
@@ -393,7 +400,7 @@ describe('RecordPreview', () => {
       <LabelsProvider labels={labels}>
         <RecordPreview
           {...shared}
-          entry={{ kind: 'record', record: output, analysis: fixtureDocument.analysis }}
+          entry={{ kind: 'record', record: output, analysis: analysisAt(fixtureDocument, 0) }}
         />
       </LabelsProvider>,
     );
@@ -403,7 +410,7 @@ describe('RecordPreview', () => {
       <LabelsProvider labels={labels}>
         <RecordPreview
           {...shared}
-          entry={{ kind: 'record', record: input, analysis: fixtureDocument.analysis }}
+          entry={{ kind: 'record', record: input, analysis: analysisAt(fixtureDocument, 0) }}
         />
       </LabelsProvider>,
     );
@@ -426,7 +433,7 @@ describe('RecordPreview', () => {
           entry={{
             kind: 'value',
             record: output,
-            analysis: fixtureDocument.analysis,
+            analysis: analysisAt(fixtureDocument, 0),
             value: '19.88',
             product: 'Résultat principal',
           }}

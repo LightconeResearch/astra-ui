@@ -1,12 +1,13 @@
+import { analysisAt } from '../helpers.js';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
-import type { ResolvedAnalysisDocument, ResolvedInsight } from '@astra-spec/sdk';
+import type { ResolvedAnalysis, Insight } from '@astra-spec/sdk';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Button } from '../../packages/react/src/primitives/index.js';
 import { AnalysisTree } from '../../packages/react/src/blocks/index.js';
 import { InsightTrigger } from '../../packages/react/src/components/index.js';
 import { fixtureDocument as untypedFixture } from '../fixture.mjs';
 
-const fixtureDocument = untypedFixture as unknown as ResolvedAnalysisDocument;
+const fixtureDocument = untypedFixture as unknown as ResolvedAnalysis;
 
 afterEach(cleanup);
 
@@ -34,7 +35,7 @@ describe('host attributes merge instead of being overwritten', () => {
   });
 
   it('runs the host onKeyDown first on the claim trigger and honours preventDefault', () => {
-    const insight = fixtureDocument.analysis.prior_insights[0] as ResolvedInsight;
+    const insight = analysisAt(fixtureDocument, 0).prior_insights[0] as Insight;
     const onOpen = vi.fn();
     const onKeyDown = vi.fn((event: { key: string; preventDefault: () => void }) => { if (event.key === ' ') event.preventDefault(); });
     render(<InsightTrigger insight={insight} variant="claim" onOpen={onOpen} onKeyDown={onKeyDown as never} />);

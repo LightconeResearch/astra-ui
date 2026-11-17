@@ -1,4 +1,4 @@
-import type { ResolvedDecision, ResolvedInsight } from '@astra-spec/sdk';
+import type { Decision, Insight } from '@astra-spec/sdk/reports';
 import { forwardRef, type HTMLAttributes } from 'react';
 import { doiHref } from '../model/doi.js';
 import { primaryLiteratureEvidence } from '../model/papers.js';
@@ -13,13 +13,13 @@ import { RelationList } from '../primitives/relation-list.js';
 import { relationItemForRecord } from './relation-items.js';
 
 export interface InsightDetailProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
-  record: ResolvedInsight;
+  record: Insight;
   /** Decisions that cite this insight; see `informedDecisions()`. */
-  decisions: ResolvedDecision[];
+  decisions: Decision[];
   renderText?: TextRenderer | undefined;
   /** Opens the source paper (with this insight focused) when the host can show it. */
   onOpenSource?: (() => void) | undefined;
-  onOpenDecision?: ((decision: ResolvedDecision) => void) | undefined;
+  onOpenDecision?: ((decision: Decision) => void) | undefined;
 }
 
 /** Claim, source passage, notes, and the decisions an insight informs. */
@@ -59,10 +59,10 @@ export const InsightDetail = forwardRef<HTMLDivElement, InsightDetailProps>(func
             {sourceAction ? <figcaption>{sourceAction}</figcaption> : null}
           </figure>
         ) : sourceAction}
-        {insight.notes ? (
+        {insight.description ? (
           <section className="astra-insight-detail__notes">
             <h4>Notes</h4>
-            <div><Prose text={insight.notes} field="notes" renderText={renderText} /></div>
+            <div><Prose text={insight.description} field="description" renderText={renderText} /></div>
           </section>
         ) : null}
         <RelationList

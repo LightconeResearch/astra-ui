@@ -1,18 +1,13 @@
-import type { ResolvedOutput } from '@astra-spec/sdk';
+import type { Result, Status, StatusReport } from '@astra-spec/sdk/reports';
 
-/**
- * Execution status supplied by the host, separate from the ASTRA document: the
- * document declares what an analysis produces, the host knows what has actually
- * been run. The states are the ones `lc status` reports, so a marker in the UI
- * and a line in the terminal name the same thing: `current` is exactly what the
- * spec asks for, `behind` still is but the environment moved since, and `stale`
- * contradicts the project (definition or input changed, hand-edited, or never
- * materialized). `detail` is the host's own reason, as `lc status` prints it.
- */
-export interface OutputStatus {
-  state: 'current' | 'behind' | 'stale';
-  detail?: string | undefined;
+/** The result an output is shown with, the universe it was selected in, and its SDK status. */
+export interface OutputContext {
+  result?: Result | undefined;
+  universeRef?: string | undefined;
+  status?: Status | undefined;
 }
 
-/** Host lookup for one output's execution status; `undefined` means unknown. */
-export type OutputStatusLookup = (output: ResolvedOutput) => OutputStatus | undefined;
+/** The status-report entry for the result an output is shown with; none without a result. */
+export function resultStatus(statusReport: StatusReport | undefined, result: Result | undefined): Status | undefined {
+  return result ? statusReport?.statuses[result.id] : undefined;
+}

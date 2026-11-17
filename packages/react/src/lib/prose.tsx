@@ -2,7 +2,7 @@
 import { Fragment, type ReactNode } from 'react';
 import { renderToString } from 'katex';
 
-export type ProseField = 'claim' | 'rationale' | 'description' | 'notes' | 'quote';
+export type ProseField = 'claim' | 'rationale' | 'description' | 'quote';
 
 export interface ProseContext {
   /** Which authored field is being rendered, when known. */

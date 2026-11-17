@@ -6,21 +6,36 @@ import { DetailDialog } from '../primitives/dialog.js';
 import { OutputStatusGlyph } from '../primitives/output-status-glyph.js';
 
 export type OutputProvenanceProps = HTMLAttributes<HTMLDivElement> & OutputProvenanceData;
-
-/** Compact run summary with the full execution metadata in a detail dialog. */
-export const OutputProvenance = forwardRef<HTMLDivElement, OutputProvenanceProps>(function OutputProvenance({
-  status, run, error, className, ...props
-}, ref) {
-  const labels = useLabels();
-  const copy = labels.provenance;
+/** Provenance and byte availability are independent facts in the SDK status report. */
+export const OutputProvenance = forwardRef<HTMLDivElement, OutputProvenanceProps>(function OutputProvenance(
+  { status, record: suppliedRecord, loading = false, error, className, ...props },
+  ref,
+) {
+  const labels = useLabels(),
+    copy = labels.provenance;
+  const record = suppliedRecord === undefined ? status?.record : suppliedRecord;
   const [detailsOpen, setDetailsOpen] = useState(false);
-  const stateLabel = status ? labels.status[status.state] : copy.unknown;
-  const finished = run ? new Date(run.finishedAt) : null;
+  const generated = record?.generated_by,
+    finished = generated?.finished;
+  // Runner timestamps are not guaranteed to be ISO: keep the recorded string
+  // rather than print "Invalid Date".
+  const finishedDate = finished ? new Date(finished) : undefined;
+  const finishedLabel = finishedDate && !Number.isNaN(finishedDate.getTime()) ? finishedDate.toLocaleString() : finished;
   return (
     <div data-slot="output-provenance" {...props} ref={ref} className={cn('astra-output-provenance', className)}>
       <div className="astra-output-provenance__heading">
         <h4>{copy.title}</h4>
-        {run ? <button type="button" aria-haspopup="dialog" onClick={() => { setDetailsOpen(true); }}>{copy.details}</button> : null}
+        {record ? (
+          <button
+            type="button"
+            aria-haspopup="dialog"
+            onClick={() => {
+              setDetailsOpen(true);
+            }}
+          >
+            {copy.details}
+          </button>
+        ) : null}
       </div>
       <dl className="astra-output-provenance__summary">
         <div>
@@ -32,24 +47,49 @@ export const OutputProvenance = forwardRef<HTMLDivElement, OutputProvenanceProps
                   <OutputStatusGlyph state={status.state} />
                 </span>
               ) : null}
-              {stateLabel}
+              {status ? labels.status[status.state] : copy.unknown}
             </span>
-            {status?.detail ? <p className="astra-output-provenance__reason">{status.detail}</p> : null}
+            {status?.why.map((why, index) => (
+              <p key={index} className="astra-output-provenance__reason">
+                {why.message}
+              </p>
+            ))}
           </dd>
         </div>
-        {run ? <>
+        {status?.bytes ? (
+          <div>
+            <dt>{copy.bytes}</dt>
+            <dd>
+              {status.bytes.state === 'present' ? copy.bytesPresent : copy.bytesAbsent}
+              {status.bytes.kept_by ? ` (${status.bytes.kept_by})` : ''}
+            </dd>
+          </div>
+        ) : null}
+        {finished ? (
           <div>
             <dt>{copy.lastRun}</dt>
-            <dd><time dateTime={run.finishedAt}>{finished && !Number.isNaN(finished.getTime()) ? finished.toLocaleString() : run.finishedAt}</time></dd>
+            <dd>
+              <time dateTime={finished}>{finishedLabel}</time>
+            </dd>
           </div>
+        ) : null}
+        {generated ? (
           <div>
             <dt>{copy.revision}</dt>
-            <dd><code title={run.gitRevision}>{run.gitRevision.slice(0, 8)}</code></dd>
+            <dd>
+              <code title={generated.commit}>{generated.commit.slice(0, 8)}</code>
+            </dd>
           </div>
-        </> : null}
+        ) : null}
       </dl>
-      {error ? <p role="alert">{error}</p> : run === undefined ? <p role="status">{copy.loading}</p> : run === null ? <p>{copy.noRun}</p> : null}
-      {detailsOpen && run ? (
+      {error ? (
+        <p role="alert">{error}</p>
+      ) : !record && loading ? (
+        <p role="status">{copy.loading}</p>
+      ) : !record ? (
+        <p>{copy.noRun}</p>
+      ) : null}
+      {detailsOpen && record && generated ? (
         <DetailDialog
           mode="modal"
           title={copy.runDetails}
@@ -59,24 +99,39 @@ export const OutputProvenance = forwardRef<HTMLDivElement, OutputProvenanceProps
         >
           <div className="astra-output-provenance__details">
             <section>
-              <h4>{copy.recipe}</h4>
-              <pre><code>{run.recipe}</code></pre>
+              <h4>{copy.content}</h4>
+              <p>
+                <code>{record.content_hash}</code> · {record.size} bytes
+              </p>
             </section>
             <section>
               <h4>{copy.inputs}</h4>
-              {Object.keys(run.inputVersions).length ? (
-                <dl>{Object.entries(run.inputVersions).map(([name, version]) => (
-                  <div key={name}><dt>{name}</dt><dd><code>{version}</code></dd></div>
-                ))}</dl>
-              ) : <p>{copy.noInputs}</p>}
+              {generated.inputs.length ? (
+                <dl>
+                  {generated.inputs.map((input) => (
+                    <div key={input.entry}>
+                      <dt>{input.entry}</dt>
+                      <dd>
+                        <code>{input.content_hash}</code> · {input.size} bytes
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              ) : (
+                <p>{copy.noInputs}</p>
+              )}
             </section>
             <section>
               <h4>{copy.environment}</h4>
-              <p><code>{run.environment}</code></p>
+              <p>
+                <code>{generated.environment.iri}</code>
+              </p>
             </section>
             <section>
-              <h4>{copy.cliVersion}</h4>
-              <p>{run.cliVersion}</p>
+              <h4>{copy.runner}</h4>
+              <p>
+                {generated.runner.id} {generated.runner.version}
+              </p>
             </section>
           </div>
         </DetailDialog>

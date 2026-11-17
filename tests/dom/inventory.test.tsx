@@ -1,30 +1,34 @@
+import { analysisAt } from '../helpers.js';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
-import type { ResolvedAnalysisDocument, ResolvedInsight } from '@astra-spec/sdk';
+import type { ResolvedAnalysis, Insight, Output, Status, StatusReport } from '@astra-spec/sdk';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { DetailEntry } from '../../packages/react/src/lib/index.js';
 import { Inventory } from '../../packages/react/src/views/index.js';
-import { fixtureDocument as untypedFixture } from '../fixture.mjs';
+import { fixtureDocument as untypedFixture, fixtureStatus } from '../fixture.mjs';
 
-const fixtureDocument = untypedFixture as unknown as ResolvedAnalysisDocument;
+const fixtureDocument = untypedFixture as unknown as ResolvedAnalysis;
 
 afterEach(cleanup);
 
 const dialog = () => screen.getByRole('dialog', { hidden: true });
 
-const rootInsight: DetailEntry = { kind: 'record', canonicalPath: 'prior_insights.published_method', analysisPath: '$' };
+const rootInsight: DetailEntry = { kind: 'record', ref: 'prior_insights.published_method', analysisKey: '' };
 /** Cited only by the root insight, so it is not among the `clustering` papers. */
-const rootPaper: DetailEntry = { kind: 'paper', doi: 'https://doi.org/10.1234/EXAMPLE', analysisPath: '$' };
-const headline: DetailEntry = { kind: 'record', canonicalPath: 'outputs.headline', analysisPath: '$' };
-const method: DetailEntry = { kind: 'record', canonicalPath: 'decisions.method', analysisPath: '$' };
+const rootPaper: DetailEntry = { kind: 'paper', doi: 'https://doi.org/10.1234/EXAMPLE', analysisKey: '' };
+const headline: DetailEntry = { kind: 'record', ref: 'outputs.headline', analysisKey: '' };
+const method: DetailEntry = { kind: 'record', ref: 'decisions.method', analysisKey: '' };
 
 /** The fixture with the root analysis' `prior_insights` replaced. */
-function withRootInsight(insight: ResolvedInsight): ResolvedAnalysisDocument {
-  return { ...fixtureDocument, analysis: { ...fixtureDocument.analysis, prior_insights: [insight] } };
+function withRootInsight(insight: Insight): ResolvedAnalysis {
+  return {
+    ...fixtureDocument,
+    analyses: [{ ...analysisAt(fixtureDocument, 0), prior_insights: [insight] }, ...fixtureDocument.analyses.slice(1)],
+  };
 }
 
 describe('Inventory analysis selection', () => {
-  it('falls back to the root analysis when analysisPath is unknown', () => {
-    render(<Inventory document={fixtureDocument} analysisPath="not.an.analysis" />);
+  it('falls back to the root analysis when analysisKey is unknown', () => {
+    render(<Inventory document={fixtureDocument} analysisKey="not.an.analysis" />);
     expect(screen.getByRole('button', { name: /Headline result/ })).toBeTruthy();
     expect(screen.queryByRole('button', { name: /Correlation function/ })).toBeNull();
     // The root's decision, not the nested analysis's; prior insights are no
@@ -43,7 +47,7 @@ describe('Inventory analysis selection', () => {
     rerender(
       <Inventory
         document={fixtureDocument}
-        analysisPath="clustering"
+        analysisKey="clustering"
         defaultDetail={[rootInsight, rootPaper]}
         onDetailChange={onDetailChange}
       />,
@@ -61,7 +65,7 @@ describe('Inventory analysis selection', () => {
     rerender(
       <Inventory
         document={fixtureDocument}
-        analysisPath="clustering"
+        analysisKey="clustering"
         detail={[rootInsight, rootPaper]}
         onDetailChange={onDetailChange}
       />,
@@ -76,8 +80,13 @@ describe('Inventory analysis selection', () => {
     const { rerender } = render(
       <Inventory document={fixtureDocument} detail={[rootInsight, rootPaper]} onDetailChange={onDetailChange} />,
     );
-    const withoutCitation = withRootInsight({ ...(fixtureDocument.analysis.prior_insights[0] as ResolvedInsight), evidence: [] });
-    rerender(<Inventory document={withoutCitation} detail={[rootInsight, rootPaper]} onDetailChange={onDetailChange} />);
+    const withoutCitation = withRootInsight({
+      ...(analysisAt(fixtureDocument, 0).prior_insights[0] as Insight),
+      evidence: [],
+    });
+    rerender(
+      <Inventory document={withoutCitation} detail={[rootInsight, rootPaper]} onDetailChange={onDetailChange} />,
+    );
     expect(onDetailChange.mock.calls).toEqual([[[rootInsight]]]);
   });
 });
@@ -95,9 +104,9 @@ describe('Inventory document refresh', () => {
     const closed = vi.fn();
     element.addEventListener('close', closed);
 
-    const refreshed: ResolvedAnalysisDocument = {
+    const refreshed: ResolvedAnalysis = {
       ...fixtureDocument,
-      analysis: { ...fixtureDocument.analysis, decisions: [] },
+      analyses: [{ ...analysisAt(fixtureDocument, 0), decisions: [] }, ...fixtureDocument.analyses.slice(1)],
     };
     rerender(<Inventory document={refreshed} defaultDetail={[headline, method]} onDetailChange={onDetailChange} />);
 
@@ -110,8 +119,12 @@ describe('Inventory document refresh', () => {
     expect(screen.getByRole('button', { name: 'Close output details' })).toBe(close);
   });
 
-  it('keeps the persistent dialog when the active entry\'s analysis disappears', () => {
-    const nested: DetailEntry = { kind: 'record', canonicalPath: 'clustering.outputs.correlation', analysisPath: 'clustering' };
+  it("keeps the persistent dialog when the active entry's analysis disappears", () => {
+    const nested: DetailEntry = {
+      kind: 'record',
+      ref: 'clustering.outputs.correlation',
+      analysisKey: 'clustering',
+    };
     const onDetailChange = vi.fn();
     const { rerender } = render(
       <Inventory document={fixtureDocument} defaultDetail={[headline, nested]} onDetailChange={onDetailChange} />,
@@ -120,9 +133,9 @@ describe('Inventory document refresh', () => {
     const close = screen.getByRole('button', { name: 'Close output details' });
     expect(document.activeElement).toBe(close);
 
-    const refreshed: ResolvedAnalysisDocument = {
+    const refreshed: ResolvedAnalysis = {
       ...fixtureDocument,
-      analysis: { ...fixtureDocument.analysis, analyses: [] },
+      analyses: [{ ...analysisAt(fixtureDocument, 0), declares: {} }],
     };
     rerender(<Inventory document={refreshed} defaultDetail={[headline, nested]} onDetailChange={onDetailChange} />);
 
@@ -133,11 +146,12 @@ describe('Inventory document refresh', () => {
 });
 
 describe('Insight source evidence', () => {
-  const insightEntry: DetailEntry = { kind: 'record', canonicalPath: 'prior_insights.cited', analysisPath: '$' };
+  const insightEntry: DetailEntry = { kind: 'record', ref: 'prior_insights.cited', analysisKey: '' };
   const baseInsight = {
     id: 'cited',
     kind: 'prior_insight',
-    canonicalPath: 'prior_insights.cited',
+    ref: 'prior_insights.cited',
+    tags: [],
     claim: 'A cited claim.',
     created_at: '2026-01-01T00:00:00Z',
   } as const;
@@ -147,9 +161,14 @@ describe('Insight source evidence', () => {
       ...baseInsight,
       evidence: [
         { id: 'bare-quote', quote: { exact: 'A passage with no paper.' } },
-        { id: 'cited-paper', doi: '10.1000/cited', quote: { exact: 'A passage from the cited paper.' }, location: { page: 7 } },
+        {
+          id: 'cited-paper',
+          doi: '10.1000/cited',
+          quote: { exact: 'A passage from the cited paper.' },
+          location: { value: 'page=7' },
+        },
       ],
-    } as unknown as ResolvedInsight;
+    } as unknown as Insight;
     const onDetailChange = vi.fn();
     render(<Inventory document={withRootInsight(insight)} defaultDetail={[insightEntry]} onDetailChange={onDetailChange} />);
 
@@ -159,7 +178,7 @@ describe('Insight source evidence', () => {
     fireEvent.click(screen.getByRole('button', { name: /Locate passage in paper/ }));
     expect(onDetailChange).toHaveBeenLastCalledWith([
       insightEntry,
-      { kind: 'paper', doi: '10.1000/cited', analysisPath: '$', focusInsightPath: 'prior_insights.cited' },
+      { kind: 'paper', doi: '10.1000/cited', analysisKey: '', focusInsightRef: 'prior_insights.cited' },
     ]);
   });
 
@@ -170,7 +189,7 @@ describe('Insight source evidence', () => {
         { id: 'first', doi: '10.1000/first' },
         { id: 'second', doi: '10.1000/second', quote: { exact: 'A passage from the second paper.' } },
       ],
-    } as unknown as ResolvedInsight;
+    } as unknown as Insight;
     const onDetailChange = vi.fn();
     render(<Inventory document={withRootInsight(insight)} defaultDetail={[insightEntry]} onDetailChange={onDetailChange} />);
 
@@ -183,32 +202,323 @@ describe('Insight source evidence', () => {
     fireEvent.click(screen.getByRole('button', { name: /Open source paper/ }));
     expect(onDetailChange).toHaveBeenLastCalledWith([
       insightEntry,
-      { kind: 'paper', doi: '10.1000/first', analysisPath: '$', focusInsightPath: 'prior_insights.cited' },
+      { kind: 'paper', doi: '10.1000/first', analysisKey: '', focusInsightRef: 'prior_insights.cited' },
     ]);
   });
 });
 
 it('shows only exceptional materialization markers without output glyphs', () => {
-  const statusFor = (output: (typeof fixtureDocument.analysis.outputs)[number]) => ({
-    state: output.type === 'metric' ? 'current' as const : output.type === 'figure' ? 'behind' as const : 'stale' as const,
-    detail: `Status for ${output.id}`,
-  });
-  const { rerender, container } = render(<Inventory document={fixtureDocument} getOutputStatus={statusFor} />);
-  for (const output of fixtureDocument.analysis.outputs) {
-    if (output.type !== 'metric') expect(screen.getByRole('img', { name: new RegExp(`Status for ${output.id}$`) })).toBeTruthy();
+  const planned = fixtureDocument.results.filter((result) => result.universe !== 'universes.alternate');
+  const statusReport: StatusReport = {
+    ...fixtureStatus,
+    statuses: Object.fromEntries(
+      planned.map((result): [string, Status] => [
+        result.id,
+        {
+          state: result.output === 'outputs.headline' ? 'missing' : 'stale',
+          why: [
+            {
+              code: 'DEMO',
+              level: 'note',
+              message: `Status for ${result.output}`,
+              location: { file: 'astra.yaml', pointer: '' },
+              related: [],
+            },
+          ],
+          stale_inputs: [],
+        },
+      ]),
+    ),
+  };
+  const { rerender, container } = render(<Inventory document={fixtureDocument} statusReport={statusReport} />);
+  for (const result of planned) {
+    if (analysisAt(fixtureDocument, 0).outputs.some((output) => output.ref === result.output))
+      expect(screen.getByRole('img', { name: new RegExp(`Status for ${result.output}$`) })).toBeTruthy();
   }
-  expect(screen.queryByText('Current', { exact: true })).toBeNull();
-  expect(container.querySelectorAll('[data-slot="output-card"] [data-slot="kind-glyph"], [data-slot="output-entry"] [data-slot="kind-glyph"]')).toHaveLength(0);
+  expect(screen.queryByText('Unchanged', { exact: true })).toBeNull();
+  expect(
+    container.querySelectorAll(
+      '[data-slot="output-card"] [data-slot="kind-glyph"], [data-slot="output-entry"] [data-slot="kind-glyph"]',
+    ),
+  ).toHaveLength(0);
   rerender(<Inventory document={fixtureDocument} />);
   expect(container.querySelectorAll('.astra-output-status')).toHaveLength(0);
 });
 
 it('places the host code link beside Recipe in the selected output detail', () => {
   const open = vi.fn();
-  const codedDocument = { ...fixtureDocument, analysis: { ...fixtureDocument.analysis, outputs: fixtureDocument.analysis.outputs.map(output => ({ ...output, recipe: { command: 'python src/plot.py' } })) } };
-  render(<Inventory document={codedDocument} defaultDetail={[headline]} renderCodeLink={output => <button onClick={() => open(output.canonicalPath)}>Open code</button>} />);
+  const codedDocument = {
+    ...fixtureDocument,
+    results: fixtureDocument.results.map((result) => ({ ...result, command: 'python src/plot.py' })),
+  };
+  render(
+    <Inventory
+      document={codedDocument}
+      defaultDetail={[headline]}
+      renderCodeLink={(output) => <button onClick={() => open(output.ref)}>Open code</button>}
+    />,
+  );
   const link = screen.getByRole('button', { name: 'Open code' });
   expect(link.parentElement?.textContent).toContain('Recipe');
   fireEvent.click(link);
   expect(open).toHaveBeenCalledExactlyOnceWith('outputs.headline');
+});
+
+it('switches universes locally and keeps controlled selection with the host', () => {
+  const renderArtifact = vi.fn((output: Output, options: { result?: { id: string } | undefined }) => (
+    <span>{options.result?.id}</span>
+  ));
+  const onUniverseChange = vi.fn();
+  const view = render(
+    <Inventory
+      document={fixtureDocument}
+      renderArtifact={renderArtifact}
+      universeRef="universes.baseline"
+      onUniverseChange={onUniverseChange}
+    />,
+  );
+  expect(screen.getByText('outputs.headline#baseline')).toBeTruthy();
+  fireEvent.change(screen.getByRole('combobox', { name: 'Universe' }), { target: { value: 'universes.alternate' } });
+  expect(onUniverseChange).toHaveBeenCalledWith('universes.alternate');
+  expect(screen.getByText('outputs.headline#baseline')).toBeTruthy();
+  view.rerender(
+    <Inventory
+      document={fixtureDocument}
+      renderArtifact={renderArtifact}
+      universeRef="universes.alternate"
+      onUniverseChange={onUniverseChange}
+    />,
+  );
+  expect(screen.getByText('outputs.headline#alternate')).toBeTruthy();
+  expect(screen.getByRole('button', { name: /Method choice, selected option Alternate/ })).toBeTruthy();
+});
+it('switches an uncontrolled universe without changing the report', () => {
+  const renderArtifact = (_: Output, options: { result?: { id: string } | undefined }) => (
+    <span>{options.result?.id}</span>
+  );
+  render(<Inventory document={fixtureDocument} renderArtifact={renderArtifact} />);
+  fireEvent.change(screen.getByRole('combobox', { name: 'Universe' }), { target: { value: 'universes.alternate' } });
+  expect(screen.getByText('outputs.headline#alternate')).toBeTruthy();
+});
+
+it('selects a driven child result in the root universe and does not leak baseline bytes into an inactive universe', () => {
+  const child = analysisAt(fixtureDocument, 1);
+  const document: ResolvedAnalysis = {
+    ...fixtureDocument,
+    results: [
+      ...fixtureDocument.results.filter((result) => result.output !== 'clustering.outputs.correlation'),
+      {
+        id: 'root-owned-child-result',
+        output: 'clustering.outputs.correlation',
+        universe: 'universes.baseline',
+        places: [],
+        inputs: [],
+      },
+    ],
+  };
+  const renderArtifact = vi.fn(
+    (_: Output, context: { result?: { id: string } | undefined; universeRef?: string | undefined }) => (
+      <span>{context.result?.id ?? `inactive:${context.universeRef}`}</span>
+    ),
+  );
+  render(<Inventory document={document} analysisKey={child.key} renderArtifact={renderArtifact} />);
+  expect(screen.getByText('root-owned-child-result')).toBeTruthy();
+  fireEvent.change(screen.getByRole('combobox', { name: 'Universe' }), { target: { value: 'universes.alternate' } });
+  expect(screen.getByText('inactive:universes.alternate')).toBeTruthy();
+  expect(screen.queryByText('root-owned-child-result')).toBeNull();
+});
+
+it('keeps a pinned upstream universe when drilling into its output and decision', () => {
+  const root = analysisAt(fixtureDocument);
+  const downstream: Output = {
+    ref: 'outputs.downstream',
+    label: 'Downstream',
+    type: 'data',
+    format: 'json',
+    tags: [],
+    decisions: [],
+  };
+  const document: ResolvedAnalysis = {
+    ...fixtureDocument,
+    analyses: [{ ...root, outputs: [...root.outputs, downstream] }, ...fixtureDocument.analyses.slice(1)],
+    results: [
+      ...fixtureDocument.results,
+      {
+        id: 'downstream',
+        output: downstream.ref,
+        universe: 'universes.baseline',
+        command: 'python downstream.py',
+        places: [],
+        inputs: [{ entry: 'pinned authored input', result: 'outputs.headline#alternate' }],
+      },
+    ],
+  };
+  const onDetailChange = vi.fn();
+  render(
+    <Inventory
+      document={document}
+      defaultDetail={[{ kind: 'record', ref: downstream.ref, analysisKey: '' }]}
+      onDetailChange={onDetailChange}
+    />,
+  );
+  fireEvent.click(screen.getByRole('button', { name: 'View output: Headline result' }));
+  expect(screen.getByText('python alternative.py')).toBeTruthy();
+  expect(onDetailChange).toHaveBeenLastCalledWith([
+    { kind: 'record', ref: downstream.ref, analysisKey: '' },
+    { kind: 'record', ref: 'outputs.headline', analysisKey: '', universeRef: 'universes.alternate' },
+  ]);
+  fireEvent.click(screen.getByRole('button', { name: 'View decision: Method choice' }));
+  const selected = screen.getByText('Selected').closest('li');
+  expect(selected?.textContent).toContain('Alternate');
+});
+
+it('renders every effective finding citation with its own result, status and drilldown universe', () => {
+  const root = analysisAt(fixtureDocument);
+  const finding = {
+    ...root.findings[0],
+    ref: 'findings.headline_finding',
+    kind: 'finding' as const,
+    claim: 'The headline result is significant.',
+    tags: [],
+    // Pinned evidence keeps its own universe whichever universe the inventory shows.
+    evidence: ['baseline', 'alternate'].map((universe) => ({
+      artifact: `headline#${universe}`,
+      cites: [`outputs.headline#${universe}`],
+      bindings: [
+        {
+          universe: `universes.${universe}`,
+          output: 'outputs.headline',
+          target_universe: `universes.${universe}`,
+          result: `outputs.headline#${universe}`,
+        },
+      ],
+    })),
+  };
+  const document: ResolvedAnalysis = {
+    ...fixtureDocument,
+    analyses: [{ ...root, findings: [finding] }, ...fixtureDocument.analyses.slice(1)],
+  };
+  const renderArtifact = vi.fn((_: Output, context: { result?: { id: string } | undefined }) => (
+    <span>{context.result?.id}</span>
+  ));
+  const onDetailChange = vi.fn();
+  render(
+    <Inventory
+      document={document}
+      statusReport={fixtureStatus}
+      renderArtifact={renderArtifact}
+      onDetailChange={onDetailChange}
+      defaultDetail={[{ kind: 'record', ref: finding.ref, analysisKey: '' }]}
+    />,
+  );
+  expect(
+    screen.getByRole('button', { name: 'View supporting result: Headline result (universes.baseline)' }),
+  ).toBeTruthy();
+  expect(renderArtifact).toHaveBeenCalledWith(
+    expect.objectContaining({ ref: 'outputs.headline' }),
+    expect.objectContaining({
+      result: expect.objectContaining({ id: 'outputs.headline#alternate' }),
+      status: fixtureStatus.statuses['outputs.headline#alternate'],
+    }),
+  );
+  fireEvent.click(
+    screen.getByRole('button', { name: 'View supporting result: Headline result (universes.alternate)' }),
+  );
+  expect(screen.getByText('python alternative.py')).toBeTruthy();
+  expect(onDetailChange).toHaveBeenLastCalledWith([
+    { kind: 'record', ref: finding.ref, analysisKey: '' },
+    { kind: 'record', ref: 'outputs.headline', analysisKey: '', universeRef: 'universes.alternate' },
+  ]);
+});
+
+it('opens the artifact of the result shown, and offers nothing whose recorded bytes are absent', () => {
+  const onOpenArtifact = vi.fn();
+  const props = { document: fixtureDocument, statusReport: fixtureStatus, onOpenArtifact, defaultDetail: [headline] };
+  const view = render(<Inventory {...props} universeRef="universes.baseline" />);
+  fireEvent.click(screen.getByRole('button', { name: 'Open artifact' }));
+  // The host is told which result, universe and status the dialog shows.
+  expect(onOpenArtifact).toHaveBeenCalledWith(
+    expect.objectContaining({ ref: 'outputs.headline' }),
+    expect.objectContaining({
+      result: expect.objectContaining({ id: 'outputs.headline#baseline' }),
+      universeRef: 'universes.baseline',
+      status: expect.objectContaining({ state: 'unchanged' }),
+    }),
+  );
+  view.rerender(<Inventory {...props} universeRef="universes.alternate" />);
+  expect(screen.queryByRole('button', { name: 'Open artifact' })).toBeNull();
+});
+
+it('offers only the universes that evaluate the viewed analysis', () => {
+  const child = analysisAt(fixtureDocument, 1);
+  const document: ResolvedAnalysis = {
+    ...fixtureDocument,
+    analyses: [
+      analysisAt(fixtureDocument, 0),
+      { ...child, universes: [{ ref: 'clustering.universes.fast', label: 'Fast', selection: {}, tags: [] }] },
+    ],
+  };
+  const options = () =>
+    Array.from(screen.getByRole('combobox', { name: 'Universe' }).querySelectorAll('option'), (option) => option.textContent);
+  const view = render(<Inventory document={document} />);
+  expect(options()).toEqual(['Baseline', 'Alternate']);
+  view.rerender(<Inventory document={document} analysisKey={child.key} />);
+  expect(options()).toEqual(['Fast', 'Baseline', 'Alternate']);
+});
+
+it('moves a drill-down stack reached in the viewed universe along with it', () => {
+  const props = { document: fixtureDocument, detailMode: 'embedded' as const, defaultDetail: [headline] };
+  const view = render(<Inventory {...props} universeRef="universes.baseline" />);
+  fireEvent.click(screen.getByRole('button', { name: 'View decision: Method choice' }));
+  expect(screen.getByText('Selected').closest('li')?.textContent).toContain('Fiducial');
+  view.rerender(<Inventory {...props} universeRef="universes.alternate" />);
+  // The decision and the output under it read the same universe.
+  expect(screen.getByText('Selected').closest('li')?.textContent).toContain('Alternate');
+  fireEvent.click(screen.getByRole('button', { name: 'Back to previous record' }));
+  expect(screen.getByText('python alternative.py')).toBeTruthy();
+});
+
+it('prunes an entry pinned to a universe the refreshed report no longer has', () => {
+  const onDetailChange = vi.fn();
+  render(
+    <Inventory
+      document={fixtureDocument}
+      detail={[headline, { ...method, universeRef: 'universes.removed' }]}
+      onDetailChange={onDetailChange}
+    />,
+  );
+  expect(onDetailChange).toHaveBeenCalledWith([headline]);
+});
+
+it('names the page of a cited paper, as the paper reader reads it', () => {
+  const root = analysisAt(fixtureDocument);
+  const finding = root.findings[0] as Insight;
+  const document: ResolvedAnalysis = {
+    ...fixtureDocument,
+    analyses: [
+      {
+        ...root,
+        findings: [{ ...finding, evidence: [{ doi: '10.9999/finding', location: { value: 'page=22' } }] }],
+      },
+      ...fixtureDocument.analyses.slice(1),
+    ],
+  };
+  render(<Inventory document={document} defaultDetail={[{ kind: 'record', ref: finding.ref, analysisKey: '' }]} />);
+  expect(screen.getByRole('link', { name: /10\.9999\/finding · page 22/ })).toBeTruthy();
+});
+
+it('starts a figure unzoomed when it is shown with another result', () => {
+  const props = {
+    document: fixtureDocument,
+    detailMode: 'embedded' as const,
+    defaultDetail: [headline],
+    renderArtifact: () => <img src="figure.png" alt="Headline figure" />,
+  };
+  // The inventory card shows the same image; only the detail's is zoomable.
+  const scale = () => document.querySelector('.astra-figure-zoom__canvas')?.getAttribute('style');
+  const view = render(<Inventory {...props} universeRef="universes.baseline" />);
+  fireEvent.click(screen.getByRole('button', { name: 'Zoom figure in' }));
+  expect(scale()).toContain('scale(1.25)');
+  view.rerender(<Inventory {...props} universeRef="universes.alternate" />);
+  expect(scale()).toContain('scale(1)');
 });

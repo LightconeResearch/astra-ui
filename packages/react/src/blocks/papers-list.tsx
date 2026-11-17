@@ -1,4 +1,4 @@
-import type { ResolvedAnalysisNode } from '@astra-spec/sdk';
+import type { Analysis } from '@astra-spec/sdk/reports';
 import { forwardRef, type HTMLAttributes } from 'react';
 import type { InventoryPaper } from '../model/papers.js';
 import { cn } from '../lib/cn.js';
@@ -9,8 +9,8 @@ import { InventoryRecords } from './section.js';
 
 export interface PapersListProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
   papers: readonly InventoryPaper[];
-  analysis: ResolvedAnalysisNode;
-  onOpenPaper: (paper: InventoryPaper, analysis: ResolvedAnalysisNode) => void;
+  analysis: Analysis;
+  onOpenPaper: (paper: InventoryPaper, analysis: Analysis) => void;
 }
 
 export interface PaperRowsProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {

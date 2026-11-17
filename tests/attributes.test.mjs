@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { indexAnalysis } from '@astra-spec/sdk';
+import { indexResolvedAnalysis } from '@astra-spec/sdk';
 import {
   DecisionDialog,
   FindingDialog,
@@ -13,8 +13,8 @@ import {
 import { collectInventoryPapers } from '../packages/react/dist/model/index.js';
 import { fixtureDocument } from './fixture.mjs';
 
-const index = indexAnalysis(fixtureDocument);
-const record = (path) => index.recordByPath.get(path);
+const index = indexResolvedAnalysis(fixtureDocument);
+const record = (path) => index.elementByRef.get(path)?.element;
 const html = (element) => renderToStaticMarkup(React.createElement('div', { className: 'astra-ui' }, element));
 const noop = () => undefined;
 
@@ -28,7 +28,7 @@ test('a caller\'s data-slot wins over the primitive default it builds on', () =>
 
 test('kind dialogs forward HTML attributes to the dialog root', () => {
   const attrs = { id: 'host-id', 'data-testid': 'host-test', style: { color: 'red' }, onClose: noop };
-  const papers = collectInventoryPapers(fixtureDocument, index, fixtureDocument.analysis);
+  const papers = collectInventoryPapers(fixtureDocument, index, fixtureDocument.analyses[0]);
   const cases = {
     DecisionDialog: React.createElement(DecisionDialog, { ...attrs, record: record('decisions.method'), insights: [] }),
     FindingDialog: React.createElement(FindingDialog, { ...attrs, record: record('findings.headline_finding'), evidence: [] }),

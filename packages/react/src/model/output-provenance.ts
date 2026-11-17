@@ -1,18 +1,9 @@
-import type { OutputStatus } from './output-status.js';
-
-/** Recorded execution metadata supplied by the host, independent of the current recipe. */
-export interface OutputRun {
-  finishedAt: string;
-  gitRevision: string;
-  recipe: string;
-  environment: string;
-  inputVersions: Readonly<Record<string, string>>;
-  cliVersion: string;
-}
-
+import type { ProvenanceRecord, Status } from '@astra-spec/sdk/reports';
 export interface OutputProvenanceData {
-  status?: OutputStatus | undefined;
-  /** null means the host found no recorded run; undefined means it has not loaded. */
-  run?: OutputRun | null | undefined;
+  status?: Status | undefined;
+  /** A record the host loads separately; otherwise status.record is used. null means none was recorded. */
+  record?: ProvenanceRecord | null | undefined;
+  /** The host is still fetching the record: say so instead of "no recorded run". */
+  loading?: boolean | undefined;
   error?: string | undefined;
 }

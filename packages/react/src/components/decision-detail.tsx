@@ -1,4 +1,4 @@
-import type { ResolvedDecision, ResolvedInsight } from '@astra-spec/sdk';
+import type { Decision, Insight } from '@astra-spec/sdk/reports';
 import { forwardRef, useId, type HTMLAttributes } from 'react';
 import { recordTitle } from '../model/records.js';
 import { useLabels } from '../lib/labels.js';
@@ -9,16 +9,18 @@ import type { TextRenderer } from '../lib/prose.js';
 import { InsightTrigger } from './insight-trigger.js';
 
 export interface DecisionDetailProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
-  record: ResolvedDecision;
+  record: Decision;
+  selectedOptionId?: string | undefined;
   /** Insights cited by the decision's options; see `decisionInsights()`. */
-  insights: ResolvedInsight[];
+  insights: Insight[];
   renderText?: TextRenderer | undefined;
-  onOpenInsight?: ((insight: ResolvedInsight) => void) | undefined;
+  onOpenInsight?: ((insight: Insight) => void) | undefined;
 }
 
 /** Rationale, options with the selected one marked, and the insights that informed the decision. */
 export const DecisionDetail = forwardRef<HTMLDivElement, DecisionDetailProps>(function DecisionDetail({
   record,
+  selectedOptionId,
   insights,
   renderText,
   onOpenInsight,
@@ -38,7 +40,7 @@ export const DecisionDetail = forwardRef<HTMLDivElement, DecisionDetailProps>(fu
           <h4 id={optionsId}>Options</h4>
           <ul>
             {record.options.map((option) => {
-              const selected = option.id === record.selectedOptionId;
+              const selected = option.id === selectedOptionId;
               return (
                 <li key={option.id} {...(selected ? { 'data-selected': '' } : {})}>
                   <span className="astra-decision-options__marker" aria-hidden="true">
@@ -59,7 +61,7 @@ export const DecisionDetail = forwardRef<HTMLDivElement, DecisionDetailProps>(fu
           {insights.length ? (
             <ul className="astra-decision-insights">
               {insights.map((insight) => (
-                <li key={insight.canonicalPath}>
+                <li key={insight.ref}>
                   <InsightTrigger
                     insight={insight}
                     variant="claim"
@@ -78,7 +80,7 @@ export const DecisionDetail = forwardRef<HTMLDivElement, DecisionDetailProps>(fu
 
 export interface DecisionDialogProps extends Pick<DetailDialogProps, 'mode' | 'backText' | 'className' | 'onBack' | 'onClose'>, Omit<DecisionDetailProps, 'className'> {}
 
-export function DecisionDialog({ record, insights, renderText, onOpenInsight, ...dialog }: DecisionDialogProps) {
+export function DecisionDialog({ record, selectedOptionId, insights, renderText, onOpenInsight, ...dialog }: DecisionDialogProps) {
   const labels = useLabels();
   return (
     <DetailDialog
@@ -88,7 +90,7 @@ export function DecisionDialog({ record, insights, renderText, onOpenInsight, ..
       title={recordTitle(record)}
       closeLabel={labels.closeRecord(labels.kinds.decision)}
     >
-      <DecisionDetail record={record} insights={insights} renderText={renderText} onOpenInsight={onOpenInsight} />
+      <DecisionDetail record={record} selectedOptionId={selectedOptionId} insights={insights} renderText={renderText} onOpenInsight={onOpenInsight} />
     </DetailDialog>
   );
 }

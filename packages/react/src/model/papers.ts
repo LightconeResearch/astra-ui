@@ -1,13 +1,12 @@
+import { normalizeDoi } from './doi.js';
 import {
-  normalizeDoi,
-  walkAnalyses,
-  type AnalysisIndex,
-  type ResolvedAnalysisDocument,
-  type ResolvedAnalysisNode,
-  type ResolvedDecision,
-  type ResolvedEvidence,
-  type ResolvedInsight,
-} from '@astra-spec/sdk';
+  type ResolvedAnalysisIndex,
+  type ResolvedAnalysis,
+  type Analysis,
+  type Decision,
+  type Evidence,
+  type Insight,
+} from '@astra-spec/sdk/reports';
 import { decisionInsights } from './relations.js';
 
 export interface InventoryPaper {
@@ -15,8 +14,8 @@ export interface InventoryPaper {
   title: string;
   authors?: string | undefined;
   pdfUrl?: string | undefined;
-  insights: ResolvedInsight[];
-  decisions: ResolvedDecision[];
+  insights: Insight[];
+  decisions: Decision[];
 }
 
 export type PaperFetchStatus = 'idle' | 'fetching' | 'error';
@@ -31,6 +30,12 @@ export interface InventoryPaperMetadata {
 }
 
 export type InventoryPaperMetadataMap = Readonly<Record<string, InventoryPaperMetadata>>;
+
+/** The page a literature location names (`page=N` in its fragment selector), if any. */
+export function evidencePage(evidence: Evidence): number | undefined {
+  const match = evidence.location?.value ? /(?:^|&)page=(\d+)(?:&|$)/.exec(evidence.location.value) : null;
+  return match ? Number(match[1]) : undefined;
+}
 
 /** Looks up metadata by DOI, whichever spelling the host used as the key. */
 export function paperMetadataFor(doi: string, metadata: InventoryPaperMetadataMap): InventoryPaperMetadata | undefined {
@@ -54,7 +59,7 @@ function paperFromDoi(doi: string, paperMetadata: InventoryPaperMetadataMap): In
   };
 }
 
-export function insightDois(insight: ResolvedInsight): string[] {
+export function insightDois(insight: Insight): string[] {
   const seen = new Set<string>();
   const dois: string[] = [];
   for (const { doi } of insight.evidence) {
@@ -68,34 +73,34 @@ export function insightDois(insight: ResolvedInsight): string[] {
 }
 
 /** Quoted evidence an insight draws from a given paper. */
-export function paperEvidence(insight: ResolvedInsight, doi: string): ResolvedEvidence[] {
+export function paperEvidence(insight: Insight, doi: string): Evidence[] {
   const key = normalizeDoi(doi);
   return insight.evidence.filter((evidence) => evidence.quote && normalizeDoi(evidence.doi ?? '') === key);
 }
 
 /** The root inventory aggregates cited papers; child inventories stay local. */
-export function analysesForPaperView(document: ResolvedAnalysisDocument, analysis: ResolvedAnalysisNode): ResolvedAnalysisNode[] {
-  return analysis.canonicalPath === '$' ? [...walkAnalyses(document)] : [analysis];
+export function analysesForPaperView(document: ResolvedAnalysis, analysis: Analysis): Analysis[] {
+  return analysis.key === '' ? [...document.analyses] : [analysis];
 }
 
 export function collectInventoryPapers(
-  document: ResolvedAnalysisDocument,
-  index: AnalysisIndex,
-  analysis: ResolvedAnalysisNode,
+  document: ResolvedAnalysis,
+  index: ResolvedAnalysisIndex,
+  analysis: Analysis,
   paperMetadata: InventoryPaperMetadataMap = {},
 ): InventoryPaper[] {
   const analyses = analysesForPaperView(document, analysis);
-  const insights = new Map<string, ResolvedInsight>();
-  const decisions = new Map<string, ResolvedDecision>();
+  const insights = new Map<string, Insight>();
+  const decisions = new Map<string, Decision>();
 
   for (const candidate of analyses) {
-    for (const record of candidate.decisions) decisions.set(record.canonicalPath, record);
-    for (const record of [...candidate.prior_insights, ...candidate.findings]) insights.set(record.canonicalPath, record);
+    for (const record of candidate.decisions) decisions.set(record.ref, record);
+    for (const record of [...candidate.prior_insights, ...candidate.findings]) insights.set(record.ref, record);
   }
 
-  if (analysis.canonicalPath !== '$') {
+  if (analysis.key !== '') {
     for (const decision of decisions.values()) {
-      for (const insight of decisionInsights(index, decision)) insights.set(insight.canonicalPath, insight);
+      for (const insight of decisionInsights(index, decision)) insights.set(insight.ref, insight);
     }
   }
 
@@ -104,7 +109,7 @@ export function collectInventoryPapers(
     for (const doi of insightDois(insight)) {
       const key = normalizeDoi(doi);
       const paper = papers.get(key) ?? paperFromDoi(doi, paperMetadata);
-      if (!paper.insights.some((candidate) => candidate.canonicalPath === insight.canonicalPath)) {
+      if (!paper.insights.some((candidate) => candidate.ref === insight.ref)) {
         paper.insights.push(insight);
       }
       papers.set(key, paper);
@@ -123,9 +128,9 @@ export function collectInventoryPapers(
 
 /** The paper a DOI denotes within one analysis' scope (see `collectInventoryPapers`), whether or not the host listed it. */
 export function paperForDoi(
-  document: ResolvedAnalysisDocument,
-  index: AnalysisIndex,
-  analysis: ResolvedAnalysisNode,
+  document: ResolvedAnalysis,
+  index: ResolvedAnalysisIndex,
+  analysis: Analysis,
   doi: string,
   paperMetadata: InventoryPaperMetadataMap = {},
 ): InventoryPaper | undefined {
@@ -143,6 +148,6 @@ export function findPaper(papers: readonly InventoryPaper[], doi: string): Inven
  * with a DOI. A quote without a DOI names no paper to open, so it is skipped;
  * the passage shown and the paper opened always belong to this one entry.
  */
-export function primaryLiteratureEvidence(insight: ResolvedInsight) {
+export function primaryLiteratureEvidence(insight: Insight) {
   return insight.evidence.find((evidence) => Boolean(evidence.doi));
 }

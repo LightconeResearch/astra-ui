@@ -1,151 +1,176 @@
-import { ASTRA_SPEC_VERSION } from '@astra-spec/sdk';
+import { parseResolvedAnalysis, parseStatusReport } from '@astra-spec/sdk/reports';
 
-const publishedMethod = {
-  id: 'published_method',
-  label: 'Published method',
-  kind: 'prior_insight',
-  canonicalPath: 'prior_insights.published_method',
-  claim: 'The fiducial method is established.',
-  created_at: '2026-01-01T00:00:00Z',
-  evidence: [{
-    id: 'paper',
-    doi: 'https://doi.org/10.1234/EXAMPLE',
-    quote: { exact: 'The fiducial method performs well.' },
-    location: { page: 4 },
-  }],
-};
-
-// Same paper as publishedMethod, cited by no decision: the paper rail's
-// decision filter has nothing to narrow without it.
-const uncitedCaveat = {
-  id: 'uncited_caveat',
-  label: 'Uncited caveat',
-  kind: 'prior_insight',
-  canonicalPath: 'prior_insights.uncited_caveat',
-  claim: 'The method degrades outside the fiducial range.',
-  created_at: '2026-01-01T00:00:00Z',
-  evidence: [{
-    id: 'paper',
-    doi: 'https://doi.org/10.1234/EXAMPLE',
-    quote: { exact: 'Outside this range the method degrades.' },
-    location: { page: 9 },
-  }],
-};
-
-const methodDecision = {
-  id: 'method',
-  label: 'Method choice',
-  kind: 'decision',
-  canonicalPath: 'decisions.method',
-  active: true,
-  rationale: 'Use the established method.',
-  selectedOptionId: 'fiducial',
-  options: [
+/** A portable report fixture: transport fields match astra-tools exactly. */
+export const fixtureDocument = parseResolvedAnalysis({
+  schema_version: 'astra-tools.resolved-analysis.v1',
+  spec_version: '0.1.0',
+  notes: [],
+  analyses: [
     {
-      id: 'fiducial',
-      label: 'Fiducial',
-      resolvedInsightPaths: ['prior_insights.published_method'],
+      key: '',
+      folder: '.',
+      label: 'DESI demo',
+      description: 'A resolved ASTRA project.',
+      tags: [],
+      declares: { clustering: 'clustering' },
+      inputs: [{ ref: 'inputs.catalog', label: 'Input catalogue', path: 'data/catalog.fits', tags: [] }],
+      decisions: [
+        {
+          ref: 'decisions.method',
+          label: 'Method choice',
+          rationale: 'Use the established method.',
+          tags: [],
+          options: [
+            { id: 'fiducial', label: 'Fiducial', tags: [], insights: ['prior_insights.published_method'] },
+            { id: 'alternate', label: 'Alternate', tags: [], insights: [] },
+          ],
+        },
+      ],
+      outputs: [
+        {
+          ref: 'outputs.headline',
+          label: 'Headline result',
+          type: 'figure',
+          format: 'png',
+          description: 'The primary result.',
+          tags: [],
+          decisions: ['decisions.method'],
+        },
+        { ref: 'outputs.summary', type: 'report', format: 'html', tags: [], decisions: [] },
+      ],
+      prior_insights: [
+        {
+          ref: 'prior_insights.published_method',
+          label: 'Published method',
+          kind: 'prior_insight',
+          claim: 'The fiducial method is established.',
+          tags: [],
+          evidence: [
+            {
+              doi: 'https://doi.org/10.1234/EXAMPLE',
+              quote: { exact: 'The fiducial method performs well.' },
+              location: { value: 'page=4' },
+            },
+          ],
+        },
+        {
+          ref: 'prior_insights.uncited_caveat',
+          label: 'Uncited caveat',
+          kind: 'prior_insight',
+          claim: 'The method degrades outside the fiducial range.',
+          tags: [],
+          evidence: [
+            {
+              doi: 'https://doi.org/10.1234/EXAMPLE',
+              quote: { exact: 'Outside this range the method degrades.' },
+              location: { value: 'page=9' },
+            },
+          ],
+        },
+      ],
+      findings: [
+        {
+          ref: 'findings.headline_finding',
+          label: 'Headline finding',
+          kind: 'finding',
+          claim: 'The headline result is significant.',
+          tags: [],
+          evidence: [
+            {
+              artifact: 'headline',
+              cites: ['outputs.headline#baseline'],
+              bindings: [
+                {
+                  universe: 'universes.baseline',
+                  output: 'outputs.headline',
+                  target_universe: 'universes.baseline',
+                  result: 'outputs.headline#baseline',
+                },
+              ],
+            },
+            { doi: '10.9999/finding' },
+          ],
+        },
+      ],
+      universes: [
+        { ref: 'universes.baseline', label: 'Baseline', selection: { 'decisions.method': 'fiducial' }, tags: [] },
+        { ref: 'universes.alternate', label: 'Alternate', selection: { 'decisions.method': 'alternate' }, tags: [] },
+      ],
     },
-    { id: 'alternate', label: 'Alternate', resolvedInsightPaths: [] },
+    {
+      key: 'clustering',
+      folder: 'clustering',
+      label: 'Clustering',
+      tags: [],
+      declares: {},
+      inputs: [],
+      decisions: [],
+      outputs: [
+        {
+          ref: 'clustering.outputs.correlation',
+          label: 'Correlation function',
+          type: 'table',
+          format: 'csv',
+          tags: [],
+          decisions: [],
+        },
+      ],
+      prior_insights: [
+        {
+          ref: 'clustering.prior_insights.nested_source',
+          kind: 'prior_insight',
+          claim: 'Nested work cites another paper.',
+          tags: [],
+          evidence: [{ doi: '10.5678/nested' }],
+        },
+      ],
+      findings: [],
+      universes: [],
+    },
   ],
-};
-
-const headlineOutput = {
-  id: 'headline',
-  label: 'Headline result',
-  kind: 'output',
-  canonicalPath: 'outputs.headline',
-  type: 'figure',
-  format: 'png',
-  description: 'The primary result.',
-  active: true,
-  inputs: ['catalog'],
-  decisions: ['method'],
-  provenance: {
-    inputPaths: ['inputs.catalog'],
-    decisionPaths: ['decisions.method'],
+  results: [
+    {
+      id: 'outputs.headline#baseline',
+      output: 'outputs.headline',
+      universe: 'universes.baseline',
+      command: 'python plot.py',
+      inputs: [{ entry: 'inputs.catalog', input: 'inputs.catalog' }],
+      places: [
+        {
+          address: 'outputs.headline#baseline',
+          record_path: 'results/baseline/headline.prov.json',
+          file_path: 'results/baseline/headline.png',
+        },
+      ],
+    },
+    {
+      id: 'outputs.headline#alternate',
+      output: 'outputs.headline',
+      universe: 'universes.alternate',
+      command: 'python alternative.py',
+      inputs: [{ entry: 'inputs.catalog', input: 'inputs.catalog' }],
+      places: [
+        {
+          address: 'outputs.headline#alternate',
+          record_path: 'results/alternate/headline.prov.json',
+          file_path: 'results/alternate/headline.png',
+        },
+      ],
+    },
+    {
+      id: 'clustering.outputs.correlation',
+      output: 'clustering.outputs.correlation',
+      inputs: [{ entry: 'inputs.catalog', input: 'inputs.catalog' }],
+      places: [],
+    },
+  ],
+});
+export const fixtureStatus = parseStatusReport({
+  schema_version: 'astra-tools.status-report.v1',
+  inputs: { 'inputs.catalog': { state: 'present' } },
+  evidence: [],
+  statuses: {
+    'outputs.headline#baseline': { state: 'unchanged', bytes: { state: 'present' }, why: [], stale_inputs: [] },
+    'outputs.headline#alternate': { state: 'missing', bytes: { state: 'absent' }, why: [], stale_inputs: [] },
   },
-  artifact: { byteSize: 2048 },
-};
-
-const clustering = {
-  id: 'clustering',
-  name: 'Clustering',
-  canonicalPath: 'clustering',
-  inputs: [],
-  outputs: [{
-    id: 'correlation',
-    label: 'Correlation function',
-    kind: 'output',
-    canonicalPath: 'clustering.outputs.correlation',
-    type: 'table',
-    format: 'csv',
-    active: true,
-    provenance: { inputPaths: ['inputs.catalog'], decisionPaths: [] },
-  }],
-  decisions: [],
-  prior_insights: [{
-    id: 'nested_source',
-    kind: 'prior_insight',
-    canonicalPath: 'clustering.prior_insights.nested_source',
-    claim: 'Nested work cites another paper.',
-    created_at: '2026-01-02T00:00:00Z',
-    evidence: [{ id: 'nested-paper', doi: '10.5678/nested' }],
-  }],
-  findings: [],
-  analyses: [],
-};
-
-export const fixtureDocument = {
-  schemaVersion: 'astra-resolved-analysis.v1',
-  universe: {
-    universeId: 'baseline',
-    availableUniverseIds: ['baseline'],
-    source: 'explicit',
-  },
-  analysis: {
-    version: ASTRA_SPEC_VERSION,
-    name: 'DESI demo',
-    description: 'A resolved ASTRA project.',
-    canonicalPath: '$',
-    inputs: [{
-      id: 'catalog',
-      label: 'Input catalogue',
-      kind: 'input',
-      canonicalPath: 'inputs.catalog',
-      type: 'data',
-      source: 'data/catalog.fits',
-    }],
-    outputs: [
-      headlineOutput,
-      {
-        id: 'summary',
-        kind: 'output',
-        canonicalPath: 'outputs.summary',
-        type: 'report',
-        format: 'html',
-        active: false,
-        provenance: { inputPaths: [], decisionPaths: [] },
-      },
-    ],
-    decisions: [methodDecision],
-    prior_insights: [publishedMethod, uncitedCaveat],
-    findings: [{
-      id: 'headline_finding',
-      label: 'Headline finding',
-      kind: 'finding',
-      canonicalPath: 'findings.headline_finding',
-      claim: 'The headline result is significant.',
-      created_at: '2026-01-03T00:00:00Z',
-      evidence: [{
-        id: 'headline-artifact',
-        artifact: 'headline',
-        resolvedOutputPath: 'outputs.headline',
-      }, {
-        id: 'finding-paper',
-        doi: '10.9999/finding',
-      }],
-    }],
-    analyses: [clustering],
-  },
-};
+});

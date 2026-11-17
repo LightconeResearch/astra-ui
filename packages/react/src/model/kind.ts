@@ -1,7 +1,7 @@
-import type { ResolvedRecord } from '@astra-spec/sdk';
+import type { RecordKind } from './records.js';
 
 /** Record kinds plus the two non-record surfaces the UI colours. */
-export type SurfaceKind = ResolvedRecord['kind'] | 'analysis' | 'paper';
+export type SurfaceKind = RecordKind | 'analysis' | 'paper';
 
 const SURFACE_GLYPHS: Record<SurfaceKind, string> = {
   analysis: '◐',

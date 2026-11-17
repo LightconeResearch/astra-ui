@@ -218,11 +218,11 @@ function packUi() {
 
 // --- 2. build astra-theme against it ------------------------------------------
 
-function buildTheme(tarball, brand) {
+function buildTheme(tarball, brand, sdk) {
   const theme = materialize('theme', options.theme, refs.theme.repository);
   ensureInstalled(theme.dir);
-  log('theme: installing the packed UI and the playground’s exact Lightcone brand');
-  run('npm', ['install', tarball, `@lightcone-research/brand@${brand}`, '--workspace', 'packages/astra', '--no-audit', '--no-fund'], { cwd: theme.dir });
+  log('theme: installing the packed UI, its SDK and the playground’s exact Lightcone brand');
+  run('npm', ['install', tarball, `@astra-spec/sdk@${sdk}`, `@lightcone-research/brand@${brand}`, '--workspace', 'packages/astra', '--no-audit', '--no-fund'], { cwd: theme.dir });
   const script = `build:${basename(refs.theme.template)}`;
   log(`theme: npm run ${script}`);
   try {
@@ -268,6 +268,16 @@ function resolvePlugin() {
 
 function exportSite(theme, plugin) {
   const content = materialize('content', options.content, refs.content.repository);
+  // A local --content checkout is copied without .git, but ASTRA 0.1 resolves
+  // only tracked inputs: snapshot the copy into a throwaway repository.
+  if (!existsSync(join(content.dir, '.git'))) {
+    run('git', ['init', '--quiet'], { cwd: content.dir });
+    run('git', ['-c', 'core.excludesFile=/dev/null', 'add', '--all'], { cwd: content.dir });
+    run('git', ['-c', 'user.name=ASTRA preview', '-c', 'user.email=preview@astra.invalid', '-c', 'commit.gpgSign=false', 'commit', '--quiet', '--message', 'Snapshot preview content'], {
+      cwd: content.dir,
+      env: { GIT_AUTHOR_DATE: '2026-01-01T00:00:00Z', GIT_COMMITTER_DATE: '2026-01-01T00:00:00Z' },
+    });
+  }
   const configPath = join(content.dir, 'myst.yml');
   if (!isFile(configPath)) throw new Error(`no myst.yml in ${rel(content.dir)}`);
   const config = parseDocument(readFileSync(configPath, 'utf8'));
@@ -371,7 +381,8 @@ const ui = packUi();
 // The playground dependency is the single brand selection for both surfaces.
 const playground = join(ui.dir, 'packages/playground');
 const brand = JSON.parse(readFileSync(join(playground, 'package.json'), 'utf8')).devDependencies['@lightcone-research/brand'];
-const theme = buildTheme(ui.tarball, brand);
+const sdk = JSON.parse(readFileSync(join(ui.dir, 'package.json'), 'utf8')).devDependencies['@astra-spec/sdk'];
+const theme = buildTheme(ui.tarball, brand, sdk);
 const brandIntegrity = brandFingerprint(join(playground, 'package.json'));
 if (brandIntegrity !== brandFingerprint(join(theme.dir, 'packages/astra/package.json'))) {
   throw new Error('Paper and playground resolved different Lightcone CSS or fonts');

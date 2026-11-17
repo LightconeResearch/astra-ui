@@ -2,13 +2,13 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { indexAnalysis } from '@astra-spec/sdk';
+import { indexResolvedAnalysis } from '@astra-spec/sdk';
 import { FindingDetail, InputDetail } from '../packages/react/dist/components/index.js';
 import { findingEvidence } from '../packages/react/dist/model/index.js';
 import { fixtureDocument } from './fixture.mjs';
 
-const index = indexAnalysis(fixtureDocument);
-const record = (path) => index.recordByPath.get(path);
+const index = indexResolvedAnalysis(fixtureDocument);
+const record = (path) => index.elementByRef.get(path)?.element;
 const html = (element) => renderToStaticMarkup(React.createElement('div', { className: 'astra-ui' }, element));
 
 test('a finding shows its literature sources next to its supporting results', () => {
@@ -20,18 +20,9 @@ test('a finding shows its literature sources next to its supporting results', ()
   assert.match(markup, /href="https:\/\/doi\.org\/10\.9999\/finding"/);
 });
 
-test('an alias input shows the record it resolves from and its own source', () => {
-  const alias = {
-    ...record('inputs.catalog'),
-    canonicalPath: 'clustering.inputs.catalog',
-    resolvedFrom: 'inputs.catalog',
-    source: 'https://data.example/catalog',
-  };
-  const markup = html(React.createElement(InputDetail, { record: alias }));
-  assert.match(markup, /<h4>Resolved from<\/h4><code[^>]*>inputs\.catalog<\/code>/);
-  assert.match(markup, /<h4>Source<\/h4><code[^>]*>https:\/\/data\.example\/catalog<\/code>/);
-
-  const plain = html(React.createElement(InputDetail, { record: { ...record('inputs.catalog'), source: 'https://data.example/catalog' } }));
-  assert.match(plain, /<h4>Source<\/h4><code[^>]*>https:\/\/data\.example\/catalog<\/code>/);
-  assert.doesNotMatch(plain, /Resolved from/);
+test('an input shows its repository path without inventing removed source or alias fields', () => {
+  const input = { ...record('inputs.catalog'), ref: 'clustering.inputs.catalog', path: 'data/catalog.fits' };
+  const markup = html(React.createElement(InputDetail, { record: input }));
+  assert.match(markup, /<h4>Source<\/h4><code[^>]*>data\/catalog\.fits<\/code>/);
+  assert.doesNotMatch(markup, /Resolved from/);
 });

@@ -1,14 +1,16 @@
-import type { ResolvedOutput } from '@astra-spec/sdk';
+import type { Output, Result } from '@astra-spec/sdk/reports';
 import { forwardRef, type HTMLAttributes } from 'react';
-import type { OutputStatus } from '../model/output-status.js';
+import type { Status } from '@astra-spec/sdk/reports';
 import { OutputStatusIndicator } from './output-status.js';
 import { recordTitle } from '../model/records.js';
 import { cn } from '../lib/cn.js';
 import type { ArtifactRenderer } from './artifact-preview.js';
 
 export interface OutputEntryProps extends Omit<HTMLAttributes<HTMLButtonElement>, 'children'> {
-  output: ResolvedOutput;
-  status?: OutputStatus | undefined;
+  output: Output;
+  result?: Result | undefined;
+  universeRef?: string | undefined;
+  status?: Status | undefined;
   renderArtifact?: ArtifactRenderer | undefined;
   onOpen: () => void;
 }
@@ -18,20 +20,31 @@ export interface OutputEntryProps extends Omit<HTMLAttributes<HTMLButtonElement>
  * metric reads as its value over its name, anything else as its name. The row
  * it wraps in decides how a run of these is laid out.
  */
-export const OutputEntry = forwardRef<HTMLButtonElement, OutputEntryProps>(function OutputEntry({
-  output,
-  status,
-  renderArtifact,
-  onOpen,
-  className,
-  onClick,
-  'aria-label': hostLabel,
-  ...props
-}, ref) {
+export const OutputEntry = forwardRef<HTMLButtonElement, OutputEntryProps>(function OutputEntry(
+  {
+    output,
+    result,
+    universeRef,
+    status,
+    renderArtifact,
+    onOpen,
+    className,
+    onClick,
+    'aria-label': hostLabel,
+    ...props
+  },
+  ref,
+) {
   const title = recordTitle(output);
   const metric = output.type === 'metric';
   // Why the document itself has nothing to show, before any host status.
-  const absenceNote = !output.active ? 'Inactive' : !output.artifact ? 'Not yet generated' : undefined;
+  const absenceNote = !result
+    ? 'No planned result'
+    : status?.bytes?.state === 'absent'
+      ? 'Bytes unavailable'
+      : status?.state === 'missing'
+        ? 'No provenance record'
+        : undefined;
   return (
     <button
       data-slot="output-entry"
@@ -50,10 +63,14 @@ export const OutputEntry = forwardRef<HTMLButtonElement, OutputEntryProps>(funct
       </span>
       {metric ? (
         <span className="astra-output-entry__value">
-          {status?.state === 'stale' && !output.artifact
-            ? <span className="astra-artifact__metric-value" aria-label="No value">–</span>
-            : renderArtifact?.(output, { compact: true })
-              ?? <span className="astra-output-entry__status">{absenceNote ?? 'Preview unavailable'}</span>}
+          {renderArtifact?.(output, { compact: true, result, status, universeRef }) ??
+            (status?.bytes?.state === 'absent' ? (
+              <span className="astra-artifact__metric-value" aria-label="No value">
+                –
+              </span>
+            ) : (
+              <span className="astra-output-entry__status">{absenceNote ?? 'Preview unavailable'}</span>
+            ))}
         </span>
       ) : null}
     </button>

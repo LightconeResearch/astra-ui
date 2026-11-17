@@ -1,7 +1,7 @@
 name: Continuous release
 
-# Publishes review builds for commits and pull requests. Consumer dependencies
-# use npm releases; this workflow remains available for testing future changes.
+# Publishes review builds for commits and pull requests. Explicit repository URLs
+# keep the review builds usable after a repository transfer.
 
 on:
   push:
@@ -21,4 +21,4 @@ jobs:
           cache: npm
       - run: npm ci
       # `npm pack` runs the package's prepack build, so no separate build step.
-      - run: npm exec -- pkg-pr-new publish ./packages/react --comment=update
+      - run: npm exec -- pkg-pr-new publish ./packages/react --comment=update --no-compact

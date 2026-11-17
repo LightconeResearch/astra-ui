@@ -1,142 +1,172 @@
-import type {
-  ResolvedAnalysisNode,
-  ResolvedDecision,
-  ResolvedEvidence,
-  ResolvedInsight,
-  ResolvedOutput,
-  ResolvedRecord,
-} from '@astra-spec/sdk';
-import { walkAnalyses, type AnalysisIndex, type ResolvedAnalysisDocument } from '@astra-spec/sdk';
+import {
+  getResult,
+  getEvidenceBindings,
+  getEvidenceOutput,
+  getSelectedOption,
+  traceResultProvenance,
+  selectResult,
+  type Analysis,
+  type Decision,
+  type Evidence,
+  type Insight,
+  type Output,
+  type ResolvedAnalysis,
+  type ResolvedAnalysisIndex,
+  type Result,
+  type Switch,
+} from '@astra-spec/sdk/reports';
 import { locateRecord } from './locate-record.js';
-import { isInsight } from './records.js';
+import { isInsight, type AstraRecord } from './records.js';
 
-/** A referenced record; `record`/`analysis` are absent when the path does not resolve. */
+/** A referenced record; `record`/`analysis` are absent when the ref does not resolve. */
 export interface LinkedRecord {
-  canonicalPath: string;
-  record?: ResolvedRecord | undefined;
-  analysis?: ResolvedAnalysisNode | undefined;
+  ref: string;
+  universeRef?: string | undefined;
+  record?: AstraRecord | undefined;
+  analysis?: Analysis | undefined;
 }
 
 export interface OutputRelations {
   inputs: LinkedRecord[];
   /**
-   * Every decision on a dependency path to the output: the ones it declares,
-   * then those reached through upstream outputs, in any analysis (see
-   * `outputDecisionPaths`). `via` names the immediate upstream outputs a
-   * decision arrives through, and is absent on one the output declares.
+   * Every decision on a dependency path to the output, from the SDK's provenance
+   * trace: the ones it declares, then those reached through upstream results.
+   * `via` names the immediate upstream records a decision arrives through, and
+   * is absent on one the output declares.
    */
   decisions: (LinkedRecord & { via?: LinkedRecord[] | undefined })[];
-  alias?: LinkedRecord | undefined;
+  /** Authored switches directly referenced by an unplanned output. */
+  switches?: readonly Switch[] | undefined;
 }
+
 
 export interface FindingEvidenceLink {
-  evidence: ResolvedEvidence;
-  output?: ResolvedOutput | undefined;
-  analysis?: ResolvedAnalysisNode | undefined;
+  evidence: Evidence;
+  result?: Result | undefined;
+  universeRef?: string | undefined;
+  output?: Output | undefined;
+  analysis?: Analysis | undefined;
 }
-
-export function linkedRecord(index: AnalysisIndex, canonicalPath: string): LinkedRecord {
-  const located = locateRecord(index, canonicalPath);
-  return {
-    canonicalPath,
-    ...(located ? { record: located.record, analysis: located.analysis } : {}),
-  };
+export function linkedRecord(index: ResolvedAnalysisIndex, ref: string, universeRef?: string): LinkedRecord {
+  const found = locateRecord(index, ref);
+  return { ref, universeRef, ...(found ? { record: found.record, analysis: found.analysis } : {}) };
 }
-
-/**
- * Every decision with a dependency path to an output: the ones its own
- * provenance declares, then those of every upstream output — an input that
- * is (or aliases) an output, the output's own alias target, and so on
- * recursively, across analyses. Direct decisions come first in document
- * order, then the rest in order of discovery; a decision reached by several
- * paths is listed once, and cycles are ignored.
- */
-export function outputDecisionPaths(index: AnalysisIndex, output: ResolvedOutput): string[] {
-  return [...collectOutputDecisions(index, output).keys()];
+/** Select the effective result without interpreting IDs, including once-built outputs. */
+export function outputResult(index: ResolvedAnalysisIndex, output: Output, universeRef?: string): Result | undefined {
+  return universeRef ? selectResult(index, output.ref, universeRef) : getResult(index, output.ref);
 }
-
-/**
- * The immediate upstream outputs each decision arrives through, for the ones
- * an output does not declare itself. A decision reachable through two upstream
- * outputs names both; decisions the output declares are omitted.
- */
-export function outputDecisionRoutes(index: AnalysisIndex, output: ResolvedOutput): Map<string, Set<string>> {
-  return new Map([...collectOutputDecisions(index, output)].filter(([, via]) => via.size));
+function contextKey(ref: string, universeRef?: string): string {
+  return JSON.stringify([ref, universeRef]);
 }
-
-/** Ordered decisions and their routes, derived in one walk for every consumer. */
-function collectOutputDecisions(index: AnalysisIndex, output: ResolvedOutput): Map<string, Set<string>> {
-  const direct = new Set(output.provenance.decisionPaths);
-  // Empty routes mark direct decisions, which always precede inherited ones.
-  const decisions = new Map([...direct].map((path) => [path, new Set<string>()]));
-  const seenByRoute = new Map<string, Set<string>>();
-  const queue: { path: string; via?: string }[] = [
-    ...output.provenance.inputPaths.map((path) => ({ path })),
-    ...(output.resolvedFrom ? [{ path: output.resolvedFrom }] : []),
-  ];
-  // Array iteration sees entries pushed while it runs, so the walk is a BFS.
-  for (const entry of queue) {
-    let record = index.recordByPath.get(entry.path);
-    if (record?.kind === 'input' && record.resolvedFrom) record = index.recordByPath.get(record.resolvedFrom);
-    if (record?.kind !== 'output' || record.canonicalPath === output.canonicalPath) continue;
-    // The first upstream output on a path is the route; deeper hops keep it.
-    const via = entry.via ?? record.canonicalPath;
-    const walked = seenByRoute.get(via) ?? new Set<string>();
-    if (walked.has(record.canonicalPath)) continue;
-    walked.add(record.canonicalPath);
-    seenByRoute.set(via, walked);
-    for (const decisionPath of record.provenance.decisionPaths) {
-      if (direct.has(decisionPath)) continue;
-      const found = decisions.get(decisionPath) ?? new Set<string>();
-      found.add(via);
-      decisions.set(decisionPath, found);
+/** Group SDK provenance occurrences for display; the SDK owns traversal and effective selections. */
+function decisionLinks(
+  index: ResolvedAnalysisIndex,
+  output: Output,
+  universeRef?: string,
+): OutputRelations['decisions'] {
+  const seed = outputResult(index, output, universeRef);
+  if (!seed) return output.decisions.map((ref) => linkedRecord(index, ref, universeRef));
+  const groups = new Map<string, { link: LinkedRecord; direct: boolean; via: Map<string, LinkedRecord> }>();
+  for (const occurrence of traceResultProvenance(index, seed.id).decisions) {
+    const key = contextKey(occurrence.decision.ref, occurrence.universe);
+    const group = groups.get(key) ?? {
+      link: linkedRecord(index, occurrence.decision.ref, occurrence.universe),
+      direct: false,
+      via: new Map<string, LinkedRecord>(),
+    };
+    const edge = occurrence.route[0];
+    if (occurrence.result.id === seed.id) {
+      group.direct = true;
+      group.via.clear();
+    } else if (!group.direct && edge) {
+      const via = edge.source.result ? index.resultById.get(edge.source.result) : undefined;
+      const link = via
+        ? linkedRecord(index, via.output, via.universe)
+        : edge.source.input
+          ? linkedRecord(index, edge.source.input)
+          : undefined;
+      if (link) group.via.set(contextKey(link.ref, link.universeRef), link);
     }
-    const next = [...record.provenance.inputPaths, ...(record.resolvedFrom ? [record.resolvedFrom] : [])];
-    queue.push(...next.map((path) => ({ path, via })));
+    groups.set(key, group);
   }
-  return decisions;
+  return [...groups.values()].map(({ link, via }) => ({ ...link, ...(via.size ? { via: [...via.values()] } : {}) }));
 }
-
-/** Inputs, every decision on a dependency path, and alias source an output depends on; a record referenced twice (e.g. through an alias) is listed once. */
-export function outputRelations(index: AnalysisIndex, output: ResolvedOutput): OutputRelations {
-  const unique = (paths: readonly string[]) => [...new Set(paths)];
-  const decisions = collectOutputDecisions(index, output);
+/**
+ * An output's inputs and upstream outputs, without tracing its decisions:
+ * effective edges for a planned result, authored references otherwise.
+ */
+export function outputInputs(index: ResolvedAnalysisIndex, output: Output, universeRef?: string): LinkedRecord[] {
+  const result = outputResult(index, output, universeRef);
+  const inputs = result
+    ? result.inputs.flatMap((source) => {
+        const upstream = source.result ? index.resultById.get(source.result) : undefined;
+        const ref = source.input ?? upstream?.output;
+        return ref ? [linkedRecord(index, ref, upstream?.universe)] : [];
+      })
+    : (output.inputs ?? []).map((reference) => linkedRecord(index, reference.target, reference.universe));
+  return [...new Map(inputs.map((link) => [contextKey(link.ref, link.universeRef), link])).values()];
+}
+/** Planned results expose effective edges; unplanned outputs retain their canonical authored references. */
+export function outputRelations(index: ResolvedAnalysisIndex, output: Output, universeRef?: string): OutputRelations {
+  const inputs = outputInputs(index, output, universeRef);
+  const switches = inputs.flatMap((link) => {
+    const found = index.elementByRef.get(link.ref);
+    return found?.collection === 'switches' ? [found.element] : [];
+  });
   return {
-    inputs: unique(output.provenance.inputPaths).map((path) => linkedRecord(index, path)),
-    decisions: [...decisions].map(([path, via]) => ({
-      ...linkedRecord(index, path),
-      ...(via.size ? { via: [...via].map((from) => linkedRecord(index, from)) } : {}),
-    })),
-    ...(output.resolvedFrom ? { alias: linkedRecord(index, output.resolvedFrom) } : {}),
+    inputs,
+    decisions: decisionLinks(index, output, universeRef),
+    ...(switches.length ? { switches: [...new Map(switches.map((value) => [value.ref, value])).values()] } : {}),
   };
 }
-
-/** Artifact-backed evidence of a finding, resolved to outputs where possible. */
-export function findingEvidence(index: AnalysisIndex, finding: ResolvedInsight): FindingEvidenceLink[] {
-  return finding.evidence
-    .filter((evidence) => Boolean(evidence.artifact) || Boolean(evidence.resolvedOutputPath))
-    .map((evidence) => {
-      const located = evidence.resolvedOutputPath
-        ? locateRecord(index, evidence.resolvedOutputPath)
-        : undefined;
-      const output = located?.record.kind === 'output' ? located.record : undefined;
+/**
+ * Artifact-backed evidence of a finding, one link per SDK binding applicable in
+ * the viewed universe (all of them when none is given). A binding names the
+ * output and result the evidence resolves to there; DOI-only evidence has none.
+ *
+ * A report without binding information (the SDK returns undefined, which is not
+ * an empty selection) still names the artifact: it is followed to its output,
+ * shown with the viewed universe's result unless the address pins another
+ * universe, and an address that does not resolve is kept as an unresolved link.
+ */
+export function findingEvidence(index: ResolvedAnalysisIndex, finding: Insight, universeRef?: string): FindingEvidenceLink[] {
+  return finding.evidence.flatMap((evidence, position): FindingEvidenceLink[] => {
+    const bindings = getEvidenceBindings(index, finding.ref, position, universeRef);
+    if (bindings === undefined) {
+      if (!evidence.artifact) return [];
+      const output = getEvidenceOutput(index, finding.ref, position);
+      const found = output ? locateRecord(index, output.ref) : undefined;
+      if (found?.kind !== 'output') return [{ evidence }];
+      const pinned = evidence.artifact.includes('#');
+      return [{
+        evidence,
+        output: found.record,
+        analysis: found.analysis,
+        ...(pinned ? {} : { universeRef, result: outputResult(index, found.record, universeRef) }),
+      }];
+    }
+    return bindings.map((binding) => {
+      const found = binding.output ? locateRecord(index, binding.output) : undefined;
       return {
         evidence,
-        ...(output && located ? { output, analysis: located.analysis } : {}),
+        universeRef: binding.output ? binding.target_universe : binding.universe,
+        result: binding.result ? index.resultById.get(binding.result) : undefined,
+        ...(found?.kind === 'output' ? { output: found.record, analysis: found.analysis } : {}),
       };
     });
+  });
 }
 
 /** A supporting result and every evidence entry a finding anchors into it. */
 export interface FindingEvidenceGroup {
-  /** Resolved output path when known, else the artifact name. */
   key: string;
-  output?: ResolvedOutput | undefined;
-  analysis?: ResolvedAnalysisNode | undefined;
+  universeRef?: string | undefined;
+  output?: Output | undefined;
+  analysis?: Analysis | undefined;
+  result?: Result | undefined;
   artifact?: string | undefined;
-  evidence: ResolvedEvidence[];
+  evidence: Evidence[];
 }
-
 /**
  * Folds evidence links onto the result they cite. A finding that anchors two
  * quotes into the same artifact — one per quantity its claim names — is
@@ -146,18 +176,25 @@ export interface FindingEvidenceGroup {
 export function groupFindingEvidence(links: FindingEvidenceLink[]): FindingEvidenceGroup[] {
   const groups = new Map<string, FindingEvidenceGroup>();
   for (const link of links) {
-    // `findingEvidence` keeps only links carrying one of these, so the key exists.
-    const key = link.evidence.resolvedOutputPath ?? link.evidence.artifact ?? link.evidence.id;
-    const existing = groups.get(key);
-    if (existing) {
-      existing.evidence.push(link.evidence);
+    const key = JSON.stringify(
+      link.result
+        ? ['result', link.result.id]
+        : link.output
+          ? ['output', link.output.ref, link.universeRef]
+          : ['artifact', link.evidence.artifact ?? '', link.universeRef],
+    );
+    const old = groups.get(key);
+    if (old) {
+      old.evidence.push(link.evidence);
       continue;
     }
     groups.set(key, {
       key,
-      ...(link.output ? { output: link.output } : {}),
-      ...(link.analysis ? { analysis: link.analysis } : {}),
-      ...(link.evidence.artifact ? { artifact: link.evidence.artifact } : {}),
+      output: link.output,
+      analysis: link.analysis,
+      result: link.result,
+      universeRef: link.universeRef,
+      artifact: link.evidence.artifact,
       evidence: [link.evidence],
     });
   }
@@ -165,36 +202,32 @@ export function groupFindingEvidence(links: FindingEvidenceLink[]): FindingEvide
 }
 
 /** Literature evidence (a DOI, with or without a quote) a finding or insight cites. */
-export function findingLiterature(finding: ResolvedInsight): ResolvedEvidence[] {
+export function findingLiterature(finding: Insight): Evidence[] {
   return finding.evidence.filter((evidence) => Boolean(evidence.doi));
 }
 
-/** Insight paths cited by a decision's options, selected option first. */
-export function decisionInsightPaths(decision: ResolvedDecision): string[] {
-  const selected = decision.options.find(({ id }) => id === decision.selectedOptionId);
-  return [...new Set([
-    ...(selected?.resolvedInsightPaths ?? []),
-    ...decision.options
-      .filter(({ id }) => id !== decision.selectedOptionId)
-      .flatMap(({ resolvedInsightPaths }) => resolvedInsightPaths),
-  ])];
+/** Insight refs cited by a decision's options, selected option first. */
+export function decisionInsightPaths(decision: Decision, selectedId?: string): string[] {
+  const selected = decision.options.find((option) => option.id === selectedId);
+  return [
+    ...new Set([
+      ...(selected?.insights ?? []),
+      ...decision.options.filter((option) => option.id !== selectedId).flatMap((option) => option.insights),
+    ]),
+  ];
 }
 
-export function decisionInsights(index: Pick<AnalysisIndex, 'recordByPath'>, decision: ResolvedDecision): ResolvedInsight[] {
-  return decisionInsightPaths(decision)
-    .map((path) => index.recordByPath.get(path))
+/** The insights a decision's options cite, the option selected in `universeRef` first. */
+export function decisionInsights(index: ResolvedAnalysisIndex, decision: Decision, universeRef?: string): Insight[] {
+  const selected = universeRef ? getSelectedOption(index, universeRef, decision.ref)?.id : undefined;
+  return decisionInsightPaths(decision, selected)
+    .map((ref) => locateRecord(index, ref)?.record)
     .filter(isInsight);
 }
 
 /** Decisions anywhere in the document whose options cite this insight. */
-export function informedDecisions(document: ResolvedAnalysisDocument, insight: ResolvedInsight): ResolvedDecision[] {
-  const decisions = new Map<string, ResolvedDecision>();
-  for (const analysis of walkAnalyses(document)) {
-    for (const decision of analysis.decisions) {
-      if (decision.options.some(({ resolvedInsightPaths }) => resolvedInsightPaths.includes(insight.canonicalPath))) {
-        decisions.set(decision.canonicalPath, decision);
-      }
-    }
-  }
-  return [...decisions.values()];
+export function informedDecisions(document: ResolvedAnalysis, insight: Insight): Decision[] {
+  return document.analyses
+    .flatMap((analysis) => analysis.decisions)
+    .filter((decision) => decision.options.some((option) => option.insights.includes(insight.ref)));
 }

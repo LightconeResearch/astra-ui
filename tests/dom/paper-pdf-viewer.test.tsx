@@ -1,7 +1,8 @@
+import { analysisAt } from '../helpers.js';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { StrictMode } from 'react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
-import { indexAnalysis, type ResolvedAnalysisDocument } from '@astra-spec/sdk';
+import { indexResolvedAnalysis, type ResolvedAnalysis } from '@astra-spec/sdk';
 import { PaperPdfViewer, type PdfLoadState, type PdfPassage } from '../../packages/react/src/components/paper-pdf-viewer.js';
 import { PaperDialog } from '../../packages/react/src/components/paper-detail.js';
 import { Inventory } from '../../packages/react/src/views/inventory.js';
@@ -12,14 +13,14 @@ import { mockPdfBrowser, runtime } from './pdf-test-runtime.js';
 import { LabelsProvider } from '../../packages/react/src/lib/labels.js';
 import { findQuoteMatch, highlightMatch } from '../../packages/react/src/lib/pdf-quote.js';
 
-const document = fixture as unknown as ResolvedAnalysisDocument;
-const index = indexAnalysis(document);
+const document = fixture as unknown as ResolvedAnalysis;
+const index = indexResolvedAnalysis(document);
 const metadata = { '10.1234/example': { pdfUrl: '/paper.pdf' } };
 function required<T>(value: T | null | undefined): T {
   if (value == null) throw new Error('Missing test fixture');
   return value;
 }
-const paper = required(collectInventoryPapers(document, index, document.analysis, metadata)[0]);
+const paper = required(collectInventoryPapers(document, index, analysisAt(document, 0), metadata)[0]);
 function passage(quote = 'The final scientific result is reproducible.', key = 'request', page?: number): PdfPassage {
   return { key, quote, page };
 }
@@ -208,7 +209,7 @@ it('routes external opening through Inventory while keeping the action usable af
   const load = vi.fn(async (): Promise<PdfJs> => { throw new Error('Unavailable'); });
   const open = vi.fn();
   render(<Inventory document={document} paperMetadata={metadata} loadPdfJs={load} onOpenPaperFile={open}
-    defaultDetail={[{ kind: 'paper', doi: paper.doi, analysisPath: '$' }]} />);
+    defaultDetail={[{ kind: 'paper', doi: paper.doi, analysisKey: '' }]} />);
   await screen.findByText('The PDF could not be loaded.');
   fireEvent.click(screen.getByRole('button', { name: 'Open' }));
   expect(open).toHaveBeenCalledWith(expect.objectContaining({ doi: paper.doi, pdfUrl: '/paper.pdf' }));

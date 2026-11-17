@@ -1,6 +1,7 @@
-import type { ResolvedAnalysisNode, ResolvedRecord } from '@astra-spec/sdk';
+import type { AstraRecord } from '../model/records.js';
+import type { Analysis } from '@astra-spec/sdk/reports';
 import type { LinkedRecord } from '../model/relations.js';
-import { recordTitle } from '../model/records.js';
+import { recordTitle, recordKind } from '../model/records.js';
 import type { RelationItem } from '../primitives/relation-list.js';
 import type { OpenRecordHandler } from '../lib/detail-stack.js';
 
@@ -10,32 +11,51 @@ import type { OpenRecordHandler } from '../lib/detail-stack.js';
 
 /** Builds a relation-list item for a record, with navigation when the caller handles it. */
 export function relationItemForRecord(
-  record: ResolvedRecord,
-  analysis: ResolvedAnalysisNode | undefined,
+  record: AstraRecord,
+  analysis: Analysis | undefined,
   onOpen: OpenRecordHandler | undefined,
   overrides: Partial<RelationItem> = {},
 ): RelationItem {
   const title = recordTitle(record);
   return {
-    key: record.canonicalPath,
+    key: record.ref,
     label: title,
-    kind: record.kind,
-    accessibleLabel: `View ${record.kind}: ${title}`,
-    onOpen: analysis && onOpen ? () => { onOpen(record, analysis); } : undefined,
+    kind: recordKind(record),
+    accessibleLabel: `View ${recordKind(record)}: ${title}`,
+    onOpen:
+      analysis && onOpen
+        ? () => {
+            onOpen(record, analysis);
+          }
+        : undefined,
     ...overrides,
   };
 }
 
 /** Builds relation-list items for linked records; unresolved links show their path. */
-export function relationItemsForLinks(
-  links: LinkedRecord[],
-  onOpen: OpenRecordHandler | undefined,
-): RelationItem[] {
+export function relationItemsForLinks(links: LinkedRecord[], onOpen: OpenRecordHandler | undefined): RelationItem[] {
+  const contexts = new Map<string, Set<string | undefined>>();
+  for (const link of links) {
+    const values = contexts.get(link.ref) ?? new Set<string | undefined>();
+    values.add(link.universeRef);
+    contexts.set(link.ref, values);
+  }
   return links.map((link) => {
-    const { record, analysis } = link;
-    if (!record) {
-      return { key: link.canonicalPath, label: link.canonicalPath, identifier: link.canonicalPath };
-    }
-    return relationItemForRecord(record, analysis, onOpen);
+    const { record, analysis } = link,
+      key = JSON.stringify([link.ref, link.universeRef]);
+    if (!record) return { key, label: link.ref, identifier: link.ref, detail: link.universeRef };
+    const qualified = (contexts.get(link.ref)?.size ?? 0) > 1 && link.universeRef !== undefined;
+    const title = recordTitle(record);
+    return relationItemForRecord(record, analysis, onOpen, {
+      key,
+      detail: link.universeRef,
+      accessibleLabel: `View ${recordKind(record)}: ${title}${qualified ? ` (${link.universeRef})` : ''}`,
+      onOpen:
+        analysis && onOpen
+          ? () => {
+              onOpen(record, analysis, link.universeRef);
+            }
+          : undefined,
+    });
   });
 }

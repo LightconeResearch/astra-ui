@@ -1,6 +1,6 @@
 # Preview
 
-Renders the demo paper through [astra-theme](https://github.com/LightconeResearch/astra-theme)
+Renders the demo paper through [astra-theme](https://github.com/astra-project/astra-theme)
 against **this checkout's** `@astra-spec/ui` and exports it as a static site. CI runs it for
 every pull request and posts the URL, so a UI change can be reviewed inside a real
 [MyST](https://mystmd.org/) publication rather than in isolation.
@@ -27,7 +27,7 @@ build fails if the two installations differ. Select a published brand version th
 ```bash
 npm run preview                  # build against your working tree, then serve on :4310
 npm run preview:build            # build only, into packages/preview/dist
-node packages/preview/build.mjs --theme ../astra-theme --content ../myst_proto --serve
+node packages/preview/build.mjs --theme ../astra-theme --content ../myst_proto --mystra ../MySTRA --serve
 ```
 
 Flags: `--ui`, `--theme`, `--content` take a local directory or a git ref; `--mystra` takes a
@@ -36,7 +36,8 @@ Local checkouts are copied into the cache directory (`packages/preview/.cache/` 
 or `PREVIEW_CACHE` says otherwise) and never modified. Dependencies and MyST's
 cache in `.cache/` survive between runs, so a second build takes about a minute, dominated by
 the theme's Remix build. The first run also clones the pinned theme and content and installs the
-theme's dependencies.
+theme's dependencies. A local `--content` checkout is snapshotted into a throwaway Git
+repository, because ASTRA 0.1 only resolves tracked inputs.
 
 ## Pinned refs
 
@@ -45,7 +46,7 @@ theme's dependencies.
 | Field | Meaning |
 | --- | --- |
 | `theme.ref` | astra-theme tag, branch or commit; `theme.template` is the template directory to build |
-| `content.ref` | commit of the MyST project (its `astra.yaml`, pages and `results/`) |
+| `content.ref` | commit of the MyST project (its `astra.yaml`, pages and `results/`); the `v0.1` branch of myst_proto is the ASTRA 0.1 example |
 | `mystra.ref` | MySTRA git ref to bundle, or `null` to keep the pin in the content's `myst.yml` |
 | `ui.repository` | only used when `--ui` names a ref instead of a checkout |
 
@@ -131,7 +132,7 @@ permissions:
   pull-requests: write
 jobs:
   preview:
-    uses: LightconeResearch/astra-ui/.github/workflows/preview.yml@main
+    uses: astra-project/astra-ui/.github/workflows/preview.yml@main
     with:
       theme: ${{ github.event.pull_request.head.sha }}   # astra-theme; MySTRA passes mystra:
     secrets: inherit

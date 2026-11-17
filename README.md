@@ -1,13 +1,13 @@
 # `@astra-spec/ui`
 
-[![CI](https://github.com/LightconeResearch/astra-ui/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/LightconeResearch/astra-ui/actions/workflows/ci.yml)
+[![CI](https://github.com/astra-project/astra-ui/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/astra-project/astra-ui/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/%40astra-spec%2Fui?logo=npm&label=npm)](https://www.npmjs.com/package/@astra-spec/ui)
 
 Composable, themable React components for resolved
 [ASTRA](https://astra-spec.org/) analyses.
 
 `@astra-spec/ui` turns the resolved data model from
-[`@astra-spec/sdk`](https://github.com/LightconeResearch/astra-typescript) into
+[`@astra-spec/sdk`](https://github.com/astra-project/astra-typescript) into
 accessible inventory views, record details, hover/focus record previews,
 dialogs, artifact previews, and
 lower-level building blocks. The library stays presentation-only: applications
@@ -22,7 +22,7 @@ retain control of loading, files, network requests, routing, and state.
 
 [Token reference](packages/react/TOKENS.md) ·
 [ASTRA specification](https://astra-spec.org/) ·
-[TypeScript SDK](https://github.com/LightconeResearch/astra-typescript)
+[TypeScript SDK](https://github.com/astra-project/astra-typescript)
 
 ## Highlights
 
@@ -46,11 +46,11 @@ npm install @astra-spec/ui @astra-spec/sdk react react-dom
 ```
 
 ```tsx
-import type { ResolvedAnalysisDocument } from '@astra-spec/sdk';
+import type { ResolvedAnalysis } from '@astra-spec/sdk';
 import { Inventory } from '@astra-spec/ui/views';
 import '@astra-spec/ui/styles.css';
 
-export function AnalysisView({ document }: { document: ResolvedAnalysisDocument }) {
+export function AnalysisView({ document }: { document: ResolvedAnalysis }) {
   return (
     <div className="astra-ui">
       <Inventory document={document} />
@@ -68,7 +68,7 @@ support.
 
 | Layer | Responsibility |
 | --- | --- |
-| `@astra-spec/sdk` | Validation, resolution, canonical paths, provenance, artifact bindings, and indexes |
+| `@astra-spec/sdk` | Validation, resolution, canonical paths, provenance, result places, and indexes |
 | `@astra-spec/ui` | Primitives, record and paper details, dialogs, inventory blocks and views, and the token contract |
 | Host application | Project reading, loading and refresh, artifact bytes and URLs, paper fetching, routing, and state |
 

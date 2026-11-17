@@ -1,25 +1,29 @@
+import type { OutputContext } from '../model/output-status.js';
 import type { ReactNode } from 'react';
-import type { ResolvedOutput } from '@astra-spec/sdk';
+import type { Output, Result, Status } from '@astra-spec/sdk/reports';
 import type { OutputRelations } from '../model/relations.js';
 import { isVisualOutput, recordTitle } from '../model/records.js';
 import { useLabels } from '../lib/labels.js';
 import type { ArtifactRenderer } from './artifact-preview.js';
 import { DetailDialog, type DetailDialogProps } from '../primitives/dialog.js';
 import type { TextRenderer } from '../lib/prose.js';
-import { OutputDetail, OutputDialogActions } from './output-detail.js';
+import { OutputDetail, OutputDialogActions, type OpenArtifactHandler } from './output-detail.js';
 import { useOutputExpanded } from '../lib/use-output-expanded.js';
 import type { OpenRecordHandler } from '../lib/detail-stack.js';
 
 export interface OutputDialogProps extends Pick<DetailDialogProps, 'mode' | 'backText' | 'className' | 'onBack' | 'onClose'> {
-  record: ResolvedOutput;
+  record: Output;
+  result?: Result | undefined;
+  status?: Status | undefined;
+  universeRef?: string | undefined;
   relations: OutputRelations;
   renderArtifact?: ArtifactRenderer | undefined;
   /** Host renderer for recorded output provenance, shown below Recipe. */
-  renderProvenance?: ((output: ResolvedOutput) => ReactNode) | undefined;
+  renderProvenance?: ((output: Output, context: OutputContext) => ReactNode) | undefined;
   /** Host-provided link to the current code file, shown beside Recipe. */
-  renderCodeLink?: ((output: ResolvedOutput) => ReactNode) | undefined;
+  renderCodeLink?: ((output: Output, context: OutputContext) => ReactNode) | undefined;
   renderText?: TextRenderer | undefined;
-  onOpenArtifact?: ((output: ResolvedOutput) => void | Promise<void>) | undefined;
+  onOpenArtifact?: OpenArtifactHandler | undefined;
   onOpenRecord?: OpenRecordHandler | undefined;
   expanded?: boolean | undefined;
   onExpandedChange?: ((expanded: boolean) => void) | undefined;
@@ -27,6 +31,9 @@ export interface OutputDialogProps extends Pick<DetailDialogProps, 'mode' | 'bac
 
 export function OutputDialog({
   record: output,
+  result,
+  status,
+  universeRef,
   relations,
   renderArtifact,
   renderProvenance,
@@ -39,7 +46,7 @@ export function OutputDialog({
   ...dialog
 }: OutputDialogProps) {
   const labels = useLabels();
-  const [expanded, setExpanded] = useOutputExpanded(output, { expanded: controlledExpanded, onExpandedChange });
+  const [expanded, setExpanded] = useOutputExpanded(output, { expanded: controlledExpanded, onExpandedChange }, result?.id);
   return (
     <DetailDialog
       {...dialog}
@@ -51,6 +58,9 @@ export function OutputDialog({
       actions={(
         <OutputDialogActions
           record={output}
+          result={result}
+          status={status}
+          universeRef={universeRef}
           onOpenArtifact={onOpenArtifact}
           expanded={expanded}
           onExpandedChange={setExpanded}
@@ -60,6 +70,9 @@ export function OutputDialog({
       <OutputDetail
         record={output}
         relations={relations}
+        result={result}
+        status={status}
+        universeRef={universeRef}
         renderArtifact={renderArtifact}
         renderProvenance={renderProvenance}
         renderCodeLink={renderCodeLink}

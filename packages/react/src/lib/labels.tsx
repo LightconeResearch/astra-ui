@@ -11,6 +11,7 @@ export interface AstraLabels {
   };
   outline: string;
   analysisTree: string;
+  universe: string;
   back: string;
   backTo: string;
   close: string;
@@ -44,9 +45,11 @@ export interface AstraLabels {
   };
   /** Host-supplied execution status, shown as a marker on inventory results; the states are `lc status`'s. */
   status: {
-    current: string;
-    behind: string;
+    unchanged: string;
+    missing: string;
     stale: string;
+    /** Reason shown when the recorded bytes of a result are unavailable. */
+    bytesUnavailable: string;
     withDetail: (label: string, detail: string) => string;
   };
   /** Recorded execution summaries and run details. */
@@ -62,10 +65,13 @@ export interface AstraLabels {
     lastRun: string;
     revision: string;
     details: string;
-    recipe: string;
+    bytes: string;
+    bytesPresent: string;
+    bytesAbsent: string;
+    content: string;
     inputs: string;
     environment: string;
-    cliVersion: string;
+    runner: string;
   };
   /** Figure magnification and panning. */
   figure: {
@@ -128,6 +134,7 @@ export const defaultLabels: AstraLabels = {
   },
   outline: 'On this page',
   analysisTree: 'Project hierarchy',
+  universe: 'Universe',
   back: 'Back',
   backTo: 'Back to previous record',
   close: 'Close all details',
@@ -159,9 +166,10 @@ export const defaultLabels: AstraLabels = {
     locate: 'Locate',
   },
   status: {
-    current: 'Current',
-    behind: 'Behind',
+    unchanged: 'Unchanged',
+    missing: 'Missing',
     stale: 'Stale',
+    bytesUnavailable: 'Recorded bytes are unavailable.',
     withDetail: (label, detail) => `${label}: ${detail}`,
   },
   provenance: {
@@ -176,10 +184,13 @@ export const defaultLabels: AstraLabels = {
     lastRun: 'Last run',
     revision: 'Git revision',
     details: 'Details',
-    recipe: 'Executed recipe',
+    bytes: 'Recorded bytes',
+    bytesPresent: 'Available',
+    bytesAbsent: 'Unavailable',
+    content: 'Recorded content',
     inputs: 'Input versions',
     environment: 'Environment',
-    cliVersion: 'Lightcone version',
+    runner: 'Runner',
   },
   figure: {
     controls: 'Figure zoom',

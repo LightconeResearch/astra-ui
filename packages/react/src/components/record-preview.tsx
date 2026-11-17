@@ -1,26 +1,24 @@
+import { getSelectedOption } from '@astra-spec/sdk/reports';
+import type { AstraRecord } from '../model/records.js';
 import { KindGlyph } from '../primitives/kind-glyph.js';
 import type {
-  AnalysisIndex,
-  ResolvedAnalysisDocument,
-  ResolvedAnalysisNode,
-  ResolvedDecision,
-  ResolvedEvidence,
-  ResolvedInput,
-  ResolvedInsight,
-  ResolvedOutput,
-  ResolvedRecord,
-} from '@astra-spec/sdk';
-import {
-  forwardRef,
-  type HTMLAttributes,
-  type ReactElement,
-  type ReactNode,
-} from 'react';
+  ResolvedAnalysisIndex,
+  ResolvedAnalysis,
+  Analysis,
+  Decision,
+  Evidence,
+  Input,
+  Insight,
+  Output,
+  StatusReport,
+} from '@astra-spec/sdk/reports';
+import { forwardRef, type HTMLAttributes, type ReactElement, type ReactNode } from 'react';
 import { cn } from '../lib/cn.js';
 import { useLabels } from '../lib/labels.js';
 import { doiHref } from '../model/doi.js';
-import { analysisTitle, recordTitle } from '../model/records.js';
-import { decisionInsights } from '../model/relations.js';
+import { analysisTitle, recordTitle, recordKind, recordId, isInsight, isOutput } from '../model/records.js';
+import { decisionInsights, outputResult, outputInputs, findingEvidence } from '../model/relations.js';
+import { resultStatus } from '../model/output-status.js';
 import { Prose } from '../primitives/prose.js';
 import type { TextRenderer } from '../lib/prose.js';
 import { type SurfaceKind } from '../model/kind.js';
@@ -30,8 +28,9 @@ import { primaryLiteratureEvidence } from '../model/papers.js';
 import type { OpenRecordHandler } from '../lib/detail-stack.js';
 
 export interface RecordPreviewTarget {
-  record: ResolvedRecord;
-  analysis: ResolvedAnalysisNode;
+  record: AstraRecord;
+  analysis: Analysis;
+  universeRef?: string | undefined;
 }
 
 export interface RecordPreviewReference {
@@ -45,8 +44,8 @@ export type RecordPreviewReferenceRenderer = (
 ) => ReactNode;
 
 export interface RecordPreviewCitationContext {
-  evidence: ResolvedEvidence;
-  record: ResolvedInsight;
+  evidence: Evidence;
+  record: Insight;
 }
 
 export type RecordPreviewCitationRenderer = (
@@ -57,18 +56,18 @@ export type RecordPreviewCitationRenderer = (
 export type RecordPreviewEntry =
   | {
       kind: 'record';
-      record: ResolvedRecord;
-      analysis: ResolvedAnalysisNode;
+      record: AstraRecord;
+      analysis: Analysis;
     }
   | {
       kind: 'analysis';
-      analysis: ResolvedAnalysisNode;
+      analysis: Analysis;
       href?: string | undefined;
     }
   | {
       kind: 'value';
-      record: ResolvedOutput | ResolvedDecision;
-      analysis: ResolvedAnalysisNode;
+      record: Output | Decision;
+      analysis: Analysis;
       value: ReactNode;
       unit?: string | undefined;
       column?: string | undefined;
@@ -80,15 +79,17 @@ export type RecordPreviewEntry =
 export interface RecordPreviewProps
   extends Omit<HTMLAttributes<HTMLElement>, 'children'> {
   entry: RecordPreviewEntry;
-  document: ResolvedAnalysisDocument;
-  index: AnalysisIndex;
+  document: ResolvedAnalysis;
+  index: ResolvedAnalysisIndex;
+  universeRef?: string | undefined;
+  statusReport?: StatusReport | undefined;
   renderArtifact?: ArtifactRenderer | undefined;
   renderText?: TextRenderer | undefined;
   renderCitation?: RecordPreviewCitationRenderer | undefined;
   /** Opens the full record surface when a related-record trigger is activated. */
   onOpenRecord?: OpenRecordHandler | undefined;
   /** Optional navigation for an analysis preview. The callback receives only a safe HTTP(S) or relative href. */
-  onOpenAnalysis?: ((analysis: ResolvedAnalysisNode, href?: string) => void) | undefined;
+  onOpenAnalysis?: ((analysis: Analysis, href?: string) => void) | undefined;
   /** Wraps related-record triggers, for example in a nested PreviewPopover. */
   renderRecordReference?: RecordPreviewReferenceRenderer | undefined;
   /** Compact decision previews show this many supporting insights before a remaining count. */
@@ -103,12 +104,9 @@ function claimExcerpt(claim: string): string {
   return `${text.slice(0, 80).replace(/\s+\S*$/, '')}…`;
 }
 
-function relationTitle(record: ResolvedRecord): string {
-  if (
-    (record.kind === 'finding' || record.kind === 'prior_insight') &&
-    !record.label
-  ) {
-    return claimExcerpt(record.claim) || record.id;
+function relationTitle(record: AstraRecord): string {
+  if (isInsight(record) && !record.label) {
+    return claimExcerpt(record.claim) || recordId(record);
   }
   return recordTitle(record);
 }
@@ -148,8 +146,8 @@ function Citation({
   record,
   renderCitation,
 }: {
-  evidence: ResolvedEvidence;
-  record: ResolvedInsight;
+  evidence: Evidence;
+  record: Insight;
   renderCitation?: RecordPreviewCitationRenderer | undefined;
 }) {
   const doi = evidence.doi;
@@ -172,50 +170,56 @@ function RelatedRecord({
   index,
   onOpenRecord,
   renderRecordReference,
+  universeRef,
   detail,
 }: {
-  record: ResolvedRecord;
-  index: AnalysisIndex;
+  record: AstraRecord;
+  index: ResolvedAnalysisIndex;
+  universeRef?: string | undefined;
   onOpenRecord?: OpenRecordHandler | undefined;
   renderRecordReference?: RecordPreviewReferenceRenderer | undefined;
   detail?: ReactNode | undefined;
 }) {
   const labels = useLabels();
-  const analysis = index.analysisByRecordPath.get(record.canonicalPath);
+  const analysis = index.elementByRef.get(record.ref)?.analysis;
   const label = relationTitle(record);
+  const kind = recordKind(record, index);
   const copy = (
     <>
-      <KindGlyph className="astra-record-preview__relation-glyph" kind={record.kind} />
+      <KindGlyph className="astra-record-preview__relation-glyph" kind={kind} />
       <span className="astra-record-preview__relation-label">{label}</span>
       {detail != null ? (
         <small className="astra-record-preview__relation-detail">{detail}</small>
       ) : null}
     </>
   );
-  const trigger = analysis && onOpenRecord ? (
-    <button
-      type="button"
-      className="astra-record-preview__relation-trigger"
-      data-kind={record.kind}
-      aria-label={labels.preview.openRecord(labels.kinds[record.kind], label)}
-      onClick={() => {
-        onOpenRecord(record, analysis);
-      }}
-    >
-      {copy}
-    </button>
-  ) : (
-    <span className="astra-record-preview__relation-trigger" data-kind={record.kind}>
-      {copy}
-    </span>
-  );
+  const trigger =
+    analysis && onOpenRecord ? (
+      <button
+        type="button"
+        className="astra-record-preview__relation-trigger"
+        data-kind={kind}
+        aria-label={labels.preview.openRecord(labels.kinds[kind], label)}
+        onClick={() => {
+          onOpenRecord(record, analysis, universeRef);
+        }}
+      >
+        {copy}
+      </button>
+    ) : (
+      <span className="astra-record-preview__relation-trigger" data-kind={kind}>
+        {copy}
+      </span>
+    );
   if (!analysis || !renderRecordReference) return trigger;
-  return renderRecordReference({ target: { record, analysis }, trigger });
+  return renderRecordReference({ target: { record, analysis, universeRef }, trigger });
 }
 
 interface SharedPreviewProps {
-  document: ResolvedAnalysisDocument;
-  index: AnalysisIndex;
+  document: ResolvedAnalysis;
+  index: ResolvedAnalysisIndex;
+  universeRef?: string | undefined;
+  statusReport?: StatusReport | undefined;
   renderArtifact?: ArtifactRenderer | undefined;
   renderText?: TextRenderer | undefined;
   renderCitation?: RecordPreviewCitationRenderer | undefined;
@@ -226,16 +230,18 @@ interface SharedPreviewProps {
 function DecisionPreview({
   record,
   index,
+  universeRef,
   renderText,
   onOpenRecord,
   renderRecordReference,
   maxSupportingInsights,
 }: SharedPreviewProps & {
-  record: ResolvedDecision;
+  record: Decision;
   maxSupportingInsights: number;
 }) {
   const labels = useLabels();
-  const supporting = decisionInsights(index, record);
+  const supporting = decisionInsights(index, record, universeRef);
+  const selectedId = universeRef ? getSelectedOption(index, universeRef, record.ref)?.id : undefined;
   const shown = supporting.slice(0, maxSupportingInsights);
   const remaining = supporting.length - shown.length;
   return (
@@ -260,7 +266,7 @@ function DecisionPreview({
             <h4>{labels.preview.optionDetail}</h4>
             <ul className="astra-record-preview__options">
               {record.options.map((option) => {
-                const selected = option.id === record.selectedOptionId;
+                const selected = option.id === selectedId;
                 return (
                   <li
                     key={option.id}
@@ -284,9 +290,10 @@ function DecisionPreview({
             <h4>{labels.preview.supportedBy}</h4>
             <ul className="astra-record-preview__relations">
               {shown.map((insight) => (
-                <li key={insight.canonicalPath} data-kind={insight.kind}>
+                <li key={insight.ref} data-kind={insight.kind}>
                   <RelatedRecord
                     record={insight}
+                    universeRef={universeRef}
                     index={index}
                     onOpenRecord={onOpenRecord}
                     renderRecordReference={renderRecordReference}
@@ -309,13 +316,16 @@ function DecisionPreview({
 function FindingPreview({
   record,
   index,
+  universeRef,
+  statusReport,
   renderArtifact,
   renderText,
   renderCitation,
   onOpenRecord,
   renderRecordReference,
-}: SharedPreviewProps & { record: ResolvedInsight }) {
+}: SharedPreviewProps & { record: Insight }) {
   const labels = useLabels();
+  const links = findingEvidence(index, record, universeRef);
   return (
     <>
       <PreviewHeader
@@ -332,65 +342,56 @@ function FindingPreview({
             <Prose text={record.scope} renderText={renderText} />
           </span>
         ) : null}
-        {record.notes ? (
+        {record.description ? (
           <div className="astra-record-preview__description">
-            <Prose text={record.notes} field="notes" renderText={renderText} />
+            <Prose text={record.description} field="description" renderText={renderText} />
           </div>
         ) : null}
         {record.evidence.length ? (
           <section className="astra-record-preview__section">
             <h4>{labels.preview.evidence}</h4>
             <ul className="astra-record-preview__evidence">
-              {record.evidence.map((evidence, indexInRecord) => {
-                const candidate = evidence.resolvedOutputPath
-                  ? index.recordByPath.get(evidence.resolvedOutputPath)
-                  : undefined;
-                const output = candidate?.kind === 'output' ? candidate : undefined;
-                const artifact = output && renderArtifact
-                  ? renderArtifact(output, { compact: true })
-                  : null;
-                return (
-                  <li key={`${evidence.id}-${indexInRecord}`}>
-                    {artifact != null ? (
-                      <div className="astra-record-preview__artifact">
-                        {artifact}
-                      </div>
-                    ) : null}
-                    {output ? (
-                      <RelatedRecord
-                        record={output}
-                        index={index}
-                        detail={output.type}
-                        onOpenRecord={onOpenRecord}
-                        renderRecordReference={renderRecordReference}
-                      />
-                    ) : evidence.artifact ? (
-                      <span
-                        className="astra-record-preview__relation-trigger"
-                        data-kind="output"
-                      >
-                        <KindGlyph className="astra-record-preview__relation-glyph" kind="output" />
-                        <span className="astra-record-preview__relation-label">
-                          {evidence.artifact}
-                        </span>
-                      </span>
-                    ) : null}
-                    {evidence.quote ? (
-                      <blockquote className="astra-record-preview__quote">
-                        <Prose
-                          text={evidence.quote.exact}
-                          field="quote"
-                          renderText={renderText}
+              {record.evidence.flatMap((evidence, indexInRecord) => {
+                const matched = links.filter((link) => link.evidence === evidence);
+                if (!matched.length && evidence.bindings !== undefined && !evidence.quote && !evidence.doi) return [];
+                if (!matched.length) matched.push({ evidence });
+                return matched.map(({ output, result: cited, universeRef: targetUniverse }, citationIndex) => {
+                  const artifact =
+                    output && renderArtifact
+                      ? renderArtifact(output, {
+                          compact: true,
+                          result: cited,
+                          universeRef: targetUniverse,
+                          status: resultStatus(statusReport, cited),
+                        })
+                      : null;
+                  return (
+                    <li key={`${indexInRecord}-${citationIndex}`}>
+                      {artifact != null ? <div className="astra-record-preview__artifact">{artifact}</div> : null}
+                      {output ? (
+                        <RelatedRecord
+                          record={output}
+                          universeRef={targetUniverse}
+                          index={index}
+                          detail={output.type}
+                          onOpenRecord={onOpenRecord}
+                          renderRecordReference={renderRecordReference}
                         />
-                      </blockquote>
-                    ) : null}
-                    <Citation
-                      evidence={evidence}
-                      record={record}
-                      renderCitation={renderCitation}
-                    />
-                  </li>
-                );
+                      ) : evidence.artifact ? (
+                        <span className="astra-record-preview__relation-trigger" data-kind="output">
+                          <KindGlyph className="astra-record-preview__relation-glyph" kind="output" />
+                          <span className="astra-record-preview__relation-label">{evidence.artifact}</span>
+                        </span>
+                      ) : null}
+                      {evidence.quote ? (
+                        <blockquote className="astra-record-preview__quote">
+                          <Prose text={evidence.quote.exact} field="quote" renderText={renderText} />
+                        </blockquote>
+                      ) : null}
+                      <Citation evidence={evidence} record={record} renderCitation={renderCitation} />
+                    </li>
+                  );
+                });
               })}
             </ul>
           </section>
@@ -400,11 +401,7 @@ function FindingPreview({
   );
 }
 
-function InsightPreview({
-  record,
-  renderText,
-  renderCitation,
-}: SharedPreviewProps & { record: ResolvedInsight }) {
+function InsightPreview({ record, renderText, renderCitation }: SharedPreviewProps & { record: Insight }) {
   const labels = useLabels();
   const source = primaryLiteratureEvidence(record);
   return (
@@ -441,22 +438,27 @@ function InsightPreview({
 function OutputRecordPreview({
   record,
   index,
+  universeRef,
+  statusReport,
   renderArtifact,
   renderText,
-}: SharedPreviewProps & { record: ResolvedOutput }) {
+}: SharedPreviewProps & { record: Output }) {
   const labels = useLabels();
-  const inputNames = record.provenance.inputPaths.map((path) => {
-    const input = index.recordByPath.get(path);
-    return input ? recordTitle(input) : path;
-  });
-  const recipe = record.recipe?.command ?? record.recipe?.container;
-  const flow = [
-    inputNames.length ? inputNames.join(', ') : undefined,
-    recipe,
-    record.canonicalPath,
-  ].filter((value): value is string => Boolean(value));
+  const result = outputResult(index, record, universeRef);
+  const inputNames = outputInputs(index, record, universeRef).map((link) =>
+    link.record ? recordTitle(link.record) : link.ref,
+  );
+  const recipe = result?.command;
+  const flow = [inputNames.length ? inputNames.join(', ') : undefined, recipe, record.ref].filter(
+    (value): value is string => Boolean(value),
+  );
   const artifact = renderArtifact
-    ? renderArtifact(record, { compact: true })
+    ? renderArtifact(record, {
+        compact: true,
+        result,
+        universeRef,
+        status: resultStatus(statusReport, result),
+      })
     : null;
   return (
     <>
@@ -497,13 +499,9 @@ function OutputRecordPreview({
   );
 }
 
-function InputPreview({
-  record,
-  renderText,
-}: SharedPreviewProps & { record: ResolvedInput }) {
+function InputPreview({ record, renderText }: SharedPreviewProps & { record: Input }) {
   const labels = useLabels();
-  const source =
-    record.source ?? record.ref ?? record.resolvedFrom ?? record.from;
+  const source = record.path;
   return (
     <>
       <PreviewHeader
@@ -537,26 +535,20 @@ function RecordEntryPreview({
   maxSupportingInsights,
   ...shared
 }: SharedPreviewProps & {
-  record: ResolvedRecord;
+  record: AstraRecord;
   maxSupportingInsights: number;
 }) {
-  switch (record.kind) {
+  switch (recordKind(record, shared.index)) {
     case 'decision':
-      return (
-        <DecisionPreview
-          {...shared}
-          record={record}
-          maxSupportingInsights={maxSupportingInsights}
-        />
-      );
+      return <DecisionPreview {...shared} record={record as Decision} maxSupportingInsights={maxSupportingInsights} />;
     case 'finding':
-      return <FindingPreview {...shared} record={record} />;
+      return <FindingPreview {...shared} record={record as Insight} />;
     case 'prior_insight':
-      return <InsightPreview {...shared} record={record} />;
+      return <InsightPreview {...shared} record={record as Insight} />;
     case 'output':
-      return <OutputRecordPreview {...shared} record={record} />;
+      return <OutputRecordPreview {...shared} record={record as Output} />;
     case 'input':
-      return <InputPreview {...shared} record={record} />;
+      return <InputPreview {...shared} record={record as Input} />;
   }
 }
 
@@ -566,10 +558,10 @@ function AnalysisPreview({
   renderText,
   onOpenAnalysis,
 }: {
-  analysis: ResolvedAnalysisNode;
+  analysis: Analysis;
   href?: string | undefined;
   renderText?: TextRenderer | undefined;
-  onOpenAnalysis?: ((analysis: ResolvedAnalysisNode, href?: string) => void) | undefined;
+  onOpenAnalysis?: ((analysis: Analysis, href?: string) => void) | undefined;
 }) {
   const labels = useLabels();
   const title = analysisTitle(analysis);
@@ -640,10 +632,8 @@ function ValuePreview({
 }) {
   const labels = useLabels();
   const { record } = entry;
-  const kindLabel =
-    record.kind === 'output' ? labels.kinds.output : labels.kinds.decision;
-  const description =
-    record.kind === 'output' ? record.description : record.rationale;
+  const kindLabel = isOutput(record) ? labels.kinds.output : labels.kinds.decision;
+  const description = isOutput(record) ? record.description : record.rationale;
   return (
     <>
       <PreviewHeader
@@ -673,11 +663,7 @@ function ValuePreview({
         ) : null}
         {description ? (
           <div className="astra-record-preview__description">
-            <Prose
-              text={description}
-              field={record.kind === 'output' ? 'description' : 'rationale'}
-              renderText={renderText}
-            />
+            <Prose text={description} field={isOutput(record) ? 'description' : 'rationale'} renderText={renderText} />
           </div>
         ) : null}
       </div>
@@ -685,72 +671,70 @@ function ValuePreview({
   );
 }
 
-function previewKind(entry: RecordPreviewEntry): SurfaceKind {
+function previewKind(entry: RecordPreviewEntry, index: ResolvedAnalysisIndex): SurfaceKind {
   if (entry.kind === 'analysis') return 'analysis';
-  return entry.record.kind;
+  return recordKind(entry.record, index);
 }
 
 /**
  * Compact, positioning-agnostic preview content for resolved records,
  * analyses, and inline values. Pair it with PreviewPopover or render it inline.
  */
-export const RecordPreview = forwardRef<HTMLElement, RecordPreviewProps>(
-  function RecordPreview(
-    {
-      entry,
-      document,
-      index,
-      renderArtifact,
-      renderText,
-      renderCitation,
-      onOpenRecord,
-      onOpenAnalysis,
-      renderRecordReference,
-      maxSupportingInsights = 3,
-      className,
-      ...props
-    },
-    ref,
-  ) {
-    const maximum = Number.isFinite(maxSupportingInsights)
-      ? Math.max(0, Math.floor(maxSupportingInsights))
-      : Number.MAX_SAFE_INTEGER;
-    const shared: SharedPreviewProps = {
-      document,
-      index,
-      renderArtifact,
-      renderText,
-      renderCitation,
-      onOpenRecord,
-      renderRecordReference,
-    };
-    return (
-      <article
-        data-slot="record-preview"
-        data-entry-kind={entry.kind}
-        data-value-product={entry.kind === 'value' && entry.product ? '' : undefined}
-        data-kind={previewKind(entry)}
-        {...props}
-        ref={ref}
-        className={cn('astra-record-preview', className)}
-      >
-        {entry.kind === 'record' ? (
-          <RecordEntryPreview
-            {...shared}
-            record={entry.record}
-            maxSupportingInsights={maximum}
-          />
-        ) : entry.kind === 'analysis' ? (
-          <AnalysisPreview
-            analysis={entry.analysis}
-            href={entry.href}
-            renderText={renderText}
-            onOpenAnalysis={onOpenAnalysis}
-          />
-        ) : (
-          <ValuePreview entry={entry} renderText={renderText} />
-        )}
-      </article>
-    );
+export const RecordPreview = forwardRef<HTMLElement, RecordPreviewProps>(function RecordPreview(
+  {
+    entry,
+    document,
+    index,
+    universeRef,
+    statusReport,
+    renderArtifact,
+    renderText,
+    renderCitation,
+    onOpenRecord,
+    onOpenAnalysis,
+    renderRecordReference,
+    maxSupportingInsights = 3,
+    className,
+    ...props
   },
-);
+  ref,
+) {
+  const maximum = Number.isFinite(maxSupportingInsights)
+    ? Math.max(0, Math.floor(maxSupportingInsights))
+    : Number.MAX_SAFE_INTEGER;
+  const shared: SharedPreviewProps = {
+    document,
+    index,
+    universeRef,
+    statusReport,
+    renderArtifact,
+    renderText,
+    renderCitation,
+    onOpenRecord,
+    renderRecordReference,
+  };
+  return (
+    <article
+      data-slot="record-preview"
+      data-entry-kind={entry.kind}
+      data-value-product={entry.kind === 'value' && entry.product ? '' : undefined}
+      data-kind={previewKind(entry, index)}
+      {...props}
+      ref={ref}
+      className={cn('astra-record-preview', className)}
+    >
+      {entry.kind === 'record' ? (
+        <RecordEntryPreview {...shared} record={entry.record} maxSupportingInsights={maximum} />
+      ) : entry.kind === 'analysis' ? (
+        <AnalysisPreview
+          analysis={entry.analysis}
+          href={entry.href}
+          renderText={renderText}
+          onOpenAnalysis={onOpenAnalysis}
+        />
+      ) : (
+        <ValuePreview entry={entry} renderText={renderText} />
+      )}
+    </article>
+  );
+});

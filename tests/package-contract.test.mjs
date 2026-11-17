@@ -67,7 +67,7 @@ test('the package declares its host peers and presentation dependencies explicit
 
   assert.equal(manifest.name, '@astra-spec/ui');
   assert.match(manifest.version, /^\d+\.\d+\.\d+/);
-  assert.equal(manifest.peerDependencies['@astra-spec/sdk'], '^0.1.1');
+  assert.equal(manifest.peerDependencies['@astra-spec/sdk'], '^0.2.0-rc1');
   assert.equal(manifest.peerDependencies.react, '>=18 <20');
   assert.equal(manifest.peerDependencies['react-dom'], '>=18 <20');
   assert.deepEqual(manifest.dependencies, {
@@ -154,8 +154,9 @@ test('source contains no parallel resolver, session, storage, or integration lay
   const source = await sourceText();
 
   assert.doesNotMatch(source, /@astra-spec\/sdk\/view-model/);
+  assert.doesNotMatch(source, /from ['"]@astra-spec\/sdk['"]/, 'presentation imports only the SDK report entrypoint');
   assert.doesNotMatch(source, /RuntimeOverlay|ViewerSession|ViewerHost|ViewerChange/);
-  assert.doesNotMatch(source, /ProjectViewModel|scopeId|recordId|knownRevision/);
+  assert.doesNotMatch(source, /ProjectViewModel|scopeId|knownRevision|\brecordId\s*:/);
   assert.doesNotMatch(source, /createNodeFileAccess|createJupyterFileAccess|resolveAnalysis\s*\(/);
   assert.doesNotMatch(source, /from ['"](?:node:|@jupyter|myst-)/i);
   // Rendering dependencies stay confined to the primitives that own them.
@@ -171,7 +172,7 @@ test('source contains no parallel resolver, session, storage, or integration lay
   assert.doesNotMatch(source, /PaperRenderer|PaperRenderOptions|renderPaper/);
   // PdfTextLayer is an ambient class declaration: a value import or re-export would fail at ESM link time.
   assert.doesNotMatch(source, /(?:import|export)\s*\{[^}]*(?<!\btype\s)\bPdfTextLayer\b/, 'PdfTextLayer is type-only; import or export it with `type`');
-  assert.match(source, /indexAnalysis\(document\)/);
+  assert.match(source, /indexResolvedAnalysis\(document\)/);
 });
 
 test('every token the styles and playground consume is declared with a default', async () => {

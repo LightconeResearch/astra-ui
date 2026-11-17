@@ -86,11 +86,6 @@
     font-weight: 700;
   }
 
-  :where(.astra-ui) .astra-output-detail__recipe p {
-    color: var(--astra-color-text-subtle);
-    font-size: var(--astra-font-size-2xs);
-  }
-
   @media (max-width: 640px) {
     :where(.astra-ui) .astra-output-detail__layout {
       grid-template-columns: 1fr;
