@@ -4,7 +4,7 @@
   },
   "theme": {
     "repository": "https://github.com/astra-project/astra-theme.git",
-    "ref": "7a3d3c3f658fe647a025e496b41002c3e58b3c9c",
+    "ref": "472b8b7215e68182250b2865da6526a7763ff554",
     "template": "themes/article"
   },
   "content": {
