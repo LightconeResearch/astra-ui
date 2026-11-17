@@ -1,7 +1,7 @@
 {
   "document": {
     "spec_version": "0.1.0",
-    "head": "1106bab9b56d7994d7d52411590227e8813075fe",
+    "head": "186f5d577a025302ebb263d728d7327e3c1f3c66",
     "analyses": [
       {
         "key": "",
@@ -9597,7 +9597,7 @@
     "schema_version": "astra-tools.resolved-analysis.v1"
   },
   "status": {
-    "head": "1106bab9b56d7994d7d52411590227e8813075fe",
+    "head": "186f5d577a025302ebb263d728d7327e3c1f3c66",
     "statuses": {
       "desi_dr1_lss_catalogs": {
         "state": "missing",

@@ -9,10 +9,10 @@
   },
   "content": {
     "repository": "https://github.com/EiffL/myst_proto.git",
-    "ref": "1106bab9b56d7994d7d52411590227e8813075fe"
+    "ref": "186f5d577a025302ebb263d728d7327e3c1f3c66"
   },
   "mystra": {
     "repository": "https://github.com/astra-project/MySTRA.git",
-    "ref": "ebe95c23edaecde8fe425af298f6d1ab413882f2"
+    "ref": "8772bb1bde7cc4fdf16b3ed8682e9e5b68c67be1"
   }
 }
