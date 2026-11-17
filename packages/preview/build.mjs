@@ -68,7 +68,7 @@ const flag = (name) => {
 const options = {
   ui: option('--ui', process.env.PREVIEW_UI || root),
   theme: option('--theme', process.env.PREVIEW_THEME || refs.theme.ref),
-  content: option('--content', process.env.PREVIEW_CONTENT || (refs.content.path ? resolve(root, refs.content.path) : refs.content.ref)),
+  content: option('--content', process.env.PREVIEW_CONTENT || refs.content.ref),
   mystra: option('--mystra', process.env.PREVIEW_MYSTRA || refs.mystra?.ref || undefined),
   out: resolve(option('--out', join(here, 'dist'))),
   cache: resolve(option('--cache', process.env.PREVIEW_CACHE || join(here, '.cache'))),
@@ -268,12 +268,12 @@ function resolvePlugin() {
 
 function exportSite(theme, plugin) {
   const content = materialize('content', options.content, refs.content.repository);
-  // Local sources are copied without .git. ASTRA 0.1 inputs must be tracked in
-  // their own repository, rather than inherited from the ignored preview cache.
+  // A local --content checkout is copied without .git, but ASTRA 0.1 resolves
+  // only tracked inputs: snapshot the copy into a throwaway repository.
   if (!existsSync(join(content.dir, '.git'))) {
     run('git', ['init', '--quiet'], { cwd: content.dir });
     run('git', ['-c', 'core.excludesFile=/dev/null', 'add', '--all'], { cwd: content.dir });
-    run('git', ['-c', 'user.name=ASTRA preview', '-c', 'user.email=preview@astra.invalid', '-c', 'commit.gpgSign=false', 'commit', '--quiet', '--message', 'Snapshot ASTRA publication fixture'], {
+    run('git', ['-c', 'user.name=ASTRA preview', '-c', 'user.email=preview@astra.invalid', '-c', 'commit.gpgSign=false', 'commit', '--quiet', '--message', 'Snapshot preview content'], {
       cwd: content.dir,
       env: { GIT_AUTHOR_DATE: '2026-01-01T00:00:00Z', GIT_COMMITTER_DATE: '2026-01-01T00:00:00Z' },
     });

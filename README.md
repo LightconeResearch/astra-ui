@@ -104,7 +104,7 @@ npm run playground
 ```
 
 The playground opens at <http://localhost:61000> and exercises the package over
-the owned ASTRA 0.1 DESI demo. Startup regenerates its report fixture and browser resources through the native SDK. Run
+a committed resolved ASTRA project. Run
 `VITE_ASTRA_THEME=none npm run playground` to display only the package defaults.
 
 | Command | Purpose |

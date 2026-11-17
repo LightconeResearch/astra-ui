@@ -1,3 +1,1 @@
 *.pdf binary
-# Keep the owned precomputed CSV bytes intact, including their CRLF line endings.
-packages/preview/content/results/**/*.csv -text whitespace=cr-at-eol

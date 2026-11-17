@@ -1,7 +1,7 @@
 {
   "document": {
     "spec_version": "0.1.0",
-    "head": "3b45abaa441be256802ed3c655d9b96b0bda4576",
+    "head": "1106bab9b56d7994d7d52411590227e8813075fe",
     "analyses": [
       {
         "key": "",
@@ -9562,7 +9562,7 @@
         "level": "note",
         "message": "`mean_displacement_lrg_full` has no planned result: no planned result reads it and the root's evidence doesn't cite it, so a check of the root never covers it",
         "location": {
-          "file": "packages/preview/content/analyses/reconstruction/astra.yaml",
+          "file": "analyses/reconstruction/astra.yaml",
           "pointer": "/outputs/mean_displacement_lrg_full",
           "line": 80,
           "column": 5
@@ -9574,7 +9574,7 @@
         "level": "note",
         "message": "`mean_displacement_qso_full` has no planned result: no planned result reads it and the root's evidence doesn't cite it, so a check of the root never covers it",
         "location": {
-          "file": "packages/preview/content/analyses/reconstruction/astra.yaml",
+          "file": "analyses/reconstruction/astra.yaml",
           "pointer": "/outputs/mean_displacement_qso_full",
           "line": 125,
           "column": 5
@@ -9586,7 +9586,7 @@
         "level": "note",
         "message": "`mean_displacement_elg_full` has no planned result: no planned result reads it and the root's evidence doesn't cite it, so a check of the root never covers it",
         "location": {
-          "file": "packages/preview/content/analyses/reconstruction/astra.yaml",
+          "file": "analyses/reconstruction/astra.yaml",
           "pointer": "/outputs/mean_displacement_elg_full",
           "line": 170,
           "column": 5
@@ -9597,7 +9597,7 @@
     "schema_version": "astra-tools.resolved-analysis.v1"
   },
   "status": {
-    "head": "3b45abaa441be256802ed3c655d9b96b0bda4576",
+    "head": "1106bab9b56d7994d7d52411590227e8813075fe",
     "statuses": {
       "desi_dr1_lss_catalogs": {
         "state": "missing",
@@ -9608,9 +9608,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/desi_dr1_lss_catalogs.json: build `desi_dr1_lss_catalogs`, and record it there",
+            "message": "no record is at .astra/records/desi_dr1_lss_catalogs.json: build `desi_dr1_lss_catalogs`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/desi_dr1_lss_catalogs.json",
+              "file": ".astra/records/desi_dr1_lss_catalogs.json",
               "pointer": ""
             },
             "related": []
@@ -9627,9 +9627,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/desi_rascalc_cov_bgs.json: build `desi_rascalc_cov_bgs#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/desi_rascalc_cov_bgs.json: build `desi_rascalc_cov_bgs#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/desi_rascalc_cov_bgs.json",
+              "file": ".astra/records/baseline/desi_rascalc_cov_bgs.json",
               "pointer": ""
             },
             "related": []
@@ -9646,9 +9646,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/desi_rascalc_cov_bgs.json: build `desi_rascalc_cov_bgs#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/desi_rascalc_cov_bgs.json: build `desi_rascalc_cov_bgs#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/desi_rascalc_cov_bgs.json",
+              "file": ".astra/records/no_imaging_weights/desi_rascalc_cov_bgs.json",
               "pointer": ""
             },
             "related": []
@@ -9665,9 +9665,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/desi_rascalc_cov_bgs_pre.json: build `desi_rascalc_cov_bgs_pre#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/desi_rascalc_cov_bgs_pre.json: build `desi_rascalc_cov_bgs_pre#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/desi_rascalc_cov_bgs_pre.json",
+              "file": ".astra/records/baseline/desi_rascalc_cov_bgs_pre.json",
               "pointer": ""
             },
             "related": []
@@ -9684,9 +9684,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/desi_rascalc_cov_bgs_pre.json: build `desi_rascalc_cov_bgs_pre#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/desi_rascalc_cov_bgs_pre.json: build `desi_rascalc_cov_bgs_pre#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/desi_rascalc_cov_bgs_pre.json",
+              "file": ".astra/records/no_imaging_weights/desi_rascalc_cov_bgs_pre.json",
               "pointer": ""
             },
             "related": []
@@ -9703,9 +9703,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/desi_rascalc_cov_lrg1.json: build `desi_rascalc_cov_lrg1#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/desi_rascalc_cov_lrg1.json: build `desi_rascalc_cov_lrg1#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/desi_rascalc_cov_lrg1.json",
+              "file": ".astra/records/baseline/desi_rascalc_cov_lrg1.json",
               "pointer": ""
             },
             "related": []
@@ -9722,9 +9722,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/desi_rascalc_cov_lrg1.json: build `desi_rascalc_cov_lrg1#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/desi_rascalc_cov_lrg1.json: build `desi_rascalc_cov_lrg1#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/desi_rascalc_cov_lrg1.json",
+              "file": ".astra/records/no_imaging_weights/desi_rascalc_cov_lrg1.json",
               "pointer": ""
             },
             "related": []
@@ -9741,9 +9741,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/desi_rascalc_cov_lrg1_pre.json: build `desi_rascalc_cov_lrg1_pre#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/desi_rascalc_cov_lrg1_pre.json: build `desi_rascalc_cov_lrg1_pre#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/desi_rascalc_cov_lrg1_pre.json",
+              "file": ".astra/records/baseline/desi_rascalc_cov_lrg1_pre.json",
               "pointer": ""
             },
             "related": []
@@ -9760,9 +9760,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/desi_rascalc_cov_lrg1_pre.json: build `desi_rascalc_cov_lrg1_pre#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/desi_rascalc_cov_lrg1_pre.json: build `desi_rascalc_cov_lrg1_pre#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/desi_rascalc_cov_lrg1_pre.json",
+              "file": ".astra/records/no_imaging_weights/desi_rascalc_cov_lrg1_pre.json",
               "pointer": ""
             },
             "related": []
@@ -9779,9 +9779,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/desi_rascalc_cov_lrg2.json: build `desi_rascalc_cov_lrg2#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/desi_rascalc_cov_lrg2.json: build `desi_rascalc_cov_lrg2#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/desi_rascalc_cov_lrg2.json",
+              "file": ".astra/records/baseline/desi_rascalc_cov_lrg2.json",
               "pointer": ""
             },
             "related": []
@@ -9798,9 +9798,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/desi_rascalc_cov_lrg2.json: build `desi_rascalc_cov_lrg2#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/desi_rascalc_cov_lrg2.json: build `desi_rascalc_cov_lrg2#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/desi_rascalc_cov_lrg2.json",
+              "file": ".astra/records/no_imaging_weights/desi_rascalc_cov_lrg2.json",
               "pointer": ""
             },
             "related": []
@@ -9817,9 +9817,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/desi_rascalc_cov_lrg2_pre.json: build `desi_rascalc_cov_lrg2_pre#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/desi_rascalc_cov_lrg2_pre.json: build `desi_rascalc_cov_lrg2_pre#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/desi_rascalc_cov_lrg2_pre.json",
+              "file": ".astra/records/baseline/desi_rascalc_cov_lrg2_pre.json",
               "pointer": ""
             },
             "related": []
@@ -9836,9 +9836,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/desi_rascalc_cov_lrg2_pre.json: build `desi_rascalc_cov_lrg2_pre#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/desi_rascalc_cov_lrg2_pre.json: build `desi_rascalc_cov_lrg2_pre#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/desi_rascalc_cov_lrg2_pre.json",
+              "file": ".astra/records/no_imaging_weights/desi_rascalc_cov_lrg2_pre.json",
               "pointer": ""
             },
             "related": []
@@ -9855,9 +9855,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/desi_rascalc_cov_lrg3.json: build `desi_rascalc_cov_lrg3#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/desi_rascalc_cov_lrg3.json: build `desi_rascalc_cov_lrg3#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/desi_rascalc_cov_lrg3.json",
+              "file": ".astra/records/baseline/desi_rascalc_cov_lrg3.json",
               "pointer": ""
             },
             "related": []
@@ -9874,9 +9874,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/desi_rascalc_cov_lrg3.json: build `desi_rascalc_cov_lrg3#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/desi_rascalc_cov_lrg3.json: build `desi_rascalc_cov_lrg3#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/desi_rascalc_cov_lrg3.json",
+              "file": ".astra/records/no_imaging_weights/desi_rascalc_cov_lrg3.json",
               "pointer": ""
             },
             "related": []
@@ -9893,9 +9893,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/desi_rascalc_cov_lrg3_pre.json: build `desi_rascalc_cov_lrg3_pre#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/desi_rascalc_cov_lrg3_pre.json: build `desi_rascalc_cov_lrg3_pre#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/desi_rascalc_cov_lrg3_pre.json",
+              "file": ".astra/records/baseline/desi_rascalc_cov_lrg3_pre.json",
               "pointer": ""
             },
             "related": []
@@ -9912,9 +9912,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/desi_rascalc_cov_lrg3_pre.json: build `desi_rascalc_cov_lrg3_pre#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/desi_rascalc_cov_lrg3_pre.json: build `desi_rascalc_cov_lrg3_pre#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/desi_rascalc_cov_lrg3_pre.json",
+              "file": ".astra/records/no_imaging_weights/desi_rascalc_cov_lrg3_pre.json",
               "pointer": ""
             },
             "related": []
@@ -9931,9 +9931,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/desi_rascalc_cov_elg1.json: build `desi_rascalc_cov_elg1#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/desi_rascalc_cov_elg1.json: build `desi_rascalc_cov_elg1#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/desi_rascalc_cov_elg1.json",
+              "file": ".astra/records/baseline/desi_rascalc_cov_elg1.json",
               "pointer": ""
             },
             "related": []
@@ -9950,9 +9950,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/desi_rascalc_cov_elg1.json: build `desi_rascalc_cov_elg1#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/desi_rascalc_cov_elg1.json: build `desi_rascalc_cov_elg1#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/desi_rascalc_cov_elg1.json",
+              "file": ".astra/records/no_imaging_weights/desi_rascalc_cov_elg1.json",
               "pointer": ""
             },
             "related": []
@@ -9969,9 +9969,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/desi_rascalc_cov_elg1_pre.json: build `desi_rascalc_cov_elg1_pre#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/desi_rascalc_cov_elg1_pre.json: build `desi_rascalc_cov_elg1_pre#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/desi_rascalc_cov_elg1_pre.json",
+              "file": ".astra/records/baseline/desi_rascalc_cov_elg1_pre.json",
               "pointer": ""
             },
             "related": []
@@ -9988,9 +9988,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/desi_rascalc_cov_elg1_pre.json: build `desi_rascalc_cov_elg1_pre#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/desi_rascalc_cov_elg1_pre.json: build `desi_rascalc_cov_elg1_pre#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/desi_rascalc_cov_elg1_pre.json",
+              "file": ".astra/records/no_imaging_weights/desi_rascalc_cov_elg1_pre.json",
               "pointer": ""
             },
             "related": []
@@ -10007,9 +10007,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/desi_rascalc_cov_elg2.json: build `desi_rascalc_cov_elg2#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/desi_rascalc_cov_elg2.json: build `desi_rascalc_cov_elg2#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/desi_rascalc_cov_elg2.json",
+              "file": ".astra/records/baseline/desi_rascalc_cov_elg2.json",
               "pointer": ""
             },
             "related": []
@@ -10026,9 +10026,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/desi_rascalc_cov_elg2.json: build `desi_rascalc_cov_elg2#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/desi_rascalc_cov_elg2.json: build `desi_rascalc_cov_elg2#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/desi_rascalc_cov_elg2.json",
+              "file": ".astra/records/no_imaging_weights/desi_rascalc_cov_elg2.json",
               "pointer": ""
             },
             "related": []
@@ -10045,9 +10045,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/desi_rascalc_cov_elg2_pre.json: build `desi_rascalc_cov_elg2_pre#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/desi_rascalc_cov_elg2_pre.json: build `desi_rascalc_cov_elg2_pre#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/desi_rascalc_cov_elg2_pre.json",
+              "file": ".astra/records/baseline/desi_rascalc_cov_elg2_pre.json",
               "pointer": ""
             },
             "related": []
@@ -10064,9 +10064,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/desi_rascalc_cov_elg2_pre.json: build `desi_rascalc_cov_elg2_pre#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/desi_rascalc_cov_elg2_pre.json: build `desi_rascalc_cov_elg2_pre#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/desi_rascalc_cov_elg2_pre.json",
+              "file": ".astra/records/no_imaging_weights/desi_rascalc_cov_elg2_pre.json",
               "pointer": ""
             },
             "related": []
@@ -10083,9 +10083,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/desi_rascalc_cov_lrg3_elg1.json: build `desi_rascalc_cov_lrg3_elg1#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/desi_rascalc_cov_lrg3_elg1.json: build `desi_rascalc_cov_lrg3_elg1#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/desi_rascalc_cov_lrg3_elg1.json",
+              "file": ".astra/records/baseline/desi_rascalc_cov_lrg3_elg1.json",
               "pointer": ""
             },
             "related": []
@@ -10102,9 +10102,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/desi_rascalc_cov_lrg3_elg1.json: build `desi_rascalc_cov_lrg3_elg1#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/desi_rascalc_cov_lrg3_elg1.json: build `desi_rascalc_cov_lrg3_elg1#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/desi_rascalc_cov_lrg3_elg1.json",
+              "file": ".astra/records/no_imaging_weights/desi_rascalc_cov_lrg3_elg1.json",
               "pointer": ""
             },
             "related": []
@@ -10121,9 +10121,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/desi_rascalc_cov_qso.json: build `desi_rascalc_cov_qso#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/desi_rascalc_cov_qso.json: build `desi_rascalc_cov_qso#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/desi_rascalc_cov_qso.json",
+              "file": ".astra/records/baseline/desi_rascalc_cov_qso.json",
               "pointer": ""
             },
             "related": []
@@ -10140,9 +10140,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/desi_rascalc_cov_qso.json: build `desi_rascalc_cov_qso#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/desi_rascalc_cov_qso.json: build `desi_rascalc_cov_qso#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/desi_rascalc_cov_qso.json",
+              "file": ".astra/records/no_imaging_weights/desi_rascalc_cov_qso.json",
               "pointer": ""
             },
             "related": []
@@ -10159,9 +10159,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/desi_rascalc_cov_qso_pre.json: build `desi_rascalc_cov_qso_pre#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/desi_rascalc_cov_qso_pre.json: build `desi_rascalc_cov_qso_pre#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/desi_rascalc_cov_qso_pre.json",
+              "file": ".astra/records/baseline/desi_rascalc_cov_qso_pre.json",
               "pointer": ""
             },
             "related": []
@@ -10178,9 +10178,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/desi_rascalc_cov_qso_pre.json: build `desi_rascalc_cov_qso_pre#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/desi_rascalc_cov_qso_pre.json: build `desi_rascalc_cov_qso_pre#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/desi_rascalc_cov_qso_pre.json",
+              "file": ".astra/records/no_imaging_weights/desi_rascalc_cov_qso_pre.json",
               "pointer": ""
             },
             "related": []
@@ -10197,9 +10197,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/desi_rascalc_cov_lrg3_elg1_pre.json: build `desi_rascalc_cov_lrg3_elg1_pre#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/desi_rascalc_cov_lrg3_elg1_pre.json: build `desi_rascalc_cov_lrg3_elg1_pre#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/desi_rascalc_cov_lrg3_elg1_pre.json",
+              "file": ".astra/records/baseline/desi_rascalc_cov_lrg3_elg1_pre.json",
               "pointer": ""
             },
             "related": []
@@ -10216,9 +10216,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/desi_rascalc_cov_lrg3_elg1_pre.json: build `desi_rascalc_cov_lrg3_elg1_pre#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/desi_rascalc_cov_lrg3_elg1_pre.json: build `desi_rascalc_cov_lrg3_elg1_pre#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/desi_rascalc_cov_lrg3_elg1_pre.json",
+              "file": ".astra/records/no_imaging_weights/desi_rascalc_cov_lrg3_elg1_pre.json",
               "pointer": ""
             },
             "related": []
@@ -10235,9 +10235,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/clustering.xi_pre_recon_bgs.json: build `clustering.xi_pre_recon_bgs#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/clustering.xi_pre_recon_bgs.json: build `clustering.xi_pre_recon_bgs#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/clustering.xi_pre_recon_bgs.json",
+              "file": ".astra/records/baseline/clustering.xi_pre_recon_bgs.json",
               "pointer": ""
             },
             "related": []
@@ -10254,9 +10254,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/xi_pre_recon_bgs.json: build `xi_pre_recon_bgs#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/xi_pre_recon_bgs.json: build `xi_pre_recon_bgs#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/xi_pre_recon_bgs.json",
+              "file": ".astra/records/baseline/xi_pre_recon_bgs.json",
               "pointer": ""
             },
             "related": []
@@ -10273,9 +10273,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/clustering.xi_pre_recon_bgs.json: build `clustering.xi_pre_recon_bgs#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/clustering.xi_pre_recon_bgs.json: build `clustering.xi_pre_recon_bgs#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/clustering.xi_pre_recon_bgs.json",
+              "file": ".astra/records/no_imaging_weights/clustering.xi_pre_recon_bgs.json",
               "pointer": ""
             },
             "related": []
@@ -10292,9 +10292,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/xi_pre_recon_bgs.json: build `xi_pre_recon_bgs#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/xi_pre_recon_bgs.json: build `xi_pre_recon_bgs#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/xi_pre_recon_bgs.json",
+              "file": ".astra/records/no_imaging_weights/xi_pre_recon_bgs.json",
               "pointer": ""
             },
             "related": []
@@ -10311,9 +10311,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/reconstruction.post_recon_catalog_bgs_full.json: build `reconstruction.post_recon_catalog_bgs_full#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/reconstruction.post_recon_catalog_bgs_full.json: build `reconstruction.post_recon_catalog_bgs_full#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/reconstruction.post_recon_catalog_bgs_full.json",
+              "file": ".astra/records/baseline/reconstruction.post_recon_catalog_bgs_full.json",
               "pointer": ""
             },
             "related": []
@@ -10330,9 +10330,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/clustering.xi_post_recon_bgs.json: build `clustering.xi_post_recon_bgs#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/clustering.xi_post_recon_bgs.json: build `clustering.xi_post_recon_bgs#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/clustering.xi_post_recon_bgs.json",
+              "file": ".astra/records/baseline/clustering.xi_post_recon_bgs.json",
               "pointer": ""
             },
             "related": []
@@ -10349,9 +10349,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/xi_post_recon_bgs.json: build `xi_post_recon_bgs#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/xi_post_recon_bgs.json: build `xi_post_recon_bgs#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/xi_post_recon_bgs.json",
+              "file": ".astra/records/baseline/xi_post_recon_bgs.json",
               "pointer": ""
             },
             "related": []
@@ -10368,9 +10368,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/reconstruction.post_recon_catalog_bgs_full.json: build `reconstruction.post_recon_catalog_bgs_full#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/reconstruction.post_recon_catalog_bgs_full.json: build `reconstruction.post_recon_catalog_bgs_full#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/reconstruction.post_recon_catalog_bgs_full.json",
+              "file": ".astra/records/no_imaging_weights/reconstruction.post_recon_catalog_bgs_full.json",
               "pointer": ""
             },
             "related": []
@@ -10387,9 +10387,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/clustering.xi_post_recon_bgs.json: build `clustering.xi_post_recon_bgs#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/clustering.xi_post_recon_bgs.json: build `clustering.xi_post_recon_bgs#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/clustering.xi_post_recon_bgs.json",
+              "file": ".astra/records/no_imaging_weights/clustering.xi_post_recon_bgs.json",
               "pointer": ""
             },
             "related": []
@@ -10406,9 +10406,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/xi_post_recon_bgs.json: build `xi_post_recon_bgs#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/xi_post_recon_bgs.json: build `xi_post_recon_bgs#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/xi_post_recon_bgs.json",
+              "file": ".astra/records/no_imaging_weights/xi_post_recon_bgs.json",
               "pointer": ""
             },
             "related": []
@@ -10425,9 +10425,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/clustering.xi_pre_recon_lrg1.json: build `clustering.xi_pre_recon_lrg1#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/clustering.xi_pre_recon_lrg1.json: build `clustering.xi_pre_recon_lrg1#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/clustering.xi_pre_recon_lrg1.json",
+              "file": ".astra/records/baseline/clustering.xi_pre_recon_lrg1.json",
               "pointer": ""
             },
             "related": []
@@ -10444,9 +10444,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/xi_pre_recon_lrg1.json: build `xi_pre_recon_lrg1#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/xi_pre_recon_lrg1.json: build `xi_pre_recon_lrg1#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/xi_pre_recon_lrg1.json",
+              "file": ".astra/records/baseline/xi_pre_recon_lrg1.json",
               "pointer": ""
             },
             "related": []
@@ -10463,9 +10463,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/clustering.xi_pre_recon_lrg1.json: build `clustering.xi_pre_recon_lrg1#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/clustering.xi_pre_recon_lrg1.json: build `clustering.xi_pre_recon_lrg1#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/clustering.xi_pre_recon_lrg1.json",
+              "file": ".astra/records/no_imaging_weights/clustering.xi_pre_recon_lrg1.json",
               "pointer": ""
             },
             "related": []
@@ -10482,9 +10482,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/xi_pre_recon_lrg1.json: build `xi_pre_recon_lrg1#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/xi_pre_recon_lrg1.json: build `xi_pre_recon_lrg1#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/xi_pre_recon_lrg1.json",
+              "file": ".astra/records/no_imaging_weights/xi_pre_recon_lrg1.json",
               "pointer": ""
             },
             "related": []
@@ -10501,9 +10501,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/reconstruction.post_recon_catalog_lrg_full.json: build `reconstruction.post_recon_catalog_lrg_full#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/reconstruction.post_recon_catalog_lrg_full.json: build `reconstruction.post_recon_catalog_lrg_full#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/reconstruction.post_recon_catalog_lrg_full.json",
+              "file": ".astra/records/baseline/reconstruction.post_recon_catalog_lrg_full.json",
               "pointer": ""
             },
             "related": []
@@ -10520,9 +10520,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/clustering.xi_post_recon_lrg1.json: build `clustering.xi_post_recon_lrg1#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/clustering.xi_post_recon_lrg1.json: build `clustering.xi_post_recon_lrg1#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/clustering.xi_post_recon_lrg1.json",
+              "file": ".astra/records/baseline/clustering.xi_post_recon_lrg1.json",
               "pointer": ""
             },
             "related": []
@@ -10539,9 +10539,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/xi_post_recon_lrg1.json: build `xi_post_recon_lrg1#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/xi_post_recon_lrg1.json: build `xi_post_recon_lrg1#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/xi_post_recon_lrg1.json",
+              "file": ".astra/records/baseline/xi_post_recon_lrg1.json",
               "pointer": ""
             },
             "related": []
@@ -10558,9 +10558,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/reconstruction.post_recon_catalog_lrg_full.json: build `reconstruction.post_recon_catalog_lrg_full#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/reconstruction.post_recon_catalog_lrg_full.json: build `reconstruction.post_recon_catalog_lrg_full#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/reconstruction.post_recon_catalog_lrg_full.json",
+              "file": ".astra/records/no_imaging_weights/reconstruction.post_recon_catalog_lrg_full.json",
               "pointer": ""
             },
             "related": []
@@ -10577,9 +10577,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/clustering.xi_post_recon_lrg1.json: build `clustering.xi_post_recon_lrg1#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/clustering.xi_post_recon_lrg1.json: build `clustering.xi_post_recon_lrg1#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/clustering.xi_post_recon_lrg1.json",
+              "file": ".astra/records/no_imaging_weights/clustering.xi_post_recon_lrg1.json",
               "pointer": ""
             },
             "related": []
@@ -10596,9 +10596,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/xi_post_recon_lrg1.json: build `xi_post_recon_lrg1#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/xi_post_recon_lrg1.json: build `xi_post_recon_lrg1#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/xi_post_recon_lrg1.json",
+              "file": ".astra/records/no_imaging_weights/xi_post_recon_lrg1.json",
               "pointer": ""
             },
             "related": []
@@ -10615,9 +10615,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/clustering.xi_pre_recon_lrg2.json: build `clustering.xi_pre_recon_lrg2#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/clustering.xi_pre_recon_lrg2.json: build `clustering.xi_pre_recon_lrg2#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/clustering.xi_pre_recon_lrg2.json",
+              "file": ".astra/records/baseline/clustering.xi_pre_recon_lrg2.json",
               "pointer": ""
             },
             "related": []
@@ -10634,9 +10634,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/xi_pre_recon_lrg2.json: build `xi_pre_recon_lrg2#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/xi_pre_recon_lrg2.json: build `xi_pre_recon_lrg2#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/xi_pre_recon_lrg2.json",
+              "file": ".astra/records/baseline/xi_pre_recon_lrg2.json",
               "pointer": ""
             },
             "related": []
@@ -10653,9 +10653,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/clustering.xi_pre_recon_lrg2.json: build `clustering.xi_pre_recon_lrg2#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/clustering.xi_pre_recon_lrg2.json: build `clustering.xi_pre_recon_lrg2#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/clustering.xi_pre_recon_lrg2.json",
+              "file": ".astra/records/no_imaging_weights/clustering.xi_pre_recon_lrg2.json",
               "pointer": ""
             },
             "related": []
@@ -10672,9 +10672,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/xi_pre_recon_lrg2.json: build `xi_pre_recon_lrg2#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/xi_pre_recon_lrg2.json: build `xi_pre_recon_lrg2#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/xi_pre_recon_lrg2.json",
+              "file": ".astra/records/no_imaging_weights/xi_pre_recon_lrg2.json",
               "pointer": ""
             },
             "related": []
@@ -10691,9 +10691,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/clustering.xi_post_recon_lrg2.json: build `clustering.xi_post_recon_lrg2#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/clustering.xi_post_recon_lrg2.json: build `clustering.xi_post_recon_lrg2#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/clustering.xi_post_recon_lrg2.json",
+              "file": ".astra/records/baseline/clustering.xi_post_recon_lrg2.json",
               "pointer": ""
             },
             "related": []
@@ -10710,9 +10710,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/xi_post_recon_lrg2.json: build `xi_post_recon_lrg2#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/xi_post_recon_lrg2.json: build `xi_post_recon_lrg2#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/xi_post_recon_lrg2.json",
+              "file": ".astra/records/baseline/xi_post_recon_lrg2.json",
               "pointer": ""
             },
             "related": []
@@ -10729,9 +10729,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/clustering.xi_post_recon_lrg2.json: build `clustering.xi_post_recon_lrg2#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/clustering.xi_post_recon_lrg2.json: build `clustering.xi_post_recon_lrg2#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/clustering.xi_post_recon_lrg2.json",
+              "file": ".astra/records/no_imaging_weights/clustering.xi_post_recon_lrg2.json",
               "pointer": ""
             },
             "related": []
@@ -10748,9 +10748,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/xi_post_recon_lrg2.json: build `xi_post_recon_lrg2#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/xi_post_recon_lrg2.json: build `xi_post_recon_lrg2#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/xi_post_recon_lrg2.json",
+              "file": ".astra/records/no_imaging_weights/xi_post_recon_lrg2.json",
               "pointer": ""
             },
             "related": []
@@ -10767,9 +10767,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/clustering.xi_pre_recon_lrg3.json: build `clustering.xi_pre_recon_lrg3#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/clustering.xi_pre_recon_lrg3.json: build `clustering.xi_pre_recon_lrg3#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/clustering.xi_pre_recon_lrg3.json",
+              "file": ".astra/records/baseline/clustering.xi_pre_recon_lrg3.json",
               "pointer": ""
             },
             "related": []
@@ -10786,9 +10786,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/xi_pre_recon_lrg3.json: build `xi_pre_recon_lrg3#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/xi_pre_recon_lrg3.json: build `xi_pre_recon_lrg3#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/xi_pre_recon_lrg3.json",
+              "file": ".astra/records/baseline/xi_pre_recon_lrg3.json",
               "pointer": ""
             },
             "related": []
@@ -10805,9 +10805,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/clustering.xi_pre_recon_lrg3.json: build `clustering.xi_pre_recon_lrg3#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/clustering.xi_pre_recon_lrg3.json: build `clustering.xi_pre_recon_lrg3#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/clustering.xi_pre_recon_lrg3.json",
+              "file": ".astra/records/no_imaging_weights/clustering.xi_pre_recon_lrg3.json",
               "pointer": ""
             },
             "related": []
@@ -10824,9 +10824,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/xi_pre_recon_lrg3.json: build `xi_pre_recon_lrg3#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/xi_pre_recon_lrg3.json: build `xi_pre_recon_lrg3#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/xi_pre_recon_lrg3.json",
+              "file": ".astra/records/no_imaging_weights/xi_pre_recon_lrg3.json",
               "pointer": ""
             },
             "related": []
@@ -10843,9 +10843,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/clustering.xi_post_recon_lrg3.json: build `clustering.xi_post_recon_lrg3#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/clustering.xi_post_recon_lrg3.json: build `clustering.xi_post_recon_lrg3#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/clustering.xi_post_recon_lrg3.json",
+              "file": ".astra/records/baseline/clustering.xi_post_recon_lrg3.json",
               "pointer": ""
             },
             "related": []
@@ -10862,9 +10862,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/xi_post_recon_lrg3.json: build `xi_post_recon_lrg3#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/xi_post_recon_lrg3.json: build `xi_post_recon_lrg3#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/xi_post_recon_lrg3.json",
+              "file": ".astra/records/baseline/xi_post_recon_lrg3.json",
               "pointer": ""
             },
             "related": []
@@ -10881,9 +10881,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/clustering.xi_post_recon_lrg3.json: build `clustering.xi_post_recon_lrg3#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/clustering.xi_post_recon_lrg3.json: build `clustering.xi_post_recon_lrg3#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/clustering.xi_post_recon_lrg3.json",
+              "file": ".astra/records/no_imaging_weights/clustering.xi_post_recon_lrg3.json",
               "pointer": ""
             },
             "related": []
@@ -10900,9 +10900,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/xi_post_recon_lrg3.json: build `xi_post_recon_lrg3#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/xi_post_recon_lrg3.json: build `xi_post_recon_lrg3#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/xi_post_recon_lrg3.json",
+              "file": ".astra/records/no_imaging_weights/xi_post_recon_lrg3.json",
               "pointer": ""
             },
             "related": []
@@ -10919,9 +10919,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/clustering.xi_pre_recon_elg1.json: build `clustering.xi_pre_recon_elg1#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/clustering.xi_pre_recon_elg1.json: build `clustering.xi_pre_recon_elg1#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/clustering.xi_pre_recon_elg1.json",
+              "file": ".astra/records/baseline/clustering.xi_pre_recon_elg1.json",
               "pointer": ""
             },
             "related": []
@@ -10938,9 +10938,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/xi_pre_recon_elg1.json: build `xi_pre_recon_elg1#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/xi_pre_recon_elg1.json: build `xi_pre_recon_elg1#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/xi_pre_recon_elg1.json",
+              "file": ".astra/records/baseline/xi_pre_recon_elg1.json",
               "pointer": ""
             },
             "related": []
@@ -10957,9 +10957,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/clustering.xi_pre_recon_elg1.json: build `clustering.xi_pre_recon_elg1#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/clustering.xi_pre_recon_elg1.json: build `clustering.xi_pre_recon_elg1#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/clustering.xi_pre_recon_elg1.json",
+              "file": ".astra/records/no_imaging_weights/clustering.xi_pre_recon_elg1.json",
               "pointer": ""
             },
             "related": []
@@ -10976,9 +10976,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/xi_pre_recon_elg1.json: build `xi_pre_recon_elg1#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/xi_pre_recon_elg1.json: build `xi_pre_recon_elg1#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/xi_pre_recon_elg1.json",
+              "file": ".astra/records/no_imaging_weights/xi_pre_recon_elg1.json",
               "pointer": ""
             },
             "related": []
@@ -10995,9 +10995,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/reconstruction.post_recon_catalog_elg_full.json: build `reconstruction.post_recon_catalog_elg_full#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/reconstruction.post_recon_catalog_elg_full.json: build `reconstruction.post_recon_catalog_elg_full#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/reconstruction.post_recon_catalog_elg_full.json",
+              "file": ".astra/records/baseline/reconstruction.post_recon_catalog_elg_full.json",
               "pointer": ""
             },
             "related": []
@@ -11014,9 +11014,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/clustering.xi_post_recon_elg1.json: build `clustering.xi_post_recon_elg1#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/clustering.xi_post_recon_elg1.json: build `clustering.xi_post_recon_elg1#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/clustering.xi_post_recon_elg1.json",
+              "file": ".astra/records/baseline/clustering.xi_post_recon_elg1.json",
               "pointer": ""
             },
             "related": []
@@ -11033,9 +11033,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/xi_post_recon_elg1.json: build `xi_post_recon_elg1#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/xi_post_recon_elg1.json: build `xi_post_recon_elg1#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/xi_post_recon_elg1.json",
+              "file": ".astra/records/baseline/xi_post_recon_elg1.json",
               "pointer": ""
             },
             "related": []
@@ -11052,9 +11052,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/reconstruction.post_recon_catalog_elg_full.json: build `reconstruction.post_recon_catalog_elg_full#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/reconstruction.post_recon_catalog_elg_full.json: build `reconstruction.post_recon_catalog_elg_full#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/reconstruction.post_recon_catalog_elg_full.json",
+              "file": ".astra/records/no_imaging_weights/reconstruction.post_recon_catalog_elg_full.json",
               "pointer": ""
             },
             "related": []
@@ -11071,9 +11071,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/clustering.xi_post_recon_elg1.json: build `clustering.xi_post_recon_elg1#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/clustering.xi_post_recon_elg1.json: build `clustering.xi_post_recon_elg1#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/clustering.xi_post_recon_elg1.json",
+              "file": ".astra/records/no_imaging_weights/clustering.xi_post_recon_elg1.json",
               "pointer": ""
             },
             "related": []
@@ -11090,9 +11090,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/xi_post_recon_elg1.json: build `xi_post_recon_elg1#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/xi_post_recon_elg1.json: build `xi_post_recon_elg1#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/xi_post_recon_elg1.json",
+              "file": ".astra/records/no_imaging_weights/xi_post_recon_elg1.json",
               "pointer": ""
             },
             "related": []
@@ -11109,9 +11109,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/clustering.xi_pre_recon_elg2.json: build `clustering.xi_pre_recon_elg2#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/clustering.xi_pre_recon_elg2.json: build `clustering.xi_pre_recon_elg2#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/clustering.xi_pre_recon_elg2.json",
+              "file": ".astra/records/baseline/clustering.xi_pre_recon_elg2.json",
               "pointer": ""
             },
             "related": []
@@ -11128,9 +11128,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/xi_pre_recon_elg2.json: build `xi_pre_recon_elg2#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/xi_pre_recon_elg2.json: build `xi_pre_recon_elg2#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/xi_pre_recon_elg2.json",
+              "file": ".astra/records/baseline/xi_pre_recon_elg2.json",
               "pointer": ""
             },
             "related": []
@@ -11147,9 +11147,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/clustering.xi_pre_recon_elg2.json: build `clustering.xi_pre_recon_elg2#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/clustering.xi_pre_recon_elg2.json: build `clustering.xi_pre_recon_elg2#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/clustering.xi_pre_recon_elg2.json",
+              "file": ".astra/records/no_imaging_weights/clustering.xi_pre_recon_elg2.json",
               "pointer": ""
             },
             "related": []
@@ -11166,9 +11166,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/xi_pre_recon_elg2.json: build `xi_pre_recon_elg2#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/xi_pre_recon_elg2.json: build `xi_pre_recon_elg2#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/xi_pre_recon_elg2.json",
+              "file": ".astra/records/no_imaging_weights/xi_pre_recon_elg2.json",
               "pointer": ""
             },
             "related": []
@@ -11185,9 +11185,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/clustering.xi_post_recon_elg2.json: build `clustering.xi_post_recon_elg2#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/clustering.xi_post_recon_elg2.json: build `clustering.xi_post_recon_elg2#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/clustering.xi_post_recon_elg2.json",
+              "file": ".astra/records/baseline/clustering.xi_post_recon_elg2.json",
               "pointer": ""
             },
             "related": []
@@ -11204,9 +11204,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/xi_post_recon_elg2.json: build `xi_post_recon_elg2#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/xi_post_recon_elg2.json: build `xi_post_recon_elg2#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/xi_post_recon_elg2.json",
+              "file": ".astra/records/baseline/xi_post_recon_elg2.json",
               "pointer": ""
             },
             "related": []
@@ -11223,9 +11223,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/clustering.xi_post_recon_elg2.json: build `clustering.xi_post_recon_elg2#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/clustering.xi_post_recon_elg2.json: build `clustering.xi_post_recon_elg2#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/clustering.xi_post_recon_elg2.json",
+              "file": ".astra/records/no_imaging_weights/clustering.xi_post_recon_elg2.json",
               "pointer": ""
             },
             "related": []
@@ -11242,9 +11242,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/xi_post_recon_elg2.json: build `xi_post_recon_elg2#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/xi_post_recon_elg2.json: build `xi_post_recon_elg2#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/xi_post_recon_elg2.json",
+              "file": ".astra/records/no_imaging_weights/xi_post_recon_elg2.json",
               "pointer": ""
             },
             "related": []
@@ -11261,9 +11261,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/clustering.xi_pre_recon_lrg3_elg1.json: build `clustering.xi_pre_recon_lrg3_elg1#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/clustering.xi_pre_recon_lrg3_elg1.json: build `clustering.xi_pre_recon_lrg3_elg1#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/clustering.xi_pre_recon_lrg3_elg1.json",
+              "file": ".astra/records/baseline/clustering.xi_pre_recon_lrg3_elg1.json",
               "pointer": ""
             },
             "related": []
@@ -11280,9 +11280,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/xi_pre_recon_lrg3_elg1.json: build `xi_pre_recon_lrg3_elg1#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/xi_pre_recon_lrg3_elg1.json: build `xi_pre_recon_lrg3_elg1#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/xi_pre_recon_lrg3_elg1.json",
+              "file": ".astra/records/baseline/xi_pre_recon_lrg3_elg1.json",
               "pointer": ""
             },
             "related": []
@@ -11299,9 +11299,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/clustering.xi_pre_recon_lrg3_elg1.json: build `clustering.xi_pre_recon_lrg3_elg1#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/clustering.xi_pre_recon_lrg3_elg1.json: build `clustering.xi_pre_recon_lrg3_elg1#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/clustering.xi_pre_recon_lrg3_elg1.json",
+              "file": ".astra/records/no_imaging_weights/clustering.xi_pre_recon_lrg3_elg1.json",
               "pointer": ""
             },
             "related": []
@@ -11318,9 +11318,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/xi_pre_recon_lrg3_elg1.json: build `xi_pre_recon_lrg3_elg1#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/xi_pre_recon_lrg3_elg1.json: build `xi_pre_recon_lrg3_elg1#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/xi_pre_recon_lrg3_elg1.json",
+              "file": ".astra/records/no_imaging_weights/xi_pre_recon_lrg3_elg1.json",
               "pointer": ""
             },
             "related": []
@@ -11337,9 +11337,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/clustering.xi_post_recon_lrg3_elg1.json: build `clustering.xi_post_recon_lrg3_elg1#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/clustering.xi_post_recon_lrg3_elg1.json: build `clustering.xi_post_recon_lrg3_elg1#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/clustering.xi_post_recon_lrg3_elg1.json",
+              "file": ".astra/records/baseline/clustering.xi_post_recon_lrg3_elg1.json",
               "pointer": ""
             },
             "related": []
@@ -11356,9 +11356,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/xi_post_recon_lrg3_elg1.json: build `xi_post_recon_lrg3_elg1#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/xi_post_recon_lrg3_elg1.json: build `xi_post_recon_lrg3_elg1#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/xi_post_recon_lrg3_elg1.json",
+              "file": ".astra/records/baseline/xi_post_recon_lrg3_elg1.json",
               "pointer": ""
             },
             "related": []
@@ -11375,9 +11375,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/clustering.xi_post_recon_lrg3_elg1.json: build `clustering.xi_post_recon_lrg3_elg1#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/clustering.xi_post_recon_lrg3_elg1.json: build `clustering.xi_post_recon_lrg3_elg1#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/clustering.xi_post_recon_lrg3_elg1.json",
+              "file": ".astra/records/no_imaging_weights/clustering.xi_post_recon_lrg3_elg1.json",
               "pointer": ""
             },
             "related": []
@@ -11394,9 +11394,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/xi_post_recon_lrg3_elg1.json: build `xi_post_recon_lrg3_elg1#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/xi_post_recon_lrg3_elg1.json: build `xi_post_recon_lrg3_elg1#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/xi_post_recon_lrg3_elg1.json",
+              "file": ".astra/records/no_imaging_weights/xi_post_recon_lrg3_elg1.json",
               "pointer": ""
             },
             "related": []
@@ -11413,9 +11413,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/clustering.xi_pre_recon_qso.json: build `clustering.xi_pre_recon_qso#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/clustering.xi_pre_recon_qso.json: build `clustering.xi_pre_recon_qso#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/clustering.xi_pre_recon_qso.json",
+              "file": ".astra/records/baseline/clustering.xi_pre_recon_qso.json",
               "pointer": ""
             },
             "related": []
@@ -11432,9 +11432,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/xi_pre_recon_qso.json: build `xi_pre_recon_qso#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/xi_pre_recon_qso.json: build `xi_pre_recon_qso#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/xi_pre_recon_qso.json",
+              "file": ".astra/records/baseline/xi_pre_recon_qso.json",
               "pointer": ""
             },
             "related": []
@@ -11451,9 +11451,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/clustering.xi_pre_recon_qso.json: build `clustering.xi_pre_recon_qso#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/clustering.xi_pre_recon_qso.json: build `clustering.xi_pre_recon_qso#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/clustering.xi_pre_recon_qso.json",
+              "file": ".astra/records/no_imaging_weights/clustering.xi_pre_recon_qso.json",
               "pointer": ""
             },
             "related": []
@@ -11470,9 +11470,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/xi_pre_recon_qso.json: build `xi_pre_recon_qso#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/xi_pre_recon_qso.json: build `xi_pre_recon_qso#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/xi_pre_recon_qso.json",
+              "file": ".astra/records/no_imaging_weights/xi_pre_recon_qso.json",
               "pointer": ""
             },
             "related": []
@@ -11489,9 +11489,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/reconstruction.post_recon_catalog_qso_full.json: build `reconstruction.post_recon_catalog_qso_full#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/reconstruction.post_recon_catalog_qso_full.json: build `reconstruction.post_recon_catalog_qso_full#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/reconstruction.post_recon_catalog_qso_full.json",
+              "file": ".astra/records/baseline/reconstruction.post_recon_catalog_qso_full.json",
               "pointer": ""
             },
             "related": []
@@ -11508,9 +11508,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/clustering.xi_post_recon_qso.json: build `clustering.xi_post_recon_qso#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/clustering.xi_post_recon_qso.json: build `clustering.xi_post_recon_qso#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/clustering.xi_post_recon_qso.json",
+              "file": ".astra/records/baseline/clustering.xi_post_recon_qso.json",
               "pointer": ""
             },
             "related": []
@@ -11527,9 +11527,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/xi_post_recon_qso.json: build `xi_post_recon_qso#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/xi_post_recon_qso.json: build `xi_post_recon_qso#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/xi_post_recon_qso.json",
+              "file": ".astra/records/baseline/xi_post_recon_qso.json",
               "pointer": ""
             },
             "related": []
@@ -11546,9 +11546,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/reconstruction.post_recon_catalog_qso_full.json: build `reconstruction.post_recon_catalog_qso_full#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/reconstruction.post_recon_catalog_qso_full.json: build `reconstruction.post_recon_catalog_qso_full#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/reconstruction.post_recon_catalog_qso_full.json",
+              "file": ".astra/records/no_imaging_weights/reconstruction.post_recon_catalog_qso_full.json",
               "pointer": ""
             },
             "related": []
@@ -11565,9 +11565,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/clustering.xi_post_recon_qso.json: build `clustering.xi_post_recon_qso#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/clustering.xi_post_recon_qso.json: build `clustering.xi_post_recon_qso#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/clustering.xi_post_recon_qso.json",
+              "file": ".astra/records/no_imaging_weights/clustering.xi_post_recon_qso.json",
               "pointer": ""
             },
             "related": []
@@ -11584,9 +11584,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/xi_post_recon_qso.json: build `xi_post_recon_qso#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/xi_post_recon_qso.json: build `xi_post_recon_qso#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/xi_post_recon_qso.json",
+              "file": ".astra/records/no_imaging_weights/xi_post_recon_qso.json",
               "pointer": ""
             },
             "related": []
@@ -11603,9 +11603,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_fit_pre_iso_bgs.json: build `bao_fit_pre_iso_bgs#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_fit_pre_iso_bgs.json: build `bao_fit_pre_iso_bgs#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_fit_pre_iso_bgs.json",
+              "file": ".astra/records/baseline/bao_fit_pre_iso_bgs.json",
               "pointer": ""
             },
             "related": []
@@ -11622,9 +11622,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_fit_pre_iso_bgs.json: build `bao_fit_pre_iso_bgs#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_fit_pre_iso_bgs.json: build `bao_fit_pre_iso_bgs#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_fit_pre_iso_bgs.json",
+              "file": ".astra/records/no_imaging_weights/bao_fit_pre_iso_bgs.json",
               "pointer": ""
             },
             "related": []
@@ -11641,9 +11641,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_fit_post_iso_bgs.json: build `bao_fit_post_iso_bgs#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_fit_post_iso_bgs.json: build `bao_fit_post_iso_bgs#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_fit_post_iso_bgs.json",
+              "file": ".astra/records/baseline/bao_fit_post_iso_bgs.json",
               "pointer": ""
             },
             "related": []
@@ -11660,9 +11660,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_fit_post_iso_bgs.json: build `bao_fit_post_iso_bgs#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_fit_post_iso_bgs.json: build `bao_fit_post_iso_bgs#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_fit_post_iso_bgs.json",
+              "file": ".astra/records/no_imaging_weights/bao_fit_post_iso_bgs.json",
               "pointer": ""
             },
             "related": []
@@ -11679,9 +11679,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_fit_pre_iso_ap_lrg1.json: build `bao_fit_pre_iso_ap_lrg1#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_fit_pre_iso_ap_lrg1.json: build `bao_fit_pre_iso_ap_lrg1#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_fit_pre_iso_ap_lrg1.json",
+              "file": ".astra/records/baseline/bao_fit_pre_iso_ap_lrg1.json",
               "pointer": ""
             },
             "related": []
@@ -11698,9 +11698,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_fit_pre_iso_ap_lrg1.json: build `bao_fit_pre_iso_ap_lrg1#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_fit_pre_iso_ap_lrg1.json: build `bao_fit_pre_iso_ap_lrg1#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_fit_pre_iso_ap_lrg1.json",
+              "file": ".astra/records/no_imaging_weights/bao_fit_pre_iso_ap_lrg1.json",
               "pointer": ""
             },
             "related": []
@@ -11717,9 +11717,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_fit_post_iso_ap_lrg1.json: build `bao_fit_post_iso_ap_lrg1#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_fit_post_iso_ap_lrg1.json: build `bao_fit_post_iso_ap_lrg1#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_fit_post_iso_ap_lrg1.json",
+              "file": ".astra/records/baseline/bao_fit_post_iso_ap_lrg1.json",
               "pointer": ""
             },
             "related": []
@@ -11736,9 +11736,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_fit_post_iso_ap_lrg1.json: build `bao_fit_post_iso_ap_lrg1#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_fit_post_iso_ap_lrg1.json: build `bao_fit_post_iso_ap_lrg1#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_fit_post_iso_ap_lrg1.json",
+              "file": ".astra/records/no_imaging_weights/bao_fit_post_iso_ap_lrg1.json",
               "pointer": ""
             },
             "related": []
@@ -11755,9 +11755,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_fit_pre_perp_par_lrg1.json: build `bao_fit_pre_perp_par_lrg1#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_fit_pre_perp_par_lrg1.json: build `bao_fit_pre_perp_par_lrg1#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_fit_pre_perp_par_lrg1.json",
+              "file": ".astra/records/baseline/bao_fit_pre_perp_par_lrg1.json",
               "pointer": ""
             },
             "related": []
@@ -11774,9 +11774,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_fit_pre_perp_par_lrg1.json: build `bao_fit_pre_perp_par_lrg1#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_fit_pre_perp_par_lrg1.json: build `bao_fit_pre_perp_par_lrg1#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_fit_pre_perp_par_lrg1.json",
+              "file": ".astra/records/no_imaging_weights/bao_fit_pre_perp_par_lrg1.json",
               "pointer": ""
             },
             "related": []
@@ -11793,9 +11793,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_fit_post_perp_par_lrg1.json: build `bao_fit_post_perp_par_lrg1#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_fit_post_perp_par_lrg1.json: build `bao_fit_post_perp_par_lrg1#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_fit_post_perp_par_lrg1.json",
+              "file": ".astra/records/baseline/bao_fit_post_perp_par_lrg1.json",
               "pointer": ""
             },
             "related": []
@@ -11812,9 +11812,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_fit_post_perp_par_lrg1.json: build `bao_fit_post_perp_par_lrg1#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_fit_post_perp_par_lrg1.json: build `bao_fit_post_perp_par_lrg1#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_fit_post_perp_par_lrg1.json",
+              "file": ".astra/records/no_imaging_weights/bao_fit_post_perp_par_lrg1.json",
               "pointer": ""
             },
             "related": []
@@ -11831,9 +11831,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_fit_pre_iso_ap_lrg2.json: build `bao_fit_pre_iso_ap_lrg2#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_fit_pre_iso_ap_lrg2.json: build `bao_fit_pre_iso_ap_lrg2#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_fit_pre_iso_ap_lrg2.json",
+              "file": ".astra/records/baseline/bao_fit_pre_iso_ap_lrg2.json",
               "pointer": ""
             },
             "related": []
@@ -11850,9 +11850,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_fit_pre_iso_ap_lrg2.json: build `bao_fit_pre_iso_ap_lrg2#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_fit_pre_iso_ap_lrg2.json: build `bao_fit_pre_iso_ap_lrg2#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_fit_pre_iso_ap_lrg2.json",
+              "file": ".astra/records/no_imaging_weights/bao_fit_pre_iso_ap_lrg2.json",
               "pointer": ""
             },
             "related": []
@@ -11869,9 +11869,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_fit_post_iso_ap_lrg2.json: build `bao_fit_post_iso_ap_lrg2#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_fit_post_iso_ap_lrg2.json: build `bao_fit_post_iso_ap_lrg2#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_fit_post_iso_ap_lrg2.json",
+              "file": ".astra/records/baseline/bao_fit_post_iso_ap_lrg2.json",
               "pointer": ""
             },
             "related": []
@@ -11888,9 +11888,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_fit_post_iso_ap_lrg2.json: build `bao_fit_post_iso_ap_lrg2#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_fit_post_iso_ap_lrg2.json: build `bao_fit_post_iso_ap_lrg2#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_fit_post_iso_ap_lrg2.json",
+              "file": ".astra/records/no_imaging_weights/bao_fit_post_iso_ap_lrg2.json",
               "pointer": ""
             },
             "related": []
@@ -11907,9 +11907,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_fit_pre_perp_par_lrg2.json: build `bao_fit_pre_perp_par_lrg2#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_fit_pre_perp_par_lrg2.json: build `bao_fit_pre_perp_par_lrg2#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_fit_pre_perp_par_lrg2.json",
+              "file": ".astra/records/baseline/bao_fit_pre_perp_par_lrg2.json",
               "pointer": ""
             },
             "related": []
@@ -11926,9 +11926,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_fit_pre_perp_par_lrg2.json: build `bao_fit_pre_perp_par_lrg2#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_fit_pre_perp_par_lrg2.json: build `bao_fit_pre_perp_par_lrg2#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_fit_pre_perp_par_lrg2.json",
+              "file": ".astra/records/no_imaging_weights/bao_fit_pre_perp_par_lrg2.json",
               "pointer": ""
             },
             "related": []
@@ -11945,9 +11945,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_fit_post_perp_par_lrg2.json: build `bao_fit_post_perp_par_lrg2#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_fit_post_perp_par_lrg2.json: build `bao_fit_post_perp_par_lrg2#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_fit_post_perp_par_lrg2.json",
+              "file": ".astra/records/baseline/bao_fit_post_perp_par_lrg2.json",
               "pointer": ""
             },
             "related": []
@@ -11964,9 +11964,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_fit_post_perp_par_lrg2.json: build `bao_fit_post_perp_par_lrg2#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_fit_post_perp_par_lrg2.json: build `bao_fit_post_perp_par_lrg2#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_fit_post_perp_par_lrg2.json",
+              "file": ".astra/records/no_imaging_weights/bao_fit_post_perp_par_lrg2.json",
               "pointer": ""
             },
             "related": []
@@ -11983,9 +11983,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_fit_pre_iso_ap_lrg3.json: build `bao_fit_pre_iso_ap_lrg3#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_fit_pre_iso_ap_lrg3.json: build `bao_fit_pre_iso_ap_lrg3#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_fit_pre_iso_ap_lrg3.json",
+              "file": ".astra/records/baseline/bao_fit_pre_iso_ap_lrg3.json",
               "pointer": ""
             },
             "related": []
@@ -12002,9 +12002,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_fit_pre_iso_ap_lrg3.json: build `bao_fit_pre_iso_ap_lrg3#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_fit_pre_iso_ap_lrg3.json: build `bao_fit_pre_iso_ap_lrg3#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_fit_pre_iso_ap_lrg3.json",
+              "file": ".astra/records/no_imaging_weights/bao_fit_pre_iso_ap_lrg3.json",
               "pointer": ""
             },
             "related": []
@@ -12021,9 +12021,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_fit_post_iso_ap_lrg3.json: build `bao_fit_post_iso_ap_lrg3#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_fit_post_iso_ap_lrg3.json: build `bao_fit_post_iso_ap_lrg3#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_fit_post_iso_ap_lrg3.json",
+              "file": ".astra/records/baseline/bao_fit_post_iso_ap_lrg3.json",
               "pointer": ""
             },
             "related": []
@@ -12040,9 +12040,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_fit_post_iso_ap_lrg3.json: build `bao_fit_post_iso_ap_lrg3#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_fit_post_iso_ap_lrg3.json: build `bao_fit_post_iso_ap_lrg3#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_fit_post_iso_ap_lrg3.json",
+              "file": ".astra/records/no_imaging_weights/bao_fit_post_iso_ap_lrg3.json",
               "pointer": ""
             },
             "related": []
@@ -12059,9 +12059,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_fit_pre_perp_par_lrg3.json: build `bao_fit_pre_perp_par_lrg3#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_fit_pre_perp_par_lrg3.json: build `bao_fit_pre_perp_par_lrg3#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_fit_pre_perp_par_lrg3.json",
+              "file": ".astra/records/baseline/bao_fit_pre_perp_par_lrg3.json",
               "pointer": ""
             },
             "related": []
@@ -12078,9 +12078,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_fit_pre_perp_par_lrg3.json: build `bao_fit_pre_perp_par_lrg3#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_fit_pre_perp_par_lrg3.json: build `bao_fit_pre_perp_par_lrg3#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_fit_pre_perp_par_lrg3.json",
+              "file": ".astra/records/no_imaging_weights/bao_fit_pre_perp_par_lrg3.json",
               "pointer": ""
             },
             "related": []
@@ -12097,9 +12097,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_fit_post_perp_par_lrg3.json: build `bao_fit_post_perp_par_lrg3#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_fit_post_perp_par_lrg3.json: build `bao_fit_post_perp_par_lrg3#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_fit_post_perp_par_lrg3.json",
+              "file": ".astra/records/baseline/bao_fit_post_perp_par_lrg3.json",
               "pointer": ""
             },
             "related": []
@@ -12116,9 +12116,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_fit_post_perp_par_lrg3.json: build `bao_fit_post_perp_par_lrg3#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_fit_post_perp_par_lrg3.json: build `bao_fit_post_perp_par_lrg3#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_fit_post_perp_par_lrg3.json",
+              "file": ".astra/records/no_imaging_weights/bao_fit_post_perp_par_lrg3.json",
               "pointer": ""
             },
             "related": []
@@ -12135,9 +12135,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_fit_pre_iso_elg1.json: build `bao_fit_pre_iso_elg1#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_fit_pre_iso_elg1.json: build `bao_fit_pre_iso_elg1#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_fit_pre_iso_elg1.json",
+              "file": ".astra/records/baseline/bao_fit_pre_iso_elg1.json",
               "pointer": ""
             },
             "related": []
@@ -12154,9 +12154,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_fit_pre_iso_elg1.json: build `bao_fit_pre_iso_elg1#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_fit_pre_iso_elg1.json: build `bao_fit_pre_iso_elg1#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_fit_pre_iso_elg1.json",
+              "file": ".astra/records/no_imaging_weights/bao_fit_pre_iso_elg1.json",
               "pointer": ""
             },
             "related": []
@@ -12173,9 +12173,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_fit_post_iso_elg1.json: build `bao_fit_post_iso_elg1#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_fit_post_iso_elg1.json: build `bao_fit_post_iso_elg1#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_fit_post_iso_elg1.json",
+              "file": ".astra/records/baseline/bao_fit_post_iso_elg1.json",
               "pointer": ""
             },
             "related": []
@@ -12192,9 +12192,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_fit_post_iso_elg1.json: build `bao_fit_post_iso_elg1#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_fit_post_iso_elg1.json: build `bao_fit_post_iso_elg1#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_fit_post_iso_elg1.json",
+              "file": ".astra/records/no_imaging_weights/bao_fit_post_iso_elg1.json",
               "pointer": ""
             },
             "related": []
@@ -12211,9 +12211,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_fit_pre_iso_ap_elg2.json: build `bao_fit_pre_iso_ap_elg2#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_fit_pre_iso_ap_elg2.json: build `bao_fit_pre_iso_ap_elg2#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_fit_pre_iso_ap_elg2.json",
+              "file": ".astra/records/baseline/bao_fit_pre_iso_ap_elg2.json",
               "pointer": ""
             },
             "related": []
@@ -12230,9 +12230,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_fit_pre_iso_ap_elg2.json: build `bao_fit_pre_iso_ap_elg2#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_fit_pre_iso_ap_elg2.json: build `bao_fit_pre_iso_ap_elg2#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_fit_pre_iso_ap_elg2.json",
+              "file": ".astra/records/no_imaging_weights/bao_fit_pre_iso_ap_elg2.json",
               "pointer": ""
             },
             "related": []
@@ -12249,9 +12249,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_fit_post_iso_ap_elg2.json: build `bao_fit_post_iso_ap_elg2#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_fit_post_iso_ap_elg2.json: build `bao_fit_post_iso_ap_elg2#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_fit_post_iso_ap_elg2.json",
+              "file": ".astra/records/baseline/bao_fit_post_iso_ap_elg2.json",
               "pointer": ""
             },
             "related": []
@@ -12268,9 +12268,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_fit_post_iso_ap_elg2.json: build `bao_fit_post_iso_ap_elg2#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_fit_post_iso_ap_elg2.json: build `bao_fit_post_iso_ap_elg2#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_fit_post_iso_ap_elg2.json",
+              "file": ".astra/records/no_imaging_weights/bao_fit_post_iso_ap_elg2.json",
               "pointer": ""
             },
             "related": []
@@ -12287,9 +12287,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_fit_pre_perp_par_elg2.json: build `bao_fit_pre_perp_par_elg2#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_fit_pre_perp_par_elg2.json: build `bao_fit_pre_perp_par_elg2#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_fit_pre_perp_par_elg2.json",
+              "file": ".astra/records/baseline/bao_fit_pre_perp_par_elg2.json",
               "pointer": ""
             },
             "related": []
@@ -12306,9 +12306,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_fit_pre_perp_par_elg2.json: build `bao_fit_pre_perp_par_elg2#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_fit_pre_perp_par_elg2.json: build `bao_fit_pre_perp_par_elg2#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_fit_pre_perp_par_elg2.json",
+              "file": ".astra/records/no_imaging_weights/bao_fit_pre_perp_par_elg2.json",
               "pointer": ""
             },
             "related": []
@@ -12325,9 +12325,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_fit_post_perp_par_elg2.json: build `bao_fit_post_perp_par_elg2#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_fit_post_perp_par_elg2.json: build `bao_fit_post_perp_par_elg2#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_fit_post_perp_par_elg2.json",
+              "file": ".astra/records/baseline/bao_fit_post_perp_par_elg2.json",
               "pointer": ""
             },
             "related": []
@@ -12344,9 +12344,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_fit_post_perp_par_elg2.json: build `bao_fit_post_perp_par_elg2#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_fit_post_perp_par_elg2.json: build `bao_fit_post_perp_par_elg2#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_fit_post_perp_par_elg2.json",
+              "file": ".astra/records/no_imaging_weights/bao_fit_post_perp_par_elg2.json",
               "pointer": ""
             },
             "related": []
@@ -12363,9 +12363,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_fit_pre_iso_ap_lrg3_elg1.json: build `bao_fit_pre_iso_ap_lrg3_elg1#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_fit_pre_iso_ap_lrg3_elg1.json: build `bao_fit_pre_iso_ap_lrg3_elg1#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_fit_pre_iso_ap_lrg3_elg1.json",
+              "file": ".astra/records/baseline/bao_fit_pre_iso_ap_lrg3_elg1.json",
               "pointer": ""
             },
             "related": []
@@ -12382,9 +12382,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_fit_pre_iso_ap_lrg3_elg1.json: build `bao_fit_pre_iso_ap_lrg3_elg1#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_fit_pre_iso_ap_lrg3_elg1.json: build `bao_fit_pre_iso_ap_lrg3_elg1#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_fit_pre_iso_ap_lrg3_elg1.json",
+              "file": ".astra/records/no_imaging_weights/bao_fit_pre_iso_ap_lrg3_elg1.json",
               "pointer": ""
             },
             "related": []
@@ -12401,9 +12401,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_fit_post_iso_ap_lrg3_elg1.json: build `bao_fit_post_iso_ap_lrg3_elg1#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_fit_post_iso_ap_lrg3_elg1.json: build `bao_fit_post_iso_ap_lrg3_elg1#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_fit_post_iso_ap_lrg3_elg1.json",
+              "file": ".astra/records/baseline/bao_fit_post_iso_ap_lrg3_elg1.json",
               "pointer": ""
             },
             "related": []
@@ -12420,9 +12420,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_fit_post_iso_ap_lrg3_elg1.json: build `bao_fit_post_iso_ap_lrg3_elg1#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_fit_post_iso_ap_lrg3_elg1.json: build `bao_fit_post_iso_ap_lrg3_elg1#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_fit_post_iso_ap_lrg3_elg1.json",
+              "file": ".astra/records/no_imaging_weights/bao_fit_post_iso_ap_lrg3_elg1.json",
               "pointer": ""
             },
             "related": []
@@ -12439,9 +12439,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_fit_pre_perp_par_lrg3_elg1.json: build `bao_fit_pre_perp_par_lrg3_elg1#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_fit_pre_perp_par_lrg3_elg1.json: build `bao_fit_pre_perp_par_lrg3_elg1#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_fit_pre_perp_par_lrg3_elg1.json",
+              "file": ".astra/records/baseline/bao_fit_pre_perp_par_lrg3_elg1.json",
               "pointer": ""
             },
             "related": []
@@ -12458,9 +12458,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_fit_pre_perp_par_lrg3_elg1.json: build `bao_fit_pre_perp_par_lrg3_elg1#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_fit_pre_perp_par_lrg3_elg1.json: build `bao_fit_pre_perp_par_lrg3_elg1#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_fit_pre_perp_par_lrg3_elg1.json",
+              "file": ".astra/records/no_imaging_weights/bao_fit_pre_perp_par_lrg3_elg1.json",
               "pointer": ""
             },
             "related": []
@@ -12477,9 +12477,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_fit_post_perp_par_lrg3_elg1.json: build `bao_fit_post_perp_par_lrg3_elg1#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_fit_post_perp_par_lrg3_elg1.json: build `bao_fit_post_perp_par_lrg3_elg1#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_fit_post_perp_par_lrg3_elg1.json",
+              "file": ".astra/records/baseline/bao_fit_post_perp_par_lrg3_elg1.json",
               "pointer": ""
             },
             "related": []
@@ -12496,9 +12496,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_fit_post_perp_par_lrg3_elg1.json: build `bao_fit_post_perp_par_lrg3_elg1#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_fit_post_perp_par_lrg3_elg1.json: build `bao_fit_post_perp_par_lrg3_elg1#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_fit_post_perp_par_lrg3_elg1.json",
+              "file": ".astra/records/no_imaging_weights/bao_fit_post_perp_par_lrg3_elg1.json",
               "pointer": ""
             },
             "related": []
@@ -12515,9 +12515,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_fit_pre_iso_qso.json: build `bao_fit_pre_iso_qso#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_fit_pre_iso_qso.json: build `bao_fit_pre_iso_qso#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_fit_pre_iso_qso.json",
+              "file": ".astra/records/baseline/bao_fit_pre_iso_qso.json",
               "pointer": ""
             },
             "related": []
@@ -12534,9 +12534,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_fit_pre_iso_qso.json: build `bao_fit_pre_iso_qso#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_fit_pre_iso_qso.json: build `bao_fit_pre_iso_qso#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_fit_pre_iso_qso.json",
+              "file": ".astra/records/no_imaging_weights/bao_fit_pre_iso_qso.json",
               "pointer": ""
             },
             "related": []
@@ -12553,9 +12553,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_fit_post_iso_qso.json: build `bao_fit_post_iso_qso#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_fit_post_iso_qso.json: build `bao_fit_post_iso_qso#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_fit_post_iso_qso.json",
+              "file": ".astra/records/baseline/bao_fit_post_iso_qso.json",
               "pointer": ""
             },
             "related": []
@@ -12572,9 +12572,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_fit_post_iso_qso.json: build `bao_fit_post_iso_qso#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_fit_post_iso_qso.json: build `bao_fit_post_iso_qso#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_fit_post_iso_qso.json",
+              "file": ".astra/records/no_imaging_weights/bao_fit_post_iso_qso.json",
               "pointer": ""
             },
             "related": []
@@ -12591,9 +12591,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_alpha_values.json: build `bao_alpha_values#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_alpha_values.json: build `bao_alpha_values#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_alpha_values.json",
+              "file": ".astra/records/baseline/bao_alpha_values.json",
               "pointer": ""
             },
             "related": []
@@ -12610,9 +12610,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_alpha_values.json: build `bao_alpha_values#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_alpha_values.json: build `bao_alpha_values#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_alpha_values.json",
+              "file": ".astra/records/no_imaging_weights/bao_alpha_values.json",
               "pointer": ""
             },
             "related": []
@@ -12629,9 +12629,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_alpha_perp_par.json: build `bao_alpha_perp_par#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_alpha_perp_par.json: build `bao_alpha_perp_par#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_alpha_perp_par.json",
+              "file": ".astra/records/baseline/bao_alpha_perp_par.json",
               "pointer": ""
             },
             "related": []
@@ -12648,9 +12648,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_alpha_perp_par.json: build `bao_alpha_perp_par#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_alpha_perp_par.json: build `bao_alpha_perp_par#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_alpha_perp_par.json",
+              "file": ".astra/records/no_imaging_weights/bao_alpha_perp_par.json",
               "pointer": ""
             },
             "related": []
@@ -12667,9 +12667,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_fit_isolated_bgs.json: build `bao_fit_isolated_bgs#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_fit_isolated_bgs.json: build `bao_fit_isolated_bgs#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_fit_isolated_bgs.json",
+              "file": ".astra/records/baseline/bao_fit_isolated_bgs.json",
               "pointer": ""
             },
             "related": []
@@ -12686,9 +12686,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_fit_isolated_bgs.json: build `bao_fit_isolated_bgs#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_fit_isolated_bgs.json: build `bao_fit_isolated_bgs#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_fit_isolated_bgs.json",
+              "file": ".astra/records/no_imaging_weights/bao_fit_isolated_bgs.json",
               "pointer": ""
             },
             "related": []
@@ -12705,9 +12705,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_fit_isolated_lrg1.json: build `bao_fit_isolated_lrg1#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_fit_isolated_lrg1.json: build `bao_fit_isolated_lrg1#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_fit_isolated_lrg1.json",
+              "file": ".astra/records/baseline/bao_fit_isolated_lrg1.json",
               "pointer": ""
             },
             "related": []
@@ -12724,9 +12724,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_fit_isolated_lrg1.json: build `bao_fit_isolated_lrg1#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_fit_isolated_lrg1.json: build `bao_fit_isolated_lrg1#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_fit_isolated_lrg1.json",
+              "file": ".astra/records/no_imaging_weights/bao_fit_isolated_lrg1.json",
               "pointer": ""
             },
             "related": []
@@ -12743,9 +12743,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_fit_isolated_lrg2.json: build `bao_fit_isolated_lrg2#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_fit_isolated_lrg2.json: build `bao_fit_isolated_lrg2#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_fit_isolated_lrg2.json",
+              "file": ".astra/records/baseline/bao_fit_isolated_lrg2.json",
               "pointer": ""
             },
             "related": []
@@ -12762,9 +12762,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_fit_isolated_lrg2.json: build `bao_fit_isolated_lrg2#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_fit_isolated_lrg2.json: build `bao_fit_isolated_lrg2#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_fit_isolated_lrg2.json",
+              "file": ".astra/records/no_imaging_weights/bao_fit_isolated_lrg2.json",
               "pointer": ""
             },
             "related": []
@@ -12781,9 +12781,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_fit_isolated_lrg3.json: build `bao_fit_isolated_lrg3#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_fit_isolated_lrg3.json: build `bao_fit_isolated_lrg3#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_fit_isolated_lrg3.json",
+              "file": ".astra/records/baseline/bao_fit_isolated_lrg3.json",
               "pointer": ""
             },
             "related": []
@@ -12800,9 +12800,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_fit_isolated_lrg3.json: build `bao_fit_isolated_lrg3#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_fit_isolated_lrg3.json: build `bao_fit_isolated_lrg3#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_fit_isolated_lrg3.json",
+              "file": ".astra/records/no_imaging_weights/bao_fit_isolated_lrg3.json",
               "pointer": ""
             },
             "related": []
@@ -12819,9 +12819,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_fit_isolated_elg1.json: build `bao_fit_isolated_elg1#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_fit_isolated_elg1.json: build `bao_fit_isolated_elg1#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_fit_isolated_elg1.json",
+              "file": ".astra/records/baseline/bao_fit_isolated_elg1.json",
               "pointer": ""
             },
             "related": []
@@ -12838,9 +12838,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_fit_isolated_elg1.json: build `bao_fit_isolated_elg1#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_fit_isolated_elg1.json: build `bao_fit_isolated_elg1#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_fit_isolated_elg1.json",
+              "file": ".astra/records/no_imaging_weights/bao_fit_isolated_elg1.json",
               "pointer": ""
             },
             "related": []
@@ -12857,9 +12857,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_fit_isolated_elg2.json: build `bao_fit_isolated_elg2#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_fit_isolated_elg2.json: build `bao_fit_isolated_elg2#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_fit_isolated_elg2.json",
+              "file": ".astra/records/baseline/bao_fit_isolated_elg2.json",
               "pointer": ""
             },
             "related": []
@@ -12876,9 +12876,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_fit_isolated_elg2.json: build `bao_fit_isolated_elg2#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_fit_isolated_elg2.json: build `bao_fit_isolated_elg2#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_fit_isolated_elg2.json",
+              "file": ".astra/records/no_imaging_weights/bao_fit_isolated_elg2.json",
               "pointer": ""
             },
             "related": []
@@ -12895,9 +12895,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_fit_isolated_lrg3_elg1.json: build `bao_fit_isolated_lrg3_elg1#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_fit_isolated_lrg3_elg1.json: build `bao_fit_isolated_lrg3_elg1#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_fit_isolated_lrg3_elg1.json",
+              "file": ".astra/records/baseline/bao_fit_isolated_lrg3_elg1.json",
               "pointer": ""
             },
             "related": []
@@ -12914,9 +12914,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_fit_isolated_lrg3_elg1.json: build `bao_fit_isolated_lrg3_elg1#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_fit_isolated_lrg3_elg1.json: build `bao_fit_isolated_lrg3_elg1#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_fit_isolated_lrg3_elg1.json",
+              "file": ".astra/records/no_imaging_weights/bao_fit_isolated_lrg3_elg1.json",
               "pointer": ""
             },
             "related": []
@@ -12933,9 +12933,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_fit_isolated_qso.json: build `bao_fit_isolated_qso#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_fit_isolated_qso.json: build `bao_fit_isolated_qso#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_fit_isolated_qso.json",
+              "file": ".astra/records/baseline/bao_fit_isolated_qso.json",
               "pointer": ""
             },
             "related": []
@@ -12952,9 +12952,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_fit_isolated_qso.json: build `bao_fit_isolated_qso#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_fit_isolated_qso.json: build `bao_fit_isolated_qso#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_fit_isolated_qso.json",
+              "file": ".astra/records/no_imaging_weights/bao_fit_isolated_qso.json",
               "pointer": ""
             },
             "related": []
@@ -12971,9 +12971,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_fit_plot.json: build `bao_fit_plot#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_fit_plot.json: build `bao_fit_plot#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_fit_plot.json",
+              "file": ".astra/records/baseline/bao_fit_plot.json",
               "pointer": ""
             },
             "related": []
@@ -12990,9 +12990,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_fit_plot.json: build `bao_fit_plot#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_fit_plot.json: build `bao_fit_plot#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_fit_plot.json",
+              "file": ".astra/records/no_imaging_weights/bao_fit_plot.json",
               "pointer": ""
             },
             "related": []
@@ -13009,9 +13009,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_detection_chi2_bgs.json: build `bao_detection_chi2_bgs#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_detection_chi2_bgs.json: build `bao_detection_chi2_bgs#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_detection_chi2_bgs.json",
+              "file": ".astra/records/baseline/bao_detection_chi2_bgs.json",
               "pointer": ""
             },
             "related": []
@@ -13028,9 +13028,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_detection_chi2_bgs.json: build `bao_detection_chi2_bgs#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_detection_chi2_bgs.json: build `bao_detection_chi2_bgs#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_detection_chi2_bgs.json",
+              "file": ".astra/records/no_imaging_weights/bao_detection_chi2_bgs.json",
               "pointer": ""
             },
             "related": []
@@ -13047,9 +13047,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_detection_chi2_lrg1.json: build `bao_detection_chi2_lrg1#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_detection_chi2_lrg1.json: build `bao_detection_chi2_lrg1#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_detection_chi2_lrg1.json",
+              "file": ".astra/records/baseline/bao_detection_chi2_lrg1.json",
               "pointer": ""
             },
             "related": []
@@ -13066,9 +13066,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_detection_chi2_lrg1.json: build `bao_detection_chi2_lrg1#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_detection_chi2_lrg1.json: build `bao_detection_chi2_lrg1#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_detection_chi2_lrg1.json",
+              "file": ".astra/records/no_imaging_weights/bao_detection_chi2_lrg1.json",
               "pointer": ""
             },
             "related": []
@@ -13085,9 +13085,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_detection_chi2_lrg2.json: build `bao_detection_chi2_lrg2#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_detection_chi2_lrg2.json: build `bao_detection_chi2_lrg2#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_detection_chi2_lrg2.json",
+              "file": ".astra/records/baseline/bao_detection_chi2_lrg2.json",
               "pointer": ""
             },
             "related": []
@@ -13104,9 +13104,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_detection_chi2_lrg2.json: build `bao_detection_chi2_lrg2#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_detection_chi2_lrg2.json: build `bao_detection_chi2_lrg2#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_detection_chi2_lrg2.json",
+              "file": ".astra/records/no_imaging_weights/bao_detection_chi2_lrg2.json",
               "pointer": ""
             },
             "related": []
@@ -13123,9 +13123,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_detection_chi2_lrg3.json: build `bao_detection_chi2_lrg3#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_detection_chi2_lrg3.json: build `bao_detection_chi2_lrg3#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_detection_chi2_lrg3.json",
+              "file": ".astra/records/baseline/bao_detection_chi2_lrg3.json",
               "pointer": ""
             },
             "related": []
@@ -13142,9 +13142,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_detection_chi2_lrg3.json: build `bao_detection_chi2_lrg3#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_detection_chi2_lrg3.json: build `bao_detection_chi2_lrg3#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_detection_chi2_lrg3.json",
+              "file": ".astra/records/no_imaging_weights/bao_detection_chi2_lrg3.json",
               "pointer": ""
             },
             "related": []
@@ -13161,9 +13161,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_detection_chi2_elg1.json: build `bao_detection_chi2_elg1#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_detection_chi2_elg1.json: build `bao_detection_chi2_elg1#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_detection_chi2_elg1.json",
+              "file": ".astra/records/baseline/bao_detection_chi2_elg1.json",
               "pointer": ""
             },
             "related": []
@@ -13180,9 +13180,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_detection_chi2_elg1.json: build `bao_detection_chi2_elg1#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_detection_chi2_elg1.json: build `bao_detection_chi2_elg1#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_detection_chi2_elg1.json",
+              "file": ".astra/records/no_imaging_weights/bao_detection_chi2_elg1.json",
               "pointer": ""
             },
             "related": []
@@ -13199,9 +13199,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_detection_chi2_elg2.json: build `bao_detection_chi2_elg2#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_detection_chi2_elg2.json: build `bao_detection_chi2_elg2#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_detection_chi2_elg2.json",
+              "file": ".astra/records/baseline/bao_detection_chi2_elg2.json",
               "pointer": ""
             },
             "related": []
@@ -13218,9 +13218,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_detection_chi2_elg2.json: build `bao_detection_chi2_elg2#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_detection_chi2_elg2.json: build `bao_detection_chi2_elg2#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_detection_chi2_elg2.json",
+              "file": ".astra/records/no_imaging_weights/bao_detection_chi2_elg2.json",
               "pointer": ""
             },
             "related": []
@@ -13237,9 +13237,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_detection_chi2_lrg3_elg1.json: build `bao_detection_chi2_lrg3_elg1#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_detection_chi2_lrg3_elg1.json: build `bao_detection_chi2_lrg3_elg1#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_detection_chi2_lrg3_elg1.json",
+              "file": ".astra/records/baseline/bao_detection_chi2_lrg3_elg1.json",
               "pointer": ""
             },
             "related": []
@@ -13256,9 +13256,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_detection_chi2_lrg3_elg1.json: build `bao_detection_chi2_lrg3_elg1#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_detection_chi2_lrg3_elg1.json: build `bao_detection_chi2_lrg3_elg1#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_detection_chi2_lrg3_elg1.json",
+              "file": ".astra/records/no_imaging_weights/bao_detection_chi2_lrg3_elg1.json",
               "pointer": ""
             },
             "related": []
@@ -13275,9 +13275,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_detection_chi2_qso.json: build `bao_detection_chi2_qso#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_detection_chi2_qso.json: build `bao_detection_chi2_qso#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_detection_chi2_qso.json",
+              "file": ".astra/records/baseline/bao_detection_chi2_qso.json",
               "pointer": ""
             },
             "related": []
@@ -13294,9 +13294,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_detection_chi2_qso.json: build `bao_detection_chi2_qso#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_detection_chi2_qso.json: build `bao_detection_chi2_qso#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_detection_chi2_qso.json",
+              "file": ".astra/records/no_imaging_weights/bao_detection_chi2_qso.json",
               "pointer": ""
             },
             "related": []
@@ -13313,9 +13313,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_detection_plot.json: build `bao_detection_plot#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_detection_plot.json: build `bao_detection_plot#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_detection_plot.json",
+              "file": ".astra/records/baseline/bao_detection_plot.json",
               "pointer": ""
             },
             "related": []
@@ -13332,9 +13332,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_detection_plot.json: build `bao_detection_plot#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_detection_plot.json: build `bao_detection_plot#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_detection_plot.json",
+              "file": ".astra/records/no_imaging_weights/bao_detection_plot.json",
               "pointer": ""
             },
             "related": []
@@ -13351,9 +13351,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/bao_distance_table.json: build `bao_distance_table#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/bao_distance_table.json: build `bao_distance_table#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/bao_distance_table.json",
+              "file": ".astra/records/baseline/bao_distance_table.json",
               "pointer": ""
             },
             "related": []
@@ -13370,9 +13370,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/bao_distance_table.json: build `bao_distance_table#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/bao_distance_table.json: build `bao_distance_table#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/bao_distance_table.json",
+              "file": ".astra/records/no_imaging_weights/bao_distance_table.json",
               "pointer": ""
             },
             "related": []
@@ -13389,9 +13389,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/distance_residuals_plot.json: build `distance_residuals_plot#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/distance_residuals_plot.json: build `distance_residuals_plot#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/distance_residuals_plot.json",
+              "file": ".astra/records/baseline/distance_residuals_plot.json",
               "pointer": ""
             },
             "related": []
@@ -13408,9 +13408,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/distance_residuals_plot.json: build `distance_residuals_plot#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/distance_residuals_plot.json: build `distance_residuals_plot#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/distance_residuals_plot.json",
+              "file": ".astra/records/no_imaging_weights/distance_residuals_plot.json",
               "pointer": ""
             },
             "related": []
@@ -13427,9 +13427,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/hubble_diagram_plot.json: build `hubble_diagram_plot#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/hubble_diagram_plot.json: build `hubble_diagram_plot#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/hubble_diagram_plot.json",
+              "file": ".astra/records/baseline/hubble_diagram_plot.json",
               "pointer": ""
             },
             "related": []
@@ -13446,9 +13446,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/hubble_diagram_plot.json: build `hubble_diagram_plot#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/hubble_diagram_plot.json: build `hubble_diagram_plot#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/hubble_diagram_plot.json",
+              "file": ".astra/records/no_imaging_weights/hubble_diagram_plot.json",
               "pointer": ""
             },
             "related": []
@@ -13465,9 +13465,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/clustering.xi_multipoles_plot.json: build `clustering.xi_multipoles_plot#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/clustering.xi_multipoles_plot.json: build `clustering.xi_multipoles_plot#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/clustering.xi_multipoles_plot.json",
+              "file": ".astra/records/baseline/clustering.xi_multipoles_plot.json",
               "pointer": ""
             },
             "related": []
@@ -13484,9 +13484,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/xi_multipoles_plot.json: build `xi_multipoles_plot#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/xi_multipoles_plot.json: build `xi_multipoles_plot#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/xi_multipoles_plot.json",
+              "file": ".astra/records/baseline/xi_multipoles_plot.json",
               "pointer": ""
             },
             "related": []
@@ -13503,9 +13503,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/clustering.xi_multipoles_plot.json: build `clustering.xi_multipoles_plot#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/clustering.xi_multipoles_plot.json: build `clustering.xi_multipoles_plot#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/clustering.xi_multipoles_plot.json",
+              "file": ".astra/records/no_imaging_weights/clustering.xi_multipoles_plot.json",
               "pointer": ""
             },
             "related": []
@@ -13522,9 +13522,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/xi_multipoles_plot.json: build `xi_multipoles_plot#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/xi_multipoles_plot.json: build `xi_multipoles_plot#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/xi_multipoles_plot.json",
+              "file": ".astra/records/no_imaging_weights/xi_multipoles_plot.json",
               "pointer": ""
             },
             "related": []
@@ -13541,9 +13541,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/reconstruction.mean_displacement_bgs_full.json: build `reconstruction.mean_displacement_bgs_full#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/reconstruction.mean_displacement_bgs_full.json: build `reconstruction.mean_displacement_bgs_full#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/reconstruction.mean_displacement_bgs_full.json",
+              "file": ".astra/records/baseline/reconstruction.mean_displacement_bgs_full.json",
               "pointer": ""
             },
             "related": []
@@ -13560,9 +13560,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/baseline/mean_displacement_bgs_full.json: build `mean_displacement_bgs_full#baseline`, and record it there",
+            "message": "no record is at .astra/records/baseline/mean_displacement_bgs_full.json: build `mean_displacement_bgs_full#baseline`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/baseline/mean_displacement_bgs_full.json",
+              "file": ".astra/records/baseline/mean_displacement_bgs_full.json",
               "pointer": ""
             },
             "related": []
@@ -13579,9 +13579,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/reconstruction.mean_displacement_bgs_full.json: build `reconstruction.mean_displacement_bgs_full#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/reconstruction.mean_displacement_bgs_full.json: build `reconstruction.mean_displacement_bgs_full#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/reconstruction.mean_displacement_bgs_full.json",
+              "file": ".astra/records/no_imaging_weights/reconstruction.mean_displacement_bgs_full.json",
               "pointer": ""
             },
             "related": []
@@ -13598,9 +13598,9 @@
           {
             "code": "MISSING_RECORD",
             "level": "error",
-            "message": "no record is at packages/preview/content/.astra/records/no_imaging_weights/mean_displacement_bgs_full.json: build `mean_displacement_bgs_full#no_imaging_weights`, and record it there",
+            "message": "no record is at .astra/records/no_imaging_weights/mean_displacement_bgs_full.json: build `mean_displacement_bgs_full#no_imaging_weights`, and record it there",
             "location": {
-              "file": "packages/preview/content/.astra/records/no_imaging_weights/mean_displacement_bgs_full.json",
+              "file": ".astra/records/no_imaging_weights/mean_displacement_bgs_full.json",
               "pointer": ""
             },
             "related": []
@@ -13620,7 +13620,7 @@
             "level": "error",
             "message": "the evidence cites `bao_fit_plot#baseline`: it is missing",
             "location": {
-              "file": "packages/preview/content/astra.yaml",
+              "file": "astra.yaml",
               "pointer": "/findings/bao_peak_sharpens_post_recon/evidence/0/artifact",
               "line": 2568,
               "column": 17
@@ -13639,7 +13639,7 @@
             "level": "error",
             "message": "the evidence cites `bao_detection_plot#baseline`: it is missing",
             "location": {
-              "file": "packages/preview/content/astra.yaml",
+              "file": "astra.yaml",
               "pointer": "/findings/bao_detected_post_recon/evidence/0/artifact",
               "line": 2579,
               "column": 17
@@ -13658,7 +13658,7 @@
             "level": "error",
             "message": "the evidence cites `bao_alpha_values#baseline`: it is missing",
             "location": {
-              "file": "packages/preview/content/astra.yaml",
+              "file": "astra.yaml",
               "pointer": "/findings/recon_reduces_alpha_iso_sigma/evidence/0/artifact",
               "line": 2590,
               "column": 17
@@ -13677,7 +13677,7 @@
             "level": "error",
             "message": "the evidence cites `bao_alpha_values#baseline`: it is missing",
             "location": {
-              "file": "packages/preview/content/astra.yaml",
+              "file": "astra.yaml",
               "pointer": "/findings/subpercent_alpha_iso_precision/evidence/0/artifact",
               "line": 2602,
               "column": 17
@@ -13696,7 +13696,7 @@
             "level": "error",
             "message": "the evidence cites `bao_alpha_values#baseline`: it is missing",
             "location": {
-              "file": "packages/preview/content/astra.yaml",
+              "file": "astra.yaml",
               "pointer": "/findings/bao_fit_chi2_near_dof/evidence/0/artifact",
               "line": 2613,
               "column": 17
@@ -13708,8 +13708,7 @@
     ],
     "inputs": {
       "inputs.desi_fiducial_cosmology": {
-        "state": "absent",
-        "kept_by": "Git LFS"
+        "state": "present"
       }
     },
     "schema_version": "astra-tools.status-report.v1"
@@ -13718,50 +13717,42 @@
     "bao_alpha_values#baseline": {
       "url": "/artifacts/YmFvX2FscGhhX3ZhbHVlcyNiYXNlbGluZQ.csv",
       "path": "results/baseline/bao_alpha_values.csv",
-      "format": "csv",
-      "analysisKey": ""
+      "format": "csv"
     },
     "bao_alpha_perp_par#baseline": {
       "url": "/artifacts/YmFvX2FscGhhX3BlcnBfcGFyI2Jhc2VsaW5l.csv",
       "path": "results/baseline/bao_alpha_perp_par.csv",
-      "format": "csv",
-      "analysisKey": ""
+      "format": "csv"
     },
     "bao_fit_plot#baseline": {
       "url": "/artifacts/YmFvX2ZpdF9wbG90I2Jhc2VsaW5l.png",
       "path": "results/baseline/bao_fit_plot.png",
-      "format": "png",
-      "analysisKey": ""
+      "format": "png"
     },
     "bao_detection_plot#baseline": {
       "url": "/artifacts/YmFvX2RldGVjdGlvbl9wbG90I2Jhc2VsaW5l.png",
       "path": "results/baseline/bao_detection_plot.png",
-      "format": "png",
-      "analysisKey": ""
+      "format": "png"
     },
     "bao_distance_table#baseline": {
       "url": "/artifacts/YmFvX2Rpc3RhbmNlX3RhYmxlI2Jhc2VsaW5l.csv",
       "path": "results/baseline/bao_distance_table.csv",
-      "format": "csv",
-      "analysisKey": ""
+      "format": "csv"
     },
     "distance_residuals_plot#baseline": {
       "url": "/artifacts/ZGlzdGFuY2VfcmVzaWR1YWxzX3Bsb3QjYmFzZWxpbmU.png",
       "path": "results/baseline/distance_residuals_plot.png",
-      "format": "png",
-      "analysisKey": ""
+      "format": "png"
     },
     "hubble_diagram_plot#baseline": {
       "url": "/artifacts/aHViYmxlX2RpYWdyYW1fcGxvdCNiYXNlbGluZQ.png",
       "path": "results/baseline/hubble_diagram_plot.png",
-      "format": "png",
-      "analysisKey": ""
+      "format": "png"
     },
     "clustering.xi_multipoles_plot#baseline": {
       "url": "/artifacts/Y2x1c3RlcmluZy54aV9tdWx0aXBvbGVzX3Bsb3QjYmFzZWxpbmU.png",
       "path": "results/baseline/clustering.xi_multipoles_plot.png",
-      "format": "png",
-      "analysisKey": ""
+      "format": "png"
     }
   }
 }
