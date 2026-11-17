@@ -33,15 +33,29 @@ jobs:
           npx --yes publint packages/react
           npx --yes @arethetypeswrong/cli --pack packages/react --profile esm-only --entrypoints ./primitives ./components ./blocks ./views ./model
 
+      # npm normalizes a PEP 440 tag such as v0.1.0rc1 to 0.1.0-rc1, so the
+      # prerelease check reads the normalized version, not the tag name. A
+      # prerelease goes to the `next` dist-tag; only a release moves `latest`.
       - name: Set version from release tag
-        run: npm version "${GITHUB_REF_NAME#v}" --no-git-tag-version --allow-same-version --workspace @astra-spec/ui
+        id: version
+        run: |
+          npm version "${GITHUB_REF_NAME#v}" --no-git-tag-version --allow-same-version --workspace @astra-spec/ui
+          version="$(node -p "require('./packages/react/package.json').version")"
+          case "$version" in
+            *-*) dist_tag=next ;;
+            *) dist_tag=latest ;;
+          esac
+          echo "Publishing $version under the $dist_tag dist-tag"
+          echo "dist_tag=$dist_tag" >> "$GITHUB_OUTPUT"
 
       # `prepublishOnly` runs the full `npm run check` (lint, typechecks, tests)
       # and `prepack` rebuilds dist, so this step is the real release gate.
       - name: Publish to npm
-        run: npm publish --workspace @astra-spec/ui
+        run: npm publish --workspace @astra-spec/ui --tag "${{ steps.version.outputs.dist_tag }}"
 
+      # A prerelease must not move main's version.
       - name: Commit updated version to main
+        if: steps.version.outputs.dist_tag == 'latest'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
